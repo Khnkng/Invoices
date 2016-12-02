@@ -66,7 +66,7 @@ public class ProposalController {
 			+ "</div>", responseContainer = "java.lang.String")
 	public Proposal update(@PathParam("userID") String userID, @PathParam("companyID") String companyID,
 			@PathParam("proposalID") String proposalID, @Valid Proposal proposal) {
-		return ProposalControllerImpl.updateProposal(userID, companyID,proposalID, proposal);
+		return ProposalControllerImpl.updateProposal(userID, companyID, proposalID, proposal);
 	}
 
 	@Path("/{proposalID}")
