@@ -5,32 +5,26 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * 
  * @author Apurva, Qount.
- * @version 1.0, 22 Nov 2016
+ * @version 1.0, 30 Nov 2016
  *
  */
 @XmlRootElement
-public class ProposalLine {
+public class InvoiceLines {
 
-	private String proposalID;
-
+	private String invoiceID;
 	private String lineID;
-	
 	private int line_number;
-
 	private String description;
-
 	private int quantity;
-
 	private float unit_cost;
-
 	private float total_amount;
 
-	public String getProposalID() {
-		return proposalID;
+	public String getInvoiceID() {
+		return invoiceID;
 	}
 
-	public void setProposalID(String proposalID) {
-		this.proposalID = proposalID;
+	public void setInvoiceID(String invoiceID) {
+		this.invoiceID = invoiceID;
 	}
 
 	public String getLineID() {

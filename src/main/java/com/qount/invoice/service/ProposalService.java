@@ -8,8 +8,8 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
-import com.qount.invoice.database.daoImpl.ProposalDAOImpl;
-import com.qount.invoice.database.daoImpl.ProposalLineDAOImpl;
+import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
+import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.utils.Constants;

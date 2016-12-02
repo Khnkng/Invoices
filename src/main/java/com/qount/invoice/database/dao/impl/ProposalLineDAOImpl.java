@@ -1,4 +1,4 @@
-package com.qount.invoice.database.daoImpl;
+package com.qount.invoice.database.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
