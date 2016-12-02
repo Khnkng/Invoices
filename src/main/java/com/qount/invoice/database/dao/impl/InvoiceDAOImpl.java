@@ -210,4 +210,28 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return invoices;
 
 	}
+
+	@Override
+	public Invoice delete(Connection connection,Invoice invoice) {
+		if (invoice == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		String sql = "DELETE FROM invoices WHERE `companyID`=? AND `invoiceID`=?;";
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(sql);
+				pstmt.setString(1, invoice.getCompanyID());
+				pstmt.setString(2, invoice.getInvoiceID());
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of invoice deleted:" + rowCount);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error deleting invoice:" + invoice.getInvoiceID() + ",  ", e);
+			throw new WebApplicationException(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		return invoice;
+	}
 }

@@ -44,4 +44,19 @@ public class InvoiceControllerImpl {
 		return InvoiceService.getInvoice(userID, companyID, invoiceID);
 
 	}
+	
+	public static Invoice deleteInvoiceById(String userID, String companyID, String invoiceID){
+		Invoice invoice = new Invoice();
+		invoice.setCompanyID(companyID);
+		invoice.setInvoiceID(invoiceID);
+		return InvoiceService.deleteInvoiceById(invoice);
+	}
+	
+	public static InvoiceLines deleteInvoiceLine(String userID, String companyID, String invoiceID,String lineID){
+		InvoiceLines invoiceLine = new InvoiceLines();
+		invoiceLine.setLineID(lineID);
+		invoiceLine.setInvoiceID(invoiceID);
+		return InvoiceService.deleteInvoiceLine(invoiceLine);
+		
+	}
 }

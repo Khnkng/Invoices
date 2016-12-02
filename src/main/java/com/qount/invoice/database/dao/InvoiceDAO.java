@@ -21,5 +21,7 @@ public interface InvoiceDAO {
 	Invoice get(Connection connection, String companyID, String InvoiceID,String userID);
 
 	List<Invoice> getList(Connection connection, String companyID);
+	
+	Invoice delete(Connection connection,Invoice invoice);
 
 }

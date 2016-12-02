@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.WebApplicationException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -175,6 +177,30 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 			return batchSave(connection,invoiceLines);
 		}
 		return false;
+	}
+
+	@Override
+	public InvoiceLines deleteInvoiceLine(Connection connection, InvoiceLines invoiceLines) {
+		if (invoiceLines == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		String sql = "DELETE FROM `invoice_lines` WHERE `invoiceID` = ? AND `lineID` = ?;";
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(sql);
+				pstmt.setString(1, invoiceLines.getInvoiceID());
+				pstmt.setString(2, invoiceLines.getLineID());
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of invoice lines deleted:" + rowCount);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error deleting invoice lines:" + invoiceLines.getInvoiceID() + ",  ", e);
+			throw new WebApplicationException(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		return invoiceLines;
 	}
 
 }
