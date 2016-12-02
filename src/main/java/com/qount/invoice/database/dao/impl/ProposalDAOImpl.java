@@ -1,4 +1,4 @@
-package com.qount.invoice.database.daoImpl;
+package com.qount.invoice.database.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,7 +43,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setString(2, proposal.getProposalID());
 				pstmt.setString(3, proposal.getCustomer_name());
 				pstmt.setFloat(4, proposal.getTotal_amount());
-				pstmt.setString(5, proposal.getCurrency());
+				pstmt.setInt(5, proposal.getCurrency());
 				pstmt.setBoolean(6, proposal.isBank_account());
 				pstmt.setBoolean(7, proposal.isCredit_card());
 				pstmt.setString(8, proposal.getUserID());
@@ -75,7 +75,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt = connection.prepareStatement(sql);
 				pstmt.setString(1, proposal.getCustomer_name());
 				pstmt.setFloat(2, proposal.getTotal_amount());
-				pstmt.setString(3, proposal.getCurrency());
+				pstmt.setInt(3, proposal.getCurrency());
 				pstmt.setBoolean(4, proposal.isBank_account());
 				pstmt.setBoolean(5, proposal.isCredit_card());
 				pstmt.setString(6, proposal.getUserID());
@@ -115,7 +115,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 						proposal.setCompanyID(companyID);
 						proposal.setCustomer_name(rset.getString("customer_name"));
 						proposal.setTotal_amount(rset.getInt("total_amount"));
-						proposal.setCurrency(rset.getString("currency"));
+						proposal.setCurrency(rset.getInt("currency"));
 						proposal.setBank_account(rset.getBoolean("bank_account"));
 						proposal.setCredit_card(rset.getBoolean("credit_card"));
 					}
@@ -157,7 +157,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 					proposal.setCompanyID(companyID);
 					proposal.setCustomer_name(rset.getString("customer_name"));
 					proposal.setTotal_amount(rset.getInt("total_amount"));
-					proposal.setCurrency(rset.getString("currency"));
+					proposal.setCurrency(rset.getInt("currency"));
 					proposal.setBank_account(rset.getBoolean("bank_account"));
 					proposal.setCredit_card(rset.getBoolean("credit_card"));
 					proposal.setUserID(rset.getString("userID"));

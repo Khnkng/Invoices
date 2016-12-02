@@ -24,7 +24,7 @@ public class Proposal {
 
 	private float total_amount;
 
-	private String currency;
+	private int currencyID;
 
 	private boolean bank_account;
 
@@ -72,12 +72,12 @@ public class Proposal {
 		this.total_amount = total_amount;
 	}
 
-	public String getCurrency() {
-		return currency;
+	public int getCurrency() {
+		return currencyID;
 	}
 
-	public void setCurrency(String currency) {
-		this.currency = currency;
+	public void setCurrency(int currency) {
+		this.currencyID = currency;
 	}
 
 	public boolean isBank_account() {

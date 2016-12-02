@@ -10,10 +10,14 @@ import org.apache.log4j.Logger;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.qount.invoice.common.PropertyManager;
+import com.qount.invoice.database.dao.InvoiceDAO;
+import com.qount.invoice.database.dao.InvoiceLineDAO;
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.database.dao.ProposalLineDAO;
-import com.qount.invoice.database.daoImpl.ProposalDAOImpl;
-import com.qount.invoice.database.daoImpl.ProposalLineDAOImpl;
+import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
+import com.qount.invoice.database.dao.impl.InvoiceLineDAOImpl;
+import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
+import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 
 public class MySQLManager {
 
@@ -24,10 +28,14 @@ public class MySQLManager {
 	private Session session = connectSSHSession();
 
 	private DataSource dataSource = createDataSource();
-	
+
 	private static ProposalDAO proposalDAO = null;
-	
+
 	private static ProposalLineDAO proposalLineDAO = null;
+
+	private static InvoiceDAO invoiceDAO = null;
+
+	private static InvoiceLineDAO invoiceLineDAO = null;
 
 	private MySQLManager() {
 
@@ -61,7 +69,7 @@ public class MySQLManager {
 		String fileName = PropertyManager.getProperty("mysql.pem_file_name");// "qount-mysql-server.pem";
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource(fileName).getFile());
-//		File file = new File("src/main/resources/"+fileName);
+		// File file = new File("src/main/resources/"+fileName);
 		String SshKeyFilepath = file.getPath();
 		int localPort = Integer.parseInt(PropertyManager.getProperty("mysql.localPort"));
 		String remoteHost = PropertyManager.getProperty("mysql.localSSHUrl");// "127.0.0.1";
@@ -94,18 +102,32 @@ public class MySQLManager {
 	public Session getJCHSession() {
 		return session;
 	}
-	
+
 	public static ProposalDAO getProposalDAOInstance() {
 		if (proposalDAO == null) {
 			proposalDAO = ProposalDAOImpl.getProposalDAOImpl();
 		}
 		return proposalDAO;
 	}
-	
+
 	public static ProposalLineDAO getProposalLineDAOInstance() {
 		if (proposalLineDAO == null) {
 			proposalLineDAO = ProposalLineDAOImpl.getProposalLineDAOImpl();
 		}
 		return proposalLineDAO;
+	}
+	
+	public static InvoiceDAO getInvoiceDAOInstance() {
+		if (invoiceDAO == null) {
+			invoiceDAO = InvoiceDAOImpl.getInvoiceDAOImpl();
+		}
+		return invoiceDAO;
+	}
+
+	public static InvoiceLineDAO getInvoiceLineDAOInstance() {
+		if (invoiceLineDAO == null) {
+			invoiceLineDAO = InvoiceLineDAOImpl.getInvoiceLineDAOImpl();
+		}
+		return invoiceLineDAO;
 	}
 }
