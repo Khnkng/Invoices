@@ -21,5 +21,7 @@ public interface ProposalDAO {
 	Proposal get(Connection connection, String companyID, String proposalID,String userID);
 
 	List<Proposal> getList(Connection connection, String companyID);
+	
+	Proposal delete(Connection connection,Proposal proposal);
 
 }
