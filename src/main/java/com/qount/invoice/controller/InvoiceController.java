@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.qount.invoice.controllerImpl.InvoiceControllerImpl;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceLines;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,8 +33,8 @@ public class InvoiceController {
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
 			+ "json = {\"companyID\":\"1212\",\"customer_name\":\"Apurva\",\"total_amount\":\"1000\",\"currency\":\"$\",\"bank_account\":true,\"credit_card\":false}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public Invoice createInvoice(@PathParam("userID") String userID, @PathParam("companyID") String companyID,
-			@Valid Invoice invoice) {
+	public Invoice createInvoice(@PathParam("userID") @NotNull String userID,
+			@PathParam("companyID") @NotNull String companyID, @Valid Invoice invoice) {
 		return InvoiceControllerImpl.createInvoice(userID, companyID, invoice);
 	}
 
@@ -40,7 +42,8 @@ public class InvoiceController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve proposals of company", value = "retieves proposals", responseContainer = "java.lang.String")
-	public List<Invoice> getInvoices(@PathParam("userID") String userID, @PathParam("companyID") String companyID) {
+	public List<Invoice> getInvoices(@PathParam("userID") @NotNull String userID,
+			@PathParam("companyID") @NotNull String companyID) {
 		return InvoiceControllerImpl.getInvoices(userID, companyID);
 	}
 
@@ -53,9 +56,9 @@ public class InvoiceController {
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
 			+ "json ={\"proposalID\":\"12\",\"companyID\":\"1212\",\"customer_name\":\"Apurva\",\"total_amount\":\"1000\",\"currency\":\"$\",\"bank_account\":true,\"credit_card\":false}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public Invoice updateInvoices(@PathParam("userID") String userID, @PathParam("companyID") String companyID,
-			@PathParam("invoiceID") String invoiceID, @Valid Invoice invoice) {
-		return InvoiceControllerImpl.updateInvoice(userID, companyID,invoiceID, invoice);
+	public Invoice updateInvoices(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID,
+			@PathParam("invoiceID") @NotNull String invoiceID, @Valid Invoice invoice) {
+		return InvoiceControllerImpl.updateInvoice(userID, companyID, invoiceID, invoice);
 	}
 
 	@Path("/{invoiceID}")
@@ -63,8 +66,27 @@ public class InvoiceController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve proposal of company", value = "retieves proposal", responseContainer = "java.lang.String")
-	public Invoice getProposal(@PathParam("userID") String userID, @PathParam("companyID") String companyID,
-			@PathParam("invoiceID") String invoiceID) {
+	public Invoice getProposal(@PathParam("userID") @NotNull String userID,
+			@PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID) {
 		return InvoiceControllerImpl.getInvoice(userID, companyID, invoiceID);
+	}
+
+	@DELETE
+	@Path("/{invoiceID}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Delete expense", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
+	public Invoice deleteInvoiceById(@PathParam("userID") String userID,
+			@PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID) {
+		return InvoiceControllerImpl.deleteInvoiceById(userID, companyID, invoiceID);
+	}
+	
+	@DELETE
+	@Path("/{invoiceID}/lineID/{lineID}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Delete expense", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
+	public InvoiceLines deleteInvoiceLine(@PathParam("userID") String userID,
+			@PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID,
+			@PathParam("lineID") @NotNull String lineID) {
+		return InvoiceControllerImpl.deleteInvoiceLine(userID, companyID, invoiceID, lineID);
 	}
 }

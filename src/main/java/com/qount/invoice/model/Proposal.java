@@ -72,11 +72,11 @@ public class Proposal {
 		this.total_amount = total_amount;
 	}
 
-	public int getCurrency() {
+	public int getCurrencyID() {
 		return currencyID;
 	}
 
-	public void setCurrency(int currency) {
+	public void setCurrencyID(int currency) {
 		this.currencyID = currency;
 	}
 

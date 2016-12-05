@@ -3,6 +3,7 @@ package com.qount.invoice.database.dao;
 import java.sql.Connection;
 import java.util.List;
 
+import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLines;
 
 /**
@@ -24,4 +25,8 @@ public interface InvoiceLineDAO {
 
 	boolean batchSaveAndDelete(Connection connection, List<InvoiceLines> invoiceLines,
 			List<InvoiceLines> deletionLines);
+	
+	public InvoiceLines deleteInvoiceLine(Connection connection,InvoiceLines invoiceLines);
+	
+	
 }
