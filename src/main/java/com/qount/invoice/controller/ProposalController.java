@@ -31,7 +31,7 @@ public class ProposalController {
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Create Proposal", notes = "Used to add new proposal"
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
-			+ "json = {\"customer_name\":\"apurva\",\"total_amount\":100000,\"currencyID\":101,\"bank_account\":true,\"credit_card\":false,\"userID\":\"apurva.khune@qount.io\",\"proposalLines\":[{\"line_number\":1,\"description\":\"part2-1\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100},{\"line_number\":2,\"description\":\"part2-2\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100},{\"line_number\":3,\"description\":\"part2-3\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100}]}"
+			+ "json = {\"customer_name\":\"apurva\",\"total_amount\":100000,\"currencyID\":101,\"bank_account\":true,\"credit_card\":false,\"proposalLines\":[{\"line_number\":1,\"description\":\"part2-1\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100},{\"line_number\":2,\"description\":\"part2-2\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100},{\"line_number\":3,\"description\":\"part2-3\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100}]}"
 			+ "</div>", responseContainer = "java.lang.String")
 	public Proposal createProposal(@PathParam("userID") String userID, @PathParam("companyID") String companyID,
 			@Valid Proposal proposal) {
