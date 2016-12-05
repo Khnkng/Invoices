@@ -35,7 +35,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 			return result;
 		}
 		PreparedStatement pstmt = null;
-		String sql = "INSERT INTO `proposal` (`companyID`, `proposalID`, `customer_name`, `total_amount`, `currency`, `bank_account`, `credit_card`, `userID`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+		String sql = "INSERT INTO `proposal` (`companyID`, `proposalID`, `customer_name`, `total_amount`, `currencyID`, `bank_account`, `credit_card`, `userID`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(sql);
@@ -43,7 +43,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setString(2, proposal.getProposalID());
 				pstmt.setString(3, proposal.getCustomer_name());
 				pstmt.setFloat(4, proposal.getTotal_amount());
-				pstmt.setInt(5, proposal.getCurrency());
+				pstmt.setInt(5, proposal.getCurrencyID());
 				pstmt.setBoolean(6, proposal.isBank_account());
 				pstmt.setBoolean(7, proposal.isCredit_card());
 				pstmt.setString(8, proposal.getUserID());
@@ -69,13 +69,13 @@ public class ProposalDAOImpl implements ProposalDAO {
 			return result;
 		}
 		PreparedStatement pstmt = null;
-		String sql = "UPDATE proposal SET `customer_name` = ?, `total_amount` = ?, `currency` = ?, bank_account = ?, credit_card = ?, userID = ? WHERE `companyID` = ? AND `proposalID` = ?;";
+		String sql = "UPDATE proposal SET `customer_name` = ?, `total_amount` = ?, `currencyID` = ?, bank_account = ?, credit_card = ?, userID = ? WHERE `companyID` = ? AND `proposalID` = ?;";
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(sql);
 				pstmt.setString(1, proposal.getCustomer_name());
 				pstmt.setFloat(2, proposal.getTotal_amount());
-				pstmt.setInt(3, proposal.getCurrency());
+				pstmt.setInt(3, proposal.getCurrencyID());
 				pstmt.setBoolean(4, proposal.isBank_account());
 				pstmt.setBoolean(5, proposal.isCredit_card());
 				pstmt.setString(6, proposal.getUserID());
@@ -115,7 +115,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 						proposal.setCompanyID(companyID);
 						proposal.setCustomer_name(rset.getString("customer_name"));
 						proposal.setTotal_amount(rset.getInt("total_amount"));
-						proposal.setCurrency(rset.getInt("currency"));
+						proposal.setCurrencyID(rset.getInt("currencyID"));
 						proposal.setBank_account(rset.getBoolean("bank_account"));
 						proposal.setCredit_card(rset.getBoolean("credit_card"));
 					}
@@ -145,7 +145,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 		List<Proposal> proposals = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
-		String sql = "SELECT `companyID`,`proposalID`,`customer_name`,`total_amount`,`currency`,`bank_account`,`credit_card`, `userID` FROM proposal WHERE `companyID` = ?;";
+		String sql = "SELECT `companyID`,`proposalID`,`customer_name`,`total_amount`,`currencyID`,`bank_account`,`credit_card`, `userID` FROM proposal WHERE `companyID` = ?;";
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(sql);
@@ -157,7 +157,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 					proposal.setCompanyID(companyID);
 					proposal.setCustomer_name(rset.getString("customer_name"));
 					proposal.setTotal_amount(rset.getInt("total_amount"));
-					proposal.setCurrency(rset.getInt("currency"));
+					proposal.setCurrencyID(rset.getInt("currencyID"));
 					proposal.setBank_account(rset.getBoolean("bank_account"));
 					proposal.setCredit_card(rset.getBoolean("credit_card"));
 					proposal.setUserID(rset.getString("userID"));
