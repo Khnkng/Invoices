@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.WebApplicationException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -175,6 +177,30 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 			return batchSave(connection,proposalLines);
 		}
 		return false;
+	}
+	
+	@Override
+	public ProposalLine deleteProposalLine(Connection connection, ProposalLine proposalLine) {
+		if (proposalLine == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		String sql = "DELETE FROM `proposal_lines` WHERE `proposalID` = ? AND `lineID` = ?;";
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(sql);
+				pstmt.setString(1, proposalLine.getProposalID());
+				pstmt.setString(2, proposalLine.getLineID());
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of proposal lines deleted:" + rowCount);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error deleting proposal lines:" + proposalLine.getProposalID() + ",  ", e);
+			throw new WebApplicationException(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		return proposalLine;
 	}
 
 }

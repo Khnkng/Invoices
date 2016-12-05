@@ -42,4 +42,18 @@ public class ProposalControllerImpl {
 		return ProposalService.getProposal(userID, companyID, proposalID);
 
 	}
+
+	public static Proposal deleteProposalById(String userID, String companyID, String proposalID) {
+		Proposal proposal = new Proposal();
+		proposal.setCompanyID(companyID);
+		proposal.setProposalID(proposalID);
+		return ProposalService.deleteProposalById(proposal);
+	}
+
+	public static ProposalLine deleteProposalLine(String userID, String companyID, String proposalID, String lineID) {
+		ProposalLine proposalLine = new ProposalLine();
+		proposalLine.setLineID(lineID);
+		proposalLine.setProposalID(proposalID);
+		return ProposalService.deleteProposalLine(proposalLine);
+	}
 }
