@@ -11,6 +11,7 @@ public class ProposalControllerImpl {
 
 	public static Proposal createProposal(String userID, String companyID, Proposal proposal) {
 		proposal.setCompanyID(companyID);
+		proposal.setUserID(userID);
 		proposal.setProposalID(UUID.randomUUID().toString());
 		List<ProposalLine> proposalLines = proposal.getProposalLines();
 
@@ -27,6 +28,7 @@ public class ProposalControllerImpl {
 
 	public static Proposal updateProposal(String userID, String companyID, String proposalID, Proposal proposal) {
 		proposal.setProposalID(proposalID);
+		proposal.setUserID(userID);
 		proposal.setCompanyID(companyID);
 		List<ProposalLine> proposalLines = proposal.getProposalLines();
 		for (ProposalLine proposalLine : proposalLines) {
