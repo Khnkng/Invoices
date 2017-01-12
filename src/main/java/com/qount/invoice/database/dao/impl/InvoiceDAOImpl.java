@@ -39,18 +39,15 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(sql);
-				pstmt.setString(1, invoice.getInvoiceID());
-				pstmt.setString(2, invoice.getCompanyID());
+				pstmt.setString(1, invoice.getId());
+				pstmt.setString(2, invoice.getCompany_id());
 				pstmt.setString(3, invoice.getCustomer_name());
-				pstmt.setString(4, invoice.getUserID());
-				pstmt.setString(5, invoice.getInvoice_date());
+				pstmt.setString(4, invoice.getUser_id());
 				pstmt.setString(6, invoice.getDue_date());
 				pstmt.setString(7, invoice.getInvoice_amount());
 				pstmt.setString(8, invoice.getInvoice_status());
-				pstmt.setBoolean(9, invoice.isBank_account());
-				pstmt.setBoolean(10, invoice.isCredit_card());
 				pstmt.setString(11, invoice.getTerms());
-				pstmt.setInt(12, invoice.getCurrencyID());
+				pstmt.setString(12, invoice.getCurrency());
 				pstmt.setBoolean(13, invoice.isRecurring());
 				pstmt.setString(14, invoice.getStart_date());
 				pstmt.setString(15, invoice.getEnd_date());
@@ -58,7 +55,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setInt(17, invoice.getNumber_of_invoices());
 				int rowCount = pstmt.executeUpdate();
 				result = rowCount != 0;
-				LOGGER.debug("invoice [" + invoice.getCompanyID() + " : " + invoice.getInvoiceID() + "]" + " created");
+				LOGGER.debug("invoice [" + invoice.getCompany_id() + " : " + invoice.getId() + "]" + " created");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -82,25 +79,22 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(sql);
 				pstmt.setString(1, invoice.getCustomer_name());
-				pstmt.setString(2, invoice.getUserID());
-				pstmt.setString(3, invoice.getInvoice_date());
+				pstmt.setString(2, invoice.getUser_id());
 				pstmt.setString(4, invoice.getDue_date());
 				pstmt.setString(5, invoice.getInvoice_amount());
 				pstmt.setString(6, invoice.getInvoice_status());
-				pstmt.setBoolean(7, invoice.isBank_account());
-				pstmt.setBoolean(8, invoice.isCredit_card());
 				pstmt.setString(9, invoice.getTerms());
-				pstmt.setInt(10, invoice.getCurrencyID());
+				pstmt.setString(10, invoice.getCurrency());
 				pstmt.setBoolean(11, invoice.isRecurring());
 				pstmt.setString(12, invoice.getStart_date());
 				pstmt.setString(13, invoice.getEnd_date());
 				pstmt.setString(14, invoice.getRecurring_frequency());
 				pstmt.setInt(15, invoice.getNumber_of_invoices());
-				pstmt.setString(16, invoice.getInvoiceID());
-				pstmt.setString(17, invoice.getCompanyID());
+				pstmt.setString(16, invoice.getId());
+				pstmt.setString(17, invoice.getCompany_id());
 				int rowCount = pstmt.executeUpdate();
 				result = rowCount != 0;
-				LOGGER.debug("invoice [" + invoice.getCompanyID() + " : " + invoice.getInvoiceID() + "]" + " updated");
+				LOGGER.debug("invoice [" + invoice.getCompany_id() + " : " + invoice.getId() + "]" + " updated");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -127,18 +121,15 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				while (rset.next()) {
 					if (invoice == null) {
 						invoice = new Invoice();
-						invoice.setInvoiceID(invoiceID);
-						invoice.setCompanyID(companyID);
-						invoice.setCompanyID(userID);
+						invoice.setId(invoiceID);
+						invoice.setCompany_id(companyID);
+						invoice.setCompany_id(userID);
 						invoice.setCustomer_name(rset.getString("customer_name"));
-						invoice.setInvoice_date(rset.getString("invoice_date"));
 						invoice.setDue_date(rset.getString("due_date"));
 						invoice.setInvoice_amount(rset.getString("invoice_amount"));
 						invoice.setInvoice_status(rset.getString("invoice_status"));
-						invoice.setBank_account(rset.getBoolean("bank_account"));
-						invoice.setCredit_card(rset.getBoolean("credit_card"));
 						invoice.setTerms(rset.getString("terms"));
-						invoice.setCurrencyID(rset.getInt("currencyID"));
+						invoice.setCurrency(rset.getString("currencyID"));
 						invoice.setRecurring(rset.getBoolean("recurring"));
 						invoice.setStart_date(rset.getString("start_date"));
 						invoice.setEnd_date(rset.getString("end_date"));
@@ -180,18 +171,15 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					Invoice invoice = new Invoice();
-					invoice.setInvoiceID(rset.getString("invoiceID"));
-					invoice.setCompanyID(companyID);
-					invoice.setCompanyID(rset.getString("userID"));
+					invoice.setId(rset.getString("invoiceID"));
+					invoice.setCompany_id(companyID);
+					invoice.setCompany_id(rset.getString("userID"));
 					invoice.setCustomer_name(rset.getString("customer_name"));
-					invoice.setInvoice_date(rset.getString("invoice_date"));
 					invoice.setDue_date(rset.getString("due_date"));
 					invoice.setInvoice_amount(rset.getString("invoice_amount"));
 					invoice.setInvoice_status(rset.getString("invoice_status"));
-					invoice.setBank_account(rset.getBoolean("bank_account"));
-					invoice.setCredit_card(rset.getBoolean("credit_card"));
 					invoice.setTerms(rset.getString("terms"));
-					invoice.setCurrencyID(rset.getInt("currencyID"));
+					invoice.setCurrency(rset.getString("currencyID"));
 					invoice.setRecurring(rset.getBoolean("recurring"));
 					invoice.setStart_date(rset.getString("start_date"));
 					invoice.setEnd_date(rset.getString("end_date"));
@@ -221,13 +209,13 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(sql);
-				pstmt.setString(1, invoice.getCompanyID());
-				pstmt.setString(2, invoice.getInvoiceID());
+				pstmt.setString(1, invoice.getCompany_id());
+				pstmt.setString(2, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of invoice deleted:" + rowCount);
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error deleting invoice:" + invoice.getInvoiceID() + ",  ", e);
+			LOGGER.error("Error deleting invoice:" + invoice.getId() + ",  ", e);
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);

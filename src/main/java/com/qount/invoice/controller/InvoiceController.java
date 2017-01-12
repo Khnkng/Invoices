@@ -22,7 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Api(value = "Invoice")
-@Path("/user/{userID}/company/{companyID}/invoices")
+@Path("/invoices")
 public class InvoiceController {
 
 	@POST
@@ -33,9 +33,8 @@ public class InvoiceController {
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
 			+ "json = {\"customer_name\":\"apurva\",\"invoice_date\":\"2016/11/3\",\"due_date\":\"2016/11/3\",\"invoice_amount\":100000,\"invoice_status\":\"paid\",\"bank_account\":true,\"credit_card\":false,\"terms\":\"terms\",\"currencyID\":101,\"recurring\":false,\"start_date\":\"2016/12/5\",\"end_date\":\"2016/12/31\",\"recurring_frequency\":\"daily\",\"number_of_invoices\":30,\"invoiceLines\":[{\"line_number\":1,\"description\":\"desc1\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100},{\"line_number\":2,\"description\":\"desc2\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100}]}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public Invoice createInvoice(@PathParam("userID") @NotNull String userID,
-			@PathParam("companyID") @NotNull String companyID, @Valid Invoice invoice) {
-		return InvoiceControllerImpl.createInvoice(userID, companyID, invoice);
+	public Invoice createInvoice(@Valid Invoice invoice) {
+		return InvoiceControllerImpl.createInvoice(invoice);
 	}
 
 	@GET
