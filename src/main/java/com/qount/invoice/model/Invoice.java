@@ -13,49 +13,67 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Invoice {
-
-	private String invoice_date;
-	private String due_date;
-	private String invoice_amount;
-	private String invoice_status;
-	private String terms;
-	private String companyID;
-	private String invoiceID;
+	private String id;
+	private String company_id;
 	private String customer_name;
-	private int currencyID;
-	private String userID;
+	private String user_id;
+	private String due_date;
+	private String amount;
+	private String status;
+	private String terms;
+	private String currency;
 	private boolean recurring;
 	private String start_date;
 	private String end_date;
 	private String recurring_frequency;
 	private int number_of_invoices;
-	private boolean bank_account;
-	private boolean credit_card;
+	private String created_at;
+	private String created_by;
+	private String last_updated_at;
+	private String last_updated_by;
+	private String payment_spring_customer_id;
+	private String transaction_id;
 
-	public boolean isCredit_card() {
-		return credit_card;
+	public String getTransaction_id() {
+		return transaction_id;
 	}
 
-	public void setCredit_card(boolean credit_card) {
-		this.credit_card = credit_card;
+	public void setTransaction_id(String transaction_id) {
+		this.transaction_id = transaction_id;
 	}
 
 	private List<InvoiceLines> invoiceLines;
 
-	public boolean isBank_account() {
-		return bank_account;
+	public String getId() {
+		return id;
 	}
 
-	public void setBank_account(boolean bank_account) {
-		this.bank_account = bank_account;
+	public void setId(String id) {
+		this.id = id;
 	}
 
-	public String getInvoice_date() {
-		return invoice_date;
+	public String getCompany_id() {
+		return company_id;
 	}
 
-	public void setInvoice_date(String invoice_date) {
-		this.invoice_date = invoice_date;
+	public void setCompany_id(String company_id) {
+		this.company_id = company_id;
+	}
+
+	public String getCustomer_name() {
+		return customer_name;
+	}
+
+	public void setCustomer_name(String customer_name) {
+		this.customer_name = customer_name;
+	}
+
+	public String getUser_id() {
+		return user_id;
+	}
+
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
 	}
 
 	public String getDue_date() {
@@ -67,19 +85,19 @@ public class Invoice {
 	}
 
 	public String getInvoice_amount() {
-		return invoice_amount;
+		return amount;
 	}
 
 	public void setInvoice_amount(String invoice_amount) {
-		this.invoice_amount = invoice_amount;
+		this.amount = invoice_amount;
 	}
 
 	public String getInvoice_status() {
-		return invoice_status;
+		return status;
 	}
 
 	public void setInvoice_status(String invoice_status) {
-		this.invoice_status = invoice_status;
+		this.status = invoice_status;
 	}
 
 	public String getTerms() {
@@ -90,44 +108,12 @@ public class Invoice {
 		this.terms = terms;
 	}
 
-	public String getCompanyID() {
-		return companyID;
+	public String getCurrency() {
+		return currency;
 	}
 
-	public void setCompanyID(String companyID) {
-		this.companyID = companyID;
-	}
-
-	public String getInvoiceID() {
-		return invoiceID;
-	}
-
-	public void setInvoiceID(String invoiceID) {
-		this.invoiceID = invoiceID;
-	}
-
-	public String getCustomer_name() {
-		return customer_name;
-	}
-
-	public void setCustomer_name(String customer_name) {
-		this.customer_name = customer_name;
-	}
-
-	public int getCurrencyID() {
-		return currencyID;
-	}
-
-	public void setCurrencyID(int currencyID) {
-		this.currencyID = currencyID;
-	}
-
-	public String getUserID() {
-		return userID;
-	}
-
-	public void setUserID(String userID) {
-		this.userID = userID;
+	public void setCurrency(String currency) {
+		this.currency = currency;
 	}
 
 	public boolean isRecurring() {
@@ -168,6 +154,46 @@ public class Invoice {
 
 	public void setNumber_of_invoices(int number_of_invoices) {
 		this.number_of_invoices = number_of_invoices;
+	}
+
+	public String getCreated_at() {
+		return created_at;
+	}
+
+	public void setCreated_at(String created_at) {
+		this.created_at = created_at;
+	}
+
+	public String getCreated_by() {
+		return created_by;
+	}
+
+	public void setCreated_by(String created_by) {
+		this.created_by = created_by;
+	}
+
+	public String getLast_updated_at() {
+		return last_updated_at;
+	}
+
+	public void setLast_updated_at(String last_updated_at) {
+		this.last_updated_at = last_updated_at;
+	}
+
+	public String getLast_updated_by() {
+		return last_updated_by;
+	}
+
+	public void setLast_updated_by(String last_updated_by) {
+		this.last_updated_by = last_updated_by;
+	}
+
+	public String getPayment_spring_customer_id() {
+		return payment_spring_customer_id;
+	}
+
+	public void setPayment_spring_customer_id(String payment_spring_customer_id) {
+		this.payment_spring_customer_id = payment_spring_customer_id;
 	}
 
 	public List<InvoiceLines> getInvoiceLines() {
