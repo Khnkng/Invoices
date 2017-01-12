@@ -106,4 +106,42 @@ public class ProposalService {
 		}
 	}
 
+	public static Proposal deleteProposalById(Proposal proposal) {
+		if(proposal == null){
+			throw new WebApplicationException();
+		}
+		Connection connection = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			return ProposalDAOImpl.getProposalDAOImpl().delete(connection,proposal);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+		}
+	}
+
+	public static ProposalLine deleteProposalLine(ProposalLine proposalLine) {
+		if(proposalLine == null){
+			throw new WebApplicationException();
+		}
+		Connection connection = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			return ProposalLineDAOImpl.getProposalLineDAOImpl().deleteProposalLine(connection,proposalLine);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+		}
+	}
+
 }

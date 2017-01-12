@@ -31,7 +31,7 @@ public class InvoiceController {
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Create Proposal", notes = "Used to add new proposal"
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
-			+ "json = {\"companyID\":\"1212\",\"customer_name\":\"Apurva\",\"total_amount\":\"1000\",\"currency\":\"$\",\"bank_account\":true,\"credit_card\":false}"
+			+ "json = {\"customer_name\":\"apurva\",\"invoice_date\":\"2016/11/3\",\"due_date\":\"2016/11/3\",\"invoice_amount\":100000,\"invoice_status\":\"paid\",\"bank_account\":true,\"credit_card\":false,\"terms\":\"terms\",\"currencyID\":101,\"recurring\":false,\"start_date\":\"2016/12/5\",\"end_date\":\"2016/12/31\",\"recurring_frequency\":\"daily\",\"number_of_invoices\":30,\"invoiceLines\":[{\"line_number\":1,\"description\":\"desc1\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100},{\"line_number\":2,\"description\":\"desc2\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100}]}"
 			+ "</div>", responseContainer = "java.lang.String")
 	public Invoice createInvoice(@PathParam("userID") @NotNull String userID,
 			@PathParam("companyID") @NotNull String companyID, @Valid Invoice invoice) {
@@ -54,7 +54,7 @@ public class InvoiceController {
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "update proposal", notes = "Used to update proposal"
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
-			+ "json ={\"proposalID\":\"12\",\"companyID\":\"1212\",\"customer_name\":\"Apurva\",\"total_amount\":\"1000\",\"currency\":\"$\",\"bank_account\":true,\"credit_card\":false}"
+			+ "json ={\"customer_name\":\"apurva123\",\"invoice_date\":\"2016/11/3\",\"due_date\":\"2016/12/15\",\"invoice_amount\":2000,\"invoice_status\":\"due\",\"bank_account\":true,\"credit_card\":false,\"terms\":\"terms\",\"currencyID\":201,\"recurring\":true,\"start_date\":\"2016/12/3\",\"end_date\":\"2016/12/30\",\"recurring_frequency\":\"daily\",\"number_of_invoices\":\"10\",\"invoiceLines\":[{\"lineID\":\"05f13774-4cd6-41c1-affa-ab363c0a0a6e\",\"line_number\":1,\"description\":\"updated\",\"quantity\":20,\"unit_cost\":20,\"total_amount\":200},{\"line_number\":5,\"description\":\"new line added\",\"quantity\":20,\"unit_cost\":20,\"total_amount\":200}]}"
 			+ "</div>", responseContainer = "java.lang.String")
 	public Invoice updateInvoices(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID,
 			@PathParam("invoiceID") @NotNull String invoiceID, @Valid Invoice invoice) {

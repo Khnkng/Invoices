@@ -174,4 +174,28 @@ public class ProposalDAOImpl implements ProposalDAO {
 		return proposals;
 
 	}
+	
+	@Override
+	public Proposal delete(Connection connection,Proposal proposal) {
+		if (proposal == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		String sql = "DELETE FROM proposal WHERE `companyID`=? AND `proposalID`=?;";
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(sql);
+				pstmt.setString(1, proposal.getCompanyID());
+				pstmt.setString(2, proposal.getProposalID());
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of proposal deleted:" + rowCount);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error deleting proposal:" + proposal.getProposalID() + ",  ", e);
+			throw new WebApplicationException(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		return proposal;
+	}
 }
