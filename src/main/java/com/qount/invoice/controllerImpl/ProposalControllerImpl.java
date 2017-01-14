@@ -1,61 +1,160 @@
 package com.qount.invoice.controllerImpl;
 
+import java.sql.Connection;
 import java.util.List;
-import java.util.UUID;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
+import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
+import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.service.ProposalService;
+import com.qount.invoice.parser.ProposalParser;
+import com.qount.invoice.utils.Constants;
+import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.ResponseUtil;
 
 public class ProposalControllerImpl {
+	private static final Logger LOGGER = Logger.getLogger(ProposalControllerImpl.class);
 
-	public static Proposal createProposal(String userID, String companyID, Proposal proposal) {
-		proposal.setCompanyID(companyID);
-		proposal.setUserID(userID);
-		proposal.setProposalID(UUID.randomUUID().toString());
-		List<ProposalLine> proposalLines = proposal.getProposalLines();
-
-		for (ProposalLine proposalLine : proposalLines) {
-			proposalLine.setLineID(UUID.randomUUID().toString());
-			proposalLine.setProposalID(proposal.getProposalID());
-		}
-		return ProposalService.createProposal(companyID, proposal);
-	}
-
-	public static List<Proposal> getProposals(String userID, String companyID) {
-		return ProposalService.getProposals(userID, companyID);
-	}
-
-	public static Proposal updateProposal(String userID, String companyID, String proposalID, Proposal proposal) {
-		proposal.setProposalID(proposalID);
-		proposal.setUserID(userID);
-		proposal.setCompanyID(companyID);
-		List<ProposalLine> proposalLines = proposal.getProposalLines();
-		for (ProposalLine proposalLine : proposalLines) {
-			if (proposalLine.getLineID() == null) {
-				proposalLine.setLineID(UUID.randomUUID().toString());
+	public static Proposal createProposal(String user_id, Proposal proposal) {
+		Connection connection = null;
+		try {
+			Proposal proposalObj = ProposalParser.getProposalObj(user_id,proposal);
+			if (proposalObj == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
-			proposalLine.setProposalID(proposal.getProposalID());
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						"Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			connection.setAutoCommit(false);
+			if (MySQLManager.getProposalDAOInstance().save(connection, proposalObj)) {
+				if (MySQLManager.getProposalLineDAOInstance().batchSave(connection, proposalObj.getProposalLines())) {
+					connection.commit();
+					return proposalObj;
+				}
+			}
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
 		}
-		return ProposalService.update(companyID, proposal, proposalID);
 	}
 
-	public static Proposal getProposal(String userID, String companyID, String proposalID) {
-		return ProposalService.getProposal(userID, companyID, proposalID);
+	public static List<Proposal> getProposals(String user_id) {
+		Connection connection = null;
+		try {
+			if (StringUtils.isEmpty(user_id)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						"Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			return MySQLManager.getProposalDAOInstance().getProposalList(connection, user_id);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+		}
+	}
+
+	public static Proposal updateProposal(String user_id, String proposal_id, Proposal proposal) {
+		Connection connection = null;
+		try {
+			Proposal proposalObj = ProposalParser.getProposalObjToUpdate(user_id, proposal_id, proposal);
+			if (proposalObj == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						"Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			connection.setAutoCommit(false);
+			List<ProposalLine> oldLines = MySQLManager.getProposalLineDAOInstance().getLines(connection, proposal_id);
+			List<ProposalLine> newLines = proposalObj.getProposalLines();
+			// lines to be deleted
+			oldLines.removeAll(newLines);
+
+			if (MySQLManager.getProposalDAOInstance().update(connection, proposalObj)) {
+				if (MySQLManager.getProposalLineDAOInstance().batchSaveAndDelete(connection, newLines, oldLines)) {
+					connection.commit();
+					return proposal;
+				}
+			}
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+		}
 
 	}
 
-	public static Proposal deleteProposalById(String userID, String companyID, String proposalID) {
-		Proposal proposal = new Proposal();
-		proposal.setCompanyID(companyID);
-		proposal.setProposalID(proposalID);
-		return ProposalService.deleteProposalById(proposal);
+	public static Proposal getProposal(String user_id, String proposal_id) {
+		try {
+			if (StringUtils.isEmpty(user_id) && StringUtils.isEmpty(proposal_id)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
+			return ProposalDAOImpl.getProposalDAOImpl().get(proposal_id, user_id);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		}
+
 	}
 
-	public static ProposalLine deleteProposalLine(String userID, String companyID, String proposalID, String lineID) {
-		ProposalLine proposalLine = new ProposalLine();
-		proposalLine.setLineID(lineID);
-		proposalLine.setProposalID(proposalID);
-		return ProposalService.deleteProposalLine(proposalLine);
+	public static Proposal deleteProposalById(String user_id, String proposal_id) {
+		try {
+			Proposal proposal = ProposalParser.getProposalObjToDelete(user_id, proposal_id);
+			if (proposal == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
+			return ProposalDAOImpl.getProposalDAOImpl().delete(proposal);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		}
+	}
+
+	public static ProposalLine deleteProposalLine(String user_id, String proposal_id, String proposalLine_id) {
+		try {
+			ProposalLine proposalLine = ProposalParser.getProposalLineObjToDeleteProposalLine(proposal_id,
+					proposalLine_id);
+			if (proposalLine == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
+			return ProposalLineDAOImpl.getProposalLineDAOImpl().deleteProposalLine(proposalLine);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		}
 	}
 }

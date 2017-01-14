@@ -18,10 +18,10 @@ public interface ProposalDAO {
 
 	public boolean update(Connection connection, Proposal proposal);
 
-	Proposal get(Connection connection, String companyID, String proposalID,String userID);
+	Proposal get(String proposalID,String userID);
 
-	List<Proposal> getList(Connection connection, String companyID);
+	List<Proposal> getProposalList(Connection connection, String companyID);
 	
-	Proposal delete(Connection connection,Proposal proposal);
+	Proposal delete(Proposal proposal);
 
 }

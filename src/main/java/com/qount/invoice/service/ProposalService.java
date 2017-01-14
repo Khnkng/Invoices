@@ -51,7 +51,7 @@ public class ProposalService {
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
-			return ProposalDAOImpl.getProposalDAOImpl().getList(connection, companyID);
+			return ProposalDAOImpl.getProposalDAOImpl().getProposalList(connection, companyID);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
@@ -67,7 +67,7 @@ public class ProposalService {
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
-			return ProposalDAOImpl.getProposalDAOImpl().get(connection, companyID, proposalID,userID);
+			return ProposalDAOImpl.getProposalDAOImpl().get(proposalID,userID);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
@@ -116,7 +116,7 @@ public class ProposalService {
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
-			return ProposalDAOImpl.getProposalDAOImpl().delete(connection,proposal);
+			return ProposalDAOImpl.getProposalDAOImpl().delete(proposal);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
@@ -135,7 +135,7 @@ public class ProposalService {
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
-			return ProposalLineDAOImpl.getProposalLineDAOImpl().deleteProposalLine(connection,proposalLine);
+			return ProposalLineDAOImpl.getProposalLineDAOImpl().deleteProposalLine(proposalLine);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
