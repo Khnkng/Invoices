@@ -1,5 +1,6 @@
 package com.qount.invoice.parser;
 
+import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -9,10 +10,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
@@ -34,14 +31,11 @@ public class ProposalParser {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
-			DateTime dateTime = new DateTime(DateTimeZone.UTC);
-//			DateTimeFormatter dtf = DateTimeFormat.forPattern("hh:mm a, MMM d, yyyy");
-			DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:SS");
-			String time = dtf.print(dateTime);
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			
 			proposal.setUser_id(userId);
 			proposal.setId(UUID.randomUUID().toString());
-			proposal.setLast_updated_at(time);
+			proposal.setLast_updated_at(timestamp.toString());
 			proposal.setLast_updated_by(userId);
 			List<ProposalLine> proposalLines = proposal.getProposalLines();
 			
@@ -50,7 +44,7 @@ public class ProposalParser {
 				ProposalLine line = proposalLineItr.next();	
 				line.setId(UUID.randomUUID().toString());
 				line.setProposal_id(proposal.getId());
-				line.setLast_updated_at(time);
+				line.setLast_updated_at(timestamp.toString());
 				line.setLast_updated_by(userId);
 			}
 		} catch (Exception e) {
