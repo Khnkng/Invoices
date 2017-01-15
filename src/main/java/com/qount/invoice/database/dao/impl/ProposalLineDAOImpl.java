@@ -4,19 +4,17 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
-import com.qount.invoice.utils.ResponseUtil;
 
 public class ProposalLineDAOImpl implements ProposalLineDAO {
 
@@ -31,8 +29,8 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		return proposalLineDAOImpl;
 	}
 
-	private final static String INSERT_QRY = "INSERT INTO `proposal_lines` (`id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`created_by`,`created_at`,`last_updated_by`,`last_updated_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-	private final static String GET_LINES_QRY = " SELECT `id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`created_by`,`created_at`,`last_updated_by`,`last_updated_at` FROM proposal_lines WHERE `proposal_id` = ?;";
+	private final static String INSERT_QRY = "INSERT INTO `proposal_lines` (`id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+	private final static String GET_LINES_QRY = " SELECT `id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at` FROM proposal_lines WHERE `proposal_id` = ?;";
 	private final static String DELETE_PROPOSAL_LINE_QRY = "DELETE FROM `proposal_lines` WHERE `id` = ? AND `proposal_id` = ?";
 
 	@Override
@@ -53,10 +51,8 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				pstmt.setString(4, proposalLine.getObjectives());
 				pstmt.setDouble(5, proposalLine.getAmount());
 				pstmt.setString(6, proposalLine.getCurrency());
-				pstmt.setString(7, proposalLine.getCreated_by());
-				pstmt.setLong(8, proposalLine.getCreated_at());
-				pstmt.setString(9, proposalLine.getLast_updated_by());
-				pstmt.setLong(10, proposalLine.getLast_updated_at());
+				pstmt.setString(7, proposalLine.getLast_updated_by());
+				pstmt.setString(8, proposalLine.getLast_updated_at());
 				int rowCount = pstmt.executeUpdate();
 				result = rowCount != 0;
 			}
@@ -90,9 +86,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 					proposalLine.setObjectives(rset.getString("objectives"));
 					proposalLine.setAmount(rset.getDouble("amount"));
 					proposalLine.setCurrency(rset.getString("currency"));
-					proposalLine.setCreated_at(rset.getLong("created_at"));
-					proposalLine.setCreated_by(rset.getString("created_by"));
-					proposalLine.setLast_updated_at(rset.getLong("last_updated_at"));
+					proposalLine.setLast_updated_at(rset.getString("last_updated_at"));
 					proposalLine.setLast_updated_by(rset.getString("last_updated_by"));
 					proposalLines.add(proposalLine);
 				}
@@ -116,21 +110,25 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(INSERT_QRY);
-				for (ProposalLine proposalLine : proposalLines) {
+				Iterator<ProposalLine> ProposalLineItr = proposalLines.iterator();
+				while (ProposalLineItr.hasNext()) {
+					ProposalLine proposalLine = ProposalLineItr.next();
 					pstmt.setString(1, proposalLine.getId());
 					pstmt.setString(2, proposalLine.getProposal_id());
 					pstmt.setString(3, proposalLine.getDescription());
 					pstmt.setString(4, proposalLine.getObjectives());
 					pstmt.setDouble(5, proposalLine.getAmount());
 					pstmt.setString(6, proposalLine.getCurrency());
-					pstmt.setString(7, proposalLine.getCreated_by());
-					pstmt.setLong(8, proposalLine.getCreated_at());
-					pstmt.setString(9, proposalLine.getLast_updated_by());
-					pstmt.setLong(10, proposalLine.getLast_updated_at());
+					pstmt.setString(7, proposalLine.getLast_updated_by());
+					pstmt.setString(8, proposalLine.getLast_updated_at());
 					pstmt.addBatch();
 				}
-				pstmt.executeBatch();
-				result = true;
+				int[] rowCount = pstmt.executeBatch();
+				if (rowCount != null) {
+					result = true;
+				} else {
+					throw new WebApplicationException("unable to create proposal lines", 500);
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
@@ -166,15 +164,6 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	@Override
-	public boolean batchSaveAndDelete(Connection connection, List<ProposalLine> proposalLines,
-			List<ProposalLine> deletionLines) {
-		if (batchDelete(connection, deletionLines)) {
-			return batchSave(connection, proposalLines);
-		}
-		return false;
-	}
-
-	@Override
 	public ProposalLine deleteProposalLine(ProposalLine proposalLine) {
 		Connection connection = null;
 		if (proposalLine == null) {
@@ -183,15 +172,13 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		PreparedStatement pstmt = null;
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
-			if (connection == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						"Database Error", Status.INTERNAL_SERVER_ERROR));
+			if (connection != null) {
+				pstmt = connection.prepareStatement(DELETE_PROPOSAL_LINE_QRY);
+				pstmt.setString(1, proposalLine.getId());
+				pstmt.setString(2, proposalLine.getProposal_id());
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of proposal lines deleted:" + rowCount);
 			}
-			pstmt = connection.prepareStatement(DELETE_PROPOSAL_LINE_QRY);
-			pstmt.setString(1, proposalLine.getId());
-			pstmt.setString(2, proposalLine.getProposal_id());
-			int rowCount = pstmt.executeUpdate();
-			LOGGER.debug("no of proposal lines deleted:" + rowCount);
 		} catch (Exception e) {
 			LOGGER.error("Error deleting proposal lines:" + proposalLine.getId() + ",  ", e);
 			throw new WebApplicationException(e);

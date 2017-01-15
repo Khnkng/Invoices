@@ -24,33 +24,15 @@ public class Proposal {
 	private String currency;
 	private String description;
 	private String objectives;
-	private long created_at;
-	private String created_by;
-	private long last_updated_at;
+	private String last_updated_at;
 	private String last_updated_by;
 	private List<ProposalLine> proposalLines;
 
-	public long getCreated_at() {
-		return created_at;
-	}
-
-	public void setCreated_at(long created_at) {
-		this.created_at = created_at;
-	}
-
-	public String getCreated_by() {
-		return created_by;
-	}
-
-	public void setCreated_by(String created_by) {
-		this.created_by = created_by;
-	}
-
-	public long getLast_updated_at() {
+	public String getLast_updated_at() {
 		return last_updated_at;
 	}
 
-	public void setLast_updated_at(long last_updated_at) {
+	public void setLast_updated_at(String last_updated_at) {
 		this.last_updated_at = last_updated_at;
 	}
 

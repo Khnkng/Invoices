@@ -22,8 +22,5 @@ public interface ProposalLineDAO {
 
 	public boolean batchDelete(Connection connection, List<ProposalLine> proposalLines);
 
-	boolean batchSaveAndDelete(Connection connection, List<ProposalLine> proposalLines,
-			List<ProposalLine> deletionLines);
-	
 	public ProposalLine deleteProposalLine(ProposalLine proposalLine);
 }

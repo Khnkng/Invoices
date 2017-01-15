@@ -16,11 +16,11 @@ public interface ProposalDAO {
 
 	public boolean save(Connection connection, Proposal proposal);
 
-	public boolean update(Connection connection, Proposal proposal);
+	public boolean deleteAndCreateProposal(Connection connection,String proposalId, Proposal proposal);
 
 	Proposal get(String proposalID,String userID);
 
-	List<Proposal> getProposalList(Connection connection, String companyID);
+	List<Proposal> getProposalList(String companyID);
 	
 	Proposal delete(Proposal proposal);
 
