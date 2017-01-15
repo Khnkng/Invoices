@@ -51,7 +51,7 @@ public class MySQLManager {
 		int localPort = Integer.parseInt(PropertyManager.getProperty("mysql.localPort"));
 		String localSSHUrl = PropertyManager.getProperty("mysql.localSSHUrl");
 		BasicDataSource dataSource = new BasicDataSource();
-		String database = PropertyManager.getProperty("mysql.database");
+		String database = PropertyManager.getProperty("mysql.dataBaseName");
 		dataSource.setUrl("jdbc:mysql://" + localSSHUrl + ":" + localPort + "/" + database);
 		dataSource.setUsername(dbuserName);
 		dataSource.setPassword(dbpassword);

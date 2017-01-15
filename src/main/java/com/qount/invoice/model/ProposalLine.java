@@ -2,6 +2,8 @@ package com.qount.invoice.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * 
  * @author Apurva, Qount.
@@ -17,9 +19,7 @@ public class ProposalLine {
 	private String objectives;
 	private double amount;
 	private String currency;
-	private long created_at;
-	private String created_by;
-	private long last_updated_at;
+	private String last_updated_at;
 	private String last_updated_by;
 
 	public String getId() {
@@ -70,27 +70,11 @@ public class ProposalLine {
 		this.currency = currency;
 	}
 
-	public long getCreated_at() {
-		return created_at;
-	}
-
-	public void setCreated_at(long created_at) {
-		this.created_at = created_at;
-	}
-
-	public String getCreated_by() {
-		return created_by;
-	}
-
-	public void setCreated_by(String created_by) {
-		this.created_by = created_by;
-	}
-
-	public long getLast_updated_at() {
+	public String getLast_updated_at() {
 		return last_updated_at;
 	}
 
-	public void setLast_updated_at(long last_updated_at) {
+	public void setLast_updated_at(String last_updated_at) {
 		this.last_updated_at = last_updated_at;
 	}
 
@@ -100,6 +84,16 @@ public class ProposalLine {
 
 	public void setLast_updated_by(String last_updated_by) {
 		this.last_updated_by = last_updated_by;
+	}
+
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
 	}
 
 }

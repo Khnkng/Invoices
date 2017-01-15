@@ -31,7 +31,7 @@ public class ProposalController {
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Create Proposal", notes = "Used to add new proposal"
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
-			+ "json = {\"customer_name\":\"apurva\",\"total_amount\":100000,\"currencyID\":101,\"bank_account\":true,\"credit_card\":false,\"proposalLines\":[{\"line_number\":1,\"description\":\"part2-1\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100},{\"line_number\":2,\"description\":\"part2-2\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100},{\"line_number\":3,\"description\":\"part2-3\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100}]}"
+			+ "json = {\"company_id\":\"qount\",\"company_name\":\"qount\",\"amount\":50000,\"currency\":\"INR\",\"description\":\"desc\",\"objectives\":\"obj\",\"proposalLines\":[{\"description\":\"desc-1\",\"objectives\":\"obj-1\",\"amount\":2000,\"currency\":\"INR\"},{\"description\":\"desc-2\",\"objectives\":\"obj-2\",\"amount\":3000,\"currency\":\"INR\"}]}"
 			+ "</div>", responseContainer = "java.lang.String")
 	public Proposal createProposal(@PathParam("userID") String userID, @Valid Proposal proposal) {
 		return ProposalControllerImpl.createProposal(userID, proposal);
@@ -44,7 +44,7 @@ public class ProposalController {
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "update proposal", notes = "Used to update proposal"
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
-			+ "json ={\"customer_name\":\"apurva\",\"total_amount\":100000,\"currencyID\":101,\"bank_account\":true,\"credit_card\":false,\"proposalLines\":[{\"lineID\":\"1612ad32-913d-461b-bcee-c41af2754dd7\",\"line_number\":1,\"description\":\"updateddd\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100},{\"line_number\":2,\"description\":\"new line added\",\"quantity\":10,\"unit_cost\":10,\"total_amount\":100}]}"
+			+ "json ={\"company_id\":\"qount\",\"company_name\":\"qount\",\"amount\":50000,\"currency\":\"INR\",\"description\":\"desc\",\"objectives\":\"obj\",\"proposalLines\":[{\"description\":\"desc-1\",\"objectives\":\"obj-1\",\"amount\":2000,\"currency\":\"INR\"},{\"description\":\"desc-2\",\"objectives\":\"obj-2\",\"amount\":3000,\"currency\":\"INR\"}]}"
 			+ "</div>", responseContainer = "java.lang.String")
 	public Proposal update(@PathParam("userID") String userID, @PathParam("proposalID") String proposalID,
 			@Valid Proposal proposal) {
@@ -55,7 +55,7 @@ public class ProposalController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve proposals of company", value = "retieves proposals", responseContainer = "java.lang.String")
-	public List<Proposal> getProposals(@PathParam("userID") String userID, @PathParam("companyID") String companyID) {
+	public List<Proposal> getProposals(@PathParam("userID") String userID) {
 		return ProposalControllerImpl.getProposals(userID);
 	}
 
