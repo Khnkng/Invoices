@@ -28,17 +28,14 @@ public class ProposalParser {
 	public static Proposal getProposalObj(String userId,Proposal proposal) {
 		try {
 			if (StringUtils.isEmpty(userId) && proposal == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+				return null;
 			}
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			
 			proposal.setUser_id(userId);
 			proposal.setId(UUID.randomUUID().toString());
 			proposal.setLast_updated_at(timestamp.toString());
 			proposal.setLast_updated_by(userId);
 			List<ProposalLine> proposalLines = proposal.getProposalLines();
-			
 			Iterator<ProposalLine> proposalLineItr = proposalLines.iterator();
 			while(proposalLineItr.hasNext()){
 				ProposalLine line = proposalLineItr.next();	
@@ -49,7 +46,7 @@ public class ProposalParser {
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(e.getLocalizedMessage(), 500);
+			return null;
 		}
 		return proposal;
 	}
