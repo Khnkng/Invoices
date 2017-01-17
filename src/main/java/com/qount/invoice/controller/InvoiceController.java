@@ -55,8 +55,7 @@ public class InvoiceController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve proposals of company", value = "retieves proposals", responseContainer = "java.lang.String")
-	public List<Invoice> getInvoices(@PathParam("userID") @NotNull String userID,
-			@PathParam("companyID") @NotNull String companyID) {
+	public List<Invoice> getInvoices(@PathParam("userID") @NotNull String userID) {
 		return InvoiceControllerImpl.getInvoices(userID);
 	}
 
