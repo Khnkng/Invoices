@@ -94,31 +94,28 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(2, userID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
-					if (invoice == null) {
-						invoice = new Invoice();
-						invoice.setId(invoiceID);
-						invoice.setProposal_id(rset.getString("proposal_id"));
-						invoice.setCompany_id(rset.getString("company_id"));
-						invoice.setCompany_name(rset.getString("company_name"));
-						invoice.setCompany_id(userID);
-						invoice.setDescription(rset.getString("description"));
-						invoice.setObjectives(rset.getString("objectives"));
-						invoice.setDue_date(rset.getString("due_date"));
-						invoice.setAmount(rset.getDouble("amount"));
-						invoice.setCurrency(rset.getString("currency"));
-						invoice.setStatus(rset.getString("status"));
-						invoice.setTerms(rset.getString("terms"));
-						invoice.setRecurring(rset.getBoolean("recurring"));
-						invoice.setStart_date(rset.getString("start_date"));
-						invoice.setEnd_date(rset.getString("end_date"));
-						invoice.setRecurring_frequency(rset.getString("recurring_frequency"));
-						invoice.setNumber_of_invoices(rset.getInt("number_of_invoices"));
-						invoice.setLast_updated_by(rset.getString("last_updated_by"));
-						invoice.setLast_updated_at(rset.getString("last_updated_at"));
-						invoice.setPayment_spring_customer_id(rset.getString("payment_spring_customer_id"));
-						invoice.setTransaction_id(rset.getString("transaction_id"));
-
-					}
+					invoice = new Invoice();
+					invoice.setId(invoiceID);
+					invoice.setProposal_id(rset.getString("proposal_id"));
+					invoice.setCompany_id(rset.getString("company_id"));
+					invoice.setCompany_name(rset.getString("company_name"));
+					invoice.setCompany_id(userID);
+					invoice.setDescription(rset.getString("description"));
+					invoice.setObjectives(rset.getString("objectives"));
+					invoice.setDue_date(rset.getString("due_date"));
+					invoice.setAmount(rset.getDouble("amount"));
+					invoice.setCurrency(rset.getString("currency"));
+					invoice.setStatus(rset.getString("status"));
+					invoice.setTerms(rset.getString("terms"));
+					invoice.setRecurring(rset.getBoolean("recurring"));
+					invoice.setStart_date(rset.getString("start_date"));
+					invoice.setEnd_date(rset.getString("end_date"));
+					invoice.setRecurring_frequency(rset.getString("recurring_frequency"));
+					invoice.setNumber_of_invoices(rset.getInt("number_of_invoices"));
+					invoice.setLast_updated_by(rset.getString("last_updated_by"));
+					invoice.setLast_updated_at(rset.getString("last_updated_at"));
+					invoice.setPayment_spring_customer_id(rset.getString("payment_spring_customer_id"));
+					invoice.setTransaction_id(rset.getString("transaction_id"));
 					InvoiceLines invoiceLine = new InvoiceLines();
 					invoiceLine.setId(rset.getString("invoice_line_id"));
 					invoiceLine.setInvoice_id(rset.getString("invoice_id"));

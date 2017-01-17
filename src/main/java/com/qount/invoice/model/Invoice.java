@@ -23,7 +23,7 @@ public class Invoice {
 	private String description;
 	private String objectives;
 	private String due_date;
-	private Double amount;
+	private double amount;
 	private String currency;
 	private String status;
 	private String terms;
