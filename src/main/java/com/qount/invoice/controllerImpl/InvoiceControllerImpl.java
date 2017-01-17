@@ -127,7 +127,7 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static InvoiceLines deleteInvoiceLine(String userID, String companyID, String invoiceID, String lineID) {
+	public static InvoiceLines deleteInvoiceLine(String userID,String invoiceID, String lineID) {
 		try {
 			InvoiceLines invoiceLine = InvoiceParser.getInvoiceLineObjToDelete(invoiceID, lineID);
 			if (invoiceLine == null) {
