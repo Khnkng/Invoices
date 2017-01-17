@@ -16,12 +16,14 @@ public interface InvoiceDAO {
 
 	public boolean save(Connection connection, Invoice invoice);
 
-	public boolean update(Connection connection, Invoice invoice);
+	public boolean deleteAndCreateInvoice(Connection connection,String proposalId, Invoice invoice);
 
-	Invoice get(Connection connection, String companyID, String InvoiceID,String userID);
+	public Invoice getInvoiceById(String InvoiceID,String userID);
 
-	List<Invoice> getList(Connection connection, String companyID);
+	public List<Invoice> getInvoiceList(String userID);
 	
-	Invoice delete(Connection connection,Invoice invoice);
+	public Invoice delete(Invoice invoice);
+	
+
 
 }

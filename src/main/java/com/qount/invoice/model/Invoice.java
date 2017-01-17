@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * 
  * @author Apurva, Qount.
@@ -14,34 +16,26 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Invoice {
 	private String id;
+	private String proposal_id;
 	private String company_id;
-	private String customer_name;
+	private String company_name;
 	private String user_id;
+	private String description;
+	private String objectives;
 	private String due_date;
-	private String amount;
+	private Double amount;
+	private String currency;
 	private String status;
 	private String terms;
-	private String currency;
 	private boolean recurring;
 	private String start_date;
 	private String end_date;
 	private String recurring_frequency;
 	private int number_of_invoices;
-	private String created_at;
-	private String created_by;
 	private String last_updated_at;
 	private String last_updated_by;
 	private String payment_spring_customer_id;
 	private String transaction_id;
-
-	public String getTransaction_id() {
-		return transaction_id;
-	}
-
-	public void setTransaction_id(String transaction_id) {
-		this.transaction_id = transaction_id;
-	}
-
 	private List<InvoiceLines> invoiceLines;
 
 	public String getId() {
@@ -52,6 +46,14 @@ public class Invoice {
 		this.id = id;
 	}
 
+	public String getProposal_id() {
+		return proposal_id;
+	}
+
+	public void setProposal_id(String proposal_id) {
+		this.proposal_id = proposal_id;
+	}
+
 	public String getCompany_id() {
 		return company_id;
 	}
@@ -60,12 +62,12 @@ public class Invoice {
 		this.company_id = company_id;
 	}
 
-	public String getCustomer_name() {
-		return customer_name;
+	public String getCompany_name() {
+		return company_name;
 	}
 
-	public void setCustomer_name(String customer_name) {
-		this.customer_name = customer_name;
+	public void setCompany_name(String company_name) {
+		this.company_name = company_name;
 	}
 
 	public String getUser_id() {
@@ -76,6 +78,22 @@ public class Invoice {
 		this.user_id = user_id;
 	}
 
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getObjectives() {
+		return objectives;
+	}
+
+	public void setObjectives(String objectives) {
+		this.objectives = objectives;
+	}
+
 	public String getDue_date() {
 		return due_date;
 	}
@@ -84,28 +102,12 @@ public class Invoice {
 		this.due_date = due_date;
 	}
 
-	public String getInvoice_amount() {
+	public double getAmount() {
 		return amount;
 	}
 
-	public void setInvoice_amount(String invoice_amount) {
-		this.amount = invoice_amount;
-	}
-
-	public String getInvoice_status() {
-		return status;
-	}
-
-	public void setInvoice_status(String invoice_status) {
-		this.status = invoice_status;
-	}
-
-	public String getTerms() {
-		return terms;
-	}
-
-	public void setTerms(String terms) {
-		this.terms = terms;
+	public void setAmount(double amount) {
+		this.amount = amount;
 	}
 
 	public String getCurrency() {
@@ -114,6 +116,22 @@ public class Invoice {
 
 	public void setCurrency(String currency) {
 		this.currency = currency;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getTerms() {
+		return terms;
+	}
+
+	public void setTerms(String terms) {
+		this.terms = terms;
 	}
 
 	public boolean isRecurring() {
@@ -156,22 +174,6 @@ public class Invoice {
 		this.number_of_invoices = number_of_invoices;
 	}
 
-	public String getCreated_at() {
-		return created_at;
-	}
-
-	public void setCreated_at(String created_at) {
-		this.created_at = created_at;
-	}
-
-	public String getCreated_by() {
-		return created_by;
-	}
-
-	public void setCreated_by(String created_by) {
-		this.created_by = created_by;
-	}
-
 	public String getLast_updated_at() {
 		return last_updated_at;
 	}
@@ -196,6 +198,14 @@ public class Invoice {
 		this.payment_spring_customer_id = payment_spring_customer_id;
 	}
 
+	public String getTransaction_id() {
+		return transaction_id;
+	}
+
+	public void setTransaction_id(String transaction_id) {
+		this.transaction_id = transaction_id;
+	}
+
 	public List<InvoiceLines> getInvoiceLines() {
 		if (invoiceLines == null) {
 			invoiceLines = new ArrayList<>();
@@ -205,6 +215,16 @@ public class Invoice {
 
 	public void setInvoiceLines(List<InvoiceLines> invoiceLines) {
 		this.invoiceLines = invoiceLines;
+	}
+
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
 	}
 
 }

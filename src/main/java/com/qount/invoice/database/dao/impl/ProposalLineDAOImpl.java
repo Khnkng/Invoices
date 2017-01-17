@@ -150,6 +150,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				pstmt = connection.prepareStatement(DELETE_PROPOSAL_LINE_QRY);
 				for (ProposalLine proposalLine : proposalLines) {
 					pstmt.setString(1, proposalLine.getId());
+					pstmt.setString(2, proposalLine.getProposal_id());
 					pstmt.addBatch();
 				}
 				pstmt.executeBatch();
