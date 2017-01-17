@@ -1,6 +1,7 @@
 package com.qount.invoice.parser;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLines;
 import com.qount.invoice.utils.CommonUtils;
+import com.qount.invoice.utils.Constants;
 
 /**
  * @author Apurva
@@ -27,9 +29,9 @@ public class InvoiceParser {
 				return null;
 			}
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			Timestamp start_date = Timestamp.valueOf(invoice.getStart_date());
-			Timestamp end_date = Timestamp.valueOf(invoice.getEnd_date());
-			Timestamp due_date = Timestamp.valueOf(invoice.getDue_date());
+			Timestamp start_date = convertStringToTimeStamp(invoice.getStart_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp end_date = convertStringToTimeStamp(invoice.getEnd_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
 
 			invoice.setUser_id(userId);
 			invoice.setId(UUID.randomUUID().toString());
@@ -53,6 +55,15 @@ public class InvoiceParser {
 			throw new WebApplicationException(e.getLocalizedMessage(), 500);
 		}
 		return invoice;
+	}
+	
+	public static Timestamp convertStringToTimeStamp(String dateStr, SimpleDateFormat sdf) {
+		try {
+			return new Timestamp(sdf.parse(dateStr).getTime());
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return null;
 	}
 
 	public static Invoice getInvoiceObjToDelete(String user_id, String invoice_id) {
