@@ -83,8 +83,8 @@ public class InvoiceController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Delete expense", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
 	public InvoiceLines deleteInvoiceLine(@PathParam("userID") String userID,
-			@PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID,
+			@PathParam("invoiceID") @NotNull String invoiceID,
 			@PathParam("lineID") @NotNull String lineID) {
-		return InvoiceControllerImpl.deleteInvoiceLine(userID, companyID, invoiceID, lineID);
+		return InvoiceControllerImpl.deleteInvoiceLine(userID,invoiceID, lineID);
 	}
 }
