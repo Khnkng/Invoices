@@ -31,7 +31,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 
 	private final static String INSERT_QRY = "INSERT INTO `proposal` (`id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`)VALUES (?,?,?,?,?,?,?,?,?,?);";
 	private final static String DELETE_QRY = "DELETE FROM proposal WHERE `id`=?;";
-	private final static String GET_QRY = "SELECT proposal.*, proposal_lines.id, proposal_lines.proposal_id, proposal_lines.description, proposal_lines.objectives, proposal_lines.amount, proposal_lines.currency,proposal_lines.last_updated_by,proposal_lines.last_updated_at FROM proposal INNER JOIN proposal_lines ON proposal.id=proposal_lines.proposal_id WHERE proposal.`id` = ? AND proposal.`user_id` = ?;";
+	private final static String GET_QRY = "SELECT proposal.*, proposal_lines.id proposal_line_id, proposal_lines.proposal_id, proposal_lines.description, proposal_lines.objectives, proposal_lines.amount, proposal_lines.currency,proposal_lines.last_updated_by,proposal_lines.last_updated_at FROM proposal INNER JOIN proposal_lines ON proposal.id=proposal_lines.proposal_id WHERE proposal.`id` = ? AND proposal.`user_id` = ?;";
 	private final static String GET_PROPOSAL_LIST_QRY = "SELECT `id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`, `objectives`,`last_updated_by`,`last_updated_at` FROM proposal WHERE `user_id` = ?;";
 
 	@Override
@@ -134,7 +134,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 						proposal.setLast_updated_by(rset.getString("last_updated_by"));
 					}
 					ProposalLine proposalLine = new ProposalLine();
-					proposalLine.setId(rset.getString("id"));
+					proposalLine.setId(rset.getString("proposal_line_id"));
 					proposalLine.setProposal_id(rset.getString("proposal_id"));
 					proposalLine.setDescription(rset.getString("description"));
 					proposalLine.setObjectives(rset.getString("objectives"));
