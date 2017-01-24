@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class ProposalDAOImpl implements ProposalDAO {
@@ -29,16 +30,16 @@ public class ProposalDAOImpl implements ProposalDAO {
 		return proposalDAOImpl;
 	}
 
-	private final static String INSERT_QRY = "INSERT INTO `proposal` (`id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`)VALUES (?,?,?,?,?,?,?,?,?,?);";
+	private final static String INSERT_QRY = "INSERT INTO `proposal` (`id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`,`first_name`,`last_name`,`state`,`proposal_date`,`acceptance_date`,`acceptance_final_date`,`notes`,`item_id`,`item_name`,`coa_id`,`coa_name`,`discount`,`deposit_amount`,`processing_fees`,`remainder_json`,`remainder_mail_json`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+	private final static String UPDATE_QRY = "UPDATE `proposal` SET `user_id` = ?,`company_id` = ?,`company_name` = ?,`amount` = ?,`currency` = ?,`description` = ?,`objectives` = ?,`last_updated_by` = ?,`last_updated_at` = ?,`first_name` = ?,`last_name` = ?,`state` = ?,`proposal_date` = ?,`acceptance_date` = ?,`acceptance_final_date` = ?,`notes` = ?,`item_id` = ?,`item_name` = ?,`coa_id` = ?,`coa_name` = ?,`discount` = ?,`deposit_amount` = ?,`processing_fees` = ?,`remainder_json` = ?,`remainder_mail_json`= ? WHERE `id` = ?";
 	private final static String DELETE_QRY = "DELETE FROM proposal WHERE `id`=?;";
 	private final static String GET_QRY = "SELECT proposal.*, proposal_lines.id proposal_line_id, proposal_lines.proposal_id, proposal_lines.description, proposal_lines.objectives, proposal_lines.amount, proposal_lines.currency,proposal_lines.last_updated_by,proposal_lines.last_updated_at FROM proposal INNER JOIN proposal_lines ON proposal.id=proposal_lines.proposal_id WHERE proposal.`id` = ? AND proposal.`user_id` = ?;";
 	private final static String GET_PROPOSAL_LIST_QRY = "SELECT `id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`, `objectives`,`last_updated_by`,`last_updated_at` FROM proposal WHERE `user_id` = ?;";
 
 	@Override
-	public boolean save(Connection connection, Proposal proposal) {
-		boolean result = false;
+	public Proposal save(Connection connection, Proposal proposal) {
 		if (proposal == null) {
-			return result;
+			return null;
 		}
 		PreparedStatement pstmt = null;
 		try {
@@ -55,7 +56,9 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setString(9, proposal.getLast_updated_by());
 				pstmt.setString(10, proposal.getLast_updated_at());
 				int rowCount = pstmt.executeUpdate();
-				result = rowCount != 0;
+				if (rowCount == 0) {
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -64,14 +67,48 @@ public class ProposalDAOImpl implements ProposalDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		return result;
+		return proposal;
+	}
+	
+	@Override
+	public Proposal update(Connection connection, Proposal proposal) {
+		if (proposal == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt.setString(1, proposal.getId());
+				pstmt.setString(2, proposal.getUser_id());
+				pstmt.setString(3, proposal.getCompany_id());
+				pstmt.setString(4, proposal.getCompany_name());
+				pstmt.setDouble(5, proposal.getAmount());
+				pstmt.setString(6, proposal.getCurrency());
+				pstmt.setString(7, proposal.getDescription());
+				pstmt.setString(8, proposal.getObjectives());
+				pstmt.setString(9, proposal.getLast_updated_by());
+				pstmt.setString(10, proposal.getLast_updated_at());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount == 0) {
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error(e);
+			throw new WebApplicationException(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		return proposal;
 	}
 
 	@Override
-	public boolean deleteAndCreateProposal(Connection connection, String proposalId, Proposal proposal) {
+	public Proposal deleteAndCreateProposal(Connection connection, String proposalId, Proposal proposal) {
 		boolean result = false;
 		if (StringUtils.isBlank(proposalId) && proposal == null) {
-			return result;
+			return null;
 		}
 		PreparedStatement pstmt = null;
 		PreparedStatement pstmt2 = null;
@@ -103,7 +140,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		return result;
+		return proposal;
 	}
 
 	@Override

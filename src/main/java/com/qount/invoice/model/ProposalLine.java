@@ -1,5 +1,8 @@
 package com.qount.invoice.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +24,10 @@ public class ProposalLine {
 	private String currency;
 	private String last_updated_at;
 	private String last_updated_by;
+	private long quantity;
+	private double price;
+	private String notes;
+	private List<ProposalLineTaxes> proposalLineTaxes;
 
 	public String getId() {
 		return id;
@@ -84,6 +91,41 @@ public class ProposalLine {
 
 	public void setLast_updated_by(String last_updated_by) {
 		this.last_updated_by = last_updated_by;
+	}
+
+	public long getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(long quantity) {
+		this.quantity = quantity;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
+	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+	public List<ProposalLineTaxes> getProposalLineTaxes() {
+		if (proposalLineTaxes == null) {
+			proposalLineTaxes = new ArrayList<>();
+		}
+		return proposalLineTaxes;
+	}
+
+	public void setProposalLineTaxes(List<ProposalLineTaxes> proposalLineTaxes) {
+		this.proposalLineTaxes = proposalLineTaxes;
 	}
 
 	@Override

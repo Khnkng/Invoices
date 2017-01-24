@@ -5,6 +5,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -15,6 +18,8 @@ import com.google.common.base.Splitter;
 
 public class CommonUtils {
 	private static final Logger LOGGER = Logger.getLogger(CommonUtils.class);
+	public static final String STATUS = "status";
+	public static final String MESSAGE = "message";
 
 	public static String toCommaSeparatedString(List<String> strings) {
 		Joiner joiner = Joiner.on(",").skipNulls();
@@ -80,5 +85,11 @@ public class CommonUtils {
 		PrintWriter pw = new PrintWriter(sw);
 		th.printStackTrace(pw);
 		return sw.toString();
+	}
+	
+	public static Response constructResponse(String message, int statusHeader) {
+		JSONObject responseJSON = new JSONObject();
+		responseJSON.put(MESSAGE, message);
+		return Response.status(statusHeader).entity(responseJSON.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
 	}
 }
