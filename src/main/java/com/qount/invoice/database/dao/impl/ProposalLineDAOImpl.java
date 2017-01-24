@@ -29,8 +29,9 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		return proposalLineDAOImpl;
 	}
 
-	private final static String INSERT_QRY = "INSERT INTO `proposal_lines` (`id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-	private final static String GET_LINES_QRY = " SELECT `id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at` FROM proposal_lines WHERE `proposal_id` = ?;";
+	private final static String INSERT_QRY = "INSERT INTO `proposal_lines` (`id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes`) VALUES (?,?,?,?,?,?,?,?,?,?,?);";
+	private final static String UPADTE_QRY = "UPDATE `proposal_lines` SET `description` = ?,`objectives` = ?,`amount`= ?,`currency` = ?,`last_updated_by`=?,`last_updated_at` = ?,`quantity` = ?,`price` = ?,`notes` = ? WHERE id = ?;";
+	private final static String GET_LINES_QRY = "SELECT `id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes` FROM proposal_lines WHERE `id` = ?;";
 	private final static String DELETE_PROPOSAL_LINE_QRY = "DELETE FROM `proposal_lines` WHERE `id` = ? AND `proposal_id` = ?";
 
 	@Override
@@ -53,6 +54,9 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				pstmt.setString(6, proposalLine.getCurrency());
 				pstmt.setString(7, proposalLine.getLast_updated_by());
 				pstmt.setString(8, proposalLine.getLast_updated_at());
+				pstmt.setLong(9, proposalLine.getQuantity());
+				pstmt.setDouble(10, proposalLine.getPrice());
+				pstmt.setString(11, proposalLine.getNotes());
 				int rowCount = pstmt.executeUpdate();
 				result = rowCount != 0;
 			}
