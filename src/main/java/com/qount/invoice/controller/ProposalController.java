@@ -16,11 +16,16 @@ import javax.ws.rs.core.MediaType;
 
 import com.qount.invoice.controllerImpl.ProposalControllerImpl;
 import com.qount.invoice.model.Proposal;
-import com.qount.invoice.model.ProposalLine;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * 
+ * @author Apurva, Qount.
+ * @version 1.0, 30 Nov 2016
+ *
+ */
 @Api(value = "proposal")
 @Path("/user/{userID}/proposal")
 public class ProposalController {
@@ -77,13 +82,4 @@ public class ProposalController {
 		return ProposalControllerImpl.deleteProposalById(userID, proposalID);
 	}
 
-	@DELETE
-	@Path("/{proposalID}/proposalline/{proposalLineID}")
-	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Delete expense", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
-	public ProposalLine deleteProposalLine(@PathParam("userID") String userID,
-			@PathParam("proposalID") @NotNull String proposalID,
-			@PathParam("proposalLineID") @NotNull String proposalLineID) {
-		return ProposalControllerImpl.deleteProposalLine(userID, proposalID, proposalLineID);
-	}
 }

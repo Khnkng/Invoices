@@ -18,7 +18,12 @@ import com.qount.invoice.model.Invoice;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
+/**
+ * 
+ * @author Apurva, Qount.
+ * @version 1.0, 30 Nov 2016
+ *
+ */
 @Api(value = "Invoice")
 @Path("/user/{userID}/invoice")
 public class InvoiceController {

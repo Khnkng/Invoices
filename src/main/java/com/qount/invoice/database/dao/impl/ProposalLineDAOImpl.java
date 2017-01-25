@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.model.ProposalLine;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class ProposalLineDAOImpl implements ProposalLineDAO {
@@ -30,15 +31,14 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	private final static String INSERT_QRY = "INSERT INTO `proposal_lines` (`id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes`) VALUES (?,?,?,?,?,?,?,?,?,?,?);";
-	private final static String UPADTE_QRY = "UPDATE `proposal_lines` SET `description` = ?,`objectives` = ?,`amount`= ?,`currency` = ?,`last_updated_by`=?,`last_updated_at` = ?,`quantity` = ?,`price` = ?,`notes` = ? WHERE id = ?;";
+//	private final static String UPADTE_QRY = "UPDATE `proposal_lines` SET `description` = ?,`objectives` = ?,`amount`= ?,`currency` = ?,`last_updated_by`=?,`last_updated_at` = ?,`quantity` = ?,`price` = ?,`notes` = ? WHERE id = ?;";
 	private final static String GET_LINES_QRY = "SELECT `id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes` FROM proposal_lines WHERE `id` = ?;";
 	private final static String DELETE_PROPOSAL_LINE_QRY = "DELETE FROM `proposal_lines` WHERE `id` = ? AND `proposal_id` = ?";
 
 	@Override
-	public boolean save(Connection connection, ProposalLine proposalLine) {
-		boolean result = false;
+	public ProposalLine save(Connection connection, ProposalLine proposalLine) {
 		if (proposalLine == null) {
-			return result;
+			return null;
 		}
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -58,7 +58,9 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				pstmt.setDouble(10, proposalLine.getPrice());
 				pstmt.setString(11, proposalLine.getNotes());
 				int rowCount = pstmt.executeUpdate();
-				result = rowCount != 0;
+				if (rowCount == 0) {
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -66,7 +68,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		return result;
+		return proposalLine;
 	}
 
 	@Override
@@ -105,11 +107,10 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	@Override
-	public boolean batchSave(Connection connection, List<ProposalLine> proposalLines) {
+	public List<ProposalLine> batchSave(Connection connection, List<ProposalLine> proposalLines) {
 		if (proposalLines.size() == 0) {
-			return true;
+			return proposalLines;
 		}
-		boolean result = false;
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
@@ -129,7 +130,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				}
 				int[] rowCount = pstmt.executeBatch();
 				if (rowCount != null) {
-					result = true;
+					return proposalLines;
 				} else {
 					throw new WebApplicationException("unable to create proposal lines", 500);
 				}
@@ -139,15 +140,14 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		return result;
+		return proposalLines;
 	}
 
 	@Override
-	public boolean batchDelete(Connection connection, List<ProposalLine> proposalLines) {
+	public List<ProposalLine> batchDelete(Connection connection, List<ProposalLine> proposalLines) {
 		if (proposalLines.size() == 0) {
-			return true;
+			return proposalLines;
 		}
-		boolean result = false;
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
@@ -157,15 +157,19 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 					pstmt.setString(2, proposalLine.getProposal_id());
 					pstmt.addBatch();
 				}
-				pstmt.executeBatch();
-				result = true;
+				int[] rowCount = pstmt.executeBatch();
+				if (rowCount != null) {
+					return proposalLines;
+				} else {
+					throw new WebApplicationException("unable to delete proposal lines", 500);
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		return result;
+		return proposalLines;
 	}
 
 	@Override

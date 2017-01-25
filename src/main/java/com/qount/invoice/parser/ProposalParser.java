@@ -1,6 +1,8 @@
 package com.qount.invoice.parser;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
+import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.ResponseUtil;
@@ -23,27 +26,42 @@ import com.qount.invoice.utils.ResponseUtil;
  */
 public class ProposalParser {
 
-	private static final Logger LOGGER = Logger.getLogger(InvoiceParser.class);
+	private static final Logger LOGGER = Logger.getLogger(ProposalParser.class);
 
-	public static Proposal getProposalObj(String userId,Proposal proposal) {
+	public static Proposal getProposalObj(String userId, Proposal proposal) {
 		try {
 			if (StringUtils.isEmpty(userId) && proposal == null) {
 				return null;
 			}
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+			Timestamp proposal_date = convertStringToTimeStamp(proposal.getProposal_date(),
+					Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp acceptance_date = convertStringToTimeStamp(proposal.getAcceptance_date(),
+					Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp acceptance_final_date = convertStringToTimeStamp(proposal.getAcceptance_final_date(),
+					Constants.TIME_STATMP_TO_BILLS_FORMAT);
 			proposal.setUser_id(userId);
-			proposal.setId(UUID.randomUUID().toString());
+			if(proposal.getId() == null){
+				proposal.setId(UUID.randomUUID().toString());
+			}
 			proposal.setLast_updated_at(timestamp.toString());
 			proposal.setLast_updated_by(userId);
+			proposal.setProposal_date(proposal_date.toString());
+			proposal.setAcceptance_date(acceptance_date.toString());
+			proposal.setAcceptance_final_date(acceptance_final_date.toString());
+
 			List<ProposalLine> proposalLines = proposal.getProposalLines();
-			Iterator<ProposalLine> proposalLineItr = proposalLines.iterator();
-			while(proposalLineItr.hasNext()){
-				ProposalLine line = proposalLineItr.next();	
-				line.setId(UUID.randomUUID().toString());
-				line.setProposal_id(proposal.getId());
-				line.setLast_updated_at(timestamp.toString());
-				line.setLast_updated_by(userId);
+			if (!proposalLines.isEmpty()) {
+				Iterator<ProposalLine> proposalLineItr = proposalLines.iterator();
+				while (proposalLineItr.hasNext()) {
+					ProposalLine line = proposalLineItr.next();
+					line.setId(UUID.randomUUID().toString());
+					line.setProposal_id(proposal.getId());
+					line.setLast_updated_at(timestamp.toString());
+					line.setLast_updated_by(userId);
+				}
 			}
+
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			return null;
@@ -81,6 +99,30 @@ public class ProposalParser {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e.getLocalizedMessage(), 500);
 		}
+	}
+
+	public static Timestamp convertStringToTimeStamp(String dateStr, SimpleDateFormat sdf) {
+		try {
+			return new Timestamp(sdf.parse(dateStr).getTime());
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return null;
+	}
+
+	public static List<ProposalLineTaxes> getProposalLineTaxesList(List<ProposalLine> proposalLinesList) {
+		List<ProposalLineTaxes> restlt = new ArrayList<ProposalLineTaxes>();
+		Iterator<ProposalLine> ProposalLineItr = proposalLinesList.iterator();
+		while (ProposalLineItr.hasNext()) {
+			ProposalLine proposalLine = ProposalLineItr.next();
+			List<ProposalLineTaxes> lineTaxesList = proposalLine.getProposalLineTaxes();
+			Iterator<ProposalLineTaxes> ProposalLineTaxesItr = lineTaxesList.iterator();
+			while (ProposalLineTaxesItr.hasNext()) {
+				ProposalLineTaxes proposalLineTaxes = ProposalLineTaxesItr.next();
+				restlt.add(proposalLineTaxes);
+			}
+		}
+		return restlt;
 	}
 
 }

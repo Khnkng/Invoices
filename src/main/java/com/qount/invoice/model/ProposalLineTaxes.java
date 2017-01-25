@@ -2,16 +2,16 @@ package com.qount.invoice.model;
 
 public class ProposalLineTaxes {
 
-	private String id;
+	private String proposal_line_id;
 	private String tax_id;
 	private String tax_rate;
 
-	public String getId() {
-		return id;
+	public String getProposal_line_id() {
+		return proposal_line_id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setProposal_line_id(String proposal_line_id) {
+		this.proposal_line_id = proposal_line_id;
 	}
 
 	public String getTax_id() {
