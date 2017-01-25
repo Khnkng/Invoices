@@ -12,11 +12,13 @@ import com.jcraft.jsch.Session;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.InvoiceLineDAO;
+import com.qount.invoice.database.dao.InvoicePreferenceDAO;
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.database.dao.ProposalLineTaxesDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceLineDAOImpl;
+import com.qount.invoice.database.dao.impl.InvoicePreferenceDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineTaxesDAOImpl;
@@ -41,6 +43,8 @@ public class MySQLManager {
 
 	private static InvoiceLineDAO invoiceLineDAO = null;
 
+	private static InvoicePreferenceDAO invoicePreferenceDAO = null;
+	
 	private MySQLManager() {
 
 	}
@@ -140,5 +144,12 @@ public class MySQLManager {
 			invoiceLineDAO = InvoiceLineDAOImpl.getInvoiceLineDAOImpl();
 		}
 		return invoiceLineDAO;
+	}
+	
+	public static InvoicePreferenceDAO getInvoicePreferenceDAOInstance() {
+		if (invoicePreferenceDAO == null) {
+			invoicePreferenceDAO = InvoicePreferenceDAOImpl.getInvoicePreferenceDAOImpl();
+		}
+		return invoicePreferenceDAO;
 	}
 }
