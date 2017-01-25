@@ -150,7 +150,6 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(e);
 		}
 		LOGGER.debug("exited getInvoiceByCompanyId:" + invoicePreference);
 		return result;
