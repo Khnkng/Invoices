@@ -38,6 +38,7 @@ import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
+import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.parser.ProposalParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -62,6 +63,7 @@ public class ProposalControllerImpl {
 			connection.setAutoCommit(false);
 			Proposal proposalResult = MySQLManager.getProposalDAOInstance().save(connection, proposalObj);
 			if (proposalResult != null) {
+				List<ProposalTaxes> proposalTaxesList = proposalObj.getProposalTaxes();
 				List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance().batchSave(connection,
 						proposalObj.getProposalLines());
 				if (!proposalLineResult.isEmpty()) {
