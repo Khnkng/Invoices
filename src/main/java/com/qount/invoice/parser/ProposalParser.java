@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
+import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.ResponseUtil;
@@ -41,7 +42,7 @@ public class ProposalParser {
 			Timestamp acceptance_final_date = convertStringToTimeStamp(proposal.getAcceptance_final_date(),
 					Constants.TIME_STATMP_TO_BILLS_FORMAT);
 			proposal.setUser_id(userId);
-			if(proposal.getId() == null){
+			if (proposal.getId() == null) {
 				proposal.setId(UUID.randomUUID().toString());
 			}
 			proposal.setLast_updated_at(timestamp.toString());
@@ -124,5 +125,4 @@ public class ProposalParser {
 		}
 		return restlt;
 	}
-
 }

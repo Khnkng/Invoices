@@ -15,11 +15,13 @@ import com.qount.invoice.database.dao.InvoiceLineDAO;
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.database.dao.ProposalLineTaxesDAO;
+import com.qount.invoice.database.dao.ProposalTaxesDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceLineDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineTaxesDAOImpl;
+import com.qount.invoice.database.dao.impl.ProposalTaxesDAOImpl;
 
 public class MySQLManager {
 
@@ -36,6 +38,8 @@ public class MySQLManager {
 	private static ProposalLineDAO proposalLineDAO = null;
 	
 	private static ProposalLineTaxesDAO proposalLineTaxesDAO = null;
+	
+	private static ProposalTaxesDAOImpl proposalTaxesDAOImpl = null;
 	
 	private static InvoiceDAO invoiceDAO = null;
 
@@ -126,6 +130,13 @@ public class MySQLManager {
 			proposalLineTaxesDAO = ProposalLineTaxesDAOImpl.getProposalLineTaxesDAOImpl();
 		}
 		return proposalLineTaxesDAO;
+	}
+	
+	public static ProposalTaxesDAO getProposalTaxesDAOInstance() {
+		if (proposalTaxesDAOImpl == null) {
+			proposalTaxesDAOImpl = ProposalTaxesDAOImpl.getProposalTaxesDAOImpl();
+		}
+		return proposalTaxesDAOImpl;
 	}
 	
 	public static InvoiceDAO getInvoiceDAOInstance() {

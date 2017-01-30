@@ -15,7 +15,7 @@ import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
-	private static Logger LOGGER = Logger.getLogger(ProposalDAOImpl.class);
+	private static Logger LOGGER = Logger.getLogger(ProposalLineTaxesDAOImpl.class);
 
 	private ProposalLineTaxesDAOImpl() {
 	}

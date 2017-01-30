@@ -43,7 +43,7 @@ public class Proposal {
 	private String remainder_json;
 	private String remainder_mail_json;
 	private List<ProposalLine> proposalLines;
-	private List<ProposalLineTaxes> ProposalLineTaxes;
+	private List<ProposalTaxes> ProposalTaxes;
 
 	public String getId() {
 		return id;
@@ -264,12 +264,12 @@ public class Proposal {
 		this.proposalLines = proposalLines;
 	}
 
-	public List<ProposalLineTaxes> getProposalLineTaxes() {
-		return ProposalLineTaxes;
+	public List<ProposalTaxes> getProposalTaxes() {
+		return ProposalTaxes;
 	}
 
-	public void setProposalLineTaxes(List<ProposalLineTaxes> proposalLineTaxes) {
-		ProposalLineTaxes = proposalLineTaxes;
+	public void setProposalTaxes(List<ProposalTaxes> proposalTaxes) {
+		ProposalTaxes = proposalTaxes;
 	}
 
 	@Override
