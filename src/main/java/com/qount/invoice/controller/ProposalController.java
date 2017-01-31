@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 
  * @author Apurva, Qount.
- * @version 1.0, 30 Nov 2016
+ * @version 1.0, 30 Jan 2016
  *
  */
 @Api(value = "proposal")

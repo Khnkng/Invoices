@@ -15,7 +15,12 @@ import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
-
+/**
+ * 
+ * @author Apurva, Qount.
+ * @version 1.0, 30 Jan 2016
+ *
+ */
 public class ProposalDAOImpl implements ProposalDAO {
 
 	private static Logger LOGGER = Logger.getLogger(ProposalDAOImpl.class);
@@ -65,7 +70,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setString(19, proposal.getItem_name());
 				pstmt.setString(20, proposal.getCoa_id());
 				pstmt.setString(21, proposal.getCoa_name());
-				pstmt.setLong(22, proposal.getDiscount());
+				pstmt.setDouble(22, proposal.getDiscount());
 				pstmt.setDouble(23, proposal.getDeposit_amount());
 				pstmt.setDouble(24, proposal.getProcessing_fees());
 				pstmt.setString(25, proposal.getRemainder_json());
@@ -119,7 +124,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setString(18, proposal.getItem_name());
 				pstmt.setString(19, proposal.getCoa_id());
 				pstmt.setString(20, proposal.getCoa_name());
-				pstmt.setLong(21, proposal.getDiscount());
+				pstmt.setDouble(21, proposal.getDiscount());
 				pstmt.setDouble(22, proposal.getDeposit_amount());
 				pstmt.setDouble(23, proposal.getProcessing_fees());
 				pstmt.setString(24, proposal.getRemainder_json());
@@ -218,6 +223,22 @@ public class ProposalDAOImpl implements ProposalDAO {
 					proposal.setObjectives(rset.getString("objectives"));
 					proposal.setLast_updated_at(rset.getString("last_updated_at"));
 					proposal.setLast_updated_by(rset.getString("last_updated_by"));
+					proposal.setFirst_name(rset.getString("first_name"));
+					proposal.setLast_name(rset.getString("last_name"));
+					proposal.setState(rset.getString("state"));	
+					proposal.setProposal_date(rset.getString("proposal_date"));
+					proposal.setAcceptance_date(rset.getString("acceptance_date"));
+					proposal.setAcceptance_final_date(rset.getString("acceptance_final_date"));
+					proposal.setNotes(rset.getString("notes"));
+					proposal.setItem_id(rset.getString("item_id"));
+					proposal.setItem_name(rset.getString("item_name"));
+					proposal.setCoa_id(rset.getString("coa_id"));
+					proposal.setCoa_name(rset.getString("coa_name"));
+					proposal.setDiscount(rset.getDouble("discount"));
+					proposal.setDeposit_amount(rset.getDouble("deposite_amount"));
+					proposal.setProcessing_fees(rset.getDouble("processing_fees"));
+					proposal.setRemainder_json(rset.getString("remainder_json"));
+					proposal.setRemainder_mail_json(rset.getString("remainder_mail_json"));
 					proposals.add(proposal);
 				}
 			}

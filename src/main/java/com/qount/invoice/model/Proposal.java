@@ -37,7 +37,7 @@ public class Proposal {
 	private String item_name;
 	private String coa_id;
 	private String coa_name;
-	private int discount;
+	private double discount;
 	private double deposit_amount;
 	private double processing_fees;
 	private String remainder_json;
@@ -213,11 +213,11 @@ public class Proposal {
 		this.coa_name = coa_name;
 	}
 
-	public int getDiscount() {
+	public double getDiscount() {
 		return discount;
 	}
 
-	public void setDiscount(int discount) {
+	public void setDiscount(double discount) {
 		this.discount = discount;
 	}
 

@@ -18,7 +18,7 @@ public interface ProposalTaxesDAO {
 	
 	public List<ProposalTaxes> update(Connection connection, List<ProposalTaxes> proposalTaxes);
 
-	public ProposalTaxes batchDelete(Connection connection, List<ProposalTaxes> proposalTaxes);
+	public List<ProposalTaxes> batchDeleteAndSave(String proposalId,List<ProposalTaxes> proposalTaxes);
 
-	public ProposalTaxes deleteProposalLine(ProposalTaxes proposalTaxes);
+	public ProposalTaxes deleteProposalTax(ProposalTaxes proposalTax);
 }

@@ -10,7 +10,6 @@ import javax.ws.rs.WebApplicationException;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalLineTaxesDAO;
-import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.DatabaseUtilities;
 
@@ -25,7 +24,7 @@ public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 	public static ProposalLineTaxesDAOImpl getProposalLineTaxesDAOImpl() {
 		return proposalLineTaxesDAOImpl;
 	}
-	
+
 	private final static String INSERT_QRY = "INSERT INTO proposal_line_taxes (`proposal_line_id`,`tax_id`,`tax_rate`) VALUES (?,?,?);";
 
 	@Override
@@ -35,7 +34,7 @@ public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 	}
 
 	@Override
-	public List<ProposalLineTaxes> batchSave(Connection connection,List<ProposalLineTaxes> proposalLinesTaxes) {
+	public List<ProposalLineTaxes> batchSave(Connection connection, List<ProposalLineTaxes> proposalLinesTaxes) {
 		if (proposalLinesTaxes.size() == 0) {
 			return proposalLinesTaxes;
 		}
@@ -55,9 +54,12 @@ public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 				if (rowCount != null) {
 					return proposalLinesTaxes;
 				} else {
-					throw new WebApplicationException("unable to create proposal line taxes", 500);
+					throw new WebApplicationException("unable to inserting proposal line taxes", 500);
 				}
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error inserting proposal line taxes:" + ",  ", e);
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {

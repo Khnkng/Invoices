@@ -44,6 +44,12 @@ import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.ResponseUtil;
 
+/**
+ * 
+ * @author Apurva, Qount.
+ * @version 1.0, 30 Nov 2016
+ *
+ */
 public class ProposalControllerImpl {
 	private static final Logger LOGGER = Logger.getLogger(ProposalControllerImpl.class);
 
@@ -64,16 +70,20 @@ public class ProposalControllerImpl {
 			Proposal proposalResult = MySQLManager.getProposalDAOInstance().save(connection, proposalObj);
 			if (proposalResult != null) {
 				List<ProposalTaxes> proposalTaxesList = proposalObj.getProposalTaxes();
-				List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance().batchSave(connection,
-						proposalObj.getProposalLines());
-				if (!proposalLineResult.isEmpty()) {
-					List<ProposalLineTaxes> newList = ProposalParser
-							.getProposalLineTaxesList(proposalObj.getProposalLines());
-					List<ProposalLineTaxes> proposalLineTaxesResult = MySQLManager.getProposalLineTaxesDAOInstance()
-							.batchSave(connection, newList);
-					if (!proposalLineTaxesResult.isEmpty()) {
-						connection.commit();
-						return proposalObj;
+				List<ProposalTaxes> proposalTaxResult = MySQLManager.getProposalTaxesDAOInstance()
+						.saveProposalTaxes(connection, proposalTaxesList);
+				if (!proposalTaxResult.isEmpty()) {
+					List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance()
+							.batchSave(connection, proposalObj.getProposalLines());
+					if (!proposalLineResult.isEmpty()) {
+						List<ProposalLineTaxes> proposalLineTaxesList = ProposalParser
+								.getProposalLineTaxesList(proposalObj.getProposalLines());
+						List<ProposalLineTaxes> proposalLineTaxesResult = MySQLManager.getProposalLineTaxesDAOInstance()
+								.batchSave(connection, proposalLineTaxesList);
+						if (!proposalLineTaxesResult.isEmpty()) {
+							connection.commit();
+							return proposalObj;
+						}
 					}
 				}
 			}
