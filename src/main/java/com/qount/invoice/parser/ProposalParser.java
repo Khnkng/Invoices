@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
-import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.ResponseUtil;

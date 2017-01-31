@@ -5,8 +5,14 @@ import java.util.List;
 
 import com.qount.invoice.model.ProposalLineTaxes;
 
+/**
+ * 
+ * @author Apurva, Qount.
+ * @version 1.0, 30 Jan 2016
+ *
+ */
 public interface ProposalLineTaxesDAO {
-	
+
 	public ProposalLineTaxes save(Connection connection, ProposalLineTaxes proposalLineTaxes);
 
 	public List<ProposalLineTaxes> batchSave(Connection connection, List<ProposalLineTaxes> proposalLinesTaxes);
