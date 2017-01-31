@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -136,6 +138,21 @@ public class ProposalLine {
 			e.printStackTrace();
 		}
 		return super.toString();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		try {
+			if (null != obj && obj instanceof ProposalLine) {
+				ProposalLine arg = (ProposalLine) obj;
+				if(!StringUtils.isBlank(arg.getId())&&arg.getId().equals(this.getId())){
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.equals(obj);
 	}
 
 }
