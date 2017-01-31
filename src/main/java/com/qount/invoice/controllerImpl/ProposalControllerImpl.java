@@ -140,7 +140,7 @@ public class ProposalControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
-			return ProposalDAOImpl.getProposalDAOImpl().get(proposalId, userId);
+			return ProposalDAOImpl.getProposalDAOImpl().get(proposalId);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,

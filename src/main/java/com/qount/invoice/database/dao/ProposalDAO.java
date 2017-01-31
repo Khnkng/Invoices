@@ -18,7 +18,7 @@ public interface ProposalDAO {
 
 	public Proposal updateProposal(Proposal proposal);
 
-	public Proposal get(String proposalID, String userID);
+	public Proposal get(String proposalID);
 
 	public List<Proposal> getProposalList(String companyID);
 
