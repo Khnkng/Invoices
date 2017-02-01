@@ -19,7 +19,7 @@ public interface ProposalLineDAO {
 
 	public List<ProposalLine> batchSave(Connection connection, List<ProposalLine> proposalLines);
 	
-	public List<ProposalLine> batchUpdate(Connection connection, List<ProposalLine> proposalLines);
+	public ProposalLine update(Connection connection, ProposalLine proposalLine);
 
 	public List<ProposalLine> batchDelete(Connection connection, List<ProposalLine> proposalLines);
 

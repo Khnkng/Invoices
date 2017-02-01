@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.model.ProposalLine;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class ProposalLineDAOImpl implements ProposalLineDAO {
@@ -30,7 +31,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	private final static String INSERT_QRY = "INSERT INTO `proposal_lines` (`id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes`) VALUES (?,?,?,?,?,?,?,?,?,?,?);";
-	private final static String UPADTE_QRY = "UPDATE `proposal_lines` SET `description` = ?,`objectives` = ?,`amount`= ?,`currency` = ?,`last_updated_by`=?,`last_updated_at` = ?,`quantity` = ?,`price` = ?,`notes` = ? WHERE id = ? ;";
+	private final static String UPADTE_QRY = "UPDATE `proposal_lines` SET `description` = ?,`objectives` = ?,`amount`= ?,`currency` = ?,`last_updated_by`= ?,`last_updated_at` = ?,`quantity` = ?,`price` = ?,`notes` = ? WHERE `id` = ? AND `proposal_id` = ?;";
 	private final static String GET_LINES_QRY = "SELECT `id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes` FROM proposal_lines WHERE `id` = ?;";
 	private final static String DELETE_PROPOSAL_LINE_QRY = "DELETE FROM `proposal_lines` WHERE `id` = ? AND `proposal_id` = ?";
 
@@ -57,6 +58,9 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 					proposalLine.setCurrency(rset.getString("currency"));
 					proposalLine.setLast_updated_at(rset.getString("last_updated_at"));
 					proposalLine.setLast_updated_by(rset.getString("last_updated_by"));
+					proposalLine.setQuantity(rset.getDouble("quantity"));
+					proposalLine.setPrice(rset.getDouble("price"));
+					proposalLine.setNotes(rset.getString("notes"));
 					proposalLines.add(proposalLine);
 				}
 			}
@@ -95,12 +99,13 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 					pstmt.addBatch();
 				}
 				int[] rowCount = pstmt.executeBatch();
-				if (rowCount != null) {
-					return proposalLines;
-				} else {
+				if (rowCount == null) {
 					throw new WebApplicationException("unable to create proposal lines", 500);
 				}
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error creating proposal lines:" + ",  ", e);
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {
@@ -110,40 +115,39 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	@Override
-	public List<ProposalLine> batchUpdate(Connection connection, List<ProposalLine> proposalLines) {
-		if (proposalLines.size() == 0) {
-			return proposalLines;
+	public ProposalLine update(Connection connection, ProposalLine proposalLine) {
+		if (proposalLine == null) {
+			return null;
 		}
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(UPADTE_QRY);
-				Iterator<ProposalLine> ProposalLineItr = proposalLines.iterator();
-				while (ProposalLineItr.hasNext()) {
-					ProposalLine proposalLine = ProposalLineItr.next();
-					pstmt.setString(1, proposalLine.getId());
-					pstmt.setString(2, proposalLine.getProposal_id());
-					pstmt.setString(3, proposalLine.getDescription());
-					pstmt.setString(4, proposalLine.getObjectives());
-					pstmt.setDouble(5, proposalLine.getAmount());
-					pstmt.setString(6, proposalLine.getCurrency());
-					pstmt.setString(7, proposalLine.getLast_updated_by());
-					pstmt.setString(8, proposalLine.getLast_updated_at());
-					pstmt.addBatch();
-				}
-				int[] rowCount = pstmt.executeBatch();
-				if (rowCount != null) {
-					return proposalLines;
-				} else {
-					throw new WebApplicationException("unable to create proposal lines", 500);
-				}
+				pstmt.setString(1, proposalLine.getDescription());
+				pstmt.setString(2, proposalLine.getObjectives());
+				pstmt.setDouble(3, proposalLine.getAmount());
+				pstmt.setString(4, proposalLine.getCurrency());
+				pstmt.setString(5, proposalLine.getLast_updated_by());
+				pstmt.setString(6, proposalLine.getLast_updated_at());
+				pstmt.setDouble(7, proposalLine.getQuantity());
+				pstmt.setDouble(8, proposalLine.getPrice());
+				pstmt.setString(9, proposalLine.getNotes());
+				pstmt.setString(10, proposalLine.getId());
+				pstmt.setString(11, proposalLine.getProposal_id());
 			}
+			int rowCount = pstmt.executeUpdate();
+			if (rowCount == 0) {
+				throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error updating proposal:" + proposalLine.getId() + ",  ", e);
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		return proposalLines;
+		return proposalLine;
 	}
 
 	@Override

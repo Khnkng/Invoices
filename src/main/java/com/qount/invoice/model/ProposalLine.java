@@ -26,7 +26,7 @@ public class ProposalLine {
 	private String currency;
 	private String last_updated_at;
 	private String last_updated_by;
-	private long quantity;
+	private double quantity;
 	private double price;
 	private String notes;
 	private List<ProposalLineTaxes> proposalLineTaxes;
@@ -95,11 +95,11 @@ public class ProposalLine {
 		this.last_updated_by = last_updated_by;
 	}
 
-	public long getQuantity() {
+	public double getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(long quantity) {
+	public void setQuantity(double quantity) {
 		this.quantity = quantity;
 	}
 
