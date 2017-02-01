@@ -1,4 +1,5 @@
 package com.qount.invoice.model;
+
 /**
  * @author Apurva
  * @version 1.0 Jan 15 2017
@@ -7,7 +8,7 @@ public class ProposalLineTaxes {
 
 	private String proposal_line_id;
 	private String tax_id;
-	private String tax_rate;
+	private double tax_rate;
 
 	public String getProposal_line_id() {
 		return proposal_line_id;
@@ -25,11 +26,11 @@ public class ProposalLineTaxes {
 		this.tax_id = tax_id;
 	}
 
-	public String getTax_rate() {
+	public double getTax_rate() {
 		return tax_rate;
 	}
 
-	public void setTax_rate(String tax_rate) {
+	public void setTax_rate(double tax_rate) {
 		this.tax_rate = tax_rate;
 	}
 

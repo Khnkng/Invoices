@@ -140,7 +140,13 @@ public class ProposalControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
-			return ProposalDAOImpl.getProposalDAOImpl().get(proposalId);
+			Proposal result = ProposalDAOImpl.getProposalDAOImpl().get(proposalId);
+			if (result != null) {
+				List<ProposalTaxes> proposalTaxesList = MySQLManager.getProposalTaxesDAOInstance()
+						.getByProposalID(proposalId);
+				result.setProposalTaxes(proposalTaxesList);
+			}
+			return result;
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,

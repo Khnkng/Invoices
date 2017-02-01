@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class ProposalLineDAOImpl implements ProposalLineDAO {
@@ -34,42 +33,6 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	private final static String UPADTE_QRY = "UPDATE `proposal_lines` SET `description` = ?,`objectives` = ?,`amount`= ?,`currency` = ?,`last_updated_by`=?,`last_updated_at` = ?,`quantity` = ?,`price` = ?,`notes` = ? WHERE id = ? ;";
 	private final static String GET_LINES_QRY = "SELECT `id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes` FROM proposal_lines WHERE `id` = ?;";
 	private final static String DELETE_PROPOSAL_LINE_QRY = "DELETE FROM `proposal_lines` WHERE `id` = ? AND `proposal_id` = ?";
-
-	@Override
-	public ProposalLine save(Connection connection, ProposalLine proposalLine) {
-		if (proposalLine == null) {
-			return null;
-		}
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		try {
-			conn = DatabaseUtilities.getReadWriteConnection();
-			if (conn != null) {
-				pstmt = conn.prepareStatement(INSERT_QRY);
-				pstmt.setString(1, proposalLine.getId());
-				pstmt.setString(2, proposalLine.getProposal_id());
-				pstmt.setString(3, proposalLine.getDescription());
-				pstmt.setString(4, proposalLine.getObjectives());
-				pstmt.setDouble(5, proposalLine.getAmount());
-				pstmt.setString(6, proposalLine.getCurrency());
-				pstmt.setString(7, proposalLine.getLast_updated_by());
-				pstmt.setString(8, proposalLine.getLast_updated_at());
-				pstmt.setLong(9, proposalLine.getQuantity());
-				pstmt.setDouble(10, proposalLine.getPrice());
-				pstmt.setString(11, proposalLine.getNotes());
-				int rowCount = pstmt.executeUpdate();
-				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.error(e);
-		} finally {
-			DatabaseUtilities.closeStatement(pstmt);
-		}
-		return proposalLine;
-	}
 
 	@Override
 	public List<ProposalLine> getLines(Connection connection, String proposalID) {
@@ -126,6 +89,9 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 					pstmt.setString(6, proposalLine.getCurrency());
 					pstmt.setString(7, proposalLine.getLast_updated_by());
 					pstmt.setString(8, proposalLine.getLast_updated_at());
+					pstmt.setDouble(9, proposalLine.getQuantity());
+					pstmt.setDouble(10, proposalLine.getPrice());
+					pstmt.setString(11, proposalLine.getNotes());
 					pstmt.addBatch();
 				}
 				int[] rowCount = pstmt.executeBatch();
@@ -142,7 +108,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		}
 		return proposalLines;
 	}
-	
+
 	@Override
 	public List<ProposalLine> batchUpdate(Connection connection, List<ProposalLine> proposalLines) {
 		if (proposalLines.size() == 0) {

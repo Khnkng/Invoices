@@ -21,4 +21,6 @@ public interface ProposalTaxesDAO {
 	public List<ProposalTaxes> batchDeleteAndSave(String proposalId,List<ProposalTaxes> proposalTaxes);
 
 	public ProposalTaxes deleteProposalTax(ProposalTaxes proposalTax);
+	
+	public List<ProposalTaxes> getByProposalID(String proposalID);
 }

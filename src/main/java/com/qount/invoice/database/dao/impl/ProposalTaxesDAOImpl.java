@@ -2,6 +2,8 @@ package com.qount.invoice.database.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,6 +16,7 @@ import com.qount.invoice.database.dao.ProposalTaxesDAO;
 import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
+
 /**
  * 
  * @author Apurva, Qount.
@@ -35,6 +38,7 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 
 	private final static String INSERT_QRY = "INSERT INTO proposal_taxes (`proposal_id`,`tax_id`,`tax_rate`) VALUES (?,?,?);";
 	private final static String DELETE_QRY = "DELETE FROM `proposal_taxes` WHERE `proposal_id`=?;";
+	private final static String GET_QRY = "SELECT * FROM proposal_taxes WHERE `proposal_id` = ?;";
 
 	@Override
 	public List<ProposalTaxes> saveProposalTaxes(Connection connection, List<ProposalTaxes> proposalTaxes) {
@@ -158,5 +162,35 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 			DatabaseUtilities.closeConnection(connection);
 		}
 		return proposalTax;
+	}
+
+	@Override
+	public List<ProposalTaxes> getByProposalID(String proposalID) {
+		List<ProposalTaxes> proposalTaxesList = new ArrayList<>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				pstmt = connection.prepareStatement(GET_QRY);
+				pstmt.setString(1, proposalID);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					ProposalTaxes proposalTax = new ProposalTaxes();
+					proposalTax.setProposal_id(rset.getString("proposal_id"));
+					proposalTax.setTax_id(rset.getString("tax_id"));
+					proposalTax.setTax_rate(rset.getDouble("tax_rate"));
+					proposalTaxesList.add(proposalTax);
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error fetching proposal taxes for proposal_id [ " + proposalID + " ]", e);
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+		}
+		return proposalTaxesList;
 	}
 }
