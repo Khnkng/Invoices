@@ -47,7 +47,7 @@ public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 					ProposalLineTaxes proposalLineTax = proposalLinesTaxesItr.next();
 					pstmt.setString(1, proposalLineTax.getProposal_line_id());
 					pstmt.setString(2, proposalLineTax.getTax_id());
-					pstmt.setString(3, proposalLineTax.getTax_rate());
+					pstmt.setDouble(3, proposalLineTax.getTax_rate());
 					pstmt.addBatch();
 				}
 				int[] rowCount = pstmt.executeBatch();

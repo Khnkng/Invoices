@@ -14,7 +14,6 @@ import com.qount.invoice.model.ProposalLine;
  */
 public interface ProposalLineDAO {
 
-	public ProposalLine save(Connection connection, ProposalLine proposalLine);
 
 	public List<ProposalLine> getLines(Connection connection, String proposalID);
 

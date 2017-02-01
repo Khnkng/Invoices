@@ -175,7 +175,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 						ProposalLineTaxes proposalLineTax = new ProposalLineTaxes();
 						proposalLineTax.setProposal_line_id(rset.getString("plt_proposal_line_id"));
 						proposalLineTax.setTax_id(rset.getString("plt_tax_id"));
-						proposalLineTax.setTax_rate(rset.getString("plt_tax_rate"));
+						proposalLineTax.setTax_rate(rset.getDouble("plt_tax_rate"));
 						proposalLine.getProposalLineTaxes().add(proposalLineTax);
 					} else if (proposalLineIndex == -1) {
 						proposalLine.setProposal_id(rset.getString("proposal_id"));
@@ -191,7 +191,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 						ProposalLineTaxes proposalLineTax = new ProposalLineTaxes();
 						proposalLineTax.setProposal_line_id(rset.getString("plt_proposal_line_id"));
 						proposalLineTax.setTax_id(rset.getString("plt_tax_id"));
-						proposalLineTax.setTax_rate(rset.getString("plt_tax_rate"));
+						proposalLineTax.setTax_rate(rset.getDouble("plt_tax_rate"));
 						List<ProposalLineTaxes> proposalLineTaxes = new ArrayList<ProposalLineTaxes>();
 						proposalLineTaxes.add(proposalLineTax);
 						proposalLine.setProposalLineTaxes(proposalLineTaxes);
