@@ -17,13 +17,13 @@ public class ProposalLineParser {
 	private static final Logger LOGGER = Logger.getLogger(ProposalLineParser.class);
 
 	public static List<ProposalLine> getProposalLineList(String userID, String proposalID,
-			List<ProposalLine> proposalLine) {
+			List<ProposalLine> proposalLines) {
 		try {
-			if (StringUtils.isEmpty(userID) && StringUtils.isEmpty(proposalID) && proposalLine == null) {
+			if (StringUtils.isEmpty(userID) && StringUtils.isEmpty(proposalID) && proposalLines == null) {
 				return null;
 			}
 
-			Iterator<ProposalLine> proposalLineItr = proposalLine.iterator();
+			Iterator<ProposalLine> proposalLineItr = proposalLines.iterator();
 			while (proposalLineItr.hasNext()) {
 				ProposalLine proposalLineObj = proposalLineItr.next();
 				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -33,27 +33,37 @@ public class ProposalLineParser {
 				proposalLineObj.setLast_updated_at(timestamp.toString());
 				proposalLineObj.setLast_updated_by(userID);
 
-				List<ProposalLineTaxes> proposalLineTaxes = proposalLineObj.getProposalLineTaxes();
-				if (!proposalLineTaxes.isEmpty()) {
-					Iterator<ProposalLineTaxes> proposalLineTaxesItr = proposalLineTaxes.iterator();
-					while (proposalLineTaxesItr.hasNext()) {
-						ProposalLineTaxes ProposalLineTaxesObj = proposalLineTaxesItr.next();
-						ProposalLineTaxesObj.setProposal_line_id(ProposalLineTaxesObj.getProposal_line_id());
-						ProposalLineTaxesObj.setTax_id(ProposalLineTaxesObj.getTax_id());
-						ProposalLineTaxesObj.setTax_rate(ProposalLineTaxesObj.getTax_rate());
-					}
-				}
-
 			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			return null;
+		}
+		return proposalLines;
+	}
+
+	public static ProposalLine getProposalLineObj(String userID, String proposalID, String lineID,
+			ProposalLine proposalLine) {
+		try {
+			if (StringUtils.isEmpty(userID) && StringUtils.isEmpty(proposalID) && proposalLine == null) {
+				return null;
+			}
+
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+			if (proposalLine.getId() == null) {
+				proposalLine.setId(UUID.randomUUID().toString());
+			}
+			proposalLine.setLast_updated_at(timestamp.toString());
+			proposalLine.setLast_updated_by(userID);
+
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			return null;
 		}
 		return proposalLine;
 	}
-	
+
 	public static List<ProposalLineTaxes> getProposalLineTaxesList(List<ProposalLine> proposalLinesList) {
-		List<ProposalLineTaxes> restlt = new ArrayList<ProposalLineTaxes>();
+		List<ProposalLineTaxes> result = new ArrayList<ProposalLineTaxes>();
 		Iterator<ProposalLine> ProposalLineItr = proposalLinesList.iterator();
 		while (ProposalLineItr.hasNext()) {
 			ProposalLine proposalLine = ProposalLineItr.next();
@@ -61,9 +71,10 @@ public class ProposalLineParser {
 			Iterator<ProposalLineTaxes> ProposalLineTaxesItr = lineTaxesList.iterator();
 			while (ProposalLineTaxesItr.hasNext()) {
 				ProposalLineTaxes proposalLineTaxes = ProposalLineTaxesItr.next();
-				restlt.add(proposalLineTaxes);
+				result.add(proposalLineTaxes);
 			}
 		}
-		return restlt;
+		return result;
 	}
+
 }

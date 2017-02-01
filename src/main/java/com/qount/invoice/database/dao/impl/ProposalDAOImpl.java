@@ -308,7 +308,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				LOGGER.debug("no of proposal deleted:" + rowCount);
 			}
 		} catch (WebApplicationException e) {
-			LOGGER.error("Error deleting proposal:" + proposal.getId() + ",  ", e);
+			LOGGER.error("no record deleted:" + proposal.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Error deleting proposal:" + proposal.getId() + ",  ", e);

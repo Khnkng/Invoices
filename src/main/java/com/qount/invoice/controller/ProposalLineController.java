@@ -12,9 +12,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.qount.invoice.controllerImpl.ProposalControllerImpl;
 import com.qount.invoice.controllerImpl.ProposalLineControllerImpl;
-import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 
 import io.swagger.annotations.Api;
@@ -37,11 +35,12 @@ public class ProposalLineController {
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
 			+ "json = {\"company_id\":\"qount\",\"company_name\":\"qount\",\"amount\":50000,\"currency\":\"INR\",\"description\":\"desc\",\"objectives\":\"obj\",\"proposalLines\":[{\"description\":\"desc-1\",\"objectives\":\"obj-1\",\"amount\":2000,\"currency\":\"INR\"},{\"description\":\"desc-2\",\"objectives\":\"obj-2\",\"amount\":3000,\"currency\":\"INR\"}]}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public List<ProposalLine> createProposal(@PathParam("userID") String userID,@PathParam("proposalID") String proposalID, @Valid List<ProposalLine> proposalLine) {
-		return ProposalLineControllerImpl.createProposalLine(userID, proposalID,proposalLine);
+	public List<ProposalLine> createProposal(@PathParam("userID") String userID,
+			@PathParam("proposalID") String proposalID, @Valid List<ProposalLine> proposalLines) {
+		return ProposalLineControllerImpl.createProposalLine(userID, proposalID, proposalLines);
 	}
 
-	@Path("/{lineID}")
+	@Path("/{proposalLineID}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -50,8 +49,8 @@ public class ProposalLineController {
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
 			+ "json ={\"company_id\":\"qount\",\"company_name\":\"qount\",\"amount\":50000,\"currency\":\"INR\",\"description\":\"desc\",\"objectives\":\"obj\",\"proposalLines\":[{\"description\":\"desc-1\",\"objectives\":\"obj-1\",\"amount\":2000,\"currency\":\"INR\"},{\"description\":\"desc-2\",\"objectives\":\"obj-2\",\"amount\":3000,\"currency\":\"INR\"}]}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public Proposal update(@PathParam("userID") String userID, @PathParam("proposalID") String proposalID,
-			@Valid Proposal proposal) {
-		return ProposalControllerImpl.updateProposal(userID, proposalID, proposal);
+	public ProposalLine update(@PathParam("userID") String userID, @PathParam("proposalID") String proposalID,
+			@PathParam("proposalLineID") String proposalLineID, @Valid ProposalLine proposalLine) {
+		return ProposalLineControllerImpl.updateProposalLine(userID, proposalID,proposalLineID, proposalLine);
 	}
 }
