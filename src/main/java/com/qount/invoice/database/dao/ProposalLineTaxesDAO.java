@@ -15,7 +15,7 @@ public interface ProposalLineTaxesDAO {
 
 	public ProposalLineTaxes save(Connection connection, ProposalLineTaxes proposalLineTaxes);
 
-	public List<ProposalLineTaxes> batchSave(Connection connection, List<ProposalLineTaxes> proposalLinesTaxes);
+	public List<ProposalLineTaxes> batchSave(Connection connection,List<ProposalLineTaxes> proposalLinesTaxes);
 
 	public ProposalLineTaxes deleteProposalLine(ProposalLineTaxes proposalLineTaxes);
 

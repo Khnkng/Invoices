@@ -37,7 +37,7 @@ public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 	}
 
 	@Override
-	public List<ProposalLineTaxes> batchSave(Connection connection, List<ProposalLineTaxes> proposalLinesTaxes) {
+	public List<ProposalLineTaxes> batchSave(Connection connection,List<ProposalLineTaxes> proposalLinesTaxes) {
 		if (proposalLinesTaxes.size() == 0) {
 			return proposalLinesTaxes;
 		}
@@ -98,10 +98,10 @@ public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 					Iterator<ProposalLineTaxes> proposalLineTaxesItr = proposalLineTaxes.iterator();
 					while (proposalLineTaxesItr.hasNext()) {
 						ProposalLineTaxes proposalLineTax = proposalLineTaxesItr.next();
-						pstmt.setString(1, proposalLineTax.getProposal_line_id());
-						pstmt.setString(2, proposalLineTax.getTax_id());
-						pstmt.setDouble(3, proposalLineTax.getTax_rate());
-						pstmt.addBatch();
+						pstmt2.setString(1, proposalLineId);
+						pstmt2.setString(2, proposalLineTax.getTax_id());
+						pstmt2.setDouble(3, proposalLineTax.getTax_rate());
+						pstmt2.addBatch();
 					}
 				}
 				int[] rowCount2 = pstmt2.executeBatch();

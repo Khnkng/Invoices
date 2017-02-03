@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
+import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
@@ -44,7 +45,8 @@ public class ProposalLineControllerImpl {
 			List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance().batchSave(connection,
 					proposalLineObjLst);
 			if (proposalLineResult != null) {
-				List<ProposalLineTaxes> proposalTaxesList = ProposalLineParser.getProposalLineTaxesList(proposalLineResult);
+				List<ProposalLineTaxes> proposalTaxesList = ProposalLineParser
+						.getProposalLineTaxesList(proposalLineResult);
 				List<ProposalLineTaxes> proposaLineTaxResult = MySQLManager.getProposalLineTaxesDAOInstance()
 						.batchSave(connection, proposalTaxesList);
 				if (!proposaLineTaxResult.isEmpty()) {
@@ -101,5 +103,20 @@ public class ProposalLineControllerImpl {
 			DatabaseUtilities.closeConnection(connection);
 		}
 
+	}
+
+	public static ProposalLine deleteProposalLineById(String userID, String proposalLineID) {
+		try {
+			ProposalLine proposalLine = ProposalLineParser.getProposalLineObjToDelete(proposalLineID);
+			if (proposalLine == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
+			return ProposalLineDAOImpl.getProposalLineDAOImpl().delete(proposalLine);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		}
 	}
 }

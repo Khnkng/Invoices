@@ -33,7 +33,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	private final static String INSERT_QRY = "INSERT INTO `proposal_lines` (`id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes`) VALUES (?,?,?,?,?,?,?,?,?,?,?);";
 	private final static String UPADTE_QRY = "UPDATE `proposal_lines` SET `description` = ?,`objectives` = ?,`amount`= ?,`currency` = ?,`last_updated_by`= ?,`last_updated_at` = ?,`quantity` = ?,`price` = ?,`notes` = ? WHERE `id` = ? AND `proposal_id` = ?;";
 	private final static String GET_LINES_QRY = "SELECT `id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes` FROM proposal_lines WHERE `id` = ?;";
-	private final static String DELETE_PROPOSAL_LINE_QRY = "DELETE FROM `proposal_lines` WHERE `id` = ? AND `proposal_id` = ?";
+	private final static String DELETE_PROPOSAL_LINE_QRY = "DELETE FROM `proposal_lines` WHERE `id` = ?";
 
 	@Override
 	public List<ProposalLine> getLines(Connection connection, String proposalID) {
@@ -151,36 +151,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	@Override
-	public List<ProposalLine> batchDelete(Connection connection, List<ProposalLine> proposalLines) {
-		if (proposalLines.size() == 0) {
-			return proposalLines;
-		}
-		PreparedStatement pstmt = null;
-		try {
-			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_PROPOSAL_LINE_QRY);
-				for (ProposalLine proposalLine : proposalLines) {
-					pstmt.setString(1, proposalLine.getId());
-					pstmt.setString(2, proposalLine.getProposal_id());
-					pstmt.addBatch();
-				}
-				int[] rowCount = pstmt.executeBatch();
-				if (rowCount != null) {
-					return proposalLines;
-				} else {
-					throw new WebApplicationException("unable to delete proposal lines", 500);
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error(e);
-		} finally {
-			DatabaseUtilities.closeStatement(pstmt);
-		}
-		return proposalLines;
-	}
-
-	@Override
-	public ProposalLine deleteProposalLine(ProposalLine proposalLine) {
+	public ProposalLine delete(ProposalLine proposalLine) {
 		Connection connection = null;
 		if (proposalLine == null) {
 			return null;
@@ -191,10 +162,15 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(DELETE_PROPOSAL_LINE_QRY);
 				pstmt.setString(1, proposalLine.getId());
-				pstmt.setString(2, proposalLine.getProposal_id());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of proposal lines deleted:" + rowCount);
+				if (rowCount == 0) {
+					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
+				}
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error updating proposal:" + proposalLine.getId() + ",  ", e);
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Error deleting proposal lines:" + proposalLine.getId() + ",  ", e);
 			throw new WebApplicationException(e);
