@@ -71,7 +71,7 @@ public class ProposalControllerImpl {
 			if (proposalResult != null) {
 				List<ProposalTaxes> proposalTaxesList = proposalObj.getProposalTaxes();
 				List<ProposalTaxes> proposalTaxResult = MySQLManager.getProposalTaxesDAOInstance()
-						.saveProposalTaxes(connection, proposalTaxesList);
+						.saveProposalTaxes(connection, proposalObj.getId(), proposalTaxesList);
 				if (!proposalTaxResult.isEmpty()) {
 					List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance()
 							.batchSave(connection, proposalObj.getProposalLines());
@@ -99,6 +99,7 @@ public class ProposalControllerImpl {
 	}
 
 	public static Proposal updateProposal(String userID, String proposalId, Proposal proposal) {
+		Connection connection = null;
 		try {
 			proposal.setId(proposalId);
 			Proposal proposalObj = ProposalParser.getProposalObj(userID, proposal);
@@ -106,9 +107,22 @@ public class ProposalControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
-			Proposal proposalResult = MySQLManager.getProposalDAOInstance().updateProposal(proposalObj);
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						"Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			connection.setAutoCommit(false);
+			Proposal proposalResult = MySQLManager.getProposalDAOInstance().updateProposal(connection, proposalObj);
 			if (proposalResult != null) {
-				return proposalResult;
+				List<ProposalTaxes> proposalTaxesList = proposalObj.getProposalTaxes();
+				List<ProposalTaxes> proposalTaxResult = MySQLManager.getProposalTaxesDAOInstance()
+						.batchDeleteAndSave(connection, proposalId, proposalTaxesList);
+				if (proposalTaxResult != null) {
+					connection.commit();
+					return proposalResult;
+				}
+
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));

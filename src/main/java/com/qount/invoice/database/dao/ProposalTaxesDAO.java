@@ -14,11 +14,11 @@ import com.qount.invoice.model.ProposalTaxes;
 public interface ProposalTaxesDAO {
 
 
-	public List<ProposalTaxes> saveProposalTaxes(Connection connection, List<ProposalTaxes> proposalTaxes);
+	public List<ProposalTaxes> saveProposalTaxes(Connection connection,String proposalID, List<ProposalTaxes> proposalTaxes);
 	
 	public List<ProposalTaxes> update(Connection connection, List<ProposalTaxes> proposalTaxes);
 
-	public List<ProposalTaxes> batchDeleteAndSave(String proposalId,List<ProposalTaxes> proposalTaxes);
+	public List<ProposalTaxes> batchDeleteAndSave(Connection connection,String proposalId,List<ProposalTaxes> proposalTaxes);
 
 	public ProposalTaxes deleteProposalTax(ProposalTaxes proposalTax);
 	
