@@ -16,7 +16,7 @@ public interface ProposalDAO {
 
 	public Proposal save(Connection connection, Proposal proposal);
 
-	public Proposal updateProposal(Proposal proposal);
+	public Proposal updateProposal(Connection connection, Proposal proposal);
 
 	public Proposal get(String proposalID);
 
