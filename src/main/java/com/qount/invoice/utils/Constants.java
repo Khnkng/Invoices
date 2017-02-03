@@ -20,6 +20,6 @@ public class Constants {
 	public static final String SWAGGER_API_SPEC_VERSION = "1.2.3";
 	public static final String SWAGGER_API_HTTP = "https";
 	public static final String SWAGGER_API_PACKAGE = "com.qount.invoice.controller";
-	public static final String BILLS_DATE_FORMAT = "MM/dd/yyyy";
+	public static final String BILLS_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
 	public static final SimpleDateFormat TIME_STATMP_TO_BILLS_FORMAT = new SimpleDateFormat(BILLS_DATE_FORMAT);
 }
