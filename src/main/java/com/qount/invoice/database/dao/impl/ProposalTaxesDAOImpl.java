@@ -41,7 +41,8 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 	private final static String GET_QRY = "SELECT * FROM proposal_taxes WHERE `proposal_id` = ?;";
 
 	@Override
-	public List<ProposalTaxes> saveProposalTaxes(Connection connection, List<ProposalTaxes> proposalTaxes) {
+	public List<ProposalTaxes> saveProposalTaxes(Connection connection, String proposalID,
+			List<ProposalTaxes> proposalTaxes) {
 		if (proposalTaxes.size() == 0) {
 			return proposalTaxes;
 		}
@@ -52,7 +53,7 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 				Iterator<ProposalTaxes> proposalTaxesItr = proposalTaxes.iterator();
 				while (proposalTaxesItr.hasNext()) {
 					ProposalTaxes proposalTax = proposalTaxesItr.next();
-					pstmt.setString(1, proposalTax.getProposal_id());
+					pstmt.setString(1, proposalID);
 					pstmt.setString(2, proposalTax.getTax_id());
 					pstmt.setDouble(3, proposalTax.getTax_rate());
 					pstmt.addBatch();
@@ -82,38 +83,34 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 	}
 
 	@Override
-	public List<ProposalTaxes> batchDeleteAndSave(String proposalId, List<ProposalTaxes> proposalTaxes) {
+	public List<ProposalTaxes> batchDeleteAndSave(Connection connection,String proposalId, List<ProposalTaxes> proposalTaxes) {
 		if (proposalTaxes == null || StringUtils.isBlank(proposalId)) {
 			return null;
 		}
 		PreparedStatement pstmt = null;
 		PreparedStatement pstmt2 = null;
-		Connection conn = null;
 		try {
-			conn = DatabaseUtilities.getReadWriteConnection();
 			int qryCtr = 1;
-			if (conn != null) {
-				conn.setAutoCommit(false);
-				pstmt = conn.prepareStatement(DELETE_QRY);
+			if (connection != null) {
+				pstmt = connection.prepareStatement(DELETE_QRY);
 				pstmt.setString(qryCtr++, proposalId);
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of taxes deleted:" + rowCount);
 				if (rowCount > 0) {
 					qryCtr = 1;
-					pstmt2 = conn.prepareStatement(INSERT_QRY);
+					pstmt2 = connection.prepareStatement(INSERT_QRY);
 					Iterator<ProposalTaxes> proposalTaxesItr = proposalTaxes.iterator();
 					while (proposalTaxesItr.hasNext()) {
 						ProposalTaxes proposalTax = proposalTaxesItr.next();
-						pstmt.setString(1, proposalTax.getProposal_id());
-						pstmt.setString(2, proposalTax.getTax_id());
-						pstmt.setDouble(3, proposalTax.getTax_rate());
-						pstmt.addBatch();
+						pstmt2.setString(1, proposalId);
+						pstmt2.setString(2, proposalTax.getTax_id());
+						pstmt2.setDouble(3, proposalTax.getTax_rate());
+						pstmt2.addBatch();
 					}
 				}
 				int[] rowCount2 = pstmt2.executeBatch();
 				LOGGER.debug("no of taxes created:" + rowCount2);
 				if (rowCount2 != null) {
-					conn.commit();
 					return proposalTaxes;
 				} else {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -128,7 +125,6 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeStatement(pstmt2);
-			DatabaseUtilities.closeConnection(conn);
 		}
 		return proposalTaxes;
 	}

@@ -97,14 +97,12 @@ public class ProposalDAOImpl implements ProposalDAO {
 	}
 
 	@Override
-	public Proposal updateProposal(Proposal proposal) {
+	public Proposal updateProposal(Connection connection, Proposal proposal) {
 		if (proposal == null) {
 			return null;
 		}
-		Connection connection = null;
 		PreparedStatement pstmt = null;
 		try {
-			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				pstmt = connection.prepareStatement(UPDATE_QRY);
 				pstmt.setString(1, proposal.getUser_id());
@@ -147,7 +145,6 @@ public class ProposalDAOImpl implements ProposalDAO {
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
-			DatabaseUtilities.closeConnection(connection);
 		}
 		return proposal;
 	}
@@ -228,10 +225,14 @@ public class ProposalDAOImpl implements ProposalDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error fetching proposal for id [ " + proposalID + " ]", e);
+			return null;
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
+		}
+		if (StringUtils.isBlank(proposal.getId())) {
+			return null;
 		}
 		return proposal;
 	}
@@ -272,7 +273,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 					proposal.setCoa_id(rset.getString("coa_id"));
 					proposal.setCoa_name(rset.getString("coa_name"));
 					proposal.setDiscount(rset.getDouble("discount"));
-					proposal.setDeposit_amount(rset.getDouble("deposite_amount"));
+					proposal.setDeposit_amount(rset.getDouble("deposit_amount"));
 					proposal.setProcessing_fees(rset.getDouble("processing_fees"));
 					proposal.setRemainder_json(rset.getString("remainder_json"));
 					proposal.setRemainder_mail_json(rset.getString("remainder_mail_json"));
