@@ -119,6 +119,7 @@ public class ProposalParser {
 			Iterator<ProposalLineTaxes> ProposalLineTaxesItr = lineTaxesList.iterator();
 			while (ProposalLineTaxesItr.hasNext()) {
 				ProposalLineTaxes proposalLineTaxes = ProposalLineTaxesItr.next();
+				proposalLineTaxes.setProposal_line_id(proposalLine.getId());
 				restlt.add(proposalLineTaxes);
 			}
 		}
