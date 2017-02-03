@@ -33,7 +33,6 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
-import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
@@ -177,22 +176,6 @@ public class ProposalControllerImpl {
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
 			return ProposalDAOImpl.getProposalDAOImpl().delete(proposal);
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
-		}
-	}
-
-	public static ProposalLine deleteProposalLine(String userId, String proposalId, String proposalLineId) {
-		try {
-			ProposalLine proposalLine = ProposalParser.getProposalLineObjToDeleteProposalLine(proposalId,
-					proposalLineId);
-			if (proposalLine == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
-			}
-			return ProposalLineDAOImpl.getProposalLineDAOImpl().deleteProposalLine(proposalLine);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,

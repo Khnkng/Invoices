@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -52,5 +53,14 @@ public class ProposalLineController {
 	public ProposalLine update(@PathParam("userID") String userID, @PathParam("proposalID") String proposalID,
 			@PathParam("proposalLineID") String proposalLineID, @Valid ProposalLine proposalLine) {
 		return ProposalLineControllerImpl.updateProposalLine(userID, proposalID,proposalLineID, proposalLine);
+	}
+	
+	@DELETE
+	@Path("/{proposalLineID}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Delete proposal line", notes = "Used to delete proposal line<br>", responseContainer = "java.lang.String")
+	public ProposalLine deleteProposalById(@PathParam("userID") String userID,
+			@PathParam("proposalLineID") @NotNull String proposalLineID) {
+		return ProposalLineControllerImpl.deleteProposalLineById(userID, proposalLineID);
 	}
 }

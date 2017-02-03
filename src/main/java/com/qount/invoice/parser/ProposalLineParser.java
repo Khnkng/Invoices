@@ -6,12 +6,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
+import com.qount.invoice.utils.Constants;
+import com.qount.invoice.utils.ResponseUtil;
 
 public class ProposalLineParser {
 	private static final Logger LOGGER = Logger.getLogger(ProposalLineParser.class);
@@ -30,6 +35,7 @@ public class ProposalLineParser {
 				if (proposalLineObj.getId() == null) {
 					proposalLineObj.setId(UUID.randomUUID().toString());
 				}
+				proposalLineObj.setProposal_id(proposalID);
 				proposalLineObj.setLast_updated_at(timestamp.toString());
 				proposalLineObj.setLast_updated_by(userID);
 
@@ -49,9 +55,8 @@ public class ProposalLineParser {
 			}
 
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			if (proposalLine.getId() == null) {
-				proposalLine.setId(UUID.randomUUID().toString());
-			}
+			proposalLine.setId(lineID);
+			proposalLine.setProposal_id(proposalID);
 			proposalLine.setLast_updated_at(timestamp.toString());
 			proposalLine.setLast_updated_by(userID);
 
@@ -71,10 +76,26 @@ public class ProposalLineParser {
 			Iterator<ProposalLineTaxes> ProposalLineTaxesItr = lineTaxesList.iterator();
 			while (ProposalLineTaxesItr.hasNext()) {
 				ProposalLineTaxes proposalLineTaxes = ProposalLineTaxesItr.next();
+				proposalLineTaxes.setProposal_line_id(proposalLine.getId());
 				result.add(proposalLineTaxes);
 			}
 		}
 		return result;
+	}
+	
+	public static ProposalLine getProposalLineObjToDelete(String proposalLineID) {
+		try {
+			if (StringUtils.isEmpty(proposalLineID)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
+			ProposalLine proposalLine = new ProposalLine();
+			proposalLine.setId(proposalLineID);
+			return proposalLine;
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(e.getLocalizedMessage(), 500);
+		}
 	}
 
 }

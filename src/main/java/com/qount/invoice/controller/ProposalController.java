@@ -76,7 +76,7 @@ public class ProposalController {
 	@DELETE
 	@Path("/{proposalID}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Delete expense", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
+	@ApiOperation(value = "Delete proposal", notes = "Used to delete a proposal.<br>", responseContainer = "java.lang.String")
 	public Proposal deleteProposalById(@PathParam("userID") String userID,
 			@PathParam("proposalID") @NotNull String proposalID) {
 		return ProposalControllerImpl.deleteProposalById(userID, proposalID);
