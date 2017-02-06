@@ -27,7 +27,7 @@ public class Invoice {
 	private String first_name;
 	private String last_name;
 	private String state;
-	private String proposal_date;
+	private String invoice_date;
 	private String acceptance_date;
 	private String acceptance_final_date;
 	private String notes;
@@ -53,6 +53,23 @@ public class Invoice {
 	private String document_id;
 	private List<InvoiceLine> invoiceLines;
 	private List<InvoiceTaxes> invoiceTaxes;
+	private int amount_due;
+	
+	public String getInvoice_date() {
+		return invoice_date;
+	}
+
+	public void setInvoice_date(String invoice_date) {
+		this.invoice_date = invoice_date;
+	}
+
+	public int getAmount_due() {
+		return amount_due;
+	}
+
+	public void setAmount_due(int amount_due) {
+		this.amount_due = amount_due;
+	}
 
 	public String getId() {
 		return id;
@@ -156,14 +173,6 @@ public class Invoice {
 
 	public void setState(String state) {
 		this.state = state;
-	}
-
-	public String getProposal_date() {
-		return proposal_date;
-	}
-
-	public void setProposal_date(String proposal_date) {
-		this.proposal_date = proposal_date;
 	}
 
 	public String getAcceptance_date() {
