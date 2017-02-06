@@ -112,8 +112,9 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 	}
 
 	@Override
-	public List<InvoiceTaxes> getByInvoiceID(Connection connection, InvoiceTaxes invoiceTaxes) {
+	public List<InvoiceTaxes> getByInvoiceID(InvoiceTaxes invoiceTaxes) {
 		LOGGER.debug("entered invoiceTaxes getByInvoiceID:" + invoiceTaxes);
+		Connection connection = null;
 		if (invoiceTaxes == null || StringUtils.isBlank(invoiceTaxes.getInvoice_id())) {
 			return null;
 		}
@@ -121,6 +122,7 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				pstmt = connection.prepareStatement(GET_QRY);
 				pstmt.setString(1, invoiceTaxes.getInvoice_id());

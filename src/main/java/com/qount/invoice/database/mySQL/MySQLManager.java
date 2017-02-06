@@ -179,7 +179,7 @@ public class MySQLManager {
 		return invoiceLineTaxesDAO;
 	}
 	
-	public static InvoiceTaxesDAO getInvoieTaxesDAOInstance() {
+	public static InvoiceTaxesDAO getInvoiceTaxesDAOInstance() {
 		if (invoiceTaxesDAO == null) {
 			invoiceTaxesDAO = InvoiceTaxesDAOImpl.getInvoiceTaxesDAOImpl();
 		}

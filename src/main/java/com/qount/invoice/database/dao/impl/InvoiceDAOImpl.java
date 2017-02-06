@@ -103,7 +103,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public Invoice updateInvoice(Connection connection, Invoice invoice) {
+	public Invoice update(Connection connection, Invoice invoice) {
 		if (invoice == null) {
 			return null;
 		}
@@ -345,7 +345,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
 				}
-				LOGGER.debug("no of proposal deleted:" + rowCount);
+				LOGGER.debug("no of invoice deleted:" + rowCount);
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error("no record deleted:" + invoice.getId() + ",  ", e);
