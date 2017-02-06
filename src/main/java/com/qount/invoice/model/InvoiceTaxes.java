@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 public class InvoiceTaxes {
+	
 	private String invoice_id;
 	private String tax_id;
 	private Double tax_rate;

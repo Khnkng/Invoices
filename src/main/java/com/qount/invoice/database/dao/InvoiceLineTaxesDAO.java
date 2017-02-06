@@ -15,6 +15,6 @@ public interface InvoiceLineTaxesDAO {
 
 	public List<InvoiceLineTaxes> save(Connection connection, List<InvoiceLineTaxes> InvoiceLinesTaxes);
 
-	public InvoiceLineTaxes deleteByLineId(InvoiceLineTaxes InvoiceLineTaxes);
+	public InvoiceLineTaxes deleteByInvoiceLineId(Connection connection, InvoiceLineTaxes InvoiceLineTaxes);
 
 }
