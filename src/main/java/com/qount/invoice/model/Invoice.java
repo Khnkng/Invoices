@@ -53,7 +53,7 @@ public class Invoice {
 	private String document_id;
 	private List<InvoiceLine> invoiceLines;
 	private List<InvoiceTaxes> invoiceTaxes;
-	private int amount_due;
+	private double amount_due;
 	
 	public String getInvoice_date() {
 		return invoice_date;
@@ -63,11 +63,11 @@ public class Invoice {
 		this.invoice_date = invoice_date;
 	}
 
-	public int getAmount_due() {
+	public double getAmount_due() {
 		return amount_due;
 	}
 
-	public void setAmount_due(int amount_due) {
+	public void setAmount_due(double amount_due) {
 		this.amount_due = amount_due;
 	}
 
