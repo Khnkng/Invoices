@@ -14,15 +14,12 @@ import com.qount.invoice.model.InvoiceLine;
  */
 public interface InvoiceLineDAO {
 
-	public boolean save(Connection connection, InvoiceLine invoiceLine);
+	public List<InvoiceLine> getByInvoiceId(Connection connection, InvoiceLine invoiceLine);
 
-	public List<InvoiceLine> getLines(Connection connection, String invoiceID);
+	public boolean save(Connection connection, List<InvoiceLine> invoiceLines);
 
-	public boolean batchSave(Connection connection, List<InvoiceLine> invoiceLines);
-
-	public boolean batchDelete(List<InvoiceLine> invoiceLines);
+	public boolean deleteByInvoiceId(InvoiceLine invoiceLines);
 
 	public InvoiceLine deleteInvoiceLine(InvoiceLine invoiceLines);
-	
-	
+
 }

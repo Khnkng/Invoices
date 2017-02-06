@@ -31,44 +31,13 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 
 	private final static String INSERT_QRY = "INSERT INTO `invoice_lines` (`id`,`invoice_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 	private final static String GET_LINES_QRY = "SELECT `id`,`invoice_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at` FROM invoice_lines WHERE `invoice_id` = ?;";
-	private final static String DELETE_INVOICE_LINE_QRY = "DELETE FROM `invoice_lines` WHERE `id` = ? AND `invoice_id` = ?";
+	private final static String DELETE_INVOICE_LINE_QRY = "DELETE FROM `invoice_lines` WHERE `id` = ?";
+	private final static String DELETE_INVOICE_BY_ID_QRY = "DELETE FROM `invoice_lines` WHERE `invoice_id` = ?";
 
 	@Override
-	public boolean save(Connection connection, InvoiceLine invoiceLine) {
-		boolean result = false;
-		if (invoiceLine == null) {
-			return result;
-		}
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		try {
-			conn = DatabaseUtilities.getReadWriteConnection();
-			if (conn != null) {
-				pstmt = conn.prepareStatement(INSERT_QRY);
-				pstmt.setString(1, invoiceLine.getId());
-				pstmt.setString(2, invoiceLine.getInvoice_id());
-				pstmt.setString(3, invoiceLine.getDescription());
-				pstmt.setString(4, invoiceLine.getObjectives());
-				pstmt.setDouble(5, invoiceLine.getAmount());
-				pstmt.setString(6, invoiceLine.getCurrency());
-				pstmt.setString(7, invoiceLine.getLast_updated_by());
-				pstmt.setString(8, invoiceLine.getLast_updated_at());
-				int rowCount = pstmt.executeUpdate();
-				result = rowCount != 0;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.error(e);
-		} finally {
-			DatabaseUtilities.closeStatement(pstmt);
-		}
-		return result;
-	}
-
-	@Override
-	public List<InvoiceLine> getLines(Connection connection, String invoiceID) {
+	public List<InvoiceLine> getByInvoiceId(Connection connection, InvoiceLine invoiceLine) {
 		List<InvoiceLine> invoiceLines = new ArrayList<>();
-		if (StringUtils.isBlank(invoiceID)) {
+		if (invoiceLine == null || StringUtils.isBlank(invoiceLine.getInvoice_id())) {
 			return invoiceLines;
 		}
 		PreparedStatement pstmt = null;
@@ -76,10 +45,9 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(GET_LINES_QRY);
-				pstmt.setString(1, invoiceID);
+				pstmt.setString(1, invoiceLine.getInvoice_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
-					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("id"));
 					invoiceLine.setInvoice_id(rset.getString("proposal_id"));
 					invoiceLine.setDescription(rset.getString("description"));
@@ -92,7 +60,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error retreving invoice lines with ID = " + invoiceID, e);
+			LOGGER.error("Error retreving invoice lines with ID = " + invoiceLine.getInvoice_id(), e);
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -101,7 +69,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	@Override
-	public boolean batchSave(Connection connection, List<InvoiceLine> invoiceLines) {
+	public boolean save(Connection connection, List<InvoiceLine> invoiceLines) {
 		if (invoiceLines.size() == 0) {
 			return true;
 		}
@@ -139,31 +107,28 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	@Override
-	public boolean batchDelete(List<InvoiceLine> invoiceLines) {
+	public boolean deleteByInvoiceId(InvoiceLine invoiceLine) {
 		Connection connection = null;
-		if (invoiceLines.size() == 0) {
-			return true;
+		if (invoiceLine == null || StringUtils.isBlank(invoiceLine.getInvoice_id())) {
+			return false;
 		}
-		boolean result = false;
 		PreparedStatement pstmt = null;
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_INVOICE_LINE_QRY);
-				for (InvoiceLine invoiceLine : invoiceLines) {
-					pstmt.setString(1, invoiceLine.getId());
-					pstmt.setString(2, invoiceLine.getInvoice_id());
-					pstmt.addBatch();
+				pstmt = connection.prepareStatement(DELETE_INVOICE_BY_ID_QRY);
+				pstmt.setString(1, invoiceLine.getInvoice_id());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount > 0) {
+					return true;
 				}
-				pstmt.executeBatch();
-				result = true;
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		return result;
+		return false;
 	}
 
 	@Override
@@ -178,7 +143,6 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(DELETE_INVOICE_LINE_QRY);
 				pstmt.setString(1, invoiceLines.getId());
-				pstmt.setString(2, invoiceLines.getInvoice_id());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of invoice lines deleted:" + rowCount);
 			}
