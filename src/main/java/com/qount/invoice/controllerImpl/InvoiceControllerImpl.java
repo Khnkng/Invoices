@@ -14,7 +14,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
+import com.qount.invoice.model.InvoiceLineTaxes;
+import com.qount.invoice.model.InvoiceTaxes;
+import com.qount.invoice.model.Proposal;
+import com.qount.invoice.model.ProposalLine;
+import com.qount.invoice.model.ProposalLineTaxes;
+import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.parser.InvoiceParser;
+import com.qount.invoice.parser.ProposalParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.ResponseUtil;
@@ -22,24 +29,38 @@ import com.qount.invoice.utils.ResponseUtil;
 public class InvoiceControllerImpl {
 	private static final Logger LOGGER = Logger.getLogger(InvoiceControllerImpl.class);
 
-	public static Response createInvoice(String userID, Invoice invoice) {
-		Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice);
-		if (invoiceObj == null) {
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
-		}
+	public static Invoice createInvoice(String userID, Invoice invoice) {
 		Connection connection = null;
 		try {
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice);
+			if (invoiceObj == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						"Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
-			if (MySQLManager.getInvoiceDAOInstance().save(connection, invoiceObj)) {
-				if (MySQLManager.getInvoiceLineDAOInstance().batchSave(connection, invoiceObj.getInvoiceLines())) {
-					connection.commit();
-					return Response.status(200).entity(invoiceObj).build();
+			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
+			if (invoiceResult != null) {
+				List<InvoiceTaxes> incoiceTaxesList = invoiceObj.getInvoiceTaxes();
+				List<InvoiceTaxes> invoiceTaxResult = MySQLManager.getInvoieTaxesDAOInstance().save(connection,
+						invoiceObj.getId(), incoiceTaxesList);
+				if (!invoiceTaxResult.isEmpty()) {
+					List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection,
+							invoiceObj.getInvoiceLines());
+					if (!invoiceLineResult.isEmpty()) {
+						List<InvoiceLineTaxes> invoiceLineTaxesList = InvoiceParser
+								.getInvoiceLineTaxesList(invoiceObj.getInvoiceLines());
+						List<InvoiceLineTaxes> invoiceLineTaxesResult = MySQLManager.getInvoiceLineTaxesDAOInstance()
+								.save(connection, invoiceLineTaxesList);
+						if (!invoiceLineTaxesResult.isEmpty()) {
+							connection.commit();
+							return invoiceObj;
+						}
+					}
 				}
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
@@ -57,8 +78,9 @@ public class InvoiceControllerImpl {
 	public static Response updateInvoice(String userID, String invoiceID, Invoice invoice) {
 		Connection connection = null;
 		try {
-			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice);
-			if (invoiceObj == null) {
+			invoice.setId(invoiceID);
+			Proposal proposalObj = ProposalParser.getProposalObj(userID, proposal);
+			if (proposalObj == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
@@ -68,11 +90,16 @@ public class InvoiceControllerImpl {
 						"Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
-			if (MySQLManager.getInvoiceDAOInstance().deleteAndCreateInvoice(connection, invoiceID, invoiceObj)) {
-				if (MySQLManager.getInvoiceLineDAOInstance().batchSave(connection, invoiceObj.getInvoiceLines())) {
+			Proposal proposalResult = MySQLManager.getProposalDAOInstance().updateProposal(connection, proposalObj);
+			if (proposalResult != null) {
+				List<ProposalTaxes> proposalTaxesList = proposalObj.getProposalTaxes();
+				List<ProposalTaxes> proposalTaxResult = MySQLManager.getProposalTaxesDAOInstance()
+						.batchDeleteAndSave(connection, proposalId, proposalTaxesList);
+				if (proposalTaxResult != null) {
 					connection.commit();
-					return Response.status(200).entity(invoiceObj).build();
+					return proposalResult;
 				}
+
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
@@ -80,8 +107,6 @@ public class InvoiceControllerImpl {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
-		} finally {
-			DatabaseUtilities.closeConnection(connection);
 		}
 	}
 
@@ -107,7 +132,7 @@ public class InvoiceControllerImpl {
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
 			Invoice result = MySQLManager.getInvoiceDAOInstance().getInvoiceById(invoiceID, userID);
-			if(result==null){
+			if (result == null) {
 				return Response.status(200).entity("{}").build();
 			}
 			return Response.status(200).entity(result).build();
@@ -135,7 +160,7 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static Response deleteInvoiceLine(String userID,String invoiceID, String lineID) {
+	public static Response deleteInvoiceLine(String userID, String invoiceID, String lineID) {
 		try {
 			InvoiceLine invoiceLine = InvoiceParser.getInvoiceLineObjToDelete(invoiceID, lineID);
 			if (invoiceLine == null) {
