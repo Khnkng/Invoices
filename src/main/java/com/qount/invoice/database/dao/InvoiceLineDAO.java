@@ -16,9 +16,9 @@ public interface InvoiceLineDAO {
 
 	public List<InvoiceLine> getByInvoiceId(Connection connection, InvoiceLine invoiceLine);
 
-	public boolean save(Connection connection, List<InvoiceLine> invoiceLines);
+	public List<InvoiceLine> save(Connection connection, List<InvoiceLine> invoiceLines);
 
-	public boolean deleteByInvoiceId(InvoiceLine invoiceLines);
+	public InvoiceLine deleteByInvoiceId(InvoiceLine invoiceLines);
 
 	public InvoiceLine deleteInvoiceLine(InvoiceLine invoiceLines);
 
