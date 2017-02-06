@@ -30,9 +30,19 @@ public class PdfUtil {
 
 	public static void main(String[] args) {
 		try {
-			File file = new File(DEST);
-			file.getParentFile().mkdirs();
-			Contemporary.createPdf(DEST);
+//			String query = "insert into `invoice` (";
+			String query = "";
+			String asdf[]={"id","user_id","company_id","company_name","amount","currency","description","objectives","last_updated_by","last_updated_at","first_name","last_name","state","invoice_date","acceptance_date","acceptance_final_date","notes","item_id","item_name","coa_id","coa_name","discount","deposit_amount","processing_fees","remainder_json","remainder_mail_json","is_recurring","recurring_frequency","recurring_frequency_value","recurring_start_date","recurring_end_date","is_mails_automated","is_cc_current_user","payment_spring_customer_id","number","po_number","document_id","amount_due"};
+			for(String a:asdf){
+				String b = (""+ a.charAt(0)).toUpperCase();
+				b += a.substring(1);
+//				System.out.println(b);
+				query+="pstmt.setString(ctr++,invoice.get"+b+"());\n";
+			}
+			System.out.println(query);
+//			File file = new File(DEST);
+//			file.getParentFile().mkdirs();
+//			Contemporary.createPdf(DEST);
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -96,8 +106,9 @@ public class PdfUtil {
 			Invoice invoice = new Invoice();
 			invoice.setNumber(6);
 			invoice.setPo_number("po1");
+			invoice.setInvoice_date("February 1, 2017");
 			invoice.setAcceptance_date("February 2, 2017");
-			
+			invoice.setAmount_due(1.0d);
 			createInvoiceDetails(document, str);
 			
 			document.close();

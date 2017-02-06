@@ -271,7 +271,7 @@ public class Invoice {
 		this.remainder_mail_json = remainder_mail_json;
 	}
 
-	public boolean isIs_recurring() {
+	public boolean is_recurring() {
 		return is_recurring;
 	}
 
@@ -311,7 +311,7 @@ public class Invoice {
 		this.recurring_end_date = recurring_end_date;
 	}
 
-	public boolean isIs_mails_automated() {
+	public boolean is_mails_automated() {
 		return is_mails_automated;
 	}
 
@@ -319,7 +319,7 @@ public class Invoice {
 		this.is_mails_automated = is_mails_automated;
 	}
 
-	public boolean isIs_cc_current_user() {
+	public boolean is_cc_current_user() {
 		return is_cc_current_user;
 	}
 
