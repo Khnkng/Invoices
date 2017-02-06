@@ -14,11 +14,11 @@ import com.qount.invoice.model.Invoice;
  */
 public interface InvoiceDAO {
 
-	public boolean save(Connection connection, Invoice invoice);
+	public Invoice save(Connection connection, Invoice invoice);
+	
+	public Invoice updateInvoice(Connection connection, Invoice invoice);
 
-	public boolean deleteAndCreateInvoice(Connection connection,String proposalId, Invoice invoice);
-
-	public Invoice getInvoiceById(String InvoiceID,String userID);
+	public Invoice get(String InvoiceID);
 
 	public List<Invoice> getInvoiceList(String userID);
 	
