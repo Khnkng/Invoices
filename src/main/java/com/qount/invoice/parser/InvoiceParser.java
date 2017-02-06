@@ -2,6 +2,7 @@ package com.qount.invoice.parser;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
+import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 
@@ -29,13 +31,16 @@ public class InvoiceParser {
 				return null;
 			}
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			Timestamp proposal_date = convertStringToTimeStamp(invoice.getProposal_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
-			Timestamp acceptance_date = convertStringToTimeStamp(invoice.getAcceptance_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
-			Timestamp acceptance_final_date = convertStringToTimeStamp(invoice.getAcceptance_final_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(),
+					Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp acceptance_date = convertStringToTimeStamp(invoice.getAcceptance_date(),
+					Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp acceptance_final_date = convertStringToTimeStamp(invoice.getAcceptance_final_date(),
+					Constants.TIME_STATMP_TO_BILLS_FORMAT);
 
 			invoice.setUser_id(userId);
 			invoice.setId(UUID.randomUUID().toString());
-			invoice.setProposal_date(proposal_date.toString());
+			invoice.setInvoice_date(invoice_date.toString());
 			invoice.setAcceptance_date(acceptance_date.toString());
 			invoice.setAcceptance_final_date(acceptance_final_date.toString());
 			invoice.setLast_updated_at(timestamp.toString());
@@ -56,7 +61,7 @@ public class InvoiceParser {
 		}
 		return invoice;
 	}
-	
+
 	public static Timestamp convertStringToTimeStamp(String dateStr, SimpleDateFormat sdf) {
 		try {
 			return new Timestamp(sdf.parse(dateStr).getTime());
@@ -64,6 +69,22 @@ public class InvoiceParser {
 			LOGGER.error(e);
 		}
 		return null;
+	}
+
+	public static List<InvoiceLineTaxes> getInvoiceLineTaxesList(List<InvoiceLine> invoiceLinesList) {
+		List<InvoiceLineTaxes> result = new ArrayList<InvoiceLineTaxes>();
+		Iterator<InvoiceLine> invoiceLineItr = invoiceLinesList.iterator();
+		while (invoiceLineItr.hasNext()) {
+			InvoiceLine invoiceLine = invoiceLineItr.next();
+			List<InvoiceLineTaxes> lineTaxesList = invoiceLine.getInvoiceLineTaxes();
+			Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
+			while (invoiceLineTaxesItr.hasNext()) {
+				InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
+				invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
+				result.add(invoiceLineTaxes);
+			}
+		}
+		return result;
 	}
 
 	public static Invoice getInvoiceObjToDelete(String user_id, String invoice_id) {

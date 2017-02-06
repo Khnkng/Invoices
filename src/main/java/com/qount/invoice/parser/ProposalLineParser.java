@@ -82,7 +82,7 @@ public class ProposalLineParser {
 		}
 		return result;
 	}
-	
+
 	public static ProposalLine getProposalLineObjToDelete(String proposalLineID) {
 		try {
 			if (StringUtils.isEmpty(proposalLineID)) {

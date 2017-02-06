@@ -42,7 +42,7 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 
 	@Override
 	public List<InvoiceTaxes> save(Connection connection, String invoiceID, List<InvoiceTaxes> invoiceTaxes) {
-		LOGGER.debug("entered invoiceTaxes save:"+invoiceTaxes);
+		LOGGER.debug("entered invoiceTaxes save:" + invoiceTaxes);
 		if (invoiceTaxes == null || invoiceTaxes.size() == 0 || StringUtils.isBlank(invoiceID)) {
 			return invoiceTaxes;
 		}
@@ -74,13 +74,13 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		LOGGER.debug("exited invoiceTaxes save:"+invoiceTaxes);
+		LOGGER.debug("exited invoiceTaxes save:" + invoiceTaxes);
 		return invoiceTaxes;
 	}
 
 	@Override
 	public InvoiceTaxes deleteByInvoiceId(Connection connection, InvoiceTaxes invoiceTaxes) {
-		LOGGER.debug("entered deleteByInvoiceId:"+invoiceTaxes);
+		LOGGER.debug("entered deleteByInvoiceId:" + invoiceTaxes);
 		if (invoiceTaxes == null || StringUtils.isBlank(invoiceTaxes.getInvoice_id())) {
 			return invoiceTaxes;
 		}
@@ -107,13 +107,13 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		LOGGER.debug("exited deleteByInvoiceId:"+invoiceTaxes);
+		LOGGER.debug("exited deleteByInvoiceId:" + invoiceTaxes);
 		return invoiceTaxes;
 	}
 
 	@Override
 	public List<InvoiceTaxes> getByInvoiceID(Connection connection, InvoiceTaxes invoiceTaxes) {
-		LOGGER.debug("entered invoiceTaxes getByInvoiceID:"+invoiceTaxes);
+		LOGGER.debug("entered invoiceTaxes getByInvoiceID:" + invoiceTaxes);
 		if (invoiceTaxes == null || StringUtils.isBlank(invoiceTaxes.getInvoice_id())) {
 			return null;
 		}
@@ -141,7 +141,7 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
 		}
-		LOGGER.debug("exited invoiceTaxes getByInvoiceID:"+invoiceTaxes);
+		LOGGER.debug("exited invoiceTaxes getByInvoiceID:" + invoiceTaxes);
 		return invoiceTaxesList;
 	}
 }
