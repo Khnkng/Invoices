@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
@@ -19,7 +18,6 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
-import com.itextpdf.text.pdf.draw.VerticalPositionMark;
 import com.qount.invoice.model.Invoice;
 
 public class PdfUtil {
@@ -30,19 +28,9 @@ public class PdfUtil {
 
 	public static void main(String[] args) {
 		try {
-//			String query = "insert into `invoice` (";
-			String query = "";
-			String asdf[]={"id","user_id","company_id","company_name","amount","currency","description","objectives","last_updated_by","last_updated_at","first_name","last_name","state","invoice_date","acceptance_date","acceptance_final_date","notes","item_id","item_name","coa_id","coa_name","discount","deposit_amount","processing_fees","remainder_json","remainder_mail_json","is_recurring","recurring_frequency","recurring_frequency_value","recurring_start_date","recurring_end_date","is_mails_automated","is_cc_current_user","payment_spring_customer_id","number","po_number","document_id","amount_due"};
-			for(String a:asdf){
-				String b = (""+ a.charAt(0)).toUpperCase();
-				b += a.substring(1);
-//				System.out.println(b);
-				query+="pstmt.setString(ctr++,invoice.get"+b+"());\n";
-			}
-			System.out.println(query);
-//			File file = new File(DEST);
-//			file.getParentFile().mkdirs();
-//			Contemporary.createPdf(DEST);
+			File file = new File(DEST);
+			file.getParentFile().mkdirs();
+			Contemporary.createPdf(DEST);
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
