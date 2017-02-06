@@ -16,7 +16,7 @@ public interface InvoiceDAO {
 
 	public Invoice save(Connection connection, Invoice invoice);
 	
-	public Invoice updateInvoice(Connection connection, Invoice invoice);
+	public Invoice update(Connection connection, Invoice invoice);
 
 	public Invoice get(String InvoiceID);
 

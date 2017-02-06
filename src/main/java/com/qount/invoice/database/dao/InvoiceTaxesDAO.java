@@ -17,5 +17,5 @@ public interface InvoiceTaxesDAO {
 
 	public InvoiceTaxes deleteByInvoiceId(Connection connection, InvoiceTaxes invoiceTaxes);
 
-	public List<InvoiceTaxes> getByInvoiceID(Connection connection, InvoiceTaxes invoiceTaxes);
+	public List<InvoiceTaxes> getByInvoiceID(InvoiceTaxes invoiceTaxes);
 }

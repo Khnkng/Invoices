@@ -39,7 +39,9 @@ public class InvoiceParser {
 					Constants.TIME_STATMP_TO_BILLS_FORMAT);
 
 			invoice.setUser_id(userId);
-			invoice.setId(UUID.randomUUID().toString());
+			if (invoice.getId() == null) {
+				invoice.setId(UUID.randomUUID().toString());
+			}
 			invoice.setInvoice_date(invoice_date.toString());
 			invoice.setAcceptance_date(acceptance_date.toString());
 			invoice.setAcceptance_final_date(acceptance_final_date.toString());
