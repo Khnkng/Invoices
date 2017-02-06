@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceLineDAO;
-import com.qount.invoice.model.InvoiceLines;
+import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class InvoiceLineDAOImpl implements InvoiceLineDAO {
@@ -34,7 +34,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	private final static String DELETE_INVOICE_LINE_QRY = "DELETE FROM `invoice_lines` WHERE `id` = ? AND `invoice_id` = ?";
 
 	@Override
-	public boolean save(Connection connection, InvoiceLines invoiceLine) {
+	public boolean save(Connection connection, InvoiceLine invoiceLine) {
 		boolean result = false;
 		if (invoiceLine == null) {
 			return result;
@@ -66,8 +66,8 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	@Override
-	public List<InvoiceLines> getLines(Connection connection, String invoiceID) {
-		List<InvoiceLines> invoiceLines = new ArrayList<>();
+	public List<InvoiceLine> getLines(Connection connection, String invoiceID) {
+		List<InvoiceLine> invoiceLines = new ArrayList<>();
 		if (StringUtils.isBlank(invoiceID)) {
 			return invoiceLines;
 		}
@@ -79,7 +79,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				pstmt.setString(1, invoiceID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
-					InvoiceLines invoiceLine = new InvoiceLines();
+					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("id"));
 					invoiceLine.setInvoice_id(rset.getString("proposal_id"));
 					invoiceLine.setDescription(rset.getString("description"));
@@ -101,7 +101,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	@Override
-	public boolean batchSave(Connection connection, List<InvoiceLines> invoiceLines) {
+	public boolean batchSave(Connection connection, List<InvoiceLine> invoiceLines) {
 		if (invoiceLines.size() == 0) {
 			return true;
 		}
@@ -110,9 +110,9 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(INSERT_QRY);
-				Iterator<InvoiceLines> invoiceLineItr = invoiceLines.iterator();
+				Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 				while (invoiceLineItr.hasNext()) {
-					InvoiceLines invoiceLine = invoiceLineItr.next();
+					InvoiceLine invoiceLine = invoiceLineItr.next();
 					pstmt.setString(1, invoiceLine.getId());
 					pstmt.setString(2, invoiceLine.getInvoice_id());
 					pstmt.setString(3, invoiceLine.getDescription());
@@ -139,7 +139,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	@Override
-	public boolean batchDelete(List<InvoiceLines> invoiceLines) {
+	public boolean batchDelete(List<InvoiceLine> invoiceLines) {
 		Connection connection = null;
 		if (invoiceLines.size() == 0) {
 			return true;
@@ -150,7 +150,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				pstmt = connection.prepareStatement(DELETE_INVOICE_LINE_QRY);
-				for (InvoiceLines invoiceLine : invoiceLines) {
+				for (InvoiceLine invoiceLine : invoiceLines) {
 					pstmt.setString(1, invoiceLine.getId());
 					pstmt.setString(2, invoiceLine.getInvoice_id());
 					pstmt.addBatch();
@@ -167,7 +167,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	@Override
-	public InvoiceLines deleteInvoiceLine(InvoiceLines invoiceLines) {
+	public InvoiceLine deleteInvoiceLine(InvoiceLine invoiceLines) {
 		Connection connection = null;
 		if (invoiceLines == null) {
 			return null;

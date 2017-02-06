@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.model.Invoice;
-import com.qount.invoice.model.InvoiceLines;
+import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class InvoiceDAOImpl implements InvoiceDAO {
@@ -116,7 +116,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setLast_updated_at(rset.getString("last_updated_at"));
 					invoice.setPayment_spring_customer_id(rset.getString("payment_spring_customer_id"));
 					invoice.setTransaction_id(rset.getString("transaction_id"));
-					InvoiceLines invoiceLine = new InvoiceLines();
+					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("invoice_line_id"));
 					invoiceLine.setInvoice_id(rset.getString("invoice_id"));
 					invoiceLine.setDescription(rset.getString("description"));

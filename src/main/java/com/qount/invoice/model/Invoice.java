@@ -1,6 +1,5 @@
 package com.qount.invoice.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -16,27 +15,44 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @XmlRootElement
 public class Invoice {
 	private String id;
-	private String proposal_id;
+	private String user_id;
 	private String company_id;
 	private String company_name;
-	private String user_id;
-	private String description;
-	private String objectives;
-	private String due_date;
 	private double amount;
 	private String currency;
-	private String status;
-	private String terms;
-	private boolean recurring;
-	private String start_date;
-	private String end_date;
-	private String recurring_frequency;
-	private int number_of_invoices;
-	private String last_updated_at;
+	private String description;
+	private String objectives;
 	private String last_updated_by;
+	private String last_updated_at;
+	private String first_name;
+	private String last_name;
+	private String state;
+	private String proposal_date;
+	private String acceptance_date;
+	private String acceptance_final_date;
+	private String notes;
+	private String item_id;
+	private String item_name;
+	private String coa_id;
+	private String coa_name;
+	private double discount;
+	private double deposit_amount;
+	private double processing_fees;
+	private String remainder_json;
+	private String remainder_mail_json;
+	private boolean is_recurring;
+	private String recurring_frequency;
+	private double recurring_frequency_value;
+	private String recurring_start_date;
+	private String recurring_end_date;
+	private boolean is_mails_automated;
+	private boolean is_cc_current_user;
 	private String payment_spring_customer_id;
-	private String transaction_id;
-	private List<InvoiceLines> invoiceLines;
+	private double number;
+	private String po_number;
+	private String document_id;
+	private List<InvoiceLine> invoiceLines;
+	private List<InvoiceTaxes> invoiceTaxes;
 
 	public String getId() {
 		return id;
@@ -46,12 +62,12 @@ public class Invoice {
 		this.id = id;
 	}
 
-	public String getProposal_id() {
-		return proposal_id;
+	public String getUser_id() {
+		return user_id;
 	}
 
-	public void setProposal_id(String proposal_id) {
-		this.proposal_id = proposal_id;
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
 	}
 
 	public String getCompany_id() {
@@ -70,12 +86,20 @@ public class Invoice {
 		this.company_name = company_name;
 	}
 
-	public String getUser_id() {
-		return user_id;
+	public double getAmount() {
+		return amount;
 	}
 
-	public void setUser_id(String user_id) {
-		this.user_id = user_id;
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
 	}
 
 	public String getDescription() {
@@ -94,84 +118,12 @@ public class Invoice {
 		this.objectives = objectives;
 	}
 
-	public String getDue_date() {
-		return due_date;
+	public String getLast_updated_by() {
+		return last_updated_by;
 	}
 
-	public void setDue_date(String due_date) {
-		this.due_date = due_date;
-	}
-
-	public double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
-
-	public String getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getTerms() {
-		return terms;
-	}
-
-	public void setTerms(String terms) {
-		this.terms = terms;
-	}
-
-	public boolean isRecurring() {
-		return recurring;
-	}
-
-	public void setRecurring(boolean recurring) {
-		this.recurring = recurring;
-	}
-
-	public String getStart_date() {
-		return start_date;
-	}
-
-	public void setStart_date(String start_date) {
-		this.start_date = start_date;
-	}
-
-	public String getEnd_date() {
-		return end_date;
-	}
-
-	public void setEnd_date(String end_date) {
-		this.end_date = end_date;
-	}
-
-	public String getRecurring_frequency() {
-		return recurring_frequency;
-	}
-
-	public void setRecurring_frequency(String recurring_frequency) {
-		this.recurring_frequency = recurring_frequency;
-	}
-
-	public int getNumber_of_invoices() {
-		return number_of_invoices;
-	}
-
-	public void setNumber_of_invoices(int number_of_invoices) {
-		this.number_of_invoices = number_of_invoices;
+	public void setLast_updated_by(String last_updated_by) {
+		this.last_updated_by = last_updated_by;
 	}
 
 	public String getLast_updated_at() {
@@ -182,12 +134,188 @@ public class Invoice {
 		this.last_updated_at = last_updated_at;
 	}
 
-	public String getLast_updated_by() {
-		return last_updated_by;
+	public String getFirst_name() {
+		return first_name;
 	}
 
-	public void setLast_updated_by(String last_updated_by) {
-		this.last_updated_by = last_updated_by;
+	public void setFirst_name(String first_name) {
+		this.first_name = first_name;
+	}
+
+	public String getLast_name() {
+		return last_name;
+	}
+
+	public void setLast_name(String last_name) {
+		this.last_name = last_name;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getProposal_date() {
+		return proposal_date;
+	}
+
+	public void setProposal_date(String proposal_date) {
+		this.proposal_date = proposal_date;
+	}
+
+	public String getAcceptance_date() {
+		return acceptance_date;
+	}
+
+	public void setAcceptance_date(String acceptance_date) {
+		this.acceptance_date = acceptance_date;
+	}
+
+	public String getAcceptance_final_date() {
+		return acceptance_final_date;
+	}
+
+	public void setAcceptance_final_date(String acceptance_final_date) {
+		this.acceptance_final_date = acceptance_final_date;
+	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+	public String getItem_id() {
+		return item_id;
+	}
+
+	public void setItem_id(String item_id) {
+		this.item_id = item_id;
+	}
+
+	public String getItem_name() {
+		return item_name;
+	}
+
+	public void setItem_name(String item_name) {
+		this.item_name = item_name;
+	}
+
+	public String getCoa_id() {
+		return coa_id;
+	}
+
+	public void setCoa_id(String coa_id) {
+		this.coa_id = coa_id;
+	}
+
+	public String getCoa_name() {
+		return coa_name;
+	}
+
+	public void setCoa_name(String coa_name) {
+		this.coa_name = coa_name;
+	}
+
+	public double getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(double discount) {
+		this.discount = discount;
+	}
+
+	public double getDeposit_amount() {
+		return deposit_amount;
+	}
+
+	public void setDeposit_amount(double deposit_amount) {
+		this.deposit_amount = deposit_amount;
+	}
+
+	public double getProcessing_fees() {
+		return processing_fees;
+	}
+
+	public void setProcessing_fees(double processing_fees) {
+		this.processing_fees = processing_fees;
+	}
+
+	public String getRemainder_json() {
+		return remainder_json;
+	}
+
+	public void setRemainder_json(String remainder_json) {
+		this.remainder_json = remainder_json;
+	}
+
+	public String getRemainder_mail_json() {
+		return remainder_mail_json;
+	}
+
+	public void setRemainder_mail_json(String remainder_mail_json) {
+		this.remainder_mail_json = remainder_mail_json;
+	}
+
+	public boolean isIs_recurring() {
+		return is_recurring;
+	}
+
+	public void setIs_recurring(boolean is_recurring) {
+		this.is_recurring = is_recurring;
+	}
+
+	public String getRecurring_frequency() {
+		return recurring_frequency;
+	}
+
+	public void setRecurring_frequency(String recurring_frequency) {
+		this.recurring_frequency = recurring_frequency;
+	}
+
+	public double getRecurring_frequency_value() {
+		return recurring_frequency_value;
+	}
+
+	public void setRecurring_frequency_value(double recurring_frequency_value) {
+		this.recurring_frequency_value = recurring_frequency_value;
+	}
+
+	public String getRecurring_start_date() {
+		return recurring_start_date;
+	}
+
+	public void setRecurring_start_date(String recurring_start_date) {
+		this.recurring_start_date = recurring_start_date;
+	}
+
+	public String getRecurring_end_date() {
+		return recurring_end_date;
+	}
+
+	public void setRecurring_end_date(String recurring_end_date) {
+		this.recurring_end_date = recurring_end_date;
+	}
+
+	public boolean isIs_mails_automated() {
+		return is_mails_automated;
+	}
+
+	public void setIs_mails_automated(boolean is_mails_automated) {
+		this.is_mails_automated = is_mails_automated;
+	}
+
+	public boolean isIs_cc_current_user() {
+		return is_cc_current_user;
+	}
+
+	public void setIs_cc_current_user(boolean is_cc_current_user) {
+		this.is_cc_current_user = is_cc_current_user;
 	}
 
 	public String getPayment_spring_customer_id() {
@@ -198,23 +326,44 @@ public class Invoice {
 		this.payment_spring_customer_id = payment_spring_customer_id;
 	}
 
-	public String getTransaction_id() {
-		return transaction_id;
+	public double getNumber() {
+		return number;
 	}
 
-	public void setTransaction_id(String transaction_id) {
-		this.transaction_id = transaction_id;
+	public void setNumber(double number) {
+		this.number = number;
 	}
 
-	public List<InvoiceLines> getInvoiceLines() {
-		if (invoiceLines == null) {
-			invoiceLines = new ArrayList<>();
-		}
+	public String getPo_number() {
+		return po_number;
+	}
+
+	public void setPo_number(String po_number) {
+		this.po_number = po_number;
+	}
+
+	public String getDocument_id() {
+		return document_id;
+	}
+
+	public void setDocument_id(String document_id) {
+		this.document_id = document_id;
+	}
+
+	public List<InvoiceLine> getInvoiceLines() {
 		return invoiceLines;
 	}
 
-	public void setInvoiceLines(List<InvoiceLines> invoiceLines) {
+	public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
 		this.invoiceLines = invoiceLines;
+	}
+
+	public List<InvoiceTaxes> getInvoiceTaxes() {
+		return invoiceTaxes;
+	}
+
+	public void setInvoiceTaxes(List<InvoiceTaxes> invoiceTaxes) {
+		this.invoiceTaxes = invoiceTaxes;
 	}
 
 	@Override
