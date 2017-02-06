@@ -14,6 +14,8 @@ import com.qount.invoice.model.InvoiceLineTaxes;
 public interface InvoiceLineTaxesDAO {
 
 	public List<InvoiceLineTaxes> save(Connection connection, List<InvoiceLineTaxes> InvoiceLinesTaxes);
+	
+	public List<InvoiceLineTaxes> save(Connection connection,String invoice_line_id, List<InvoiceLineTaxes> InvoiceLinesTaxes);
 
 	public InvoiceLineTaxes deleteByInvoiceLineId(Connection connection, InvoiceLineTaxes InvoiceLineTaxes);
 

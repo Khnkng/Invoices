@@ -33,9 +33,47 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 
 
 	@Override
-	public List<InvoiceLineTaxes> save(Connection connection, List<InvoiceLineTaxes> InvoiceLinesTaxes) {
+	public List<InvoiceLineTaxes> save(Connection connection, String invoice_line_id, List<InvoiceLineTaxes> InvoiceLinesTaxes) {
 		LOGGER.debug("entered invoiceLineTaxes save:"+InvoiceLinesTaxes);
-		if (InvoiceLinesTaxes == null || InvoiceLinesTaxes.size() == 0) {
+		if (InvoiceLinesTaxes == null || InvoiceLinesTaxes.size() == 0 || StringUtils.isEmpty(invoice_line_id)) {
+			return InvoiceLinesTaxes;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(INSERT_QRY);
+				Iterator<InvoiceLineTaxes> invoiceLinesTaxesItr = InvoiceLinesTaxes.iterator();
+				while (invoiceLinesTaxesItr.hasNext()) {
+					InvoiceLineTaxes invoiceLineTax = invoiceLinesTaxesItr.next();
+					pstmt.setString(1, invoice_line_id);
+					pstmt.setString(2, invoiceLineTax.getTax_id());
+					pstmt.setDouble(3, invoiceLineTax.getTax_rate());
+					pstmt.addBatch();
+				}
+				int[] rowCount = pstmt.executeBatch();
+				if (rowCount != null) {
+					return InvoiceLinesTaxes;
+				} else {
+					throw new WebApplicationException("unable to insert invoice line taxes", 500);
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error inserting invoice line taxes:" + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(e.getLocalizedMessage(), 500);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		LOGGER.debug("entered invoiceLineTaxes save:"+InvoiceLinesTaxes);
+		return InvoiceLinesTaxes;
+	}
+	
+	@Override
+	public List<InvoiceLineTaxes> save(Connection connection,  List<InvoiceLineTaxes> InvoiceLinesTaxes) {
+		LOGGER.debug("entered invoiceLineTaxes save:"+InvoiceLinesTaxes);
+		if (InvoiceLinesTaxes == null || InvoiceLinesTaxes.size() == 0 ) {
 			return InvoiceLinesTaxes;
 		}
 		PreparedStatement pstmt = null;

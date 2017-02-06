@@ -18,7 +18,7 @@ import com.qount.invoice.utils.DatabaseUtilities;
 
 public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 
-	private static Logger LOGGER = Logger.getLogger(ProposalDAOImpl.class);
+	private static Logger LOGGER = Logger.getLogger(InvoiceLineDAOImpl.class);
 
 	private InvoiceLineDAOImpl() {
 	}
@@ -30,6 +30,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	private final static String INSERT_QRY = "INSERT INTO `invoice_lines` (`id`,`invoice_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes`) values (?,?,?,?,?,?,?,?,?,?,?);";
+	private final static String UPDATE_QRY = "update `invoice_lines` SET `invoice_id`=?,`description`=?,`objectives`=?,`amount`=?,`currency`=?,`last_updated_by`=?,`last_updated_at`=?,`quantity`=?,`price`=?=?,`notes`=? where `id`=?";
 	private final static String GET_LINES_QRY = "SELECT `id`,`invoice_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes` FROM invoice_lines WHERE `invoice_id` = ?;";
 	private final static String DELETE_INVOICE_LINE_QRY = "DELETE FROM `invoice_lines` WHERE `id` = ?";
 	private final static String DELETE_INVOICE_BY_ID_QRY = "DELETE FROM `invoice_lines` WHERE `invoice_id` = ?";
@@ -111,6 +112,42 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
 		return invoiceLines;
+	}
+
+	@Override
+	public InvoiceLine update(Connection connection, InvoiceLine invoiceLine) {
+		if (invoiceLine == null) {
+			return invoiceLine;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				int ctr = 1;
+				pstmt = connection.prepareStatement(UPDATE_QRY);
+				pstmt.setString(ctr++, invoiceLine.getInvoice_id());
+				pstmt.setString(ctr++, invoiceLine.getDescription());
+				pstmt.setString(ctr++, invoiceLine.getObjectives());
+				pstmt.setDouble(ctr++, invoiceLine.getAmount());
+				pstmt.setString(ctr++, invoiceLine.getCurrency());
+				pstmt.setString(ctr++, invoiceLine.getLast_updated_by());
+				pstmt.setString(ctr++, invoiceLine.getLast_updated_at());
+				pstmt.setDouble(ctr++, invoiceLine.getQuantity());
+				pstmt.setDouble(ctr++, invoiceLine.getPrice());
+				pstmt.setString(ctr++, invoiceLine.getNotes());
+				pstmt.setString(ctr++, invoiceLine.getId());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount > 0) {
+					return invoiceLine;
+				} else {
+					throw new WebApplicationException("unable to update invoice lines", 500);
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		return invoiceLine;
 	}
 
 	@Override
