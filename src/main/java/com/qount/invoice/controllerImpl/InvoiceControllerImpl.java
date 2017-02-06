@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
-import com.qount.invoice.model.InvoiceLines;
+import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -137,12 +137,12 @@ public class InvoiceControllerImpl {
 
 	public static Response deleteInvoiceLine(String userID,String invoiceID, String lineID) {
 		try {
-			InvoiceLines invoiceLine = InvoiceParser.getInvoiceLineObjToDelete(invoiceID, lineID);
+			InvoiceLine invoiceLine = InvoiceParser.getInvoiceLineObjToDelete(invoiceID, lineID);
 			if (invoiceLine == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
-			InvoiceLines result = MySQLManager.getInvoiceLineDAOInstance().deleteInvoiceLine(invoiceLine);
+			InvoiceLine result = MySQLManager.getInvoiceLineDAOInstance().deleteInvoiceLine(invoiceLine);
 			return Response.status(200).entity(result).build();
 		} catch (Exception e) {
 			LOGGER.error(e);

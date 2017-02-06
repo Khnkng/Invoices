@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.Invoice;
-import com.qount.invoice.model.InvoiceLines;
+import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 
@@ -29,22 +29,22 @@ public class InvoiceParser {
 				return null;
 			}
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			Timestamp start_date = convertStringToTimeStamp(invoice.getStart_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
-			Timestamp end_date = convertStringToTimeStamp(invoice.getEnd_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
-			Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp proposal_date = convertStringToTimeStamp(invoice.getProposal_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp acceptance_date = convertStringToTimeStamp(invoice.getAcceptance_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp acceptance_final_date = convertStringToTimeStamp(invoice.getAcceptance_final_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT);
 
 			invoice.setUser_id(userId);
 			invoice.setId(UUID.randomUUID().toString());
-			invoice.setStart_date(start_date.toString());
-			invoice.setEnd_date(end_date.toString());
-			invoice.setDue_date(due_date.toString());
+			invoice.setProposal_date(proposal_date.toString());
+			invoice.setAcceptance_date(acceptance_date.toString());
+			invoice.setAcceptance_final_date(acceptance_final_date.toString());
 			invoice.setLast_updated_at(timestamp.toString());
 			invoice.setLast_updated_by(userId);
-			List<InvoiceLines> invoiceLines = invoice.getInvoiceLines();
+			List<InvoiceLine> invoiceLines = invoice.getInvoiceLines();
 
-			Iterator<InvoiceLines> invoiceLineItr = invoiceLines.iterator();
+			Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 			while (invoiceLineItr.hasNext()) {
-				InvoiceLines line = invoiceLineItr.next();
+				InvoiceLine line = invoiceLineItr.next();
 				line.setId(UUID.randomUUID().toString());
 				line.setInvoice_id(invoice.getId());
 				line.setLast_updated_at(timestamp.toString());
@@ -81,12 +81,12 @@ public class InvoiceParser {
 		}
 	}
 
-	public static InvoiceLines getInvoiceLineObjToDelete(String invoice_id, String invoiceLine_id) {
+	public static InvoiceLine getInvoiceLineObjToDelete(String invoice_id, String invoiceLine_id) {
 		try {
 			if (StringUtils.isEmpty(invoice_id) && StringUtils.isEmpty(invoiceLine_id)) {
 				return null;
 			}
-			InvoiceLines invoiceLine = new InvoiceLines();
+			InvoiceLine invoiceLine = new InvoiceLine();
 			invoiceLine.setId(invoiceLine_id);
 			invoiceLine.setInvoice_id(invoice_id);
 			return invoiceLine;
