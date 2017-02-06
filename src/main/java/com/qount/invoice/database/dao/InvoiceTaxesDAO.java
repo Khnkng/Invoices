@@ -15,11 +15,7 @@ public interface InvoiceTaxesDAO {
 
 	public List<InvoiceTaxes> save(Connection connection, String invoiceID, List<InvoiceTaxes> invoiceTaxes);
 
-	public List<InvoiceTaxes> update(Connection connection, InvoiceTaxes invoiceTaxes);
+	public InvoiceTaxes deleteByInvoiceId(Connection connection, InvoiceTaxes invoiceTaxes);
 
-	public List<InvoiceTaxes> deleteByInvoiceId(Connection connection, InvoiceTaxes invoiceTaxes);
-
-	public InvoiceTaxes delete(InvoiceTaxes InvoiceTax);
-
-	public List<InvoiceTaxes> getByInvoiceID(InvoiceTaxes invoiceTaxes);
+	public List<InvoiceTaxes> getByInvoiceID(Connection connection, InvoiceTaxes invoiceTaxes);
 }
