@@ -16,6 +16,12 @@ import com.qount.invoice.database.dao.InvoiceLineDAO;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.utils.DatabaseUtilities;
 
+/**
+ * 
+ * @author Apurva, Qount.
+ * @version 1.0, 6 Feb 2016
+ *
+ */
 public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 
 	private static Logger LOGGER = Logger.getLogger(InvoiceLineDAOImpl.class);
@@ -30,7 +36,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	private final static String INSERT_QRY = "INSERT INTO `invoice_lines` (`id`,`invoice_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes`) values (?,?,?,?,?,?,?,?,?,?,?);";
-	private final static String UPDATE_QRY = "update `invoice_lines` SET `invoice_id`=?,`description`=?,`objectives`=?,`amount`=?,`currency`=?,`last_updated_by`=?,`last_updated_at`=?,`quantity`=?,`price`=?=?,`notes`=? where `id`=?";
+	private final static String UPDATE_QRY = "update `invoice_lines` SET `invoice_id`=?,`description`=?,`objectives`=?,`amount`=?,`currency`=?,`last_updated_by`=?,`last_updated_at`=?,`quantity`=?,`price`=?,`notes`=? where `id`=?";
 	private final static String GET_LINES_QRY = "SELECT `id`,`invoice_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes` FROM invoice_lines WHERE `invoice_id` = ?;";
 	private final static String DELETE_INVOICE_LINE_QRY = "DELETE FROM `invoice_lines` WHERE `id` = ?";
 	private final static String DELETE_INVOICE_BY_ID_QRY = "DELETE FROM `invoice_lines` WHERE `invoice_id` = ?";

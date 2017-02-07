@@ -36,8 +36,8 @@ public class InvoiceLineController {
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
 			+ "json = [{\"description\":\"line 1\",\"objectives\":\"line 1\",\"amount\":4000,\"currency\":\"INR\",\"last_updated_by\":\"apurva.khune@qount.io\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"quantity\":4,\"price\":4,\"notes\":\"line 1\",\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":12.8},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":13.5}]},{\"description\":\"line 2\",\"objectives\":\"line 2\",\"amount\":4000,\"currency\":\"INR\",\"last_updated_by\":\"apurva.khune@qount.io\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"quantity\":4,\"price\":4,\"notes\":\"line 2\",\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":78.3}]}]"
 			+ "</div>", responseContainer = "java.lang.String")
-	public List<InvoiceLine> createInvoice(@PathParam("userID") String userID,
-			@PathParam("invoiceID") String invoiceID, @Valid List<InvoiceLine> invoiceLines) {
+	public List<InvoiceLine> createInvoice(@PathParam("userID") String userID, @PathParam("invoiceID") String invoiceID,
+			@Valid List<InvoiceLine> invoiceLines) {
 		return InvoiceLineControllerImpl.createInvoiceLine(userID, invoiceID, invoiceLines);
 	}
 
@@ -48,13 +48,13 @@ public class InvoiceLineController {
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "update invoice", notes = "Used to update invoice"
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
-			+ "json ={\"description\":\"updated\",\"objectives\":\"updated\",\"amount\":70000,\"currency\":\"INR\",\"last_updated_by\":\"apurva.khune@qount.io\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"quantity\":7,\"price\":7,\"notes\":\"new line\",\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"9.0000\"}]}"
+			+ "json ={\"description\":\"updated line 1\",\"objectives\":\"updated line 1\",\"amount\":5000,\"currency\":\"INR\",\"last_updated_by\":\"apurva.khune@qount.io\",\"last_updated_at\":\"2017-02-05 11:14:35\",\"quantity\":8,\"price\":10,\"notes\":\"updated line 1\",\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":1.111},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":2.222}]}"
 			+ "</div>", responseContainer = "java.lang.String")
 	public InvoiceLine update(@PathParam("userID") String userID, @PathParam("invoiceID") String invoiceID,
 			@PathParam("invoiceLineID") String invoiceLineID, @Valid InvoiceLine invoiceLine) {
-		return InvoiceLineControllerImpl.updateInvoiceLine(userID, invoiceID,invoiceLineID, invoiceLine);
+		return InvoiceLineControllerImpl.updateInvoiceLine(userID, invoiceID, invoiceLineID, invoiceLine);
 	}
-	
+
 	@DELETE
 	@Path("/{invoiceLineID}")
 	@Produces(MediaType.APPLICATION_JSON)
