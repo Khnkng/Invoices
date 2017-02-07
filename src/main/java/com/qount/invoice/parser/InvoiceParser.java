@@ -37,6 +37,11 @@ public class InvoiceParser {
 					Constants.TIME_STATMP_TO_BILLS_FORMAT);
 			Timestamp acceptance_final_date = convertStringToTimeStamp(invoice.getAcceptance_final_date(),
 					Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp recurring_start_date = convertStringToTimeStamp(invoice.getRecurring_start_date(),
+					Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp recurring_end_date = convertStringToTimeStamp(invoice.getRecurring_end_date(),
+					Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			
 
 			invoice.setUser_id(userId);
 			if (invoice.getId() == null) {
@@ -45,17 +50,20 @@ public class InvoiceParser {
 			invoice.setInvoice_date(invoice_date.toString());
 			invoice.setAcceptance_date(acceptance_date.toString());
 			invoice.setAcceptance_final_date(acceptance_final_date.toString());
+			invoice.setRecurring_start_date(recurring_start_date.toString());
+			invoice.setRecurring_end_date(recurring_end_date.toString());
 			invoice.setLast_updated_at(timestamp.toString());
 			invoice.setLast_updated_by(userId);
 			List<InvoiceLine> invoiceLines = invoice.getInvoiceLines();
-
-			Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
-			while (invoiceLineItr.hasNext()) {
-				InvoiceLine line = invoiceLineItr.next();
-				line.setId(UUID.randomUUID().toString());
-				line.setInvoice_id(invoice.getId());
-				line.setLast_updated_at(timestamp.toString());
-				line.setLast_updated_by(userId);
+			if(invoiceLines != null){
+				Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
+				while (invoiceLineItr.hasNext()) {
+					InvoiceLine line = invoiceLineItr.next();
+					line.setId(UUID.randomUUID().toString());
+					line.setInvoice_id(invoice.getId());
+					line.setLast_updated_at(timestamp.toString());
+					line.setLast_updated_by(userId);
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));

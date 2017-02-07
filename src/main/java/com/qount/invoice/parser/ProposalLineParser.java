@@ -17,7 +17,12 @@ import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.ResponseUtil;
-
+/**
+ * 
+ * @author Apurva, Qount.
+ * @version 1.0, 6 Feb 2016
+ *
+ */
 public class ProposalLineParser {
 	private static final Logger LOGGER = Logger.getLogger(ProposalLineParser.class);
 
