@@ -12,11 +12,10 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceLineTaxesDAO;
 import com.qount.invoice.model.InvoiceLineTaxes;
-import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
-	
+
 	private static Logger LOGGER = Logger.getLogger(InvoiceLineTaxesDAOImpl.class);
 
 	private InvoiceLineTaxesDAOImpl() {
@@ -31,10 +30,10 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 	private final static String INSERT_QRY = "INSERT INTO invoice_line_taxes (`invoice_line_id`,`tax_id`,`tax_rate`) VALUES (?,?,?);";
 	private final static String DELETE_QRY = "DELETE FROM invoice_line_taxes WHERE `invoice_line_id` = ?;";
 
-
 	@Override
-	public List<InvoiceLineTaxes> save(Connection connection, String invoice_line_id, List<InvoiceLineTaxes> InvoiceLinesTaxes) {
-		LOGGER.debug("entered invoiceLineTaxes save:"+InvoiceLinesTaxes);
+	public List<InvoiceLineTaxes> save(Connection connection, String invoice_line_id,
+			List<InvoiceLineTaxes> InvoiceLinesTaxes) {
+		LOGGER.debug("entered invoiceLineTaxes save:" + InvoiceLinesTaxes);
 		if (InvoiceLinesTaxes == null || InvoiceLinesTaxes.size() == 0 || StringUtils.isEmpty(invoice_line_id)) {
 			return InvoiceLinesTaxes;
 		}
@@ -66,14 +65,14 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		LOGGER.debug("entered invoiceLineTaxes save:"+InvoiceLinesTaxes);
+		LOGGER.debug("entered invoiceLineTaxes save:" + InvoiceLinesTaxes);
 		return InvoiceLinesTaxes;
 	}
-	
+
 	@Override
-	public List<InvoiceLineTaxes> save(Connection connection,  List<InvoiceLineTaxes> InvoiceLinesTaxes) {
-		LOGGER.debug("entered invoiceLineTaxes save:"+InvoiceLinesTaxes);
-		if (InvoiceLinesTaxes == null || InvoiceLinesTaxes.size() == 0 ) {
+	public List<InvoiceLineTaxes> save(Connection connection, List<InvoiceLineTaxes> InvoiceLinesTaxes) {
+		LOGGER.debug("entered invoiceLineTaxes save:" + InvoiceLinesTaxes);
+		if (InvoiceLinesTaxes == null || InvoiceLinesTaxes.size() == 0) {
 			return InvoiceLinesTaxes;
 		}
 		PreparedStatement pstmt = null;
@@ -104,13 +103,13 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		LOGGER.debug("entered invoiceLineTaxes save:"+InvoiceLinesTaxes);
+		LOGGER.debug("entered invoiceLineTaxes save:" + InvoiceLinesTaxes);
 		return InvoiceLinesTaxes;
 	}
 
 	@Override
-	public InvoiceLineTaxes deleteByInvoiceLineId(Connection connection, InvoiceLineTaxes invoiceLineTaxes){
-		LOGGER.debug("entered invoiceLineTaxes deleteByInvoiceLineId:"+invoiceLineTaxes);
+	public InvoiceLineTaxes deleteByInvoiceLineId(Connection connection, InvoiceLineTaxes invoiceLineTaxes) {
+		LOGGER.debug("entered invoiceLineTaxes deleteByInvoiceLineId:" + invoiceLineTaxes);
 		if (invoiceLineTaxes == null || StringUtils.isBlank(invoiceLineTaxes.getInvoice_line_id())) {
 			return null;
 		}
@@ -124,8 +123,6 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 				LOGGER.debug("no of invoice line taxes deleted:" + rowCount);
 				if (rowCount > 0) {
 					return invoiceLineTaxes;
-				} else {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -137,7 +134,7 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		LOGGER.debug("exited invoiceLineTaxes deleteByInvoiceLineId:"+invoiceLineTaxes);
+		LOGGER.debug("exited invoiceLineTaxes deleteByInvoiceLineId:" + invoiceLineTaxes);
 		return invoiceLineTaxes;
 	}
 }

@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.InvoiceLine;
-import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
@@ -72,11 +71,13 @@ public class InvoiceLineParser {
 		while (invoiceLineItr.hasNext()) {
 			InvoiceLine invoiceLine = invoiceLineItr.next();
 			List<InvoiceLineTaxes> lineTaxesList = invoiceLine.getInvoiceLineTaxes();
-			Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
-			while (invoiceLineTaxesItr.hasNext()) {
-				InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
-				invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
-				result.add(invoiceLineTaxes);
+			if (lineTaxesList != null) {
+				Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
+				while (invoiceLineTaxesItr.hasNext()) {
+					InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
+					invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
+					result.add(invoiceLineTaxes);
+				}
 			}
 		}
 		return result;

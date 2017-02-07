@@ -25,7 +25,7 @@ import com.qount.invoice.utils.Constants;
 public class InvoiceParser {
 	private static final Logger LOGGER = Logger.getLogger(InvoiceParser.class);
 
-	public static Invoice getInvoiceObj(String userId, Invoice invoice) {
+	public static Invoice getInvoiceObj(String userId, Invoice invoice, boolean updateFlag) {
 		try {
 			if (StringUtils.isEmpty(userId) && invoice == null) {
 				return null;
@@ -41,7 +41,6 @@ public class InvoiceParser {
 					Constants.TIME_STATMP_TO_BILLS_FORMAT);
 			Timestamp recurring_end_date = convertStringToTimeStamp(invoice.getRecurring_end_date(),
 					Constants.TIME_STATMP_TO_BILLS_FORMAT);
-			
 
 			invoice.setUser_id(userId);
 			if (invoice.getId() == null) {
@@ -54,8 +53,11 @@ public class InvoiceParser {
 			invoice.setRecurring_end_date(recurring_end_date.toString());
 			invoice.setLast_updated_at(timestamp.toString());
 			invoice.setLast_updated_by(userId);
-			List<InvoiceLine> invoiceLines = invoice.getInvoiceLines();
-			if(invoiceLines != null){
+			if (!updateFlag) {
+				List<InvoiceLine> invoiceLines = invoice.getInvoiceLines();
+				if (invoiceLines == null) {
+					return null;
+				}
 				Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 				while (invoiceLineItr.hasNext()) {
 					InvoiceLine line = invoiceLineItr.next();
@@ -64,6 +66,7 @@ public class InvoiceParser {
 					line.setLast_updated_at(timestamp.toString());
 					line.setLast_updated_by(userId);
 				}
+
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -87,11 +90,13 @@ public class InvoiceParser {
 		while (invoiceLineItr.hasNext()) {
 			InvoiceLine invoiceLine = invoiceLineItr.next();
 			List<InvoiceLineTaxes> lineTaxesList = invoiceLine.getInvoiceLineTaxes();
-			Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
-			while (invoiceLineTaxesItr.hasNext()) {
-				InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
-				invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
-				result.add(invoiceLineTaxes);
+			if (lineTaxesList != null) {
+				Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
+				while (invoiceLineTaxesItr.hasNext()) {
+					InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
+					invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
+					result.add(invoiceLineTaxes);
+				}
 			}
 		}
 		return result;

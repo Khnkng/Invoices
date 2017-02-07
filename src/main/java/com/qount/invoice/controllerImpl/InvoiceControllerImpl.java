@@ -1,6 +1,7 @@
 package com.qount.invoice.controllerImpl;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -18,6 +19,7 @@ import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.ResponseUtil;
+
 /**
  * 
  * @author Apurva, Qount.
@@ -30,7 +32,7 @@ public class InvoiceControllerImpl {
 	public static Invoice createInvoice(String userID, Invoice invoice) {
 		Connection connection = null;
 		try {
-			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice);
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, false);
 			if (invoiceObj == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
@@ -44,9 +46,12 @@ public class InvoiceControllerImpl {
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceTaxes> incoiceTaxesList = invoiceObj.getInvoiceTaxes();
+				if(incoiceTaxesList == null){
+					incoiceTaxesList = new ArrayList<InvoiceTaxes>();
+				}
 				List<InvoiceTaxes> invoiceTaxResult = MySQLManager.getInvoiceTaxesDAOInstance().save(connection,
 						invoiceObj.getId(), incoiceTaxesList);
-				if (!invoiceTaxResult.isEmpty()) {
+				if (invoiceTaxResult != null) {
 					List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection,
 							invoiceObj.getInvoiceLines());
 					if (!invoiceLineResult.isEmpty()) {
@@ -54,7 +59,7 @@ public class InvoiceControllerImpl {
 								.getInvoiceLineTaxesList(invoiceObj.getInvoiceLines());
 						List<InvoiceLineTaxes> invoiceLineTaxesResult = MySQLManager.getInvoiceLineTaxesDAOInstance()
 								.save(connection, invoiceLineTaxesList);
-						if (!invoiceLineTaxesResult.isEmpty()) {
+						if (invoiceLineTaxesResult != null) {
 							connection.commit();
 							return invoiceObj;
 						}
@@ -63,6 +68,8 @@ public class InvoiceControllerImpl {
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} catch (WebApplicationException e) {
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
@@ -77,7 +84,7 @@ public class InvoiceControllerImpl {
 		Connection connection = null;
 		try {
 			invoice.setId(invoiceID);
-			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice);
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, true);
 			if (invoiceObj == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
@@ -96,9 +103,12 @@ public class InvoiceControllerImpl {
 				InvoiceTaxes invoiceTaxResult = MySQLManager.getInvoiceTaxesDAOInstance().deleteByInvoiceId(connection,
 						invoiceTax);
 				if (invoiceTaxResult != null) {
+					if(invoiceTaxesList == null){
+						invoiceTaxesList = new ArrayList<>();
+					}
 					List<InvoiceTaxes> invoiceTaxesResult = MySQLManager.getInvoiceTaxesDAOInstance().save(connection,
 							invoiceID, invoiceTaxesList);
-					if (!invoiceTaxesResult.isEmpty()) {
+					if (invoiceTaxesResult != null) {
 						connection.commit();
 						return invoiceResult;
 					}
