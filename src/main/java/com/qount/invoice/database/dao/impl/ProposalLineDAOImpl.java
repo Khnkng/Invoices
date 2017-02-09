@@ -16,6 +16,7 @@ import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.SqlQuerys;
 
 public class ProposalLineDAOImpl implements ProposalLineDAO {
 
@@ -30,11 +31,6 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		return proposalLineDAOImpl;
 	}
 
-	private final static String INSERT_QRY = "INSERT INTO `proposal_lines` (`id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes`) VALUES (?,?,?,?,?,?,?,?,?,?,?);";
-	private final static String UPADTE_QRY = "UPDATE `proposal_lines` SET `description` = ?,`objectives` = ?,`amount`= ?,`currency` = ?,`last_updated_by`= ?,`last_updated_at` = ?,`quantity` = ?,`price` = ?,`notes` = ? WHERE `id` = ? AND `proposal_id` = ?;";
-	private final static String GET_LINES_QRY = "SELECT `id`,`proposal_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes` FROM proposal_lines WHERE `id` = ?;";
-	private final static String DELETE_PROPOSAL_LINE_QRY = "DELETE FROM `proposal_lines` WHERE `id` = ?";
-
 	@Override
 	public List<ProposalLine> getLines(Connection connection, String proposalID) {
 		List<ProposalLine> proposalLines = new ArrayList<>();
@@ -45,7 +41,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		ResultSet rset = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(GET_LINES_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.GET_LINES_QRY);
 				pstmt.setString(1, proposalID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -81,7 +77,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.INSERT_QRY);
 				Iterator<ProposalLine> ProposalLineItr = proposalLines.iterator();
 				while (ProposalLineItr.hasNext()) {
 					ProposalLine proposalLine = ProposalLineItr.next();
@@ -122,7 +118,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(UPADTE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.UPADTE_QRY);
 				pstmt.setString(1, proposalLine.getDescription());
 				pstmt.setString(2, proposalLine.getObjectives());
 				pstmt.setDouble(3, proposalLine.getAmount());
@@ -160,7 +156,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_PROPOSAL_LINE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.DELETE_PROPOSAL_LINE_QRY);
 				pstmt.setString(1, proposalLine.getId());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of proposal lines deleted:" + rowCount);

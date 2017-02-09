@@ -31,8 +31,6 @@ public class Invoice {
 	private String acceptance_date;
 	private String acceptance_final_date;
 	private String notes;
-	private String item_id;
-	private String item_name;
 	private String coa_id;
 	private String coa_name;
 	private double discount;
@@ -215,22 +213,6 @@ public class Invoice {
 
 	public void setNotes(String notes) {
 		this.notes = notes;
-	}
-
-	public String getItem_id() {
-		return item_id;
-	}
-
-	public void setItem_id(String item_id) {
-		this.item_id = item_id;
-	}
-
-	public String getItem_name() {
-		return item_name;
-	}
-
-	public void setItem_name(String item_name) {
-		this.item_name = item_name;
 	}
 
 	public String getCoa_id() {

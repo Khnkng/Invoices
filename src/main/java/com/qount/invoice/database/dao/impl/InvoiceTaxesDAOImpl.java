@@ -16,6 +16,7 @@ import com.qount.invoice.database.dao.InvoiceTaxesDAO;
 import com.qount.invoice.model.InvoiceTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.SqlQuerys;
 
 /**
  * 
@@ -36,10 +37,6 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 		return invoiceTaxesDAOImpl;
 	}
 
-	private final static String INSERT_QRY = "INSERT INTO invoice_taxes (`invoice_id`,`tax_id`,`tax_rate`) VALUES (?,?,?);";
-	private final static String DELETE_QRY = "DELETE FROM `invoice_taxes` WHERE `invoice_id`=?;";
-	private final static String GET_QRY = "SELECT `invoice_id`,`tax_id`,`tax_rate` FROM invoice_taxes WHERE `invoice_id` = ?;";
-
 	@Override
 	public List<InvoiceTaxes> save(Connection connection, String invoiceID, List<InvoiceTaxes> invoiceTaxes) {
 		LOGGER.debug("entered invoiceTaxes save:" + invoiceTaxes);
@@ -49,7 +46,7 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceTaxes.INSERT_QRY);
 				Iterator<InvoiceTaxes> invoiceTaxesItr = invoiceTaxes.iterator();
 				while (invoiceTaxesItr.hasNext()) {
 					InvoiceTaxes invoiceTax = invoiceTaxesItr.next();
@@ -88,7 +85,7 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 		try {
 			int qryCtr = 1;
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceTaxes.DELETE_QRY);
 				pstmt.setString(qryCtr++, invoiceTaxes.getInvoice_id());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of invoice taxes deleted:" + rowCount);
@@ -124,7 +121,7 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(GET_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceTaxes.GET_QRY);
 				pstmt.setString(1, invoiceTaxes.getInvoice_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {

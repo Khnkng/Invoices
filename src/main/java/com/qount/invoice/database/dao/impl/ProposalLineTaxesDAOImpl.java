@@ -14,6 +14,7 @@ import com.qount.invoice.database.dao.ProposalLineTaxesDAO;
 import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.SqlQuerys;
 
 public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 	private static Logger LOGGER = Logger.getLogger(ProposalLineTaxesDAOImpl.class);
@@ -26,9 +27,6 @@ public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 	public static ProposalLineTaxesDAOImpl getProposalLineTaxesDAOImpl() {
 		return proposalLineTaxesDAOImpl;
 	}
-
-	private final static String INSERT_QRY = "INSERT INTO proposal_line_taxes (`proposal_line_id`,`tax_id`,`tax_rate`) VALUES (?,?,?);";
-	private final static String DELETE_QRY = "DELETE FROM proposal_line_taxes WHERE `proposal_line_id` = ?;";
 
 	@Override
 	public ProposalLineTaxes save(Connection connection, ProposalLineTaxes proposalLineTaxes) {
@@ -44,7 +42,7 @@ public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLineTaxes.INSERT_QRY);
 				Iterator<ProposalLineTaxes> proposalLinesTaxesItr = proposalLinesTaxes.iterator();
 				while (proposalLinesTaxesItr.hasNext()) {
 					ProposalLineTaxes proposalLineTax = proposalLinesTaxesItr.next();
@@ -88,13 +86,13 @@ public class ProposalLineTaxesDAOImpl implements ProposalLineTaxesDAO {
 		try {
 			int qryCtr = 1;
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLineTaxes.DELETE_QRY);
 				pstmt.setString(qryCtr++, proposalLineId);
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of proposal line taxes deleted:" + rowCount);
 				if (rowCount > 0) {
 					qryCtr = 1;
-					pstmt2 = connection.prepareStatement(INSERT_QRY);
+					pstmt2 = connection.prepareStatement(SqlQuerys.ProposalLineTaxes.INSERT_QRY);
 					Iterator<ProposalLineTaxes> proposalLineTaxesItr = proposalLineTaxes.iterator();
 					while (proposalLineTaxesItr.hasNext()) {
 						ProposalLineTaxes proposalLineTax = proposalLineTaxesItr.next();

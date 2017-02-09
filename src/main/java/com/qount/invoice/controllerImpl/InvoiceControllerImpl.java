@@ -61,7 +61,7 @@ public class InvoiceControllerImpl {
 								.save(connection, invoiceLineTaxesList);
 						if (invoiceLineTaxesResult != null) {
 							connection.commit();
-							return invoiceObj;
+							return InvoiceParser.convertTimeStampToString(invoiceObj);
 						}
 					}
 				}

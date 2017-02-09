@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoicePreferenceDAO;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.utils.SqlQuerys;
 
 /**
  * DAO interface for InvoicePreferenceDAOImpl
@@ -31,11 +32,6 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 		return invoicePreferenceDAOImpl;
 	}
 
-	private static final String INSERT_QRY = "INSERT INTO `invoice_preferences` (`id`,`company_id`,`template_type`,`company_logo`,`display_logo`,`accent_color`,`default_payment_terms`,`default_title`,`default_sub_heading`,`default_footer`,`standard_memo`,`items`,`units`,`price`,`amount`,`hide_item_name`,`hide_item_description`,`hide_units`,`hide_price`,`hide_amount`) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-	private static final String UPDATE_QRY = "UPDATE `invoice_preferences` SET `template_type` = ?, `company_logo` = ?, `display_logo` = ?, `accent_color` = ?, `default_payment_terms` = ?, `default_title` = ?, `default_sub_heading` = ?, `default_footer` = ?, `standard_memo` = ?, `items` = ?, `units` = ?, `price` = ?, `amount` = ?, `hide_item_name` = ?, `hide_item_description` = ?, `hide_units` = ?, `hide_price` = ?, `hide_amount` = ?, `company_id`= ?  WHERE `id` = ?";
-	private final static String DELETE_QRY = "DELETE FROM invoice_preferences WHERE `id`=?;";
-	private final static String GET_QRY = " SELECT `id`,`company_id`,`template_type`,`company_logo`,`display_logo`,`accent_color`,`default_payment_terms`,`default_title`,`default_sub_heading`,`default_footer`,`standard_memo`,`items`,`units`,`price`,`amount`,`hide_item_name`,`hide_item_description`,`hide_units`,`hide_price`,`hide_amount` FROM invoice_preferences WHERE `company_id` = ? ";
-
 	@Override
 	public InvoicePreference save(Connection connection, InvoicePreference invoicePreference) {
 		LOGGER.debug("entered save:" + invoicePreference);
@@ -47,7 +43,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 		try {
 			int rowCtr = 1;
 			if (connection != null) {
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.INSERT_QRY);
 				pstmt.setString(rowCtr++, invoicePreference.getId());
 				pstmt.setString(rowCtr++, invoicePreference.getCompanyId());
 				pstmt.setString(rowCtr++, invoicePreference.getTemplateType());
@@ -93,7 +89,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 		try {
 			int rowCtr = 1;
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.DELETE_QRY);
 				pstmt.setString(rowCtr++, invoicePreference.getId());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("invoice preferece deleted count:" + rowCount + " id:" + invoicePreference.getId());
@@ -121,7 +117,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 		try {
 			int rowCtr = 1;
 			if (connection != null) {
-				pstmt = connection.prepareStatement(GET_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.GET_QRY);
 				pstmt.setString(rowCtr++, invoicePreference.getCompanyId());
 				rset = pstmt.executeQuery();
 				if (rset != null && rset.next()) {
@@ -166,7 +162,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 		try {
 			int rowCtr = 1;
 			if (connection != null) {
-				pstmt = connection.prepareStatement(UPDATE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.UPDATE_QRY);
 				pstmt.setString(rowCtr++, invoicePreference.getTemplateType());
 				pstmt.setString(rowCtr++, invoicePreference.getCompanyLogo());
 				pstmt.setBoolean(rowCtr++, invoicePreference.isDisplayLogo());

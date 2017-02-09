@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.database.dao.InvoiceLineDAO;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.SqlQuerys;
 
 /**
  * 
@@ -35,12 +36,6 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 		return invoiceLineDAOImpl;
 	}
 
-	private final static String INSERT_QRY = "INSERT INTO `invoice_lines` (`id`,`invoice_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes`) values (?,?,?,?,?,?,?,?,?,?,?);";
-	private final static String UPDATE_QRY = "update `invoice_lines` SET `invoice_id`=?,`description`=?,`objectives`=?,`amount`=?,`currency`=?,`last_updated_by`=?,`last_updated_at`=?,`quantity`=?,`price`=?,`notes`=? where `id`=?";
-	private final static String GET_LINES_QRY = "SELECT `id`,`invoice_id`,`description`,`objectives`,`amount`,`currency`,`last_updated_by`,`last_updated_at`,`quantity`,`price`,`notes` FROM invoice_lines WHERE `invoice_id` = ?;";
-	private final static String DELETE_INVOICE_LINE_QRY = "DELETE FROM `invoice_lines` WHERE `id` = ?";
-	private final static String DELETE_INVOICE_BY_ID_QRY = "DELETE FROM `invoice_lines` WHERE `invoice_id` = ?";
-
 	@Override
 	public List<InvoiceLine> getByInvoiceId(Connection connection, InvoiceLine invoiceLine) {
 		List<InvoiceLine> invoiceLines = new ArrayList<>();
@@ -51,7 +46,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 		ResultSet rset = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(GET_LINES_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLine.GET_LINES_QRY);
 				pstmt.setString(1, invoiceLine.getInvoice_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -66,6 +61,8 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 					invoiceLine.setQuantity(rset.getDouble("quantity"));
 					invoiceLine.setPrice(rset.getDouble("price"));
 					invoiceLine.setNotes(rset.getString("notes"));
+					invoiceLine.setItem_id(rset.getString("item_id"));
+					invoiceLine.setItem_name(rset.getString("item_name"));
 					invoiceLines.add(invoiceLine);
 				}
 			}
@@ -86,7 +83,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLine.INSERT_QRY);
 				Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 				int ctr = 1;
 				while (invoiceLineItr.hasNext()) {
@@ -102,6 +99,8 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 					pstmt.setDouble(ctr++, invoiceLine.getQuantity());
 					pstmt.setDouble(ctr++, invoiceLine.getPrice());
 					pstmt.setString(ctr++, invoiceLine.getNotes());
+					pstmt.setString(ctr++, invoiceLine.getItem_id());
+					pstmt.setString(ctr++, invoiceLine.getItem_name());
 					ctr = 1;
 					pstmt.addBatch();
 				}
@@ -129,7 +128,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
-				pstmt = connection.prepareStatement(UPDATE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLine.UPDATE_QRY);
 				pstmt.setString(ctr++, invoiceLine.getInvoice_id());
 				pstmt.setString(ctr++, invoiceLine.getDescription());
 				pstmt.setString(ctr++, invoiceLine.getObjectives());
@@ -140,6 +139,8 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				pstmt.setDouble(ctr++, invoiceLine.getQuantity());
 				pstmt.setDouble(ctr++, invoiceLine.getPrice());
 				pstmt.setString(ctr++, invoiceLine.getNotes());
+				pstmt.setString(ctr++, invoiceLine.getItem_id());
+				pstmt.setString(ctr++, invoiceLine.getItem_name());
 				pstmt.setString(ctr++, invoiceLine.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount > 0) {
@@ -166,7 +167,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_INVOICE_BY_ID_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLine.DELETE_INVOICE_BY_ID_QRY);
 				pstmt.setString(1, invoiceLine.getInvoice_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount > 0) {
@@ -191,7 +192,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_INVOICE_LINE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLine.DELETE_INVOICE_LINE_QRY);
 				pstmt.setString(1, invoiceLines.getId());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of invoice lines deleted:" + rowCount);
