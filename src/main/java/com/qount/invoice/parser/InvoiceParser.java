@@ -41,6 +41,8 @@ public class InvoiceParser {
 					Constants.TIME_STATMP_TO_BILLS_FORMAT);
 			Timestamp recurring_end_date = convertStringToTimeStamp(invoice.getRecurring_end_date(),
 					Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp payment_date = convertStringToTimeStamp(invoice.getPayment_date(),
+					Constants.TIME_STATMP_TO_BILLS_FORMAT);
 
 			invoice.setUser_id(userId);
 			if (invoice.getId() == null) {
@@ -51,6 +53,7 @@ public class InvoiceParser {
 			invoice.setAcceptance_final_date(acceptance_final_date.toString());
 			invoice.setRecurring_start_date(recurring_start_date.toString());
 			invoice.setRecurring_end_date(recurring_end_date.toString());
+			invoice.setPayment_date(payment_date.toString());
 			invoice.setLast_updated_at(timestamp.toString());
 			invoice.setLast_updated_by(userId);
 			if (!updateFlag) {

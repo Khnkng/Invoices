@@ -31,11 +31,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return invoiceDAOImpl;
 	}
 
-	private static final String INSERT_QRY = "insert into `invoice` (`id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`,`first_name`,`last_name`,`state`,`invoice_date`,`acceptance_date`,`acceptance_final_date`,`notes`,`item_id`,`item_name`,`coa_id`,`coa_name`,`discount`,`deposit_amount`,`processing_fees`,`remainder_json`,`remainder_mail_json`,`is_recurring`,`recurring_frequency`,`recurring_frequency_value`,`recurring_start_date`,`recurring_end_date`,`is_mails_automated`,`is_cc_current_user`,`payment_spring_customer_id`,`po_number`,`document_id`,`amount_due`) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-	private static final String UPDATE_QRY = "UPDATE `invoice` SET `user_id` = ?,`company_id` = ?,`company_name` = ?,`amount` = ?,`currency` = ?,`description` = ?,`objectives` = ?,`last_updated_by` = ?,`last_updated_at` = ?,`first_name` = ?,`last_name` = ?,`state` = ?,`invoice_date` = ?,`acceptance_date` = ?,`acceptance_final_date` = ?,`notes` = ?,`item_id` = ?,`item_name` = ?,`coa_id` = ?,`coa_name` = ?,`discount` = ?,`deposit_amount` = ?,`processing_fees` = ?,`remainder_json` = ?,`remainder_mail_json`= ?,`is_recurring` = ?,`recurring_frequency` = ?,`recurring_frequency_value` = ?,`recurring_start_date` = ?,`recurring_end_date` = ?,`is_mails_automated` = ?,`is_cc_current_user` = ?,`payment_spring_customer_id` = ?,`po_number` = ?,`document_id` = ?,`amount_due` = ? WHERE `id` = ?";
+	private static final String INSERT_QRY = "insert into `invoice` (`id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`,`first_name`,`last_name`,`state`,`invoice_date`,`acceptance_date`,`acceptance_final_date`,`notes`,`item_id`,`item_name`,`coa_id`,`coa_name`,`discount`,`deposit_amount`,`processing_fees`,`remainder_json`,`remainder_mail_json`,`is_recurring`,`recurring_frequency`,`recurring_frequency_value`,`recurring_start_date`,`recurring_end_date`,`is_mails_automated`,`is_cc_current_user`,`payment_spring_customer_id`,`po_number`,`document_id`,`amount_due`,`payment_date`,`sub_totoal`) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+	private static final String UPDATE_QRY = "UPDATE `invoice` SET `user_id` = ?,`company_id` = ?,`company_name` = ?,`amount` = ?,`currency` = ?,`description` = ?,`objectives` = ?,`last_updated_by` = ?,`last_updated_at` = ?,`first_name` = ?,`last_name` = ?,`state` = ?,`invoice_date` = ?,`acceptance_date` = ?,`acceptance_final_date` = ?,`notes` = ?,`item_id` = ?,`item_name` = ?,`coa_id` = ?,`coa_name` = ?,`discount` = ?,`deposit_amount` = ?,`processing_fees` = ?,`remainder_json` = ?,`remainder_mail_json`= ?,`is_recurring` = ?,`recurring_frequency` = ?,`recurring_frequency_value` = ?,`recurring_start_date` = ?,`recurring_end_date` = ?,`is_mails_automated` = ?,`is_cc_current_user` = ?,`payment_spring_customer_id` = ?,`po_number` = ?,`document_id` = ?,`amount_due` = ?, `payment_date`=?, `sub_totoal`=? WHERE `id` = ?";
 	private final static String DELETE_QRY = "DELETE FROM invoice WHERE `id`=?;";
-	private final static String GET_QRY = "SELECT i.`id`,i.`user_id`,i.`company_id`,i.`company_name`,i.`amount`,i.`currency`,i.`description`,i.`objectives`,i.`last_updated_by`,i.`last_updated_at`,i.`first_name`,i.`last_name`,i.`state`, i.`invoice_date`,i.`acceptance_date`,i.`acceptance_final_date`,i.`notes`,i.`item_id`,i.`item_name`,i.`coa_id`,i.`coa_name`,i.`discount`,i.`deposit_amount`,i.`processing_fees`,i.`remainder_json`, i.`remainder_mail_json`,i.`is_recurring`,i.`recurring_frequency`,i.`recurring_frequency_value`,i.`recurring_start_date`,i.`recurring_end_date`,i.`is_mails_automated`,i.`is_cc_current_user`,i.`payment_spring_customer_id`,i.`po_number`,i.`document_id`,i.`amount_due`, il.`id` AS `ilid`,il.`invoice_id`,il.`description` `il_description`,il.`objectives` `il_objectives`,il.`amount` `il_amount`,il.`currency` `il_currency`,il.`last_updated_by` `il_last_updated_by`,il.`last_updated_at` `il_last_updated_at`,il.`quantity` `il_quantity`,il.`price` `il_price`,il.`notes` `il_notes`, ilt.`invoice_line_id` `ilt_invoice_line_id`,ilt.`tax_id` `ilt_tax_id`,ilt.`tax_rate` `ilt_tax_rate` FROM `invoice` i LEFT JOIN `invoice_lines` il ON i.id=il.invoice_id LEFT JOIN `invoice_line_taxes` ilt ON il.id =ilt.invoice_line_id WHERE i.id = ?;";
-	private final static String GET_INVOICES_LIST_QRY = "SELECT `id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`,`first_name`,`last_name`,`state`,`invoice_date`,`acceptance_date`,`acceptance_final_date`,`notes`,`item_id`,`item_name`,`coa_id`,`coa_name`,`discount`,`deposit_amount`,`processing_fees`,`remainder_json`,`remainder_mail_json`,`is_recurring`,`recurring_frequency`,`recurring_frequency_value`,`recurring_start_date`,`recurring_end_date`,`is_mails_automated`,`is_cc_current_user`,`payment_spring_customer_id`,`number`,`po_number`,`document_id`,`amount_due` FROM invoice WHERE `user_id`=?;";
+	private final static String GET_QRY = "SELECT i.`id`,i.`user_id`,i.`company_id`,i.`company_name`,i.`amount`,i.`currency`,i.`description`,i.`objectives`,i.`last_updated_by`,i.`last_updated_at`,i.`first_name`,i.`last_name`,i.`state`, i.`invoice_date`,i.`acceptance_date`,i.`acceptance_final_date`,i.`notes`,i.`item_id`,i.`item_name`,i.`coa_id`,i.`coa_name`,i.`discount`,i.`deposit_amount`,i.`processing_fees`,i.`remainder_json`, i.`remainder_mail_json`,i.`is_recurring`,i.`recurring_frequency`,i.`recurring_frequency_value`,i.`recurring_start_date`,i.`recurring_end_date`,i.`is_mails_automated`,i.`is_cc_current_user`,i.`payment_spring_customer_id`,i.`po_number`,i.`document_id`,i.`amount_due`,i.`payment_date`,i.`sub_totoal`, il.`id` AS `ilid`,il.`invoice_id`,il.`description` `il_description`,il.`objectives` `il_objectives`,il.`amount` `il_amount`,il.`currency` `il_currency`,il.`last_updated_by` `il_last_updated_by`,il.`last_updated_at` `il_last_updated_at`,il.`quantity` `il_quantity`,il.`price` `il_price`,il.`notes` `il_notes`, ilt.`invoice_line_id` `ilt_invoice_line_id`,ilt.`tax_id` `ilt_tax_id`,ilt.`tax_rate` `ilt_tax_rate` FROM `invoice` i LEFT JOIN `invoice_lines` il ON i.id=il.invoice_id LEFT JOIN `invoice_line_taxes` ilt ON il.id =ilt.invoice_line_id WHERE i.id = ?;";
+	private final static String GET_INVOICES_LIST_QRY = "SELECT `id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`,`first_name`,`last_name`,`state`,`invoice_date`,`acceptance_date`,`acceptance_final_date`,`notes`,`item_id`,`item_name`,`coa_id`,`coa_name`,`discount`,`deposit_amount`,`processing_fees`,`remainder_json`,`remainder_mail_json`,`is_recurring`,`recurring_frequency`,`recurring_frequency_value`,`recurring_start_date`,`recurring_end_date`,`is_mails_automated`,`is_cc_current_user`,`payment_spring_customer_id`,`number`,`po_number`,`document_id`,`amount_due`,`payment_date`,`sub_totoal` FROM invoice WHERE `user_id`=?;";
 
 	@Override
 	public Invoice save(Connection connection, Invoice invoice) {
@@ -84,6 +84,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPo_number());
 				pstmt.setString(ctr++, invoice.getDocument_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
+				pstmt.setString(ctr++, invoice.getPayment_date());
+				pstmt.setDouble(ctr++, invoice.getSub_totoal());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -148,6 +150,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPo_number());
 				pstmt.setString(ctr++, invoice.getDocument_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
+				pstmt.setString(ctr++, invoice.getPayment_date());
+				pstmt.setDouble(ctr++, invoice.getSub_totoal());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -249,6 +253,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setPo_number(rset.getString("po_number"));
 							invoice.setDocument_id(rset.getString("document_id"));
 							invoice.setAmount_due(rset.getDouble("amount_due"));
+							invoice.setPayment_date(rset.getString("payment_date"));
+							invoice.setSub_totoal(rset.getDouble("sub_totoal"));
 						}
 					}
 				}
@@ -315,6 +321,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setPo_number(rset.getString("po_number"));
 					invoice.setDocument_id(rset.getString("document_id"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setPayment_date(rset.getString("payment_date"));
+					invoice.setSub_totoal(rset.getDouble("sub_totoal"));
 					invoiceLst.add(invoice);
 				}
 			}
