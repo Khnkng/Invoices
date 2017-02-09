@@ -17,6 +17,7 @@ import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.SqlQuerys;
 
 public class InvoiceDAOImpl implements InvoiceDAO {
 
@@ -31,11 +32,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return invoiceDAOImpl;
 	}
 
-	private static final String INSERT_QRY = "insert into `invoice` (`id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`,`first_name`,`last_name`,`state`,`invoice_date`,`acceptance_date`,`acceptance_final_date`,`notes`,`item_id`,`item_name`,`coa_id`,`coa_name`,`discount`,`deposit_amount`,`processing_fees`,`remainder_json`,`remainder_mail_json`,`is_recurring`,`recurring_frequency`,`recurring_frequency_value`,`recurring_start_date`,`recurring_end_date`,`is_mails_automated`,`is_cc_current_user`,`payment_spring_customer_id`,`po_number`,`document_id`,`amount_due`,`payment_date`,`sub_totoal`) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-	private static final String UPDATE_QRY = "UPDATE `invoice` SET `user_id` = ?,`company_id` = ?,`company_name` = ?,`amount` = ?,`currency` = ?,`description` = ?,`objectives` = ?,`last_updated_by` = ?,`last_updated_at` = ?,`first_name` = ?,`last_name` = ?,`state` = ?,`invoice_date` = ?,`acceptance_date` = ?,`acceptance_final_date` = ?,`notes` = ?,`item_id` = ?,`item_name` = ?,`coa_id` = ?,`coa_name` = ?,`discount` = ?,`deposit_amount` = ?,`processing_fees` = ?,`remainder_json` = ?,`remainder_mail_json`= ?,`is_recurring` = ?,`recurring_frequency` = ?,`recurring_frequency_value` = ?,`recurring_start_date` = ?,`recurring_end_date` = ?,`is_mails_automated` = ?,`is_cc_current_user` = ?,`payment_spring_customer_id` = ?,`po_number` = ?,`document_id` = ?,`amount_due` = ?, `payment_date`=?, `sub_totoal`=? WHERE `id` = ?";
-	private final static String DELETE_QRY = "DELETE FROM invoice WHERE `id`=?;";
-	private final static String GET_QRY = "SELECT i.`id`,i.`user_id`,i.`company_id`,i.`company_name`,i.`amount`,i.`currency`,i.`description`,i.`objectives`,i.`last_updated_by`,i.`last_updated_at`,i.`first_name`,i.`last_name`,i.`state`, i.`invoice_date`,i.`acceptance_date`,i.`acceptance_final_date`,i.`notes`,i.`item_id`,i.`item_name`,i.`coa_id`,i.`coa_name`,i.`discount`,i.`deposit_amount`,i.`processing_fees`,i.`remainder_json`, i.`remainder_mail_json`,i.`is_recurring`,i.`recurring_frequency`,i.`recurring_frequency_value`,i.`recurring_start_date`,i.`recurring_end_date`,i.`is_mails_automated`,i.`is_cc_current_user`,i.`payment_spring_customer_id`,i.`po_number`,i.`document_id`,i.`amount_due`,i.`payment_date`,i.`sub_totoal`, il.`id` AS `ilid`,il.`invoice_id`,il.`description` `il_description`,il.`objectives` `il_objectives`,il.`amount` `il_amount`,il.`currency` `il_currency`,il.`last_updated_by` `il_last_updated_by`,il.`last_updated_at` `il_last_updated_at`,il.`quantity` `il_quantity`,il.`price` `il_price`,il.`notes` `il_notes`, ilt.`invoice_line_id` `ilt_invoice_line_id`,ilt.`tax_id` `ilt_tax_id`,ilt.`tax_rate` `ilt_tax_rate` FROM `invoice` i LEFT JOIN `invoice_lines` il ON i.id=il.invoice_id LEFT JOIN `invoice_line_taxes` ilt ON il.id =ilt.invoice_line_id WHERE i.id = ?;";
-	private final static String GET_INVOICES_LIST_QRY = "SELECT `id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`,`first_name`,`last_name`,`state`,`invoice_date`,`acceptance_date`,`acceptance_final_date`,`notes`,`item_id`,`item_name`,`coa_id`,`coa_name`,`discount`,`deposit_amount`,`processing_fees`,`remainder_json`,`remainder_mail_json`,`is_recurring`,`recurring_frequency`,`recurring_frequency_value`,`recurring_start_date`,`recurring_end_date`,`is_mails_automated`,`is_cc_current_user`,`payment_spring_customer_id`,`number`,`po_number`,`document_id`,`amount_due`,`payment_date`,`sub_totoal` FROM invoice WHERE `user_id`=?;";
 
 	@Override
 	public Invoice save(Connection connection, Invoice invoice) {
@@ -46,7 +42,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
 				pstmt.setString(ctr++, invoice.getId());
 				pstmt.setString(ctr++, invoice.getUser_id());
 				pstmt.setString(ctr++, invoice.getCompany_id());
@@ -64,8 +60,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getAcceptance_date());
 				pstmt.setString(ctr++, invoice.getAcceptance_final_date());
 				pstmt.setString(ctr++, invoice.getNotes());
-				pstmt.setString(ctr++, invoice.getItem_id());
-				pstmt.setString(ctr++, invoice.getItem_name());
 				pstmt.setString(ctr++, invoice.getCoa_id());
 				pstmt.setString(ctr++, invoice.getCoa_name());
 				pstmt.setDouble(ctr++, invoice.getDiscount());
@@ -113,7 +107,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
-				pstmt = connection.prepareStatement(UPDATE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
 				pstmt.setString(ctr++, invoice.getUser_id());
 				pstmt.setString(ctr++, invoice.getCompany_id());
 				pstmt.setString(ctr++, invoice.getCompany_name());
@@ -130,8 +124,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getAcceptance_date());
 				pstmt.setString(ctr++, invoice.getAcceptance_final_date());
 				pstmt.setString(ctr++, invoice.getNotes());
-				pstmt.setString(ctr++, invoice.getItem_id());
-				pstmt.setString(ctr++, invoice.getItem_name());
 				pstmt.setString(ctr++, invoice.getCoa_id());
 				pstmt.setString(ctr++, invoice.getCoa_name());
 				pstmt.setDouble(ctr++, invoice.getDiscount());
@@ -182,7 +174,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				invoice.setInvoiceLines(invoiceLines);
-				pstmt = connection.prepareStatement(GET_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_QRY);
 				pstmt.setString(1, invoiceID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -199,6 +191,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					} else if (invoiceLineIndex == -1) {
 						invoiceLine.setInvoice_id(rset.getString("invoice_id"));
 						invoiceLine.setDescription(rset.getString("il_description"));
+						invoiceLine.setItem_id(rset.getString("il_item_it"));
+						invoiceLine.setItem_name(rset.getString("il_item_name"));
 						invoiceLine.setObjectives(rset.getString("il_objectives"));
 						invoiceLine.setAmount(rset.getDouble("il_amount"));
 						invoiceLine.setCurrency(rset.getString("il_currency"));
@@ -233,8 +227,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setAcceptance_date(rset.getString("acceptance_date"));
 							invoice.setAcceptance_final_date(rset.getString("acceptance_final_date"));
 							invoice.setNotes(rset.getString("notes"));
-							invoice.setItem_id(rset.getString("item_id"));
-							invoice.setItem_name(rset.getString("item_name"));
 							invoice.setCoa_id(rset.getString("coa_id"));
 							invoice.setCoa_name(rset.getString("coa_name"));
 							invoice.setDiscount(rset.getDouble("discount"));
@@ -279,7 +271,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(GET_INVOICES_LIST_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICES_LIST_QRY);
 				pstmt.setString(1, userID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -301,8 +293,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setAcceptance_date(rset.getString("acceptance_date"));
 					invoice.setAcceptance_final_date(rset.getString("acceptance_final_date"));
 					invoice.setNotes(rset.getString("notes"));
-					invoice.setItem_id(rset.getString("item_id"));
-					invoice.setItem_name(rset.getString("item_name"));
 					invoice.setCoa_id(rset.getString("coa_id"));
 					invoice.setCoa_name(rset.getString("coa_name"));
 					invoice.setDiscount(rset.getDouble("discount"));
@@ -347,7 +337,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.DELETE_QRY);
 				pstmt.setString(1, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {

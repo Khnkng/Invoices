@@ -16,6 +16,7 @@ import com.qount.invoice.database.dao.ProposalTaxesDAO;
 import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.SqlQuerys;
 
 /**
  * 
@@ -36,10 +37,6 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 		return proposalTaxesDAOImpl;
 	}
 
-	private final static String INSERT_QRY = "INSERT INTO proposal_taxes (`proposal_id`,`tax_id`,`tax_rate`) VALUES (?,?,?);";
-	private final static String DELETE_QRY = "DELETE FROM `proposal_taxes` WHERE `proposal_id`=?;";
-	private final static String GET_QRY = "SELECT * FROM proposal_taxes WHERE `proposal_id` = ?;";
-
 	@Override
 	public List<ProposalTaxes> saveProposalTaxes(Connection connection, String proposalID,
 			List<ProposalTaxes> proposalTaxes) {
@@ -49,7 +46,7 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalTaxes.INSERT_QRY);
 				Iterator<ProposalTaxes> proposalTaxesItr = proposalTaxes.iterator();
 				while (proposalTaxesItr.hasNext()) {
 					ProposalTaxes proposalTax = proposalTaxesItr.next();
@@ -92,13 +89,13 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 		try {
 			int qryCtr = 1;
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalTaxes.DELETE_QRY);
 				pstmt.setString(qryCtr++, proposalId);
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of taxes deleted:" + rowCount);
 				if (rowCount > 0) {
 					qryCtr = 1;
-					pstmt2 = connection.prepareStatement(INSERT_QRY);
+					pstmt2 = connection.prepareStatement(SqlQuerys.ProposalTaxes.INSERT_QRY);
 					Iterator<ProposalTaxes> proposalTaxesItr = proposalTaxes.iterator();
 					while (proposalTaxesItr.hasNext()) {
 						ProposalTaxes proposalTax = proposalTaxesItr.next();
@@ -139,7 +136,7 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalTaxes.DELETE_QRY);
 				pstmt.setString(1, proposalTax.getProposal_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -169,7 +166,7 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(GET_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalTaxes.GET_QRY);
 				pstmt.setString(1, proposalID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {

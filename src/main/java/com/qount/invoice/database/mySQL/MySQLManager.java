@@ -1,6 +1,7 @@
 package com.qount.invoice.database.mySQL;
 
 import java.io.File;
+import java.sql.Connection;
 
 import javax.sql.DataSource;
 
@@ -28,6 +29,7 @@ import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineTaxesDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalTaxesDAOImpl;
+import com.qount.invoice.utils.DatabaseUtilities;
 
 public class MySQLManager {
 
@@ -79,6 +81,17 @@ public class MySQLManager {
 		dataSource.setInitialSize(5);
 		dataSource.setMaxTotal(20);
 		dataSource.setMaxIdle(15);
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			if(conn!=null){
+				System.out.println("connection creation success");
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		} finally {
+			DatabaseUtilities.closeConnection(conn);
+		}
 		return dataSource;
 	}
 

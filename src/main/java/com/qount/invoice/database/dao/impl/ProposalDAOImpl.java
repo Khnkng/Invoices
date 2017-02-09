@@ -17,6 +17,7 @@ import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.SqlQuerys;
 
 /**
  * 
@@ -37,12 +38,6 @@ public class ProposalDAOImpl implements ProposalDAO {
 		return proposalDAOImpl;
 	}
 
-	private final static String INSERT_QRY = "INSERT INTO `proposal` (`id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`,`objectives`,`last_updated_by`,`last_updated_at`,`first_name`,`last_name`,`state`,`proposal_date`,`acceptance_date`,`acceptance_final_date`,`notes`,`item_id`,`item_name`,`coa_id`,`coa_name`,`discount`,`deposit_amount`,`processing_fees`,`remainder_json`,`remainder_mail_json`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-	private final static String UPDATE_QRY = "UPDATE `proposal` SET `user_id` = ?,`company_id` = ?,`company_name` = ?,`amount` = ?,`currency` = ?,`description` = ?,`objectives` = ?,`last_updated_by` = ?,`last_updated_at` = ?,`first_name` = ?,`last_name` = ?,`state` = ?,`proposal_date` = ?,`acceptance_date` = ?,`acceptance_final_date` = ?,`notes` = ?,`item_id` = ?,`item_name` = ?,`coa_id` = ?,`coa_name` = ?,`discount` = ?,`deposit_amount` = ?,`processing_fees` = ?,`remainder_json` = ?,`remainder_mail_json`= ? WHERE `id` = ?";
-	private final static String DELETE_QRY = "DELETE FROM proposal WHERE `id`=?;";
-	private final static String GET_QRY = "SELECT p.`id`,p.`user_id`,p.`company_id`,p.`company_name`,p.`amount`,p.`currency`,p.`description`,p.`objectives`,p.`last_updated_by`,p.`last_updated_at`,p.`first_name`,p.`last_name`,p.`state`,p.`proposal_date`,p.`acceptance_date`,p.`acceptance_final_date`,p.`notes`,p.`item_id`,p.`item_name`,p.`coa_id`,p.`coa_name`,p.`discount`,p.`deposit_amount`,p.`processing_fees`,p.`remainder_json`,p.`remainder_mail_json`, pl.`id` AS `plid`,pl.`proposal_id`,pl.`description` `pl_description`,pl.`objectives` `pl_objectives`,pl.`amount` `pl_amount`,pl.`currency` `pl_currency`,pl.`last_updated_by` `pl_last_updated_by`,pl.`last_updated_at` `pl_last_updated_at`,pl.`quantity` `pl_quantity`,pl.`price` `pl_price`,pl.`notes` `pl_notes`, plt.`proposal_line_id` `plt_proposal_line_id`,plt.`tax_id` `plt_tax_id`,plt.`tax_rate` `plt_tax_rate` FROM `proposal` p LEFT JOIN `proposal_lines` pl ON p.id=pl.proposal_id LEFT JOIN `proposal_line_taxes` plt ON pl.id =plt.proposal_line_id WHERE p.id = ?;";
-	private final static String GET_PROPOSAL_LIST_QRY = "SELECT `id`,`user_id`,`company_id`,`company_name`,`amount`,`currency`,`description`, `objectives`,`last_updated_by`,`last_updated_at`,`first_name`,`last_name`,`state`,`proposal_date`,`acceptance_date`,`acceptance_final_date`,`notes`,`item_id`,`item_name`,`coa_id`,`coa_name`,`discount`,`deposit_amount`,`processing_fees`,`remainder_json`,`remainder_mail_json` FROM proposal WHERE `user_id` = ?;";
-
 	@Override
 	public Proposal save(Connection connection, Proposal proposal) {
 		if (proposal == null) {
@@ -51,7 +46,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Proposal.INSERT_QRY);
 				pstmt.setString(1, proposal.getId());
 				pstmt.setString(2, proposal.getUser_id());
 				pstmt.setString(3, proposal.getCompany_id());
@@ -104,7 +99,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(UPDATE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Proposal.UPDATE_QRY);
 				pstmt.setString(1, proposal.getUser_id());
 				pstmt.setString(2, proposal.getCompany_id());
 				pstmt.setString(3, proposal.getCompany_name());
@@ -160,7 +155,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				proposal.setProposalLines(proposalLines);
-				pstmt = connection.prepareStatement(GET_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Proposal.GET_QRY);
 				pstmt.setString(1, proposalID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -246,7 +241,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(GET_PROPOSAL_LIST_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Proposal.GET_PROPOSAL_LIST_QRY);
 				pstmt.setString(1, user_id);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -300,7 +295,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.Proposal.DELETE_QRY);
 				pstmt.setString(1, proposal.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {

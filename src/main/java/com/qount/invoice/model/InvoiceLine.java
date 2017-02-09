@@ -15,7 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 @XmlRootElement
 public class InvoiceLine {
 
-	private String id;                         
+	private String id;            
+	private String item_id;
+	private String item_name;
 	private String invoice_id;
 	private String description; 
 	private String objectives;   
@@ -27,6 +29,19 @@ public class InvoiceLine {
 	private double price; 
 	private String notes;
 	private List<InvoiceLineTaxes> invoiceLineTaxes;
+	
+	public String getItem_id() {
+		return item_id;
+	}
+	public void setItem_id(String item_id) {
+		this.item_id = item_id;
+	}
+	public String getItem_name() {
+		return item_name;
+	}
+	public void setItem_name(String item_name) {
+		this.item_name = item_name;
+	}
 	public String getId() {
 		return id;
 	}

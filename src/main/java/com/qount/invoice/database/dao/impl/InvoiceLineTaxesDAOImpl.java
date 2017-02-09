@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.database.dao.InvoiceLineTaxesDAO;
 import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.SqlQuerys;
 
 public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 
@@ -27,9 +28,6 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 		return invoiceLineTaxesDAOImpl;
 	}
 
-	private final static String INSERT_QRY = "INSERT INTO invoice_line_taxes (`invoice_line_id`,`tax_id`,`tax_rate`) VALUES (?,?,?);";
-	private final static String DELETE_QRY = "DELETE FROM invoice_line_taxes WHERE `invoice_line_id` = ?;";
-
 	@Override
 	public List<InvoiceLineTaxes> save(Connection connection, String invoice_line_id,
 			List<InvoiceLineTaxes> InvoiceLinesTaxes) {
@@ -40,7 +38,7 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLineTaxes.INSERT_QRY);
 				Iterator<InvoiceLineTaxes> invoiceLinesTaxesItr = InvoiceLinesTaxes.iterator();
 				while (invoiceLinesTaxesItr.hasNext()) {
 					InvoiceLineTaxes invoiceLineTax = invoiceLinesTaxesItr.next();
@@ -78,7 +76,7 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLineTaxes.INSERT_QRY);
 				Iterator<InvoiceLineTaxes> invoiceLinesTaxesItr = InvoiceLinesTaxes.iterator();
 				while (invoiceLinesTaxesItr.hasNext()) {
 					InvoiceLineTaxes invoiceLineTax = invoiceLinesTaxesItr.next();
@@ -117,7 +115,7 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 		try {
 			int qryCtr = 1;
 			if (connection != null) {
-				pstmt = connection.prepareStatement(DELETE_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLineTaxes.DELETE_QRY);
 				pstmt.setString(qryCtr++, invoiceLineTaxes.getInvoice_line_id());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of invoice line taxes deleted:" + rowCount);

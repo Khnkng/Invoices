@@ -21,5 +21,7 @@ public class Constants {
 	public static final String SWAGGER_API_HTTP = "https";
 	public static final String SWAGGER_API_PACKAGE = "com.qount.invoice.controller";
 	public static final String BILLS_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
+	public static final String INVOICE_UI_DATE_FORMAT = "MM/dd/yy";
 	public static final SimpleDateFormat TIME_STATMP_TO_BILLS_FORMAT = new SimpleDateFormat(BILLS_DATE_FORMAT);
+	public static final SimpleDateFormat TIME_STATMP_TO_INVOICE_FORMAT = new SimpleDateFormat(INVOICE_UI_DATE_FORMAT);
 }
