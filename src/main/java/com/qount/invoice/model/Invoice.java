@@ -54,7 +54,25 @@ public class Invoice {
 	private List<InvoiceLine> invoiceLines;
 	private List<InvoiceTaxes> invoiceTaxes;
 	private double amount_due;
+	private String payment_date;
+	private double sub_totoal;
 	
+	public String getPayment_date() {
+		return payment_date;
+	}
+
+	public void setPayment_date(String payment_date) {
+		this.payment_date = payment_date;
+	}
+
+	public double getSub_totoal() {
+		return sub_totoal;
+	}
+
+	public void setSub_totoal(double sub_totoal) {
+		this.sub_totoal = sub_totoal;
+	}
+
 	public String getInvoice_date() {
 		return invoice_date;
 	}
