@@ -28,8 +28,22 @@ public class InvoiceLine {
 	private double quantity; 
 	private double price; 
 	private String notes;
+	private String coa_id;
+	private String coa_name;
 	private List<InvoiceLineTaxes> invoiceLineTaxes;
 	
+	public String getCoa_id() {
+		return coa_id;
+	}
+	public void setCoa_id(String coa_id) {
+		this.coa_id = coa_id;
+	}
+	public String getCoa_name() {
+		return coa_name;
+	}
+	public void setCoa_name(String coa_name) {
+		this.coa_name = coa_name;
+	}
 	public String getItem_id() {
 		return item_id;
 	}

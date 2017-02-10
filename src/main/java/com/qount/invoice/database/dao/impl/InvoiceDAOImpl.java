@@ -60,8 +60,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getAcceptance_date());
 				pstmt.setString(ctr++, invoice.getAcceptance_final_date());
 				pstmt.setString(ctr++, invoice.getNotes());
-				pstmt.setString(ctr++, invoice.getCoa_id());
-				pstmt.setString(ctr++, invoice.getCoa_name());
 				pstmt.setDouble(ctr++, invoice.getDiscount());
 				pstmt.setDouble(ctr++, invoice.getDeposit_amount());
 				pstmt.setDouble(ctr++, invoice.getProcessing_fees());
@@ -124,8 +122,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getAcceptance_date());
 				pstmt.setString(ctr++, invoice.getAcceptance_final_date());
 				pstmt.setString(ctr++, invoice.getNotes());
-				pstmt.setString(ctr++, invoice.getCoa_id());
-				pstmt.setString(ctr++, invoice.getCoa_name());
 				pstmt.setDouble(ctr++, invoice.getDiscount());
 				pstmt.setDouble(ctr++, invoice.getDeposit_amount());
 				pstmt.setDouble(ctr++, invoice.getProcessing_fees());
@@ -227,8 +223,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setAcceptance_date(rset.getString("acceptance_date"));
 							invoice.setAcceptance_final_date(rset.getString("acceptance_final_date"));
 							invoice.setNotes(rset.getString("notes"));
-							invoice.setCoa_id(rset.getString("coa_id"));
-							invoice.setCoa_name(rset.getString("coa_name"));
 							invoice.setDiscount(rset.getDouble("discount"));
 							invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
 							invoice.setProcessing_fees(rset.getDouble("processing_fees"));
@@ -293,8 +287,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setAcceptance_date(rset.getString("acceptance_date"));
 					invoice.setAcceptance_final_date(rset.getString("acceptance_final_date"));
 					invoice.setNotes(rset.getString("notes"));
-					invoice.setCoa_id(rset.getString("coa_id"));
-					invoice.setCoa_name(rset.getString("coa_name"));
 					invoice.setDiscount(rset.getDouble("discount"));
 					invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
 					invoice.setProcessing_fees(rset.getDouble("processing_fees"));
