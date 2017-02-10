@@ -75,7 +75,7 @@ public class PdfGenerator {
 			invoiceReference.setInvoice(invoice);
 			invoiceReference.setInvoicePreference(invoicePreference);
 			File pdf = createPdf(invoiceReference);
-//			PdfUtil.deleteFile(pdf);
+			PdfUtil.deleteFile(pdf);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
