@@ -3,6 +3,9 @@ package com.qount.invoice.utils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -23,6 +26,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoicePreference;
 
 public class PdfUtil {
@@ -111,6 +115,16 @@ public class PdfUtil {
 			invoicePreference.setPrice("Price");
 			invoicePreference.setAmount("Amount");
 			createInvoiceDisplayLabels(document, invoicePreference);
+			
+			ArrayList<InvoiceLine> invoiceLines = new ArrayList<>();
+			InvoiceLine e = new InvoiceLine();
+			e.setItem_name("a2");
+			e.setQuantity(1);
+			e.setPrice(1.0);
+			e.setAmount(1.0);
+			invoiceLines.add(e);
+			
+			createInvoiceLineItems(document, invoiceLines);
 			document.close();
 		}
 
@@ -379,9 +393,57 @@ public class PdfUtil {
 		        
 		        table.setSpacingBefore(50);
 		        table.setWidthPercentage(100);
-//	            table.setLockedWidth(true);
-//	            table.setTotalWidth(300F);
-//	            table.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		        document.add(table);
+				
+			} catch (DocumentException e) {
+				LOGGER.error(e);
+			}
+		}
+		
+		private static void createInvoiceLineItems(Document document, List<InvoiceLine> invoiceLines) {
+			if(null == invoiceLines || invoiceLines.isEmpty()){
+				return;
+			}
+			try {
+				PdfPTable table = new PdfPTable(4);
+				Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
+				Iterator<InvoiceLine> invoiceLinesItr = invoiceLines.iterator();
+				while(invoiceLinesItr.hasNext()){
+					InvoiceLine invoiceLine = invoiceLinesItr.next();
+					Chunk c1 = new Chunk(invoiceLine.getItem_name(), f);
+					Phrase invocieItemsLabel = new Phrase(c1);
+			        PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
+			        cellOne.setBorder(Rectangle.NO_BORDER);
+			        cellOne.setHorizontalAlignment(Element.ALIGN_LEFT);
+			        cellOne.setPaddingLeft(20f);
+			        cellOne.setMinimumHeight(20f);
+			        table.addCell(cellOne);
+			        
+			        Chunk c3 = new Chunk(invoiceLine.getQuantity()+"", f);
+			        Phrase poNumberLabel = new Phrase(c3);
+			        PdfPCell cell_3 = new PdfPCell(poNumberLabel);
+			        cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			        cell_3.setBorder(Rectangle.NO_BORDER);
+			        table.addCell(cell_3);
+			        
+			        Chunk c5 = new Chunk(invoiceLine.getPrice()+"", f);
+			        Phrase invocieDateLabel = new Phrase(c5);
+			        PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
+			        cell_5.setBorder(Rectangle.NO_BORDER);
+			        cell_5.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			        table.addCell(cell_5);
+			        
+			        Chunk c7 = new Chunk(invoiceLine.getAmount()+"", f);
+			        Phrase paymentDueLabel = new Phrase(c7);
+			        PdfPCell cell_7 = new PdfPCell(paymentDueLabel);
+			        cell_7.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			        cell_7.setBorder(Rectangle.NO_BORDER);
+			        cell_7.setPaddingRight(20f);
+			        table.addCell(cell_7);
+				}
+				
+//		        table.setSpacingBefore(50);
+		        table.setWidthPercentage(100);
 		        document.add(table);
 				
 				

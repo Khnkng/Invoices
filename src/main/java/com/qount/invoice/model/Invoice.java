@@ -31,8 +31,6 @@ public class Invoice {
 	private String acceptance_date;
 	private String acceptance_final_date;
 	private String notes;
-	private String coa_id;
-	private String coa_name;
 	private double discount;
 	private double deposit_amount;
 	private double processing_fees;
@@ -213,22 +211,6 @@ public class Invoice {
 
 	public void setNotes(String notes) {
 		this.notes = notes;
-	}
-
-	public String getCoa_id() {
-		return coa_id;
-	}
-
-	public void setCoa_id(String coa_id) {
-		this.coa_id = coa_id;
-	}
-
-	public String getCoa_name() {
-		return coa_name;
-	}
-
-	public void setCoa_name(String coa_name) {
-		this.coa_name = coa_name;
 	}
 
 	public double getDiscount() {
