@@ -24,8 +24,9 @@ public class Invoice {
 	private String objectives;
 	private String last_updated_by;
 	private String last_updated_at;
-	private String first_name;
-	private String last_name;
+	private String customer_id;
+	private String customer_name;
+	private String customer_email_id;
 	private String state;
 	private String invoice_date;
 	private String acceptance_date;
@@ -53,6 +54,30 @@ public class Invoice {
 	private String payment_date;
 	private double sub_totoal;
 	
+	public String getCustomer_id() {
+		return customer_id;
+	}
+
+	public void setCustomer_id(String customer_id) {
+		this.customer_id = customer_id;
+	}
+
+	public String getCustomer_name() {
+		return customer_name;
+	}
+
+	public void setCustomer_name(String customer_name) {
+		this.customer_name = customer_name;
+	}
+
+	public String getCustomer_email_id() {
+		return customer_email_id;
+	}
+
+	public void setCustomer_email_id(String customer_email_id) {
+		this.customer_email_id = customer_email_id;
+	}
+
 	public String getPayment_date() {
 		return payment_date;
 	}
@@ -163,22 +188,6 @@ public class Invoice {
 
 	public void setLast_updated_at(String last_updated_at) {
 		this.last_updated_at = last_updated_at;
-	}
-
-	public String getFirst_name() {
-		return first_name;
-	}
-
-	public void setFirst_name(String first_name) {
-		this.first_name = first_name;
-	}
-
-	public String getLast_name() {
-		return last_name;
-	}
-
-	public void setLast_name(String last_name) {
-		this.last_name = last_name;
 	}
 
 	public String getState() {

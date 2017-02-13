@@ -53,8 +53,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getObjectives());
 				pstmt.setString(ctr++, invoice.getLast_updated_by());
 				pstmt.setString(ctr++, invoice.getLast_updated_at());
-				pstmt.setString(ctr++, invoice.getFirst_name());
-				pstmt.setString(ctr++, invoice.getLast_name());
 				pstmt.setString(ctr++, invoice.getState());
 				pstmt.setString(ctr++, invoice.getInvoice_date());
 				pstmt.setString(ctr++, invoice.getAcceptance_date());
@@ -77,6 +75,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getDocument_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
 				pstmt.setString(ctr++, invoice.getPayment_date());
+				pstmt.setString(ctr++, invoice.getCustomer_id());
+				pstmt.setString(ctr++, invoice.getCustomer_name());
+				pstmt.setString(ctr++, invoice.getCustomer_email_id());
 				pstmt.setDouble(ctr++, invoice.getSub_totoal());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -115,8 +116,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getObjectives());
 				pstmt.setString(ctr++, invoice.getLast_updated_by());
 				pstmt.setString(ctr++, invoice.getLast_updated_at());
-				pstmt.setString(ctr++, invoice.getFirst_name());
-				pstmt.setString(ctr++, invoice.getLast_name());
 				pstmt.setString(ctr++, invoice.getState());
 				pstmt.setString(ctr++, invoice.getInvoice_date());
 				pstmt.setString(ctr++, invoice.getAcceptance_date());
@@ -140,6 +139,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
 				pstmt.setString(ctr++, invoice.getPayment_date());
 				pstmt.setDouble(ctr++, invoice.getSub_totoal());
+				pstmt.setString(ctr++, invoice.getCustomer_id());
+				pstmt.setString(ctr++, invoice.getCustomer_name());
+				pstmt.setString(ctr++, invoice.getCustomer_email_id());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -216,8 +218,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setObjectives(rset.getString("objectives"));
 							invoice.setLast_updated_by(rset.getString("last_updated_by"));
 							invoice.setLast_updated_at(rset.getString("last_updated_at"));
-							invoice.setFirst_name(rset.getString("first_name"));
-							invoice.setLast_name(rset.getString("last_name"));
+							invoice.setCustomer_id(rset.getString("customer_id"));
+							invoice.setCustomer_name(rset.getString("customer_name"));
+							invoice.setCustomer_email_id(rset.getString("customer_email_id"));
 							invoice.setState(rset.getString("state"));
 							invoice.setInvoice_date(rset.getString("invoice_date"));
 							invoice.setAcceptance_date(rset.getString("acceptance_date"));
@@ -280,8 +283,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setObjectives(rset.getString("objectives"));
 					invoice.setLast_updated_by(rset.getString("last_updated_by"));
 					invoice.setLast_updated_at(rset.getString("last_updated_at"));
-					invoice.setFirst_name(rset.getString("first_name"));
-					invoice.setLast_name(rset.getString("last_name"));
+					invoice.setCustomer_id(rset.getString("customer_id"));
+					invoice.setCustomer_name(rset.getString("customer_name"));
+					invoice.setCustomer_email_id(rset.getString("customer_email_id"));
 					invoice.setState(rset.getString("state"));
 					invoice.setInvoice_date(rset.getString("invoice_date"));
 					invoice.setAcceptance_date(rset.getString("acceptance_date"));

@@ -207,7 +207,7 @@ public class Contemporary {
 	}
 
 	private static void createBillToName(Document document, Invoice invoice) {
-		if (StringUtils.isEmpty(invoice.getFirst_name())) {
+		if (StringUtils.isEmpty(invoice.getCustomer_name())) {
 			return;
 		}
 		try {
@@ -220,7 +220,7 @@ public class Contemporary {
 			document.add(p);
 
 			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-			Chunk c2 = new Chunk(invoice.getFirst_name(), f2);
+			Chunk c2 = new Chunk(invoice.getCustomer_name(), f2);
 			Paragraph p2 = new Paragraph(c2);
 			p2.setAlignment(Element.ALIGN_LEFT);
 			p2.setSpacingBefore(-5);
