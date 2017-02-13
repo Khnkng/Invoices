@@ -17,7 +17,6 @@ public class InvoiceLine {
 
 	private String id;            
 	private String item_id;
-	private String item_name;
 	private String invoice_id;
 	private String description; 
 	private String objectives;   
@@ -29,7 +28,6 @@ public class InvoiceLine {
 	private double price; 
 	private String notes;
 	private String coa_id;
-	private String coa_name;
 	private List<InvoiceLineTaxes> invoiceLineTaxes;
 	
 	public String getCoa_id() {
@@ -38,23 +36,11 @@ public class InvoiceLine {
 	public void setCoa_id(String coa_id) {
 		this.coa_id = coa_id;
 	}
-	public String getCoa_name() {
-		return coa_name;
-	}
-	public void setCoa_name(String coa_name) {
-		this.coa_name = coa_name;
-	}
 	public String getItem_id() {
 		return item_id;
 	}
 	public void setItem_id(String item_id) {
 		this.item_id = item_id;
-	}
-	public String getItem_name() {
-		return item_name;
-	}
-	public void setItem_name(String item_name) {
-		this.item_name = item_name;
 	}
 	public String getId() {
 		return id;

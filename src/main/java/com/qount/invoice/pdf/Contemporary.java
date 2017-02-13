@@ -59,7 +59,7 @@ public class Contemporary {
 			createSubheading(document, invoicePreference);
 			addImage(document, imgSrc);
 			createEmptyLine(document);
-			createCompanyName(document, invoice);
+//			createCompanyName(document, invoice);
 			// str = "banjara hills";
 			// createCompanyAddress(document, str);
 			//
@@ -81,7 +81,7 @@ public class Contemporary {
 			addLineSeparator(document);
 			createInvoiceDetails(document, invoice);
 			// createBillToLabel(document);
-			createBillToName(document, invoice);
+//			createBillToName(document, invoice);
 			createEmptyLine(document);
 			// str = "makjavaprogrammer@gmail.com";
 			// createUserEmail(document, str);
@@ -133,21 +133,21 @@ public class Contemporary {
 		}
 	}
 
-	private static void createCompanyName(Document document, Invoice invoice) {
-		if (StringUtils.isEmpty(invoice.getCompany_name())) {
-			return;
-		}
-		try {
-			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-			Chunk c2 = new Chunk(invoice.getCompany_name(), f2);
-			Paragraph p2 = new Paragraph(c2);
-			p2.setAlignment(Element.ALIGN_RIGHT);
-			p2.setIndentationRight(10);
-			document.add(p2);
-		} catch (Exception e) {
-			LOGGER.error(e);
-		}
-	}
+//	private static void createCompanyName(Document document, Invoice invoice) {
+//		if (StringUtils.isEmpty(invoice.getCompany_name())) {
+//			return;
+//		}
+//		try {
+//			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
+//			Chunk c2 = new Chunk(invoice.getCompany_name(), f2);
+//			Paragraph p2 = new Paragraph(c2);
+//			p2.setAlignment(Element.ALIGN_RIGHT);
+//			p2.setIndentationRight(10);
+//			document.add(p2);
+//		} catch (Exception e) {
+//			LOGGER.error(e);
+//		}
+//	}
 
 	// private static void createCompanyAddress(Document document, String str) {
 	// if(StringUtils.isEmpty(str)){
@@ -206,30 +206,30 @@ public class Contemporary {
 		}
 	}
 
-	private static void createBillToName(Document document, Invoice invoice) {
-		if (StringUtils.isEmpty(invoice.getCustomer_name())) {
-			return;
-		}
-		try {
-			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
-			Chunk c = new Chunk("BILL TO", f);
-			Paragraph p = new Paragraph(c);
-			p.setAlignment(Element.ALIGN_LEFT);
-			p.setIndentationLeft(10);
-			p.setSpacingBefore(-85);
-			document.add(p);
-
-			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-			Chunk c2 = new Chunk(invoice.getCustomer_name(), f2);
-			Paragraph p2 = new Paragraph(c2);
-			p2.setAlignment(Element.ALIGN_LEFT);
-			p2.setSpacingBefore(-5);
-			p2.setIndentationLeft(10);
-			document.add(p2);
-		} catch (Exception e) {
-			LOGGER.error(e);
-		}
-	}
+//	private static void createBillToName(Document document, Invoice invoice) {
+//		if (StringUtils.isEmpty(invoice.getCustomer_name())) {
+//			return;
+//		}
+//		try {
+//			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
+//			Chunk c = new Chunk("BILL TO", f);
+//			Paragraph p = new Paragraph(c);
+//			p.setAlignment(Element.ALIGN_LEFT);
+//			p.setIndentationLeft(10);
+//			p.setSpacingBefore(-85);
+//			document.add(p);
+//
+//			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
+//			Chunk c2 = new Chunk(invoice.getCustomer_name(), f2);
+//			Paragraph p2 = new Paragraph(c2);
+//			p2.setAlignment(Element.ALIGN_LEFT);
+//			p2.setSpacingBefore(-5);
+//			p2.setIndentationLeft(10);
+//			document.add(p2);
+//		} catch (Exception e) {
+//			LOGGER.error(e);
+//		}
+//	}
 
 	// private static void createUserEmail(Document document, String str) {
 	// try {
@@ -394,7 +394,8 @@ public class Contemporary {
 			Iterator<InvoiceLine> invoiceLinesItr = invoice.getInvoiceLines().iterator();
 			while (invoiceLinesItr.hasNext()) {
 				InvoiceLine invoiceLine = invoiceLinesItr.next();
-				Chunk c1 = new Chunk(invoiceLine.getItem_name(), f);
+//				Chunk c1 = new Chunk(invoiceLine.getItem_name(), f);
+				Chunk c1 = new Chunk("under work", f);
 				Phrase invocieItemsLabel = new Phrase(c1);
 				PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
 				cellOne.setBorder(Rectangle.NO_BORDER);
