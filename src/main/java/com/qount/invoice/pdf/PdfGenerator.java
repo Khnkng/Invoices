@@ -56,7 +56,7 @@ public class PdfGenerator {
 			invoice.setAcceptance_date("February 2, 2017");
 			invoice.setAmount_due(1.0d);
 			invoice.setCurrency("INR");
-			invoice.setFirst_name("mateen");
+			invoice.setCustomer_name("mateen");
 			invoicePreference.setItems("Items");
 			invoicePreference.setUnits("Qunatity");
 			invoicePreference.setPrice("Price");
