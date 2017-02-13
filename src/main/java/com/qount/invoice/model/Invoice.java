@@ -17,7 +17,6 @@ public class Invoice {
 	private String id;
 	private String user_id;
 	private String company_id;
-	private String company_name;
 	private double amount;
 	private String currency;
 	private String description;
@@ -25,8 +24,6 @@ public class Invoice {
 	private String last_updated_by;
 	private String last_updated_at;
 	private String customer_id;
-	private String customer_name;
-	private String customer_email_id;
 	private String state;
 	private String invoice_date;
 	private String acceptance_date;
@@ -60,22 +57,6 @@ public class Invoice {
 
 	public void setCustomer_id(String customer_id) {
 		this.customer_id = customer_id;
-	}
-
-	public String getCustomer_name() {
-		return customer_name;
-	}
-
-	public void setCustomer_name(String customer_name) {
-		this.customer_name = customer_name;
-	}
-
-	public String getCustomer_email_id() {
-		return customer_email_id;
-	}
-
-	public void setCustomer_email_id(String customer_email_id) {
-		this.customer_email_id = customer_email_id;
 	}
 
 	public String getPayment_date() {
@@ -132,14 +113,6 @@ public class Invoice {
 
 	public void setCompany_id(String company_id) {
 		this.company_id = company_id;
-	}
-
-	public String getCompany_name() {
-		return company_name;
-	}
-
-	public void setCompany_name(String company_name) {
-		this.company_name = company_name;
 	}
 
 	public double getAmount() {
