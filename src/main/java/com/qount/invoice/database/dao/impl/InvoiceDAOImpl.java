@@ -183,7 +183,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					} else if (invoiceLineIndex == -1) {
 						invoiceLine.setInvoice_id(rset.getString("invoice_id"));
 						invoiceLine.setDescription(rset.getString("il_description"));
-						invoiceLine.setItem_id(rset.getString("il_item_it"));
+						invoiceLine.setItem_id(rset.getString("il_item_id"));
 						invoiceLine.setCoa_id(rset.getString("il_coa_id"));
 						invoiceLine.setObjectives(rset.getString("il_objectives"));
 						invoiceLine.setAmount(rset.getDouble("il_amount"));
