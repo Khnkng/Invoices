@@ -33,30 +33,24 @@ public class InvoiceParser {
 				return null;
 			}
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp acceptance_date = convertStringToTimeStamp(invoice.getAcceptance_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp acceptance_final_date = convertStringToTimeStamp(invoice.getAcceptance_final_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp recurring_start_date = convertStringToTimeStamp(invoice.getRecurring_start_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp recurring_end_date = convertStringToTimeStamp(invoice.getRecurring_end_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp payment_date = convertStringToTimeStamp(invoice.getPayment_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp acceptance_date = convertStringToTimeStamp(invoice.getAcceptance_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp acceptance_final_date = convertStringToTimeStamp(invoice.getAcceptance_final_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp recurring_start_date = convertStringToTimeStamp(invoice.getRecurring_start_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp recurring_end_date = convertStringToTimeStamp(invoice.getRecurring_end_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp payment_date = convertStringToTimeStamp(invoice.getPayment_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 
 			invoice.setUser_id(userId);
-			if (invoice.getId() == null) {
+			if (StringUtils.isBlank(invoice.getId())) {
 				invoice.setId(UUID.randomUUID().toString());
 			}
-			invoice.setInvoice_date(invoice_date!=null?invoice_date.toString():null);
-			invoice.setAcceptance_date(acceptance_date!=null?acceptance_date.toString():null);
-			invoice.setAcceptance_final_date(acceptance_final_date!=null?acceptance_final_date.toString():null);
-			invoice.setRecurring_start_date(recurring_start_date!=null?recurring_start_date.toString():null);
-			invoice.setRecurring_end_date(recurring_end_date!=null?recurring_end_date.toString():null);
-			invoice.setPayment_date(payment_date!=null?payment_date.toString():null);
-			invoice.setLast_updated_at(timestamp!=null?timestamp.toString():null);
+			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
+			invoice.setAcceptance_date(acceptance_date != null ? acceptance_date.toString() : null);
+			invoice.setAcceptance_final_date(acceptance_final_date != null ? acceptance_final_date.toString() : null);
+			invoice.setRecurring_start_date(recurring_start_date != null ? recurring_start_date.toString() : null);
+			invoice.setRecurring_end_date(recurring_end_date != null ? recurring_end_date.toString() : null);
+			invoice.setPayment_date(payment_date != null ? payment_date.toString() : null);
+			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
 			if (!updateFlag) {
 				List<InvoiceLine> invoiceLines = invoice.getInvoiceLines();
@@ -88,7 +82,7 @@ public class InvoiceParser {
 		}
 		return null;
 	}
-	
+
 	public static String convertTimeStampToString(String dateStr, SimpleDateFormat from, SimpleDateFormat to) {
 		try {
 			return to.format(from.parse(dateStr)).toString();
@@ -97,23 +91,26 @@ public class InvoiceParser {
 		}
 		return null;
 	}
-	
-	public static Invoice convertTimeStampToString(Invoice invoice){
+
+	public static Invoice convertTimeStampToString(Invoice invoice) {
 		try {
 			invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 			invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 			invoice.setAcceptance_date(convertTimeStampToString(invoice.getAcceptance_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-			invoice.setAcceptance_final_date(convertTimeStampToString(invoice.getAcceptance_final_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-			invoice.setRecurring_start_date(convertTimeStampToString(invoice.getRecurring_start_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-			invoice.setRecurring_end_date(convertTimeStampToString(invoice.getRecurring_end_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			invoice.setAcceptance_final_date(
+					convertTimeStampToString(invoice.getAcceptance_final_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			invoice.setRecurring_start_date(
+					convertTimeStampToString(invoice.getRecurring_start_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			invoice.setRecurring_end_date(
+					convertTimeStampToString(invoice.getRecurring_end_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
 		return invoice;
 	}
-	
+
 	public static void main(String[] args) {
-		String str="2017-12-30 00:00:00.0";
+		String str = "2017-12-30 00:00:00.0";
 		System.out.println(convertTimeStampToString(str, Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 	}
 
@@ -146,9 +143,8 @@ public class InvoiceParser {
 			return invoice;
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-//			throw new WebApplicationException(e.getLocalizedMessage(), 500);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			// throw new WebApplicationException(e.getLocalizedMessage(), 500);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
 
