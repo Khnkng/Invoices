@@ -32,7 +32,7 @@ import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoicePreference;
 
-public class ClassicPdf {
+public class Modern {
 
 	private static Logger LOGGER = Logger.getLogger(PdfUtil.class);
 
@@ -77,14 +77,14 @@ public class ClassicPdf {
 			invoiceReference.setInvoicePreference(invoicePreference);
 			invoiceReference.setCustomer(customer);
 
-			Classic.createPdf(invoiceReference);
+			ModernPdf.createPdf(invoiceReference);
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 	}
 
-	static class Classic {
+	static class ModernPdf {
 
 		public static void createPdf(InvoiceReference invoiceReference) throws IOException, DocumentException {
 
