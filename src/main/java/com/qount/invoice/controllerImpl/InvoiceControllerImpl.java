@@ -100,9 +100,9 @@ public class InvoiceControllerImpl {
 				List<InvoiceTaxes> invoiceTaxesList = invoiceObj.getInvoiceTaxes();
 				InvoiceTaxes invoiceTax = new InvoiceTaxes();
 				invoiceTax.setInvoice_id(invoiceID);
-				InvoiceTaxes invoiceTaxResult = MySQLManager.getInvoiceTaxesDAOInstance().deleteByInvoiceId(connection,
+				InvoiceTaxes deletedInvoiceTaxResult = MySQLManager.getInvoiceTaxesDAOInstance().deleteByInvoiceId(connection,
 						invoiceTax);
-				if (invoiceTaxResult != null) {
+				if (deletedInvoiceTaxResult != null) {
 					if(invoiceTaxesList == null){
 						invoiceTaxesList = new ArrayList<>();
 					}

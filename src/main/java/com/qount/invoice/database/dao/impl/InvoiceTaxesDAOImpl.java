@@ -91,8 +91,6 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 				LOGGER.debug("no of invoice taxes deleted:" + rowCount);
 				if (rowCount > 0) {
 					return invoiceTaxes;
-				} else {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
 				}
 			}
 		} catch (WebApplicationException e) {
