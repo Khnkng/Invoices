@@ -40,8 +40,8 @@ public class Modern {
 
 	public static void main(String[] args) {
 		try {
-			// File file = new File(DEST);
-			// file.getParentFile().mkdirs();
+			 File file = new File(DEST);
+			 file.getParentFile().mkdirs();
 
 			InvoicePreference invoicePreference = new InvoicePreference();
 			Invoice invoice = new Invoice();
@@ -71,8 +71,12 @@ public class Modern {
 			invoice.setInvoiceLines(invoiceLines);
 			Customer customer = new Customer();
 			customer.setCustomer_name("Apurva");
+			customer.setCustomer_address("Banjara hills");
+			customer.setCustomer_city("Hyderabad, Telengana");
+			customer.setCustomer_country("India");
+			customer.setPhone_number("040-232356");
 			InvoiceReference invoiceReference = new InvoiceReference();
-			invoiceReference.setInvoiceType("classic");
+			invoiceReference.setInvoiceType("modern");
 			invoiceReference.setInvoice(invoice);
 			invoiceReference.setInvoicePreference(invoicePreference);
 			invoiceReference.setCustomer(customer);
@@ -120,8 +124,10 @@ public class Modern {
 			createAmountDue(document, invoice);
 			createNotes(document, invoice);
 			createFooter(pw, document, invoicePreference);
-			addLineSeparator(document);
+			// addLineSeparator(document);
 			addImage(document, imgSrc);
+			createCompanyDetails(document, customer);
+			createCustomerContactDetails(document, customer);
 			document.close();
 		}
 
@@ -420,11 +426,11 @@ public class Modern {
 		private static void addImage(Document document, String imgSrc) {
 			try {
 				Image img = Image.getInstance(imgSrc);
-				img.scaleAbsolute(50, 50);
+				img.scaleAbsolute(60, 60);
 				float absoluteY = PageSize.A4.getHeight() - img.getScaledHeight();
-				absoluteY -= 30f;
-//				img.setAbsolutePosition(20, absoluteY);
-				 img.setAbsolutePosition(0f, 0f);
+				absoluteY += 30f;
+				// img.setAbsolutePosition(20, absoluteY);
+				img.setAbsolutePosition(30f, 0f);
 				document.add(img);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -445,53 +451,110 @@ public class Modern {
 			}
 		}
 
-		private static void createCompanyName(Document document, String str) {
+		private static void createCompanyDetails(Document document, Customer customer) {
 			try {
-				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-				Chunk c2 = new Chunk(str, f2);
-				Paragraph p2 = new Paragraph(c2);
-				p2.setAlignment(Element.ALIGN_RIGHT);
-				p2.setIndentationRight(10);
-				document.add(p2);
-			} catch (DocumentException e) {
-				LOGGER.error(e);
-			}
-		}
-
-		private static void createCompanyAddress(Document document, String str) {
-			try {
+				Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
 				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
-				Chunk c2 = new Chunk(str, f2);
-				Paragraph p2 = new Paragraph(c2);
-				p2.setAlignment(Element.ALIGN_RIGHT);
-				p2.setSpacingBefore(-7);
-				p2.setIndentationRight(10);
-				document.add(p2);
+
+				PdfPTable table = new PdfPTable(1);
+
+				Chunk c1 = new Chunk("Company1", f);
+				Phrase companyName = new Phrase(c1);
+				PdfPCell cell_1 = new PdfPCell(companyName);
+				cell_1.setBorder(Rectangle.NO_BORDER);
+				cell_1.setHorizontalAlignment(Element.ALIGN_LEFT);
+				table.addCell(cell_1);
+
+				Chunk c2 = new Chunk(customer.getCustomer_address(), f2);
+				Phrase comAddress = new Phrase(c2);
+				PdfPCell cell_2 = new PdfPCell(comAddress);
+				cell_2.setHorizontalAlignment(Element.ALIGN_LEFT);
+				cell_2.setBorder(Rectangle.NO_BORDER);
+				table.addCell(cell_2);
+
+				Chunk c3 = new Chunk(customer.getCustomer_city(), f2);
+				Phrase comCity = new Phrase(c3);
+				PdfPCell cell_3 = new PdfPCell(comCity);
+				cell_3.setBorder(Rectangle.NO_BORDER);
+				cell_3.setHorizontalAlignment(Element.ALIGN_LEFT);
+				table.addCell(cell_3);
+
+				Chunk c4 = new Chunk(customer.getCustomer_country(), f2);
+				Phrase com_country = new Phrase(c4);
+				PdfPCell cell_4 = new PdfPCell(com_country);
+				cell_4.setHorizontalAlignment(Element.ALIGN_LEFT);
+				cell_4.setBorder(Rectangle.NO_BORDER);
+				table.addCell(cell_4);
+
+				table.setLockedWidth(true);
+				table.setTotalWidth(300F);
+				table.setHorizontalAlignment(Element.ALIGN_BOTTOM);
+				table.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				document.add(table);
 			} catch (DocumentException e) {
-				LOGGER.error(e);
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
-		private static void createEmptyLine(Document document) {
-			try {
-				Paragraph p2 = new Paragraph("\n");
-				p2.setSpacingBefore(-10);
-				document.add(p2);
-			} catch (DocumentException e) {
-				LOGGER.error(e);
+		private static void createCustomerContactDetails(Document document, Customer customer) {
+			if (customer == null) {
+				return;
 			}
-		}
-
-		private static void createSubheading(Document document, String subHeading) {
 			try {
-				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
-				Chunk c2 = new Chunk(subHeading, f2);
-				Paragraph p2 = new Paragraph(c2);
-				p2.setSpacingBefore(-5);
-				p2.setIndentationRight(10);
-				p2.setAlignment(Element.ALIGN_LEFT);
-				document.add(p2);
-			} catch (DocumentException e) {
+				Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
+				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
+
+				PdfPTable table1 = new PdfPTable(1);
+				PdfPTable table = new PdfPTable(2);
+
+				Chunk c1 = new Chunk("Contact Information", f);
+				Phrase contactInfo = new Phrase(c1);
+				PdfPCell cellOne = new PdfPCell(contactInfo);
+				cellOne.setBorder(Rectangle.NO_BORDER);
+				cellOne.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				table1.addCell(cellOne);
+
+				Chunk c2 = new Chunk("Phone: " + "", f2);
+				Phrase phone = new Phrase(c2);
+				PdfPCell cellTwo = new PdfPCell(phone);
+				cellTwo.setBorder(Rectangle.NO_BORDER);
+				cellTwo.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				table.addCell(cellTwo);
+
+				Chunk c3 = new Chunk(customer.getPhone_number(), f2);
+				Phrase phoneNum = new Phrase(c3);
+				PdfPCell cell_3 = new PdfPCell(phoneNum);
+				cell_3.setBorder(Rectangle.NO_BORDER);
+				table.addCell(cell_3);
+
+				Chunk c4 = new Chunk("Toll free: ", f2);
+				Phrase poNumber = new Phrase(c4);
+				PdfPCell cell_4 = new PdfPCell(poNumber);
+				cell_4.setBorder(Rectangle.NO_BORDER);
+				cell_4.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				table.addCell(cell_4);
+
+				Chunk c5 = new Chunk("1800-989-989", f2);
+				Phrase invocieDateLabel = new Phrase(c5);
+				PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
+				cell_5.setBorder(Rectangle.NO_BORDER);
+				table.addCell(cell_5);
+
+				Chunk c6 = new Chunk("www.qount.io", f2);
+				Phrase email = new Phrase(c6);
+				PdfPCell cell_6 = new PdfPCell(email);
+				cell_6.setBorder(Rectangle.NO_BORDER);
+				cell_6.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				table.addCell(cell_6);
+
+				table.setLockedWidth(true);
+				table.setTotalWidth(300F);
+				table.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				document.add(table1);
+				document.add(table);
+
+			} catch (Exception e) {
 				LOGGER.error(e);
 			}
 		}
@@ -531,19 +594,6 @@ public class Modern {
 				p2.setIndentationLeft(10);
 				document.add(p2);
 			} catch (Exception e) {
-				LOGGER.error(e);
-			}
-		}
-
-		private static void createUserEmail(Document document, String str) {
-			try {
-				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
-				Chunk c2 = new Chunk(str, f2);
-				Paragraph p2 = new Paragraph(c2);
-				p2.setSpacingBefore(2);
-				p2.setIndentationLeft(10);
-				document.add(p2);
-			} catch (DocumentException e) {
 				LOGGER.error(e);
 			}
 		}
@@ -623,30 +673,6 @@ public class Modern {
 				document.add(table);
 
 			} catch (Exception e) {
-				LOGGER.error(e);
-			}
-		}
-
-		private static void createPoSoNumber(Document document, String str) {
-			try {
-				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-				Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
-				Chunk c2 = new Chunk("P.O.S.O. Number: ", f2);
-				Paragraph p2 = new Paragraph(c2);
-				p2.setAlignment(Element.ALIGN_RIGHT);
-				// p2.setSpacingBefore(-5);
-				p2.setIndentationRight(100);
-				document.add(p2);
-				p2.clear();
-
-				Chunk c = new Chunk(str, f);
-				p2.setAlignment(Element.ALIGN_RIGHT);
-				p2.setSpacingBefore(-2);
-				p2.setIndentationRight(50);
-				p2.setFont(f);
-				p2.add(c);
-				document.add(p2);
-			} catch (DocumentException e) {
 				LOGGER.error(e);
 			}
 		}
