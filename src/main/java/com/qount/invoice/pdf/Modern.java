@@ -36,13 +36,10 @@ public class Modern {
 
 	private static Logger LOGGER = Logger.getLogger(PdfUtil.class);
 
-	public static final String DEST = "E:/pdf/classic.pdf";
+	public static final String DEST = "F:/modern.pdf";
 
 	public static void main(String[] args) {
 		try {
-			 File file = new File(DEST);
-			 file.getParentFile().mkdirs();
-
 			InvoicePreference invoicePreference = new InvoicePreference();
 			Invoice invoice = new Invoice();
 			invoice.setAmount(1.00);
@@ -80,7 +77,6 @@ public class Modern {
 			invoiceReference.setInvoice(invoice);
 			invoiceReference.setInvoicePreference(invoicePreference);
 			invoiceReference.setCustomer(customer);
-
 			ModernPdf.createPdf(invoiceReference);
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -99,7 +95,6 @@ public class Modern {
 			InvoicePreference invoicePreference = invoiceReference.getInvoicePreference();
 			Invoice invoice = invoiceReference.getInvoice();
 			Customer customer = invoiceReference.getCustomer();
-
 			document = new Document();
 			// f = new File(UUID.randomUUID().toString() + ".pdf");
 			f = new File(DEST);
@@ -108,7 +103,6 @@ public class Modern {
 			System.out.println(f.getAbsolutePath());
 			PdfWriter pw = PdfWriter.getInstance(document, fout);
 			document.open();
-
 			createTable(document, invoicePreference, invoice);
 			addSpaceBefore(document, 10);
 			createInvoiceDetails(document, invoice);
@@ -123,11 +117,11 @@ public class Modern {
 			addSpaceAfter(document, 5);
 			createAmountDue(document, invoice);
 			createNotes(document, invoice);
-			createFooter(pw, document, invoicePreference);
-			// addLineSeparator(document);
+			createFooterBeforeEnd(pw, document, invoicePreference);
+			addLineSeparatorBeforeEnd(pw, document);
 			addImage(document, imgSrc);
-			createCompanyDetails(document, customer);
-			createCustomerContactDetails(document, customer);
+			createCompanyDetails(pw, document, customer);
+			// createCustomerContactDetails(document, customer);
 			document.close();
 		}
 
@@ -150,22 +144,6 @@ public class Modern {
 
 				document.add(p2);
 				document.add(p);
-			} catch (Exception e) {
-				LOGGER.error(e);
-			}
-		}
-
-		private static void createFooter(PdfWriter writer, Document document, InvoicePreference invoicePreference) {
-			if (null == invoicePreference || StringUtils.isEmpty(invoicePreference.getDefaultFooter())) {
-				return;
-			}
-			try {
-				PdfContentByte cb = writer.getDirectContent();
-				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
-				Chunk c2 = new Chunk(invoicePreference.getDefaultFooter(), f2);
-				Phrase p2 = new Phrase(c2);
-				ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p2,
-						(document.right() - document.left()) / 2 + document.leftMargin(), document.bottom() - 10, 0);
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}
@@ -427,10 +405,7 @@ public class Modern {
 			try {
 				Image img = Image.getInstance(imgSrc);
 				img.scaleAbsolute(60, 60);
-				float absoluteY = PageSize.A4.getHeight() - img.getScaledHeight();
-				absoluteY += 30f;
-				// img.setAbsolutePosition(20, absoluteY);
-				img.setAbsolutePosition(30f, 0f);
+				img.setAbsolutePosition(30f, 40f);
 				document.add(img);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -438,25 +413,12 @@ public class Modern {
 			}
 		}
 
-		private static void createTitle(Document document, String title) {
-			try {
-				Font f = new Font(FontFamily.HELVETICA, 29.0f, Font.NORMAL, BaseColor.BLACK);
-				Chunk c = new Chunk(title, f);
-				Paragraph p = new Paragraph(c);
-				p.setAlignment(Element.ALIGN_LEFT);
-				p.setIndentationRight(10);
-				document.add(p);
-			} catch (DocumentException e) {
-				LOGGER.error(e);
-			}
-		}
-
-		private static void createCompanyDetails(Document document, Customer customer) {
+		private static void createCompanyDetails(PdfWriter writer, Document document, Customer customer) {
 			try {
 				Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
 				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
 
-				PdfPTable table = new PdfPTable(1);
+				PdfPTable table = new PdfPTable(2);
 
 				Chunk c1 = new Chunk("Company1", f);
 				Phrase companyName = new Phrase(c1);
@@ -465,95 +427,93 @@ public class Modern {
 				cell_1.setHorizontalAlignment(Element.ALIGN_LEFT);
 				table.addCell(cell_1);
 
-				Chunk c2 = new Chunk(customer.getCustomer_address(), f2);
+				Chunk c11 = new Chunk("Contact Information", f);
+				Phrase contactInfo = new Phrase(c11);
+				PdfPCell cellOne = new PdfPCell(contactInfo);
+				cellOne.setBorder(Rectangle.NO_BORDER);
+				cellOne.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				table.addCell(cellOne);
+
+				Chunk c2 = new Chunk("banjara hills", f2);
 				Phrase comAddress = new Phrase(c2);
 				PdfPCell cell_2 = new PdfPCell(comAddress);
 				cell_2.setHorizontalAlignment(Element.ALIGN_LEFT);
 				cell_2.setBorder(Rectangle.NO_BORDER);
 				table.addCell(cell_2);
 
-				Chunk c3 = new Chunk(customer.getCustomer_city(), f2);
+				Chunk c22 = new Chunk("Phone: " + "8801446657", f2);
+				Phrase phone = new Phrase(c22);
+				PdfPCell cellTwo = new PdfPCell(phone);
+				cellTwo.setBorder(Rectangle.NO_BORDER);
+				cellTwo.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				table.addCell(cellTwo);
+
+				Chunk c3 = new Chunk("Hyderabad, Telangana ", f2);
 				Phrase comCity = new Phrase(c3);
 				PdfPCell cell_3 = new PdfPCell(comCity);
 				cell_3.setBorder(Rectangle.NO_BORDER);
 				cell_3.setHorizontalAlignment(Element.ALIGN_LEFT);
 				table.addCell(cell_3);
 
-				Chunk c4 = new Chunk(customer.getCustomer_country(), f2);
-				Phrase com_country = new Phrase(c4);
-				PdfPCell cell_4 = new PdfPCell(com_country);
-				cell_4.setHorizontalAlignment(Element.ALIGN_LEFT);
+				Chunk c4 = new Chunk("Toll free: 1800-989-989", f2);
+				Phrase com_state = new Phrase(c4);
+				PdfPCell cell_4 = new PdfPCell(com_state);
+				cell_4.setHorizontalAlignment(Element.ALIGN_RIGHT);
 				cell_4.setBorder(Rectangle.NO_BORDER);
 				table.addCell(cell_4);
+
+				Chunk c5 = new Chunk("India", f2);
+				Phrase com_country = new Phrase(c5);
+				PdfPCell cell_5 = new PdfPCell(com_country);
+				cell_5.setHorizontalAlignment(Element.ALIGN_LEFT);
+				cell_5.setBorder(Rectangle.NO_BORDER);
+				table.addCell(cell_5);
+
+				Chunk c55 = new Chunk("www.qount.io", f2);
+				Phrase website = new Phrase(c55);
+				PdfPCell cell_55 = new PdfPCell(website);
+				cell_55.setBorder(Rectangle.NO_BORDER);
+				cell_55.setHorizontalAlignment(Element.ALIGN_RIGHT);
+				table.addCell(cell_55);
 
 				table.setLockedWidth(true);
 				table.setTotalWidth(300F);
 				table.setHorizontalAlignment(Element.ALIGN_BOTTOM);
 				table.setHorizontalAlignment(Element.ALIGN_RIGHT);
-				document.add(table);
-			} catch (DocumentException e) {
-				// TODO Auto-generated catch block
+
+				table.writeSelectedRows(0, -1, document.left(document.leftMargin()) + 250, table.getTotalHeight() + document.bottom(document.bottomMargin()),
+						writer.getDirectContent());
+
+				// document.add(table);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 
-		private static void createCustomerContactDetails(Document document, Customer customer) {
-			if (customer == null) {
+		private static void addLineSeparatorBeforeEnd(PdfWriter writer, Document document) {
+			try {
+				LineSeparator ls = new LineSeparator();
+				ls.setLineWidth(1.5f);
+				ls.setLineColor(BaseColor.LIGHT_GRAY);
+				Paragraph p2 = new Paragraph(new Chunk(ls));
+				PdfContentByte cb = writer.getDirectContent();
+				ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p2, (document.right() - document.left()) / 2 + document.leftMargin(), document.bottom() + 100, 0);
+//				document.add(p2);
+			} catch (Exception e) {
+				LOGGER.error(e);
+			}
+		}
+
+		private static void createFooterBeforeEnd(PdfWriter writer, Document document, InvoicePreference invoicePreference) {
+			if (null == invoicePreference || StringUtils.isEmpty(invoicePreference.getDefaultFooter())) {
 				return;
 			}
 			try {
-				Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
-
-				PdfPTable table1 = new PdfPTable(1);
-				PdfPTable table = new PdfPTable(2);
-
-				Chunk c1 = new Chunk("Contact Information", f);
-				Phrase contactInfo = new Phrase(c1);
-				PdfPCell cellOne = new PdfPCell(contactInfo);
-				cellOne.setBorder(Rectangle.NO_BORDER);
-				cellOne.setHorizontalAlignment(Element.ALIGN_RIGHT);
-				table1.addCell(cellOne);
-
-				Chunk c2 = new Chunk("Phone: " + "", f2);
-				Phrase phone = new Phrase(c2);
-				PdfPCell cellTwo = new PdfPCell(phone);
-				cellTwo.setBorder(Rectangle.NO_BORDER);
-				cellTwo.setHorizontalAlignment(Element.ALIGN_RIGHT);
-				table.addCell(cellTwo);
-
-				Chunk c3 = new Chunk(customer.getPhone_number(), f2);
-				Phrase phoneNum = new Phrase(c3);
-				PdfPCell cell_3 = new PdfPCell(phoneNum);
-				cell_3.setBorder(Rectangle.NO_BORDER);
-				table.addCell(cell_3);
-
-				Chunk c4 = new Chunk("Toll free: ", f2);
-				Phrase poNumber = new Phrase(c4);
-				PdfPCell cell_4 = new PdfPCell(poNumber);
-				cell_4.setBorder(Rectangle.NO_BORDER);
-				cell_4.setHorizontalAlignment(Element.ALIGN_RIGHT);
-				table.addCell(cell_4);
-
-				Chunk c5 = new Chunk("1800-989-989", f2);
-				Phrase invocieDateLabel = new Phrase(c5);
-				PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
-				cell_5.setBorder(Rectangle.NO_BORDER);
-				table.addCell(cell_5);
-
-				Chunk c6 = new Chunk("www.qount.io", f2);
-				Phrase email = new Phrase(c6);
-				PdfPCell cell_6 = new PdfPCell(email);
-				cell_6.setBorder(Rectangle.NO_BORDER);
-				cell_6.setHorizontalAlignment(Element.ALIGN_RIGHT);
-				table.addCell(cell_6);
-
-				table.setLockedWidth(true);
-				table.setTotalWidth(300F);
-				table.setHorizontalAlignment(Element.ALIGN_RIGHT);
-				document.add(table1);
-				document.add(table);
-
+				PdfContentByte cb = writer.getDirectContent();
+				Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
+				Chunk c2 = new Chunk(invoicePreference.getDefaultFooter(), f2);
+				Phrase p2 = new Phrase(c2);
+				ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p2, (document.right() - document.left()) / 2 + document.leftMargin(), document.bottom() + 120, 0);
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}
@@ -676,6 +636,6 @@ public class Modern {
 				LOGGER.error(e);
 			}
 		}
-
 	}
+
 }
