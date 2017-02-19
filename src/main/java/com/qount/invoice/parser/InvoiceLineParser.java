@@ -1,7 +1,10 @@
 package com.qount.invoice.parser;
 
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -14,8 +17,11 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
+import com.qount.invoice.model.UserCompany;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
+import com.qount.invoice.utils.CurrencyConverter;
+import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.ResponseUtil;
 
 public class InvoiceLineParser {
@@ -38,6 +44,9 @@ public class InvoiceLineParser {
 				invoiceLineObj.setInvoice_id(invoiceID);
 				invoiceLineObj.setLast_updated_at(timestamp.toString());
 				invoiceLineObj.setLast_updated_by(userID);
+				UserCompany userCompany = null;
+//				userCompany = CommonUtils.getCompany(userID, invoice.getCompany_id());
+				setAmountByDate(invoiceLineObj, userCompany);
 
 			}
 		} catch (Exception e) {
@@ -96,6 +105,32 @@ public class InvoiceLineParser {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e.getLocalizedMessage(), 500);
 		}
+	}
+
+	public static void setAmountByDate(InvoiceLine invoiceLine, UserCompany userCompany) {
+		try {
+			Double amount = invoiceLine.getAmount();
+			String companyCurrency = userCompany.getDefaultCurrency();
+			String billCurrency = invoiceLine.getCurrency();
+			Double billDateAmount = 0d;
+			if (amount != null) {
+				if (StringUtils.isAnyBlank(companyCurrency, billCurrency)) {
+					return;
+				}
+				if (!billCurrency.equals(companyCurrency)) {
+					CurrencyConverter converter = new CurrencyConverter();
+					Date date = DateUtils.getDateFromString(invoiceLine.getLast_updated_at(),
+							Constants.DUE_DATE_FORMAT);
+					String formatedDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
+					float conversion = converter.convert(billCurrency, companyCurrency, formatedDate);
+					billDateAmount = amount * conversion;
+					billDateAmount = Double.valueOf(new DecimalFormat("#.##").format(billDateAmount));
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error converting currency", e);
+		}
+
 	}
 
 }

@@ -20,7 +20,7 @@ public interface InvoiceLineDAO {
 	
 	public InvoiceLine update(Connection connection, InvoiceLine invoiceLine);
 
-	public InvoiceLine deleteByInvoiceId(InvoiceLine invoiceLines);
+	public InvoiceLine deleteByInvoiceId(Connection connection,InvoiceLine invoiceLines);
 
 	public InvoiceLine deleteInvoiceLine(InvoiceLine invoiceLines);
 

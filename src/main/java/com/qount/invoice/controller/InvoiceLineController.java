@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiOperation;
  *
  */
 @Api(value = "invoice Line")
-@Path("/user/{userID}/invoice/{invoiceID}/line")
+@Path("/users/{userID}/companies/{companyId}/invoice/{invoiceID}/line")
 public class InvoiceLineController {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

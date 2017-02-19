@@ -50,7 +50,8 @@ public class Invoice {
 	private double amount_due;
 	private String payment_date;
 	private double sub_totoal;
-	
+	private double amount_by_date;
+
 	public String getCustomer_id() {
 		return customer_id;
 	}
@@ -337,6 +338,14 @@ public class Invoice {
 
 	public void setInvoiceTaxes(List<InvoiceTaxes> invoiceTaxes) {
 		this.invoiceTaxes = invoiceTaxes;
+	}
+
+	public double getAmount_by_date() {
+		return amount_by_date;
+	}
+
+	public void setAmount_by_date(double amount_by_date) {
+		this.amount_by_date = amount_by_date;
 	}
 
 	@Override

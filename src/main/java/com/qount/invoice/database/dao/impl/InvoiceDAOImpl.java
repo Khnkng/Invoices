@@ -32,7 +32,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return invoiceDAOImpl;
 	}
 
-
 	@Override
 	public Invoice save(Connection connection, Invoice invoice) {
 		if (invoice == null) {
@@ -76,6 +75,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPayment_date());
 				pstmt.setString(ctr++, invoice.getCustomer_id());
 				pstmt.setDouble(ctr++, invoice.getSub_totoal());
+				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -136,6 +136,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPayment_date());
 				pstmt.setDouble(ctr++, invoice.getSub_totoal());
 				pstmt.setString(ctr++, invoice.getCustomer_id());
+				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -235,6 +236,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setAmount_due(rset.getDouble("amount_due"));
 							invoice.setPayment_date(rset.getString("payment_date"));
 							invoice.setSub_totoal(rset.getDouble("sub_totoal"));
+							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 						}
 					}
 				}
@@ -297,6 +299,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setAmount_due(rset.getDouble("amount_due"));
 					invoice.setPayment_date(rset.getString("payment_date"));
 					invoice.setSub_totoal(rset.getDouble("sub_totoal"));
+					invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 					invoiceLst.add(invoice);
 				}
 			}
