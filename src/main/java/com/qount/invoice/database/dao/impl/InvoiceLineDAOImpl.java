@@ -158,14 +158,12 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	@Override
-	public InvoiceLine deleteByInvoiceId(InvoiceLine invoiceLine) {
-		Connection connection = null;
+	public InvoiceLine deleteByInvoiceId(Connection connection,InvoiceLine invoiceLine) {
 		if (invoiceLine == null || StringUtils.isBlank(invoiceLine.getInvoice_id())) {
 			return invoiceLine;
 		}
 		PreparedStatement pstmt = null;
 		try {
-			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLine.DELETE_INVOICE_BY_ID_QRY);
 				pstmt.setString(1, invoiceLine.getInvoice_id());

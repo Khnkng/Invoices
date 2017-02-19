@@ -32,7 +32,7 @@ public class InvoiceControllerImpl {
 	public static Invoice createInvoice(String userID, Invoice invoice) {
 		Connection connection = null;
 		try {
-			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, false);
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice);
 			if (invoiceObj == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
@@ -46,7 +46,7 @@ public class InvoiceControllerImpl {
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceTaxes> incoiceTaxesList = invoiceObj.getInvoiceTaxes();
-				if(incoiceTaxesList == null){
+				if (incoiceTaxesList == null) {
 					incoiceTaxesList = new ArrayList<InvoiceTaxes>();
 				}
 				List<InvoiceTaxes> invoiceTaxResult = MySQLManager.getInvoiceTaxesDAOInstance().save(connection,
@@ -84,7 +84,7 @@ public class InvoiceControllerImpl {
 		Connection connection = null;
 		try {
 			invoice.setId(invoiceID);
-			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, true);
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice);
 			if (invoiceObj == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
@@ -100,20 +100,36 @@ public class InvoiceControllerImpl {
 				List<InvoiceTaxes> invoiceTaxesList = invoiceObj.getInvoiceTaxes();
 				InvoiceTaxes invoiceTax = new InvoiceTaxes();
 				invoiceTax.setInvoice_id(invoiceID);
-				InvoiceTaxes deletedInvoiceTaxResult = MySQLManager.getInvoiceTaxesDAOInstance().deleteByInvoiceId(connection,
-						invoiceTax);
+				InvoiceTaxes deletedInvoiceTaxResult = MySQLManager.getInvoiceTaxesDAOInstance()
+						.deleteByInvoiceId(connection, invoiceTax);
 				if (deletedInvoiceTaxResult != null) {
-					if(invoiceTaxesList == null){
+					if (invoiceTaxesList == null) {
 						invoiceTaxesList = new ArrayList<>();
 					}
 					List<InvoiceTaxes> invoiceTaxesResult = MySQLManager.getInvoiceTaxesDAOInstance().save(connection,
 							invoiceID, invoiceTaxesList);
 					if (invoiceTaxesResult != null) {
-						connection.commit();
-						return invoiceResult;
+						InvoiceLine invoiceLine = new InvoiceLine();
+						invoiceLine.setInvoice_id(invoiceID);
+						InvoiceLine deletedInvoiceLineResult = MySQLManager.getInvoiceLineDAOInstance()
+								.deleteByInvoiceId(connection, invoiceLine);
+						if (deletedInvoiceLineResult != null) {
+							List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance()
+									.save(connection, invoiceObj.getInvoiceLines());
+							if (invoiceLineResult != null) {
+								List<InvoiceLineTaxes> invoiceLineTaxesList = InvoiceParser
+										.getInvoiceLineTaxesList(invoiceObj.getInvoiceLines());
+								List<InvoiceLineTaxes> invoiceLineTaxesResult = MySQLManager
+										.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineTaxesList);
+								if (invoiceLineTaxesResult != null) {
+									connection.commit();
+									return invoiceResult;
+								}
+							}
+						}
 					}
-				}
 
+				}
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
