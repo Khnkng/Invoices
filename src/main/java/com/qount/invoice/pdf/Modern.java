@@ -14,11 +14,13 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Font.FontFamily;
+import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -29,6 +31,7 @@ import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.utils.Constants;
 
 public class Modern {
 
@@ -98,6 +101,7 @@ public class Modern {
 		try {
 			PdfPTable table = new PdfPTable(4);
 			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
+			Font f4 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12.0f, Font.BOLD, BaseColor.BLACK);
 
 			Chunk c5 = new Chunk("", f);
 			Phrase invocieDateLabel = new Phrase(c5);
@@ -111,7 +115,7 @@ public class Modern {
 			cell_7.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_7);
 
-			Chunk c1 = new Chunk("Amount Due(" + invoice.getCurrency() + "):", f);
+			Chunk c1 = new Chunk("Amount Due(" + invoice.getCurrencies().getCode() + "):", f);
 			Phrase invocieItemsLabel = new Phrase(c1);
 			PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
 			cellOne.setBorder(Rectangle.NO_BORDER);
@@ -120,7 +124,7 @@ public class Modern {
 			cellOne.setMinimumHeight(20f);
 			table.addCell(cellOne);
 
-			Chunk c3 = new Chunk(invoice.getCurrency() + " " + invoice.getAmount_due(), f);
+			Chunk c3 = new Chunk(invoice.getCurrencies().getHtml_symbol() + " " + invoice.getAmount_due(), f4);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 			cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -143,8 +147,7 @@ public class Modern {
 		try {
 			PdfPTable table = new PdfPTable(4);
 			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
-
+			Font f4 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12.0f, Font.NORMAL, BaseColor.BLACK);
 			Chunk c5 = new Chunk("", f);
 			Phrase invocieDateLabel = new Phrase(c5);
 			PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
@@ -166,7 +169,7 @@ public class Modern {
 			cellOne.setMinimumHeight(20f);
 			table.addCell(cellOne);
 
-			Chunk c3 = new Chunk(invoice.getCurrency() + " " + invoice.getAmount(), f2);
+			Chunk c3 = new Chunk(invoice.getCurrencies().getHtml_symbol() + " " + invoice.getAmount(), f4);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 			cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -189,10 +192,11 @@ public class Modern {
 		try {
 			PdfPTable table = new PdfPTable(4);
 			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
+			Font f4 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12.0f, Font.NORMAL, BaseColor.BLACK);
 			Iterator<InvoiceLine> invoiceLinesItr = invoice.getInvoiceLines().iterator();
 			while (invoiceLinesItr.hasNext()) {
 				InvoiceLine invoiceLine = invoiceLinesItr.next();
-				Chunk c1 = new Chunk("Unde Work", f);
+				Chunk c1 = new Chunk(invoiceLine.getDescription(), f);
 				Phrase invocieItemsLabel = new Phrase(c1);
 				PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
 				cellOne.setBorder(Rectangle.NO_BORDER);
@@ -208,14 +212,14 @@ public class Modern {
 				cell_3.setBorder(Rectangle.NO_BORDER);
 				table.addCell(cell_3);
 
-				Chunk c5 = new Chunk(invoiceLine.getCurrency() + " " + invoiceLine.getPrice(), f);
+				Chunk c5 = new Chunk(invoiceLine.getCurrencies().getHtml_symbol() + " " + invoiceLine.getPrice(), f4);
 				Phrase invocieDateLabel = new Phrase(c5);
 				PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
 				cell_5.setBorder(Rectangle.NO_BORDER);
 				cell_5.setHorizontalAlignment(Element.ALIGN_RIGHT);
 				table.addCell(cell_5);
 
-				Chunk c7 = new Chunk(invoiceLine.getCurrency() + " " + invoiceLine.getAmount(), f);
+				Chunk c7 = new Chunk(invoiceLine.getCurrencies().getHtml_symbol() + " " + invoiceLine.getAmount(), f4);
 				Phrase paymentDueLabel = new Phrase(c7);
 				PdfPCell cell_7 = new PdfPCell(paymentDueLabel);
 				cell_7.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -324,10 +328,12 @@ public class Modern {
 			cell.setColspan(1);
 			table.addCell(cell);
 			Font f3 = new Font(FontFamily.HELVETICA, 13.0f, Font.NORMAL, BaseColor.WHITE);
-			Chunk c = new Chunk("Amount Due (INR)", f3);
-			Font f4 = new Font(FontFamily.HELVETICA, 18.0f, Font.NORMAL, BaseColor.WHITE);
+			Chunk c = new Chunk("Amount Due ("+invoice.getCurrencies().getCode()+")", f3);
+//			Font f4 = new Font(FontFamily.HELVETICA, 18.0f, Font.NORMAL, BaseColor.WHITE);
+//			Font f4 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12.0f);
+			Font f4 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 18.0f, Font.NORMAL, BaseColor.WHITE);
 			Double amountDue = invoice.getAmount_due();
-			Chunk c2 = new Chunk(amountDue.toString(), f4);
+			Chunk c2 = new Chunk(invoice.getCurrencies().getHtml_symbol()+""+amountDue, f4);
 			Phrase p = new Phrase();
 			p.add(c);
 			p.add(Chunk.NEWLINE);
@@ -565,7 +571,7 @@ public class Modern {
 			cell_8.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_8);
 
-			Chunk c9 = new Chunk("Amount Due (" + invoice.getCurrency() + "): ", f);
+			Chunk c9 = new Chunk("Amount Due (" + invoice.getCurrencies().getCode() + "): ", f);
 			Phrase amountDueLabel = new Phrase(c9);
 			PdfPCell cell_9 = new PdfPCell(amountDueLabel);
 			cell_9.setHorizontalAlignment(Element.ALIGN_RIGHT);

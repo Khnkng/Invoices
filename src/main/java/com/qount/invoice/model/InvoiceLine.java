@@ -29,6 +29,15 @@ public class InvoiceLine {
 	private String notes;
 	private String coa_id;
 	private List<InvoiceLineTaxes> invoiceLineTaxes;
+	private Currencies currencies;
+
+	public Currencies getCurrencies() {
+		return currencies;
+	}
+
+	public void setCurrencies(Currencies currencies) {
+		this.currencies = currencies;
+	}
 
 	public String getCoa_id() {
 		return coa_id;

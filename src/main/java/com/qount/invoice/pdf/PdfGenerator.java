@@ -3,12 +3,13 @@ package com.qount.invoice.pdf;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.itextpdf.text.Document;
+import com.qount.invoice.model.Company;
+import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
@@ -31,8 +32,8 @@ public class PdfGenerator {
 		try {
 			if (null != invoiceReference && !StringUtils.isBlank(invoiceReference.getInvoiceType())) {
 				document = new Document();
-				pdfFile = new File(UUID.randomUUID().toString()+".pdf");
-//				pdfFile = new File("F:/11.pdf");
+//				pdfFile = new File(UUID.randomUUID().toString()+".pdf");
+				pdfFile = new File("F:/1.pdf");
 				fout = new FileOutputStream(pdfFile);
 				System.out.println(pdfFile.getAbsolutePath());
 				switch (invoiceReference.getInvoiceType()) {
@@ -41,6 +42,9 @@ public class PdfGenerator {
 					break;
 				case "modern":
 					document = Modern.createPdf(invoiceReference,document,fout);
+					break;
+				case "classic":
+					document = Classic.createPdf(invoiceReference,document,fout);
 					break;
 
 				default:
@@ -58,7 +62,9 @@ public class PdfGenerator {
 	
 	public static void main(String[] args) {
 		try {
-			File pdf = createPdf(getMockDataForModern());
+			InvoiceReference invoiceReference = getMockDataForModern();
+//			invoiceReference.setInvoiceType("classic");
+			File pdf = createPdf(invoiceReference);
 			PdfUtil.deleteFile(pdf);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -67,8 +73,13 @@ public class PdfGenerator {
 	
 	public static InvoiceReference getMockDataForContemporary(){
 		try {
+			Currencies currencies = new Currencies();
+			currencies.setCode("INR");
+			currencies.setHtml_symbol("\u20B9");
+			currencies.setName("Rupee");
 			InvoicePreference invoicePreference = new InvoicePreference();
 			Invoice invoice = new Invoice();
+			invoice.setCurrencies(currencies);
 			invoice.setAmount(1.00);
 			invoice.setAmount_due(1.00);
 			invoice.setNotes("Standard memo 1");
@@ -80,7 +91,8 @@ public class PdfGenerator {
 			invoice.setInvoice_date("February 1, 2017");
 			invoice.setAcceptance_date("February 2, 2017");
 			invoice.setAmount_due(1.0d);
-			invoice.setCurrency("INR");
+//			invoice.setCurrency("\u20B9");
+			invoice.setCurrencies(currencies);
 			invoicePreference.setItems("Items");
 			invoicePreference.setUnits("Qunatity");
 			invoicePreference.setPrice("Price");
@@ -88,16 +100,31 @@ public class PdfGenerator {
 			ArrayList<InvoiceLine> invoiceLines = new ArrayList<>();
 			InvoiceLine e = new InvoiceLine();
 //			e.setItem_name("a2");
+			e.setDescription("item 1");
 			e.setQuantity(1);
 			e.setPrice(1.0);
 			e.setAmount(1.0);
-			e.setCurrency("INR");
+			e.setCurrencies(currencies);
+			e.setDescription("item1");
+//			e.setCurrency("\u20B9");
 			invoiceLines.add(e);
+			e.setCurrencies(currencies);
 			invoice.setInvoiceLines(invoiceLines);
 			InvoiceReference invoiceReference = new InvoiceReference();
 			invoiceReference.setInvoiceType("contemporary");
 			invoiceReference.setInvoice(invoice);
 			invoiceReference.setInvoicePreference(invoicePreference);
+			Company company = new Company();
+			company.setName("company1");
+			company.setAddress("banjara hills");
+			company.setCity("Hyderabad");
+			company.setCountry("India");
+			company.setPhone_number("8801446657");
+			invoiceReference.setCompany(company);
+			Customer customer = new Customer();
+			customer.setEmail_id("makjavaprogrammer@gmail.com");
+			customer.setCustomer_name("mateen");
+			invoiceReference.setCustomer(customer);
 			return invoiceReference;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -108,10 +135,16 @@ public class PdfGenerator {
 	
 	public static InvoiceReference getMockDataForModern(){
 		try {
+			Currencies currencies = new Currencies();
+			currencies.setCode("INR");
+			currencies.setHtml_symbol("\u20B9");
+			currencies.setName("Rupee");
 			InvoicePreference invoicePreference = new InvoicePreference();
 			Invoice invoice = new Invoice();
+			invoice.setCurrencies(currencies);
 			invoice.setAmount(1.00);
 			invoice.setAmount_due(1.00);
+			invoice.setDescription("item1");
 			invoice.setNotes("Standard memo 1");
 			invoicePreference.setDefaultFooter("Default footer 1");
 			invoicePreference.setDefaultTitle("DEFAULT TITLE 1");
@@ -132,6 +165,8 @@ public class PdfGenerator {
 			e.setPrice(1.0);
 			e.setAmount(1.0);
 			e.setCurrency("INR");
+			e.setCurrencies(currencies);
+			e.setDescription("item1");
 			invoiceLines.add(e);
 			invoice.setInvoiceLines(invoiceLines);
 			Customer customer = new Customer();
