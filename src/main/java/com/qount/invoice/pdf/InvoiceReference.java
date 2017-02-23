@@ -1,5 +1,6 @@
 package com.qount.invoice.pdf;
 
+import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoicePreference;
@@ -16,6 +17,7 @@ public class InvoiceReference {
 	private InvoicePreference invoicePreference;
 	private String invoiceType;
 	private Customer customer;
+	private Company company;
 
 	public Invoice getInvoice() {
 		return invoice;
@@ -47,6 +49,14 @@ public class InvoiceReference {
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
+	}
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
 	}
 
 }

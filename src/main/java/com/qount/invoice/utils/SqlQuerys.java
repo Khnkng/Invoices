@@ -62,4 +62,13 @@ public class SqlQuerys {
 		public final static String GET_QRY = "SELECT * FROM proposal_taxes WHERE `proposal_id` = ?;";
 	}
 
+	public final class Company{
+
+		public static final String INSERT_QRY = "INSERT INTO Company ( `id`, `name`, `ein`, `type`, `phone_number`, `address`, `city`, `state`, `country`, `zipcode`, `currency`, `email`, `payment_info`, `createdBy`, `modifiedBy`, `createdDate`, `modifiedDate`, `owner`, `active` ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );";
+		public static final String UPDATE_QRY = "UPDATE Company SET `name` = ?, `ein` = ?, `type` = ?, `phone_number` = ?, `address` = ?, `city` = ?, `state` = ?, `country` = ?, `zipcode` = ?, `currency` = ?, `email` = ?, `payment_info` = ?, `createdBy` = ?, `modifiedBy` = ?, `createdDate` = ?, `modifiedDate` = ?, `owner` = ?, `active` = ? WHERE `id` = ?;";
+		public static final String DELETE_QRY = "DELETE FROM Company WHERE  WHERE `id` = ?;";
+		public static final String GET_QRY = "SELECT `id`, `name`, `ein`, `type`, `phone_number`, `address`, `city`, `state`, `country`, `zipcode`, `currency`, `email`, `payment_info`, `createdBy`, `modifiedBy`, `createdDate`, `modifiedDate`, `owner`, `active` from `Company` WHERE `id` = ?;";
+		public static final String GET_ALL_QRY = "SELECT * FROM Company;";
+
+	}
 }

@@ -51,6 +51,15 @@ public class Invoice {
 	private String payment_date;
 	private double sub_totoal;
 	private double amount_by_date;
+	private Currencies currencies;
+	
+	public Currencies getCurrencies() {
+		return currencies;
+	}
+
+	public void setCurrencies(Currencies currencies) {
+		this.currencies = currencies;
+	}
 
 	public String getCustomer_id() {
 		return customer_id;

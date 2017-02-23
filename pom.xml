@@ -35,7 +35,6 @@
 			<version>LATEST</version>
 		</dependency>
 		<!-- SWAGGER API SPEC DEPENDENCY LSIT -->
-
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-jersey2-jaxrs</artifactId>
@@ -193,16 +192,6 @@
 	<build>
 		<finalName>Invoices</finalName>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin-version}</version>
-				<configuration>
-					<!-- or whatever version you use -->
-					<source>${java-version}</source>
-					<target>${java-version}</target>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
