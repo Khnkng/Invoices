@@ -3,6 +3,7 @@ package com.qount.invoice.pdf;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -32,11 +33,11 @@ public class PdfGenerator {
 		try {
 			if (null != invoiceReference && !StringUtils.isBlank(invoiceReference.getInvoiceType())) {
 				document = new Document();
-//				pdfFile = new File(UUID.randomUUID().toString()+".pdf");
-				pdfFile = new File("F:/1.pdf");
+				pdfFile = new File(UUID.randomUUID().toString()+".pdf");
+//				pdfFile = new File("F:/1.pdf");
 				fout = new FileOutputStream(pdfFile);
-				System.out.println(pdfFile.getAbsolutePath());
-				switch (invoiceReference.getInvoiceType()) {
+//				System.out.println(pdfFile.getAbsolutePath());
+				switch (invoiceReference.getInvoiceType().toLowerCase()) {
 				case "contemporary":
 					document = Contemporary.createPdf(invoiceReference,document,fout);
 					break;
@@ -62,7 +63,7 @@ public class PdfGenerator {
 	
 	public static void main(String[] args) {
 		try {
-			InvoiceReference invoiceReference = getMockDataForModern();
+			InvoiceReference invoiceReference = getMockDataForContemporary();
 //			invoiceReference.setInvoiceType("classic");
 			File pdf = createPdf(invoiceReference);
 			PdfUtil.deleteFile(pdf);

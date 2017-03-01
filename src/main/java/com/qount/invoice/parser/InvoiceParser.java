@@ -15,10 +15,14 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.qount.invoice.model.Company;
+import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
+import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.model.UserCompany;
+import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.CurrencyConverter;
@@ -40,18 +44,12 @@ public class InvoiceParser {
 			UserCompany userCompany = null;
 			userCompany = CommonUtils.getCompany(userId, invoice.getCompany_id());
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp acceptance_date = convertStringToTimeStamp(invoice.getAcceptance_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp acceptance_final_date = convertStringToTimeStamp(invoice.getAcceptance_final_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp recurring_start_date = convertStringToTimeStamp(invoice.getRecurring_start_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp recurring_end_date = convertStringToTimeStamp(invoice.getRecurring_end_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp payment_date = convertStringToTimeStamp(invoice.getPayment_date(),
-					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp acceptance_date = convertStringToTimeStamp(invoice.getAcceptance_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp acceptance_final_date = convertStringToTimeStamp(invoice.getAcceptance_final_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp recurring_start_date = convertStringToTimeStamp(invoice.getRecurring_start_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp recurring_end_date = convertStringToTimeStamp(invoice.getRecurring_end_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp payment_date = convertStringToTimeStamp(invoice.getPayment_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 
 			invoice.setUser_id(userId);
 			if (StringUtils.isBlank(invoice.getId())) {
@@ -106,18 +104,15 @@ public class InvoiceParser {
 
 	public static Invoice convertTimeStampToString(Invoice invoice) {
 		try {
-			invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(),
-					Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-			invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(),
-					Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-			invoice.setAcceptance_date(convertTimeStampToString(invoice.getAcceptance_date(),
-					Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-			invoice.setAcceptance_final_date(convertTimeStampToString(invoice.getAcceptance_final_date(),
-					Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-			invoice.setRecurring_start_date(convertTimeStampToString(invoice.getRecurring_start_date(),
-					Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-			invoice.setRecurring_end_date(convertTimeStampToString(invoice.getRecurring_end_date(),
-					Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			invoice.setAcceptance_date(convertTimeStampToString(invoice.getAcceptance_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			invoice.setAcceptance_final_date(
+					convertTimeStampToString(invoice.getAcceptance_final_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			invoice.setRecurring_start_date(
+					convertTimeStampToString(invoice.getRecurring_start_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			invoice.setRecurring_end_date(
+					convertTimeStampToString(invoice.getRecurring_end_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
@@ -126,8 +121,7 @@ public class InvoiceParser {
 
 	public static void main(String[] args) {
 		String str = "2017-12-30 00:00:00.0";
-		System.out.println(convertTimeStampToString(str, Constants.TIME_STATMP_TO_BILLS_FORMAT,
-				Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+		System.out.println(convertTimeStampToString(str, Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 	}
 
 	public static List<InvoiceLineTaxes> getInvoiceLineTaxesList(List<InvoiceLine> invoiceLinesList) {
@@ -160,8 +154,7 @@ public class InvoiceParser {
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			// throw new WebApplicationException(e.getLocalizedMessage(), 500);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
 
@@ -205,5 +198,26 @@ public class InvoiceParser {
 			LOGGER.error("Error converting currency", e);
 		}
 
+	}
+
+	public static InvoiceReference getInvoiceReference(String companyID, String customerID,String invoiceID, String json) {
+		try {
+			InvoiceReference invoiceReference = new InvoiceReference();
+			Company company = new Company();
+			company.setId(companyID);
+			Customer customer = new Customer();
+			customer.setCustomer_id(customerID);
+			invoiceReference.setCompany(company);
+			invoiceReference.setCustomer(customer);
+			InvoicePreference invoicePreference = new InvoicePreference();
+			invoiceReference.setInvoicePreference(invoicePreference);
+			Invoice invoice = new Invoice();
+			invoice.setId(invoiceID);
+			invoiceReference.setInvoice(invoice);
+			return invoiceReference;
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return null;
 	}
 }

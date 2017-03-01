@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.pdf.InvoiceReference;
 
 /**
  * DAO interface for proposalDAOImpl
@@ -24,6 +25,6 @@ public interface InvoiceDAO {
 	
 	public Invoice delete(Invoice invoice);
 	
-
+	public InvoiceReference getInvoiceRelatedDetails(Connection connection, InvoiceReference invoiceReference);
 
 }

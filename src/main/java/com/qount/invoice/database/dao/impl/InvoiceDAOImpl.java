@@ -12,9 +12,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
+import com.qount.invoice.model.Company;
+import com.qount.invoice.model.Currencies;
+import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
+import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
@@ -194,6 +199,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLine.setQuantity(rset.getLong("il_quantity"));
 						invoiceLine.setPrice(rset.getDouble("il_price"));
 						invoiceLine.setNotes(rset.getString("il_notes"));
+						Currencies currencies = new Currencies();
+						currencies.setCode(rset.getString("il_code"));
+						currencies.setName(rset.getString("il_name"));
+						currencies.setHtml_symbol(rset.getString("il_html_symbol"));
+						invoiceLine.setCurrencies(currencies);
 						InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
 						invoiceLineTax.setInvoice_line_id(rset.getString("ilt_invoice_line_id"));
 						invoiceLineTax.setTax_id(rset.getString("ilt_tax_id"));
@@ -237,6 +247,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setPayment_date(rset.getString("payment_date"));
 							invoice.setSub_totoal(rset.getDouble("sub_totoal"));
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
+							Currencies currencies_2 = new Currencies();
+							currencies_2.setCode(rset.getString("code"));
+							currencies_2.setName(rset.getString("name"));
+							currencies_2.setHtml_symbol(rset.getString("html_symbol"));
+							invoice.setCurrencies(currencies_2);
 						}
 					}
 				}
@@ -343,6 +358,52 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			DatabaseUtilities.closeConnection(connection);
 		}
 		return invoice;
+	}
+
+	@Override
+	public InvoiceReference getInvoiceRelatedDetails(Connection connection, InvoiceReference invoiceReference) {
+		if(invoiceReference == null){
+			return null;
+		}
+		String companyId = invoiceReference.getCompany().getId();
+		String customerId = invoiceReference.getCustomer().getCustomer_id();
+		InvoicePreference invoicePreference = invoiceReference.getInvoicePreference();
+		Company company = invoiceReference.getCompany();
+		Customer customer = invoiceReference.getCustomer();
+		if (StringUtils.isEmpty(companyId) || StringUtils.isEmpty(customerId) || invoicePreference == null || invoiceReference == null || company == null || customer == null) {
+			return invoiceReference;
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICES_PDF_QRY);
+				pstmt.setString(1, companyId);
+				pstmt.setString(2, customerId);
+				rset = pstmt.executeQuery();
+				if (rset.next()) {
+					invoicePreference.setDefaultTitle(rset.getString("default_title"));
+					invoiceReference.setInvoiceType(rset.getString("template_type"));
+					invoicePreference.setDefaultSubHeading(rset.getString("default_sub_heading"));
+					company.setName(rset.getString("name"));
+					company.setAddress(rset.getString("address"));
+					company.setCity(rset.getString("city"));
+					company.setState(rset.getString("state"));
+					company.setCountry(rset.getString("country"));
+					company.setPhone_number(rset.getString("phone_number"));
+					customer.setCustomer_name(rset.getString("customer_name"));
+					customer.setEmail_id(rset.getString("email_id"));
+					invoicePreference.setStandardMemo(rset.getString("standard_memo"));
+					invoicePreference.setDefaultFooter(rset.getString("default_footer"));
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error fetching InvoiceRelatedDetails", e);
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		return invoiceReference;
 	}
 
 }
