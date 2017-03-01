@@ -27,6 +27,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.model.Company;
+import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
@@ -43,7 +44,7 @@ import com.qount.invoice.utils.Constants;
 public class Contemporary {
 	private static Logger LOGGER = Logger.getLogger(Contemporary.class);
 
-	public static Document createPdf(InvoiceReference invoiceReference, Document document, FileOutputStream fout) {
+	public static Document createPdf(InvoiceReference invoiceReference, Document document, FileOutputStream fout) throws Exception {
 		String imgSrc = "http://lh3.ggpht.com/9tzP9G0EsVP5zCiCrFbdQfbQkFnLzX7kgxYEsTi5gxau7V5G1CsJ0EUJ8U2ugIZxSKMtW4bkbj8z6-eyBEC0eQ=s700";
 		InvoicePreference invoicePreference = invoiceReference.getInvoicePreference();
 		Invoice invoice = invoiceReference.getInvoice();
@@ -71,11 +72,11 @@ public class Contemporary {
 			return document;
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
-		return null;
 	}
 
-	private static void addImage(Document document, String imgSrc) {
+	private static void addImage(Document document, String imgSrc) throws Exception {
 		if (StringUtils.isEmpty(imgSrc)) {
 			return;
 		}
@@ -88,53 +89,59 @@ public class Contemporary {
 			document.add(img);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createTitle(Document document, InvoicePreference invoicePreference) {
+	private static void createTitle(Document document, InvoicePreference invoicePreference) throws Exception {
 		if (StringUtils.isEmpty(invoicePreference.getDefaultTitle())) {
 			return;
 		}
 		try {
 			Font f = new Font(FontFamily.HELVETICA, 29.0f, Font.NORMAL, BaseColor.BLACK);
-			Chunk c = new Chunk(invoicePreference.getDefaultTitle(), f);
+			String defaultTitle = StringUtils.isEmpty(invoicePreference.getDefaultTitle())?"":invoicePreference.getDefaultTitle();
+			Chunk c = new Chunk(defaultTitle, f);
 			Paragraph p = new Paragraph(c);
 			p.setAlignment(Element.ALIGN_RIGHT);
 			p.setIndentationRight(10);
 			document.add(p);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createCompanyDetails(Document document, Company company) {
+	private static void createCompanyDetails(Document document, Company company) throws Exception {
 		try {
 			Font f1 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
 			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
 			PdfPTable table = new PdfPTable(1);
-
-			Chunk c1 = new Chunk(company.getName(), f2);
+			String companyName = StringUtils.isEmpty(company.getName())?"":company.getName();
+			Chunk c1 = new Chunk(companyName, f2);
 			Phrase companyNameLabel = new Phrase(c1);
 			PdfPCell cellOne = new PdfPCell(companyNameLabel);
 			cellOne.setBorder(Rectangle.NO_BORDER);
 			cellOne.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellOne);
 
-			Chunk c2 = new Chunk(company.getAddress(), f1);
+			String companyAddress = StringUtils.isEmpty(company.getAddress())?"":company.getAddress();
+			Chunk c2 = new Chunk(companyAddress, f1);
 			Phrase companyAdrsLabel = new Phrase(c2);
 			PdfPCell cellTwo = new PdfPCell(companyAdrsLabel);
 			cellTwo.setBorder(Rectangle.NO_BORDER);
 			cellTwo.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellTwo);
 
-			Chunk c3 = new Chunk(company.getCity(), f1);
+			String companyCity = StringUtils.isEmpty(company.getCity())?"":company.getCity();
+			Chunk c3 = new Chunk(companyCity, f1);
 			Phrase companyCityLabel = new Phrase(c3);
 			PdfPCell cellThree = new PdfPCell(companyCityLabel);
 			cellThree.setBorder(Rectangle.NO_BORDER);
 			cellThree.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellThree);
 
-			Chunk c4 = new Chunk(company.getCountry(), f1);
+			String companyCountry = StringUtils.isEmpty(company.getCountry())?"":company.getCountry();
+			Chunk c4 = new Chunk(companyCountry, f1);
 			Phrase companyCountryLabel = new Phrase(c4);
 			PdfPCell cellFour = new PdfPCell(companyCountryLabel);
 			cellFour.setBorder(Rectangle.NO_BORDER);
@@ -163,26 +170,29 @@ public class Contemporary {
 			document.add(table);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createEmptyLine(Document document) {
+	private static void createEmptyLine(Document document) throws Exception {
 		try {
 			Paragraph p2 = new Paragraph("\n");
 			p2.setSpacingBefore(-10);
 			document.add(p2);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createSubheading(Document document, InvoicePreference invoicePreference) {
+	private static void createSubheading(Document document, InvoicePreference invoicePreference) throws Exception {
 		if (StringUtils.isEmpty(invoicePreference.getDefaultSubHeading())) {
 			return;
 		}
 		try {
 			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
-			Chunk c2 = new Chunk(invoicePreference.getDefaultSubHeading(), f2);
+			String defaultSubHeading = StringUtils.isBlank(invoicePreference.getDefaultSubHeading())?"":invoicePreference.getDefaultSubHeading();
+			Chunk c2 = new Chunk(defaultSubHeading, f2);
 			Paragraph p2 = new Paragraph(c2);
 			p2.setSpacingBefore(-5);
 			p2.setIndentationRight(10);
@@ -190,10 +200,11 @@ public class Contemporary {
 			document.add(p2);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void addLineSeparator(Document document) {
+	private static void addLineSeparator(Document document) throws Exception {
 		try {
 			LineSeparator ls = new LineSeparator();
 			ls.setLineColor(BaseColor.GRAY);
@@ -202,10 +213,11 @@ public class Contemporary {
 			document.add(p2);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createBillDetails(Document document, Customer customer) {
+	private static void createBillDetails(Document document, Customer customer) throws Exception {
 		try {
 			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
 			Chunk c = new Chunk("BILL TO", f);
@@ -215,8 +227,9 @@ public class Contemporary {
 			p.setSpacingBefore(-85);
 			document.add(p);
 
+			String customerName = StringUtils.isBlank(customer.getCustomer_name())?"":customer.getCustomer_name();
 			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-			Chunk c2 = new Chunk(customer.getCustomer_name(), f2);
+			Chunk c2 = new Chunk(customerName, f2);
 			Paragraph p2 = new Paragraph(c2);
 			p2.setAlignment(Element.ALIGN_LEFT);
 			p2.setSpacingBefore(-5);
@@ -224,9 +237,10 @@ public class Contemporary {
 			document.add(p2);
 
 			createEmptyLine(document);
-			
+
+			String customerEmail = StringUtils.isBlank(customer.getEmail_id())?"":customer.getEmail_id();
 			Font f3 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
-			Chunk c3 = new Chunk(customer.getEmail_id(), f3);
+			Chunk c3 = new Chunk(customerEmail, f3);
 			Paragraph p3 = new Paragraph(c3);
 			p3.setAlignment(Element.ALIGN_LEFT);
 			p3.setSpacingBefore(-5);
@@ -234,10 +248,11 @@ public class Contemporary {
 			document.add(p3);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createInvoiceDetails(Document document, Invoice invoice) {
+	private static void createInvoiceDetails(Document document, Invoice invoice) throws Exception {
 		if (invoice == null) {
 			return;
 		}
@@ -245,7 +260,7 @@ public class Contemporary {
 			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
 			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
 			Font f3 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12);
-			
+
 			PdfPTable table = new PdfPTable(2);
 
 			Chunk c1 = new Chunk("Invoice Number: ", f);
@@ -255,7 +270,8 @@ public class Contemporary {
 			cellOne.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellOne);
 
-			Chunk c2 = new Chunk(invoice.getNumber() + "", f2);
+			String invoiceNumberStr = invoice.getNumber()+"";
+			Chunk c2 = new Chunk(invoiceNumberStr, f2);
 			Phrase invoiceNumber = new Phrase(c2);
 			PdfPCell cellTwo = new PdfPCell(invoiceNumber);
 			cellTwo.setBorder(Rectangle.NO_BORDER);
@@ -268,7 +284,8 @@ public class Contemporary {
 			cell_3.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_3);
 
-			Chunk c4 = new Chunk(invoice.getPo_number(), f2);
+			String invoicePo_number = StringUtils.isBlank(invoice.getPo_number())?"":invoice.getPo_number();
+			Chunk c4 = new Chunk(invoicePo_number, f2);
 			Phrase poNumber = new Phrase(c4);
 			PdfPCell cell_4 = new PdfPCell(poNumber);
 			cell_4.setBorder(Rectangle.NO_BORDER);
@@ -281,7 +298,8 @@ public class Contemporary {
 			cell_5.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cell_5);
 
-			Chunk c6 = new Chunk(invoice.getInvoice_date(), f2);
+			String invoice_date = StringUtils.isBlank(invoice.getInvoice_date())?"":invoice.getInvoice_date();
+			Chunk c6 = new Chunk(invoice_date, f2);
 			Phrase invoiceDate = new Phrase(c6);
 			PdfPCell cell_6 = new PdfPCell(invoiceDate);
 			cell_6.setBorder(Rectangle.NO_BORDER);
@@ -294,20 +312,28 @@ public class Contemporary {
 			cell_7.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_7);
 
-			Chunk c8 = new Chunk(invoice.getPo_number(), f2);
+			String invoicePonumber = StringUtils.isBlank(invoice.getPo_number())?"":invoice.getPo_number();
+			Chunk c8 = new Chunk(invoicePonumber, f2);
 			Phrase paymentDue = new Phrase(c8);
 			PdfPCell cell_8 = new PdfPCell(paymentDue);
 			cell_8.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_8);
 
-			Chunk c9 = new Chunk("Amount Due (" + invoice.getCurrencies().getCode() + "): ", f);
+			Currencies currencies = invoice.getCurrencies();
+			String currenciesCode = "";
+			String currenciesHtml_symbol = "";
+			if(currencies!=null){
+				currenciesCode = StringUtils.isEmpty(currencies.getCode())?"":currencies.getCode();
+				currenciesHtml_symbol= StringUtils.isEmpty(currencies.getHtml_symbol())?"":currencies.getHtml_symbol();
+			}
+			Chunk c9 = new Chunk("Amount Due (" + currenciesCode + "): ", f);
 			Phrase amountDueLabel = new Phrase(c9);
 			PdfPCell cell_9 = new PdfPCell(amountDueLabel);
 			cell_9.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			cell_9.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_9);
 
-			Chunk c10 = new Chunk(invoice.getCurrencies().getHtml_symbol()+" "+invoice.getAmount_due() + "", f3);
+			Chunk c10 = new Chunk(currenciesHtml_symbol + " " + invoice.getAmount_due() + "", f3);
 			Phrase amountDue = new Phrase(c10);
 			PdfPCell cell_10 = new PdfPCell(amountDue);
 			cell_10.setBorder(Rectangle.NO_BORDER);
@@ -320,10 +346,11 @@ public class Contemporary {
 
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createInvoiceDisplayLabels(Document document, InvoicePreference invoicePreference) {
+	private static void createInvoiceDisplayLabels(Document document, InvoicePreference invoicePreference) throws Exception {
 		if (invoicePreference == null) {
 			return;
 		}
@@ -331,8 +358,8 @@ public class Contemporary {
 			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.WHITE);
 
 			PdfPTable table = new PdfPTable(4);
-
-			Chunk c1 = new Chunk(invoicePreference.getItems(), f);
+			String items = StringUtils.isEmpty(invoicePreference.getItems())?"":invoicePreference.getItems();
+			Chunk c1 = new Chunk(items, f);
 			Phrase invocieItemsLabel = new Phrase(c1);
 			PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
 			cellOne.setBorder(Rectangle.NO_BORDER);
@@ -342,7 +369,8 @@ public class Contemporary {
 			cellOne.setMinimumHeight(20f);
 			table.addCell(cellOne);
 
-			Chunk c3 = new Chunk(invoicePreference.getUnits(), f);
+			String units = StringUtils.isEmpty(invoicePreference.getUnits())?"":invoicePreference.getUnits();
+			Chunk c3 = new Chunk(units, f);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 			cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -350,7 +378,8 @@ public class Contemporary {
 			cell_3.setBackgroundColor(BaseColor.DARK_GRAY);
 			table.addCell(cell_3);
 
-			Chunk c5 = new Chunk(invoicePreference.getPrice(), f);
+			String price = StringUtils.isEmpty(invoicePreference.getPrice())?"":invoicePreference.getPrice();
+			Chunk c5 = new Chunk(price, f);
 			Phrase invocieDateLabel = new Phrase(c5);
 			PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
 			cell_5.setBorder(Rectangle.NO_BORDER);
@@ -358,7 +387,8 @@ public class Contemporary {
 			cell_5.setBackgroundColor(BaseColor.DARK_GRAY);
 			table.addCell(cell_5);
 
-			Chunk c7 = new Chunk(invoicePreference.getAmount(), f);
+			String amount = StringUtils.isEmpty(invoicePreference.getAmount())?"":invoicePreference.getAmount();
+			Chunk c7 = new Chunk(amount, f);
 			Phrase paymentDueLabel = new Phrase(c7);
 			PdfPCell cell_7 = new PdfPCell(paymentDueLabel);
 			cell_7.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -373,10 +403,11 @@ public class Contemporary {
 
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createInvoiceLineItems(Document document, Invoice invoice) {
+	private static void createInvoiceLineItems(Document document, Invoice invoice) throws Exception {
 		if (null == invoice || invoice.getInvoiceLines() == null || invoice.getInvoiceLines().isEmpty()) {
 			return;
 		}
@@ -387,7 +418,8 @@ public class Contemporary {
 			Iterator<InvoiceLine> invoiceLinesItr = invoice.getInvoiceLines().iterator();
 			while (invoiceLinesItr.hasNext()) {
 				InvoiceLine invoiceLine = invoiceLinesItr.next();
-				Chunk c1 = new Chunk(invoiceLine.getDescription(), f);
+				String desc = StringUtils.isEmpty(invoiceLine.getDescription())?"":invoiceLine.getDescription();
+				Chunk c1 = new Chunk(desc, f);
 				Phrase invocieItemsLabel = new Phrase(c1);
 				PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
 				cellOne.setBorder(Rectangle.NO_BORDER);
@@ -396,21 +428,27 @@ public class Contemporary {
 				cellOne.setMinimumHeight(20f);
 				table.addCell(cellOne);
 
-				Chunk c3 = new Chunk(invoiceLine.getQuantity() + "", f);
+				String quantity = invoiceLine.getQuantity()+"";
+				Chunk c3 = new Chunk( quantity, f);
 				Phrase poNumberLabel = new Phrase(c3);
 				PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 				cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
 				cell_3.setBorder(Rectangle.NO_BORDER);
 				table.addCell(cell_3);
 
-				Chunk c5 = new Chunk(invoiceLine.getCurrencies().getHtml_symbol() + " " + invoiceLine.getPrice(), f3);
+				Currencies currencies = invoiceLine.getCurrencies();
+				String currenciesHtml_symbol = "";
+				if(currencies!=null){
+					currenciesHtml_symbol= StringUtils.isEmpty(currencies.getHtml_symbol())?"":currencies.getHtml_symbol();
+				}
+				Chunk c5 = new Chunk(currenciesHtml_symbol + " " + invoiceLine.getPrice(), f3);
 				Phrase invocieDateLabel = new Phrase(c5);
 				PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
 				cell_5.setBorder(Rectangle.NO_BORDER);
 				cell_5.setHorizontalAlignment(Element.ALIGN_RIGHT);
 				table.addCell(cell_5);
 
-				Chunk c7 = new Chunk(invoiceLine.getCurrencies().getHtml_symbol() + " " + invoiceLine.getAmount(), f3);
+				Chunk c7 = new Chunk(currenciesHtml_symbol + " " + invoiceLine.getAmount(), f3);
 				Phrase paymentDueLabel = new Phrase(c7);
 				PdfPCell cell_7 = new PdfPCell(paymentDueLabel);
 				cell_7.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -422,10 +460,11 @@ public class Contemporary {
 			document.add(table);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createTotal(Document document, Invoice invoice) {
+	private static void createTotal(Document document, Invoice invoice) throws Exception {
 		if (null == invoice) {
 			return;
 		}
@@ -454,7 +493,12 @@ public class Contemporary {
 			cellOne.setMinimumHeight(20f);
 			table.addCell(cellOne);
 
-			Chunk c3 = new Chunk(invoice.getCurrencies().getHtml_symbol()+" "+ invoice.getAmount(), f3);
+			Currencies currencies = invoice.getCurrencies();
+			String html_symbol="";
+			if(currencies !=null){
+				html_symbol = currencies.getHtml_symbol();
+			}
+			Chunk c3 = new Chunk(html_symbol + " " + invoice.getAmount(), f3);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 			cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -467,10 +511,11 @@ public class Contemporary {
 
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createAmountDue(Document document, Invoice invoice) {
+	private static void createAmountDue(Document document, Invoice invoice) throws Exception {
 		if (null == invoice) {
 			return;
 		}
@@ -478,7 +523,7 @@ public class Contemporary {
 			PdfPTable table = new PdfPTable(4);
 			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
 			Font f3 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12);
-			
+
 			Chunk c5 = new Chunk("", f);
 			Phrase invocieDateLabel = new Phrase(c5);
 			PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
@@ -491,7 +536,14 @@ public class Contemporary {
 			cell_7.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_7);
 
-			Chunk c1 = new Chunk("Amount Due(" + invoice.getCurrencies().getCode() + "):", f);
+			Currencies currencies = invoice.getCurrencies();
+			String code="";
+			String html_symbol="";
+			if(currencies !=null){
+				code = currencies.getCode();
+				html_symbol = currencies.getHtml_symbol();
+			}
+			Chunk c1 = new Chunk("Amount Due(" + code + "):", f);
 			Phrase invocieItemsLabel = new Phrase(c1);
 			PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
 			cellOne.setBorder(Rectangle.NO_BORDER);
@@ -500,7 +552,7 @@ public class Contemporary {
 			cellOne.setMinimumHeight(20f);
 			table.addCell(cellOne);
 
-			Chunk c3 = new Chunk(invoice.getCurrencies().getHtml_symbol()+" "+ invoice.getAmount_due(), f3);
+			Chunk c3 = new Chunk(html_symbol + " " + invoice.getAmount_due(), f3);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 			cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -513,10 +565,11 @@ public class Contemporary {
 
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createNotes(Document document, Invoice invoice) {
+	private static void createNotes(Document document, Invoice invoice) throws Exception {
 		if (null == invoice || StringUtils.isEmpty(invoice.getNotes())) {
 			return;
 		}
@@ -527,8 +580,9 @@ public class Contemporary {
 			p2.setAlignment(Element.ALIGN_LEFT);
 			p2.setIndentationLeft(10);
 
+			String notes = invoice.getNotes();
 			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
-			Chunk c = new Chunk(invoice.getNotes(), f);
+			Chunk c = new Chunk(notes, f);
 			Paragraph p = new Paragraph(c);
 			p.setAlignment(Element.ALIGN_LEFT);
 			p.setIndentationLeft(10);
@@ -537,10 +591,11 @@ public class Contemporary {
 			document.add(p);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 
-	private static void createFooter(PdfWriter writer, Document document, InvoicePreference invoicePreference) {
+	private static void createFooter(PdfWriter writer, Document document, InvoicePreference invoicePreference) throws Exception {
 		if (null == invoicePreference || StringUtils.isEmpty(invoicePreference.getDefaultFooter())) {
 			return;
 		}
@@ -552,6 +607,7 @@ public class Contemporary {
 			ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p2, (document.right() - document.left()) / 2 + document.leftMargin(), document.bottom() - 10, 0);
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		}
 	}
 }
