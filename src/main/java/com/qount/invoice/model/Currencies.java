@@ -5,6 +5,15 @@ public class Currencies {
 	private String code;
 	private String name;
 	private String html_symbol;
+	private String java_symbol;
+
+	public String getJava_symbol() {
+		return java_symbol;
+	}
+
+	public void setJava_symbol(String java_symbol) {
+		this.java_symbol = java_symbol;
+	}
 
 	public String getCode() {
 		return code;

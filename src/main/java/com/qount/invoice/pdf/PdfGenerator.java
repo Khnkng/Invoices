@@ -61,22 +61,12 @@ public class PdfGenerator {
 		return pdfFile;
 	}
 	
-	public static void main(String[] args) {
-		try {
-			InvoiceReference invoiceReference = getMockDataForContemporary();
-//			invoiceReference.setInvoiceType("classic");
-			File pdf = createPdf(invoiceReference);
-			PdfUtil.deleteFile(pdf);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
 	public static InvoiceReference getMockDataForContemporary(){
 		try {
 			Currencies currencies = new Currencies();
 			currencies.setCode("INR");
-			currencies.setHtml_symbol("\u20B9");
+			currencies.setJava_symbol("₹");
 			currencies.setName("Rupee");
 			InvoicePreference invoicePreference = new InvoicePreference();
 			Invoice invoice = new Invoice();

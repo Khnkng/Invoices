@@ -11,14 +11,11 @@ import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.Font.FontFamily;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -81,7 +78,7 @@ public class Contemporary {
 			return;
 		}
 		try {
-			Image img = Image.getInstance(imgSrc);
+			Image img = Image.getInstance("");
 			img.scaleAbsolute(50, 50);
 			float absoluteY = PageSize.A4.getHeight() - img.getScaledHeight();
 			absoluteY -= 30f;
@@ -89,7 +86,6 @@ public class Contemporary {
 			document.add(img);
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw e;
 		}
 	}
 
@@ -98,9 +94,9 @@ public class Contemporary {
 			return;
 		}
 		try {
-			Font f = new Font(FontFamily.HELVETICA, 29.0f, Font.NORMAL, BaseColor.BLACK);
-			String defaultTitle = StringUtils.isEmpty(invoicePreference.getDefaultTitle())?"":invoicePreference.getDefaultTitle();
-			Chunk c = new Chunk(defaultTitle, f);
+			Font titleFont = Constants.TITLE_FONT;
+			String defaultTitle = StringUtils.isEmpty(invoicePreference.getDefaultTitle()) ? "" : invoicePreference.getDefaultTitle();
+			Chunk c = new Chunk(defaultTitle, titleFont);
 			Paragraph p = new Paragraph(c);
 			p.setAlignment(Element.ALIGN_RIGHT);
 			p.setIndentationRight(10);
@@ -113,10 +109,10 @@ public class Contemporary {
 
 	private static void createCompanyDetails(Document document, Company company) throws Exception {
 		try {
-			Font f1 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
-			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
+			Font f1 = Constants.F1;
+			Font f2 = Constants.F2;
 			PdfPTable table = new PdfPTable(1);
-			String companyName = StringUtils.isEmpty(company.getName())?"":company.getName();
+			String companyName = StringUtils.isEmpty(company.getName()) ? "" : company.getName();
 			Chunk c1 = new Chunk(companyName, f2);
 			Phrase companyNameLabel = new Phrase(c1);
 			PdfPCell cellOne = new PdfPCell(companyNameLabel);
@@ -124,7 +120,7 @@ public class Contemporary {
 			cellOne.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellOne);
 
-			String companyAddress = StringUtils.isEmpty(company.getAddress())?"":company.getAddress();
+			String companyAddress = StringUtils.isEmpty(company.getAddress()) ? "" : company.getAddress();
 			Chunk c2 = new Chunk(companyAddress, f1);
 			Phrase companyAdrsLabel = new Phrase(c2);
 			PdfPCell cellTwo = new PdfPCell(companyAdrsLabel);
@@ -132,7 +128,7 @@ public class Contemporary {
 			cellTwo.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellTwo);
 
-			String companyCity = StringUtils.isEmpty(company.getCity())?"":company.getCity();
+			String companyCity = StringUtils.isEmpty(company.getCity()) ? "" : company.getCity();
 			Chunk c3 = new Chunk(companyCity, f1);
 			Phrase companyCityLabel = new Phrase(c3);
 			PdfPCell cellThree = new PdfPCell(companyCityLabel);
@@ -140,7 +136,7 @@ public class Contemporary {
 			cellThree.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellThree);
 
-			String companyCountry = StringUtils.isEmpty(company.getCountry())?"":company.getCountry();
+			String companyCountry = StringUtils.isEmpty(company.getCountry()) ? "" : company.getCountry();
 			Chunk c4 = new Chunk(companyCountry, f1);
 			Phrase companyCountryLabel = new Phrase(c4);
 			PdfPCell cellFour = new PdfPCell(companyCountryLabel);
@@ -190,8 +186,8 @@ public class Contemporary {
 			return;
 		}
 		try {
-			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
-			String defaultSubHeading = StringUtils.isBlank(invoicePreference.getDefaultSubHeading())?"":invoicePreference.getDefaultSubHeading();
+			Font f2 = Constants.SUBHEADING_FONT;
+			String defaultSubHeading = StringUtils.isBlank(invoicePreference.getDefaultSubHeading()) ? "" : invoicePreference.getDefaultSubHeading();
 			Chunk c2 = new Chunk(defaultSubHeading, f2);
 			Paragraph p2 = new Paragraph(c2);
 			p2.setSpacingBefore(-5);
@@ -219,7 +215,7 @@ public class Contemporary {
 
 	private static void createBillDetails(Document document, Customer customer) throws Exception {
 		try {
-			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
+			Font f = Constants.SUBHEADING_FONT;
 			Chunk c = new Chunk("BILL TO", f);
 			Paragraph p = new Paragraph(c);
 			p.setAlignment(Element.ALIGN_LEFT);
@@ -227,8 +223,8 @@ public class Contemporary {
 			p.setSpacingBefore(-85);
 			document.add(p);
 
-			String customerName = StringUtils.isBlank(customer.getCustomer_name())?"":customer.getCustomer_name();
-			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
+			String customerName = StringUtils.isBlank(customer.getCustomer_name()) ? "" : customer.getCustomer_name();
+			Font f2 = Constants.F2;
 			Chunk c2 = new Chunk(customerName, f2);
 			Paragraph p2 = new Paragraph(c2);
 			p2.setAlignment(Element.ALIGN_LEFT);
@@ -238,8 +234,8 @@ public class Contemporary {
 
 			createEmptyLine(document);
 
-			String customerEmail = StringUtils.isBlank(customer.getEmail_id())?"":customer.getEmail_id();
-			Font f3 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
+			String customerEmail = StringUtils.isBlank(customer.getEmail_id()) ? "" : customer.getEmail_id();
+			Font f3 = Constants.F1;
 			Chunk c3 = new Chunk(customerEmail, f3);
 			Paragraph p3 = new Paragraph(c3);
 			p3.setAlignment(Element.ALIGN_LEFT);
@@ -257,9 +253,9 @@ public class Contemporary {
 			return;
 		}
 		try {
-			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
-			Font f3 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12);
+			Font f = Constants.F2;
+			Font f2 = Constants.F1;
+			Font f3 = Constants.CURRENCY_FONT;
 
 			PdfPTable table = new PdfPTable(2);
 
@@ -270,7 +266,7 @@ public class Contemporary {
 			cellOne.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellOne);
 
-			String invoiceNumberStr = invoice.getNumber()+"";
+			String invoiceNumberStr = invoice.getNumber() + "";
 			Chunk c2 = new Chunk(invoiceNumberStr, f2);
 			Phrase invoiceNumber = new Phrase(c2);
 			PdfPCell cellTwo = new PdfPCell(invoiceNumber);
@@ -284,7 +280,7 @@ public class Contemporary {
 			cell_3.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_3);
 
-			String invoicePo_number = StringUtils.isBlank(invoice.getPo_number())?"":invoice.getPo_number();
+			String invoicePo_number = StringUtils.isBlank(invoice.getPo_number()) ? "" : invoice.getPo_number();
 			Chunk c4 = new Chunk(invoicePo_number, f2);
 			Phrase poNumber = new Phrase(c4);
 			PdfPCell cell_4 = new PdfPCell(poNumber);
@@ -298,7 +294,7 @@ public class Contemporary {
 			cell_5.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cell_5);
 
-			String invoice_date = StringUtils.isBlank(invoice.getInvoice_date())?"":invoice.getInvoice_date();
+			String invoice_date = StringUtils.isBlank(invoice.getInvoice_date()) ? "" : invoice.getInvoice_date();
 			Chunk c6 = new Chunk(invoice_date, f2);
 			Phrase invoiceDate = new Phrase(c6);
 			PdfPCell cell_6 = new PdfPCell(invoiceDate);
@@ -312,7 +308,7 @@ public class Contemporary {
 			cell_7.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_7);
 
-			String invoicePonumber = StringUtils.isBlank(invoice.getPo_number())?"":invoice.getPo_number();
+			String invoicePonumber = StringUtils.isBlank(invoice.getPo_number()) ? "" : invoice.getPo_number();
 			Chunk c8 = new Chunk(invoicePonumber, f2);
 			Phrase paymentDue = new Phrase(c8);
 			PdfPCell cell_8 = new PdfPCell(paymentDue);
@@ -321,10 +317,10 @@ public class Contemporary {
 
 			Currencies currencies = invoice.getCurrencies();
 			String currenciesCode = "";
-			String currenciesHtml_symbol = "";
-			if(currencies!=null){
-				currenciesCode = StringUtils.isEmpty(currencies.getCode())?"":currencies.getCode();
-				currenciesHtml_symbol= StringUtils.isEmpty(currencies.getHtml_symbol())?"":currencies.getHtml_symbol();
+			String currenciesJava_symbol = "";
+			if (currencies != null) {
+				currenciesCode = StringUtils.isEmpty(currencies.getCode()) ? "" : currencies.getCode();
+				currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();
 			}
 			Chunk c9 = new Chunk("Amount Due (" + currenciesCode + "): ", f);
 			Phrase amountDueLabel = new Phrase(c9);
@@ -332,8 +328,8 @@ public class Contemporary {
 			cell_9.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			cell_9.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_9);
-
-			Chunk c10 = new Chunk(currenciesHtml_symbol + " " + invoice.getAmount_due() + "", f3);
+			String curAmount = currenciesJava_symbol + " " + invoice.getAmount_due();
+			Chunk c10 = new Chunk(curAmount, f3);
 			Phrase amountDue = new Phrase(c10);
 			PdfPCell cell_10 = new PdfPCell(amountDue);
 			cell_10.setBorder(Rectangle.NO_BORDER);
@@ -355,10 +351,9 @@ public class Contemporary {
 			return;
 		}
 		try {
-			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.WHITE);
-
+			Font f = Constants.F3;
 			PdfPTable table = new PdfPTable(4);
-			String items = StringUtils.isEmpty(invoicePreference.getItems())?"":invoicePreference.getItems();
+			String items = StringUtils.isEmpty(invoicePreference.getItems()) ? "" : invoicePreference.getItems();
 			Chunk c1 = new Chunk(items, f);
 			Phrase invocieItemsLabel = new Phrase(c1);
 			PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
@@ -369,7 +364,7 @@ public class Contemporary {
 			cellOne.setMinimumHeight(20f);
 			table.addCell(cellOne);
 
-			String units = StringUtils.isEmpty(invoicePreference.getUnits())?"":invoicePreference.getUnits();
+			String units = StringUtils.isEmpty(invoicePreference.getUnits()) ? "" : invoicePreference.getUnits();
 			Chunk c3 = new Chunk(units, f);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
@@ -378,7 +373,7 @@ public class Contemporary {
 			cell_3.setBackgroundColor(BaseColor.DARK_GRAY);
 			table.addCell(cell_3);
 
-			String price = StringUtils.isEmpty(invoicePreference.getPrice())?"":invoicePreference.getPrice();
+			String price = StringUtils.isEmpty(invoicePreference.getPrice()) ? "" : invoicePreference.getPrice();
 			Chunk c5 = new Chunk(price, f);
 			Phrase invocieDateLabel = new Phrase(c5);
 			PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
@@ -387,7 +382,7 @@ public class Contemporary {
 			cell_5.setBackgroundColor(BaseColor.DARK_GRAY);
 			table.addCell(cell_5);
 
-			String amount = StringUtils.isEmpty(invoicePreference.getAmount())?"":invoicePreference.getAmount();
+			String amount = StringUtils.isEmpty(invoicePreference.getAmount()) ? "" : invoicePreference.getAmount();
 			Chunk c7 = new Chunk(amount, f);
 			Phrase paymentDueLabel = new Phrase(c7);
 			PdfPCell cell_7 = new PdfPCell(paymentDueLabel);
@@ -413,12 +408,12 @@ public class Contemporary {
 		}
 		try {
 			PdfPTable table = new PdfPTable(4);
-			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
-			Font f3 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12);
+			Font f = Constants.F1;
+			Font f3 = Constants.CURRENCY_FONT;
 			Iterator<InvoiceLine> invoiceLinesItr = invoice.getInvoiceLines().iterator();
 			while (invoiceLinesItr.hasNext()) {
 				InvoiceLine invoiceLine = invoiceLinesItr.next();
-				String desc = StringUtils.isEmpty(invoiceLine.getDescription())?"":invoiceLine.getDescription();
+				String desc = StringUtils.isEmpty(invoiceLine.getDescription()) ? "" : invoiceLine.getDescription();
 				Chunk c1 = new Chunk(desc, f);
 				Phrase invocieItemsLabel = new Phrase(c1);
 				PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
@@ -428,8 +423,8 @@ public class Contemporary {
 				cellOne.setMinimumHeight(20f);
 				table.addCell(cellOne);
 
-				String quantity = invoiceLine.getQuantity()+"";
-				Chunk c3 = new Chunk( quantity, f);
+				String quantity = invoiceLine.getQuantity() + "";
+				Chunk c3 = new Chunk(quantity, f);
 				Phrase poNumberLabel = new Phrase(c3);
 				PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 				cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -437,18 +432,18 @@ public class Contemporary {
 				table.addCell(cell_3);
 
 				Currencies currencies = invoiceLine.getCurrencies();
-				String currenciesHtml_symbol = "";
-				if(currencies!=null){
-					currenciesHtml_symbol= StringUtils.isEmpty(currencies.getHtml_symbol())?"":currencies.getHtml_symbol();
+				String currenciesJava_symbol = "";
+				if (currencies != null) {
+					currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();
 				}
-				Chunk c5 = new Chunk(currenciesHtml_symbol + " " + invoiceLine.getPrice(), f3);
+				Chunk c5 = new Chunk(currenciesJava_symbol + " " + invoiceLine.getPrice(), f3);
 				Phrase invocieDateLabel = new Phrase(c5);
 				PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
 				cell_5.setBorder(Rectangle.NO_BORDER);
 				cell_5.setHorizontalAlignment(Element.ALIGN_RIGHT);
 				table.addCell(cell_5);
 
-				Chunk c7 = new Chunk(currenciesHtml_symbol + " " + invoiceLine.getAmount(), f3);
+				Chunk c7 = new Chunk(currenciesJava_symbol + " " + invoiceLine.getAmount(), f3);
 				Phrase paymentDueLabel = new Phrase(c7);
 				PdfPCell cell_7 = new PdfPCell(paymentDueLabel);
 				cell_7.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -470,8 +465,8 @@ public class Contemporary {
 		}
 		try {
 			PdfPTable table = new PdfPTable(4);
-			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-			Font f3 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12);
+			Font f = Constants.F2;
+			Font f3 = Constants.CURRENCY_FONT;
 			Chunk c5 = new Chunk("", f);
 			Phrase invocieDateLabel = new Phrase(c5);
 			PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
@@ -494,11 +489,12 @@ public class Contemporary {
 			table.addCell(cellOne);
 
 			Currencies currencies = invoice.getCurrencies();
-			String html_symbol="";
-			if(currencies !=null){
-				html_symbol = currencies.getHtml_symbol();
+			String java_symbol = "";
+			if (currencies != null) {
+				java_symbol = currencies.getJava_symbol();
 			}
-			Chunk c3 = new Chunk(html_symbol + " " + invoice.getAmount(), f3);
+//			Chunk c3 = new Chunk(html_symbol + " " + invoice.getAmount(), f3);
+			Chunk c3 = new Chunk(java_symbol + " " + invoice.getAmount(), f3);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 			cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -521,8 +517,8 @@ public class Contemporary {
 		}
 		try {
 			PdfPTable table = new PdfPTable(4);
-			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
-			Font f3 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12);
+			Font f = Constants.F2;
+			Font f3 = Constants.CURRENCY_FONT;
 
 			Chunk c5 = new Chunk("", f);
 			Phrase invocieDateLabel = new Phrase(c5);
@@ -537,11 +533,11 @@ public class Contemporary {
 			table.addCell(cell_7);
 
 			Currencies currencies = invoice.getCurrencies();
-			String code="";
-			String html_symbol="";
-			if(currencies !=null){
+			String code = "";
+			String java_symbol = "";
+			if (currencies != null) {
 				code = currencies.getCode();
-				html_symbol = currencies.getHtml_symbol();
+				java_symbol = currencies.getJava_symbol();
 			}
 			Chunk c1 = new Chunk("Amount Due(" + code + "):", f);
 			Phrase invocieItemsLabel = new Phrase(c1);
@@ -552,7 +548,7 @@ public class Contemporary {
 			cellOne.setMinimumHeight(20f);
 			table.addCell(cellOne);
 
-			Chunk c3 = new Chunk(html_symbol + " " + invoice.getAmount_due(), f3);
+			Chunk c3 = new Chunk(java_symbol + " " + invoice.getAmount_due(), f3);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 			cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -574,14 +570,14 @@ public class Contemporary {
 			return;
 		}
 		try {
-			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.BOLD, BaseColor.BLACK);
+			Font f2 = Constants.F2;
 			Chunk c2 = new Chunk("Notes", f2);
 			Paragraph p2 = new Paragraph(c2);
 			p2.setAlignment(Element.ALIGN_LEFT);
 			p2.setIndentationLeft(10);
 
 			String notes = invoice.getNotes();
-			Font f = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.BLACK);
+			Font f = Constants.F1;
 			Chunk c = new Chunk(notes, f);
 			Paragraph p = new Paragraph(c);
 			p.setAlignment(Element.ALIGN_LEFT);
@@ -601,7 +597,7 @@ public class Contemporary {
 		}
 		try {
 			PdfContentByte cb = writer.getDirectContent();
-			Font f2 = new Font(FontFamily.TIMES_ROMAN, 12.0f, Font.NORMAL, BaseColor.GRAY);
+			Font f2 = Constants.SUBHEADING_FONT;
 			Chunk c2 = new Chunk(invoicePreference.getDefaultFooter(), f2);
 			Phrase p2 = new Phrase(c2);
 			ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p2, (document.right() - document.left()) / 2 + document.leftMargin(), document.bottom() - 10, 0);

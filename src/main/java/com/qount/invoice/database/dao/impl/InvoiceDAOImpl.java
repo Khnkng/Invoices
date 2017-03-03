@@ -203,6 +203,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						currencies.setCode(rset.getString("il_code"));
 						currencies.setName(rset.getString("il_name"));
 						currencies.setHtml_symbol(rset.getString("il_html_symbol"));
+						currencies.setJava_symbol(rset.getString("il_java_symbol"));
 						invoiceLine.setCurrencies(currencies);
 						InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
 						invoiceLineTax.setInvoice_line_id(rset.getString("ilt_invoice_line_id"));
@@ -251,6 +252,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							currencies_2.setCode(rset.getString("code"));
 							currencies_2.setName(rset.getString("name"));
 							currencies_2.setHtml_symbol(rset.getString("html_symbol"));
+							currencies_2.setJava_symbol(rset.getString("java_symbol"));
 							invoice.setCurrencies(currencies_2);
 						}
 					}
