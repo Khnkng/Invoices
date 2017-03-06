@@ -29,16 +29,13 @@ public class Utilities {
 			internalLinkingPort = System.getenv(internalLinkingPortStr);
 			if (!StringUtils.isBlank(internalLinkingAddress) && !StringUtils.isBlank(internalLinkingPort)) {
 				path = "http://" + internalLinkingAddress + ":" + internalLinkingPort + "/";
-
 			}
 			return path;
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			LOGGER.error(e);
 			System.out.println(e);
 		}
 		return null;
 	}
-	
+
 }

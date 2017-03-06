@@ -8,13 +8,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.email.EmailHandler;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.pdf.PdfGenerator;
 import com.qount.invoice.pdf.PdfUtil;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 /**
@@ -39,7 +42,7 @@ public class InvoiceReportControllerImpl {
 		File pdfFile = null;
 		Connection conn = null;
 		try {
-			InvoiceReference invoiceReference = InvoiceParser.getInvoiceReference(companyID, customerID, invoiceID, json);
+			InvoiceReference invoiceReference = InvoiceParser.getInvoiceReference(companyID, customerID, invoiceID);
 			if (invoiceReference == null) {
 				return Response.status(412).entity("invalid input").build();
 			}
@@ -49,6 +52,13 @@ public class InvoiceReportControllerImpl {
 			invoiceReference.setInvoice(invoice);
 			pdfFile = PdfGenerator.createPdf(invoiceReference);
 			if (pdfFile != null) {
+				JSONObject jsonObj = CommonUtils.getJsonFromString(json);
+				if(jsonObj!=null && jsonObj.length()>0){
+					boolean isMailSent = EmailHandler.sendEmail(pdfFile, jsonObj);
+					if(isMailSent){
+						return Response.ok("Email sent successfully!").build();
+					}
+				}
 				ResponseBuilder responseBuilder = Response.ok(pdfFile);
 				responseBuilder.header("Content-Type", "application/pdf");
 				responseBuilder.header("Content-Disposition", "attachment; filename=" + pdfFile.getName());

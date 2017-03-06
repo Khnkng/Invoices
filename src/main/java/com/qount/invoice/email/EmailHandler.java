@@ -13,7 +13,9 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.json.JSONObject;
 
+import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.utils.JersyClientUtilities;
+import com.qount.invoice.utils.Utilities;
 
 public class EmailHandler {
 
@@ -25,10 +27,11 @@ public class EmailHandler {
 		try {
 			String fileName = inputJson.optString("fileName");
 			String template = inputJson.optString("template");
-//			String hostName = PropertyManager.getProperty("");
-//			String portName = PropertyManager.getProperty("");
-//			String url = Utilities.getLtmUrl(hostName, portName);
-			String url = "https://dev-services.qount.io/HalfService/emails/attachment";
+			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
+			String portName = PropertyManager.getProperty("half.service.docker.port");
+			String url = Utilities.getLtmUrl(hostName, portName);
+			url = url+ "HalfService/emails/attachment";
+//			String url = "https://dev-services.qount.io/HalfService/emails/attachment";
 			String authorization = inputJson.optString("Authorization");
 			FormDataBodyPart filePart = new FormDataBodyPart(file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
 			filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName(fileName).build());
@@ -61,7 +64,7 @@ public class EmailHandler {
 	
 	public static void main(String[] args) {
 		try {
-			String str = "{\"emailJson\":{\"recipients\":[\"makjavaprogrammer@gmail.com\"],\"cc_recipients\":[],\"subject\":\"Your A/P Aging Summary\",\"reportName\":\"A/P Aging Summary\",\"companyName\":\"cathy\",\"userName\":\"Uday Koorella\",\"mailBodyContentType\":\"text/html\"},\"template\":\"asdf\",\"fileName\":\"as.pdf\",\"authorization\":\"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2Rldi1hcHAucW91bnQuaW8vIiwidXNlcl9pZCI6InVkYXkua29vcmVsbGFAcW91bnQuaW8iLCJ1c2VybmFtZSI6InVkYXkua29vcmVsbGFAcW91bnQuaW8ifQ.GkrkWOHsK3G2cUBtFAOlb8W1MsJ3EUx7CJUPtIc5XQg\"}";
+			String str = "{\"emailJson\":{\"recipients\":[\"mateen.khan@qount.io\"],\"cc_recipients\":[],\"subject\":\"Your A/P Aging Summary\",\"reportName\":\"A/P Aging Summary\",\"companyName\":\"cathy\",\"userName\":\"Uday Koorella\",\"mailBodyContentType\":\"text/html\"},\"template\":\"asdf\",\"fileName\":\"as.pdf\",\"authorization\":\"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2Rldi1hcHAucW91bnQuaW8vIiwidXNlcl9pZCI6InVkYXkua29vcmVsbGFAcW91bnQuaW8iLCJ1c2VybmFtZSI6InVkYXkua29vcmVsbGFAcW91bnQuaW8ifQ.GkrkWOHsK3G2cUBtFAOlb8W1MsJ3EUx7CJUPtIc5XQg\"}";
 			JSONObject obj = new JSONObject(str);
 			File f = new File("F:/1.pdf");
 			System.err.println(sendEmail(f, obj));

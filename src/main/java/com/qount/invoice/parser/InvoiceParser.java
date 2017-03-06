@@ -200,7 +200,7 @@ public class InvoiceParser {
 
 	}
 
-	public static InvoiceReference getInvoiceReference(String companyID, String customerID,String invoiceID, String json) {
+	public static InvoiceReference getInvoiceReference(String companyID, String customerID,String invoiceID) {
 		try {
 			InvoiceReference invoiceReference = new InvoiceReference();
 			Company company = new Company();
