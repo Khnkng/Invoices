@@ -13,9 +13,7 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.json.JSONObject;
 
-import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.utils.JersyClientUtilities;
-import com.qount.invoice.utils.Utilities;
 
 public class EmailHandler {
 
