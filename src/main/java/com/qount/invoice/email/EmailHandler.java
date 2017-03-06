@@ -54,6 +54,7 @@ public class EmailHandler {
 			dataMultiPart.close();
 		} catch (Exception e) {
 			LOGGER.error(e);
+			e.printStackTrace();
 			throw e;
 		} finally {
 			JersyClientUtilities.closeMultiPart(multipartEntity);
