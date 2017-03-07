@@ -105,18 +105,18 @@ public class ProposalLineControllerImpl {
 
 	}
 
-	public static ProposalLine deleteProposalLineById(String userID, String proposalLineID) {
-		try {
-			ProposalLine proposalLine = ProposalLineParser.getProposalLineObjToDelete(proposalLineID);
-			if (proposalLine == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
-			}
-			return ProposalLineDAOImpl.getProposalLineDAOImpl().delete(proposalLine);
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
-		}
-	}
+//	public static ProposalLine deleteProposalLineById(String userID, String proposalLineID) {
+//		try {
+//			ProposalLine proposalLine = ProposalLineParser.getProposalLineObjToDelete(proposalLineID);
+//			if (proposalLine == null) {
+//				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+//						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+//			}
+//			return ProposalLineDAOImpl.getProposalLineDAOImpl().delete(proposalLine);
+//		} catch (Exception e) {
+//			LOGGER.error(e);
+//			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+//					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+//		}
+//	}
 }

@@ -73,6 +73,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setDouble(24, proposal.getProcessing_fees());
 				pstmt.setString(25, proposal.getRemainder_json());
 				pstmt.setString(26, proposal.getRemainder_mail_json());
+				pstmt.setDouble(27, proposal.getAmount_by_date());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -125,7 +126,8 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setDouble(23, proposal.getProcessing_fees());
 				pstmt.setString(24, proposal.getRemainder_json());
 				pstmt.setString(25, proposal.getRemainder_mail_json());
-				pstmt.setString(26, proposal.getId());
+				pstmt.setDouble(26, proposal.getAmount_by_date());
+				pstmt.setString(27, proposal.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
@@ -214,6 +216,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 							proposal.setProcessing_fees(rset.getDouble("processing_fees"));
 							proposal.setRemainder_json(rset.getString("remainder_json"));
 							proposal.setRemainder_mail_json(rset.getString("remainder_mail_json"));
+							proposal.setAmount_by_date(rset.getDouble("amount_by_date"));
 						}
 					}
 				}
@@ -272,6 +275,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 					proposal.setProcessing_fees(rset.getDouble("processing_fees"));
 					proposal.setRemainder_json(rset.getString("remainder_json"));
 					proposal.setRemainder_mail_json(rset.getString("remainder_mail_json"));
+					proposal.setAmount_by_date(rset.getDouble("amount_by_date"));
 					proposals.add(proposal);
 				}
 			}

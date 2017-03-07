@@ -21,6 +21,6 @@ public interface ProposalLineDAO {
 	
 	public ProposalLine update(Connection connection, ProposalLine proposalLine);
 
-	public ProposalLine delete(ProposalLine proposalLine);
+	public ProposalLine delete(Connection connection,ProposalLine proposalLine);
 
 }

@@ -127,14 +127,12 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 	}
 
 	@Override
-	public ProposalTaxes deleteProposalTax(ProposalTaxes proposalTax) {
-		Connection connection = null;
+	public ProposalTaxes deleteProposalTax(Connection connection,ProposalTaxes proposalTax) {
 		if (proposalTax == null) {
 			return null;
 		}
 		PreparedStatement pstmt = null;
 		try {
-			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.ProposalTaxes.DELETE_QRY);
 				pstmt.setString(1, proposalTax.getProposal_id());
@@ -152,7 +150,6 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
-			DatabaseUtilities.closeConnection(connection);
 		}
 		return proposalTax;
 	}
