@@ -20,7 +20,7 @@ public interface ProposalTaxesDAO {
 
 	public List<ProposalTaxes> batchDeleteAndSave(Connection connection,String proposalId,List<ProposalTaxes> proposalTaxes);
 
-	public ProposalTaxes deleteProposalTax(ProposalTaxes proposalTax);
+	public ProposalTaxes deleteProposalTax(Connection connection,ProposalTaxes proposalTax);
 	
 	public List<ProposalTaxes> getByProposalID(String proposalID);
 }

@@ -147,17 +147,15 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	@Override
-	public ProposalLine delete(ProposalLine proposalLine) {
-		Connection connection = null;
+	public ProposalLine delete(Connection connection,ProposalLine proposalLine) {
 		if (proposalLine == null) {
 			return null;
 		}
 		PreparedStatement pstmt = null;
 		try {
-			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.DELETE_PROPOSAL_LINE_QRY);
-				pstmt.setString(1, proposalLine.getId());
+				pstmt.setString(1, proposalLine.getProposal_id());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of proposal lines deleted:" + rowCount);
 				if (rowCount == 0) {
@@ -172,7 +170,6 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
-			DatabaseUtilities.closeConnection(connection);
 		}
 		return proposalLine;
 	}

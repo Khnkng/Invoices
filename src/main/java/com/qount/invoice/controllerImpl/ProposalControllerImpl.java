@@ -3,6 +3,7 @@ package com.qount.invoice.controllerImpl;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -115,13 +116,38 @@ public class ProposalControllerImpl {
 			Proposal proposalResult = MySQLManager.getProposalDAOInstance().updateProposal(connection, proposalObj);
 			if (proposalResult != null) {
 				List<ProposalTaxes> proposalTaxesList = proposalObj.getProposalTaxes();
-				List<ProposalTaxes> proposalTaxResult = MySQLManager.getProposalTaxesDAOInstance()
-						.batchDeleteAndSave(connection, proposalId, proposalTaxesList);
-				if (proposalTaxResult != null) {
-					connection.commit();
-					return proposalResult;
-				}
+				ProposalTaxes proposalTaxes = new ProposalTaxes();
+				proposalTaxes.setProposal_id(proposalId);
+				ProposalTaxes deletedProposalTaxResult = MySQLManager.getProposalTaxesDAOInstance()
+						.deleteProposalTax(connection, proposalTaxes);
+				if (deletedProposalTaxResult != null) {
+					if (proposalTaxesList == null) {
+						proposalTaxesList = new ArrayList<>();
+					}
+					List<ProposalTaxes> proposalTaxesResult = MySQLManager.getProposalTaxesDAOInstance()
+							.saveProposalTaxes(connection, proposalId, proposalTaxesList);
+					if (proposalTaxesResult != null) {
+						ProposalLine proposalLine = new ProposalLine();
+						proposalLine.setProposal_id(proposalId);
+						ProposalLine deletedProposalLineResult = MySQLManager.getProposalLineDAOInstance()
+								.delete(connection, proposalLine);
+						if (deletedProposalLineResult != null) {
+							List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance()
+									.batchSave(connection, proposalObj.getProposalLines());
+							if (proposalLineResult != null) {
+								List<ProposalLineTaxes> proposalLineTaxesList = ProposalParser
+										.getProposalLineTaxesList(proposalObj.getProposalLines());
+								List<ProposalLineTaxes> proposalLineTaxesResult = MySQLManager
+										.getProposalLineTaxesDAOInstance().batchSave(connection, proposalLineTaxesList);
+								if (proposalLineTaxesResult != null) {
+									connection.commit();
+									return proposalResult;
+								}
+							}
+						}
+					}
 
+				}
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));

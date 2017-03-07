@@ -55,12 +55,12 @@ public class ProposalLineController {
 		return ProposalLineControllerImpl.updateProposalLine(userID, proposalID,proposalLineID, proposalLine);
 	}
 	
-	@DELETE
-	@Path("/{proposalLineID}")
-	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Delete proposal line", notes = "Used to delete proposal line<br>", responseContainer = "java.lang.String")
-	public ProposalLine deleteProposalById(@PathParam("userID") String userID,
-			@PathParam("proposalLineID") @NotNull String proposalLineID) {
-		return ProposalLineControllerImpl.deleteProposalLineById(userID, proposalLineID);
-	}
+//	@DELETE
+//	@Path("/{proposalLineID}")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	@ApiOperation(value = "Delete proposal line", notes = "Used to delete proposal line<br>", responseContainer = "java.lang.String")
+//	public ProposalLine deleteProposalById(@PathParam("userID") String userID,
+//			@PathParam("proposalLineID") @NotNull String proposalLineID) {
+//		return ProposalLineControllerImpl.deleteProposalLineById(userID, proposalLineID);
+//	}
 }

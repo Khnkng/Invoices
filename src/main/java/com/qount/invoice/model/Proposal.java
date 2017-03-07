@@ -42,6 +42,7 @@ public class Proposal {
 	private double processing_fees;
 	private String remainder_json;
 	private String remainder_mail_json;
+	private double amount_by_date;
 	private List<ProposalLine> proposalLines;
 	private List<ProposalTaxes> ProposalTaxes;
 
@@ -270,6 +271,14 @@ public class Proposal {
 
 	public void setProposalTaxes(List<ProposalTaxes> proposalTaxes) {
 		ProposalTaxes = proposalTaxes;
+	}
+
+	public double getAmount_by_date() {
+		return amount_by_date;
+	}
+
+	public void setAmount_by_date(double amount_by_date) {
+		this.amount_by_date = amount_by_date;
 	}
 
 	@Override
