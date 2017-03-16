@@ -29,6 +29,8 @@ public class ProposalLine {
 	private double quantity;
 	private double price;
 	private String notes;
+	private String item_id;
+	private String coa_id;
 	private List<ProposalLineTaxes> proposalLineTaxes;
 
 	public String getId() {
@@ -121,13 +123,31 @@ public class ProposalLine {
 
 	public List<ProposalLineTaxes> getProposalLineTaxes() {
 		if (proposalLineTaxes == null) {
+
 			proposalLineTaxes = new ArrayList<>();
+
 		}
 		return proposalLineTaxes;
 	}
 
 	public void setProposalLineTaxes(List<ProposalLineTaxes> proposalLineTaxes) {
 		this.proposalLineTaxes = proposalLineTaxes;
+	}
+
+	public String getItem_id() {
+		return item_id;
+	}
+
+	public void setItem_id(String item_id) {
+		this.item_id = item_id;
+	}
+
+	public String getCoa_id() {
+		return coa_id;
+	}
+
+	public void setCoa_id(String coa_id) {
+		this.coa_id = coa_id;
 	}
 
 	@Override
@@ -145,7 +165,7 @@ public class ProposalLine {
 		try {
 			if (null != obj && obj instanceof ProposalLine) {
 				ProposalLine arg = (ProposalLine) obj;
-				if(!StringUtils.isBlank(arg.getId())&&arg.getId().equals(this.getId())){
+				if (!StringUtils.isBlank(arg.getId()) && arg.getId().equals(this.getId())) {
 					return true;
 				}
 			}
