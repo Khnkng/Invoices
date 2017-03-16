@@ -57,6 +57,8 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 					proposalLine.setQuantity(rset.getDouble("quantity"));
 					proposalLine.setPrice(rset.getDouble("price"));
 					proposalLine.setNotes(rset.getString("notes"));
+					proposalLine.setItem_id(rset.getString("item_id"));
+					proposalLine.setCoa_id(rset.getString("coa_id"));
 					proposalLines.add(proposalLine);
 				}
 			}
@@ -92,6 +94,8 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 					pstmt.setDouble(9, proposalLine.getQuantity());
 					pstmt.setDouble(10, proposalLine.getPrice());
 					pstmt.setString(11, proposalLine.getNotes());
+					pstmt.setString(12, proposalLine.getItem_id());
+					pstmt.setString(13, proposalLine.getCoa_id());
 					pstmt.addBatch();
 				}
 				int[] rowCount = pstmt.executeBatch();
@@ -128,8 +132,10 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				pstmt.setDouble(7, proposalLine.getQuantity());
 				pstmt.setDouble(8, proposalLine.getPrice());
 				pstmt.setString(9, proposalLine.getNotes());
-				pstmt.setString(10, proposalLine.getId());
-				pstmt.setString(11, proposalLine.getProposal_id());
+				pstmt.setString(10, proposalLine.getItem_id());
+				pstmt.setString(11, proposalLine.getCoa_id());
+				pstmt.setString(12, proposalLine.getId());
+				pstmt.setString(13, proposalLine.getProposal_id());
 			}
 			int rowCount = pstmt.executeUpdate();
 			if (rowCount == 0) {
