@@ -137,9 +137,9 @@ public class ProposalTaxesDAOImpl implements ProposalTaxesDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.ProposalTaxes.DELETE_QRY);
 				pstmt.setString(1, proposalTax.getProposal_id());
 				int rowCount = pstmt.executeUpdate();
-				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
-				}
+//				if (rowCount == 0) {
+//					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
+//				}
 				LOGGER.debug("no of proposal tax deleted:" + rowCount);
 			}
 		} catch (WebApplicationException e) {

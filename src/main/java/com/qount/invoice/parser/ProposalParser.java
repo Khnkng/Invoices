@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
+import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.model.UserCompany;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
@@ -57,6 +58,7 @@ public class ProposalParser {
 			proposal.setAcceptance_date(acceptance_date.toString());
 			proposal.setAcceptance_final_date(acceptance_final_date.toString());
 			setProposalAmountByDate(proposal, userCompany);
+
 			List<ProposalLine> proposalLines = proposal.getProposalLines();
 			if (proposalLines == null) {
 				proposalLines = new ArrayList<>();
@@ -68,6 +70,17 @@ public class ProposalParser {
 				line.setProposal_id(proposal.getId());
 				line.setLast_updated_at(timestamp.toString());
 				line.setLast_updated_by(userId);
+			}
+
+			List<ProposalTaxes> proposalTaxesList = proposal.getProposalTaxes();
+			if (proposalTaxesList == null) {
+				proposalTaxesList = new ArrayList<>();
+				proposal.setProposalTaxes(proposalTaxesList);
+			}
+			Iterator<ProposalTaxes> proposalTaxesListItr = proposalTaxesList.iterator();
+			while (proposalTaxesListItr.hasNext()) {
+				ProposalTaxes proposalTaxes = proposalTaxesListItr.next();
+				proposalTaxes.setProposal_id(proposal.getId());
 			}
 
 		} catch (Exception e) {
