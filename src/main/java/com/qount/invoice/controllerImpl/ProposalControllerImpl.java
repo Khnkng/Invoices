@@ -125,13 +125,13 @@ public class ProposalControllerImpl {
 								List<ProposalLineTaxes> proposalLineTaxesResult = MySQLManager
 										.getProposalLineTaxesDAOInstance().batchSave(connection, proposalLineTaxesList);
 								if (proposalLineTaxesResult != null) {
+									Invoice invoiceObjToInsert = new Invoice();
 									if (proposalResult.getState().equals("accept")) {
-										Invoice invoice = new Invoice();
 										List<InvoiceTaxes> invoiceTaxesList = new ArrayList<>();
 										List<InvoiceLine> invoiceLinesList = new ArrayList<>();
 										List<InvoiceLineTaxes> invoiceLineTaxesList = null;
 
-										BeanUtils.copyProperties(invoice, proposalObj);
+										BeanUtils.copyProperties(invoiceObjToInsert, proposalObj);
 
 										List<ProposalTaxes> ProposalTaxesList = proposalObj.getProposalTaxes();
 										Iterator<ProposalTaxes> ProposalTaxesListItr = ProposalTaxesList.iterator();
@@ -142,7 +142,7 @@ public class ProposalControllerImpl {
 											invoiceTaxes.setInvoice_id(proposalTaxes2.getProposal_id());
 											invoiceTaxesList.add(invoiceTaxes);
 										}
-										invoice.setInvoiceTaxes(invoiceTaxesList);
+										invoiceObjToInsert.setInvoiceTaxes(invoiceTaxesList);
 
 										List<ProposalLine> proposalLinesList = proposalObj.getProposalLines();
 										Iterator<ProposalLine> ProposalLinesListItr = proposalLinesList.iterator();
@@ -169,10 +169,20 @@ public class ProposalControllerImpl {
 											invoiceLine.setInvoiceLineTaxes(invoiceLineTaxesList);
 											invoiceLinesList.add(invoiceLine);
 										}
-										invoice.setInvoiceLines(invoiceLinesList);
-										invoice.setInvoice_date(new Date().toString());
-										invoice.setId(proposalObj.getId());
-
+										invoiceObjToInsert.setInvoiceLines(invoiceLinesList);
+										invoiceObjToInsert.setInvoice_date(new Date().toString());
+										invoiceObjToInsert.setId(proposalObj.getId());
+										Invoice checkIfRecordPresent = MySQLManager.getInvoiceDAOInstance()
+												.get(proposalId);
+										if (checkIfRecordPresent.getId() == null) {
+											Invoice invoiceCreated = InvoiceControllerImpl.createInvoice(userID,
+													invoiceObjToInsert);
+											if (invoiceCreated == null) {
+												throw new WebApplicationException(ResponseUtil.constructResponse(
+														Constants.FAILURE_STATUS, Constants.PARTIAL_SUCCESS,
+														Status.INTERNAL_SERVER_ERROR));
+											}
+										}
 									}
 									connection.commit();
 									return proposalObj;
@@ -189,6 +199,8 @@ public class ProposalControllerImpl {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
 		}
 
 	}
@@ -252,31 +264,32 @@ public class ProposalControllerImpl {
 		}
 	}
 
-//	private static File createPdf() {
-//		File file = new File("F:/1.pdf");
-//		Document document = new Document();
-//		try {
-//			PdfWriter.getInstance(document, new FileOutputStream(file));
-//			int pageWidth = (12 + 1) * 150;
-//			Rectangle two = new Rectangle(pageWidth, 600);
-//			document.setPageSize(two);
-//			document.open();
-//			Font headerFont = FontFactory.getFont(FontFactory.HELVETICA, 24, Font.BOLD);
-//			Paragraph headerParagrah = new Paragraph("MATEEN", headerFont);
-//			Chapter chapter = new Chapter(headerParagrah, 1);
-//			headerFont.setColor(BaseColor.BLUE);
-//			headerParagrah.setAlignment(Element.ALIGN_CENTER);
-//			chapter.setNumberDepth(0);
-//			document.add(chapter);
-//			System.out.println("done");
-//			return file;
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} finally {
-//			document.close();
-//		}
-//		return null;
-//	}
+	// private static File createPdf() {
+	// File file = new File("F:/1.pdf");
+	// Document document = new Document();
+	// try {
+	// PdfWriter.getInstance(document, new FileOutputStream(file));
+	// int pageWidth = (12 + 1) * 150;
+	// Rectangle two = new Rectangle(pageWidth, 600);
+	// document.setPageSize(two);
+	// document.open();
+	// Font headerFont = FontFactory.getFont(FontFactory.HELVETICA, 24,
+	// Font.BOLD);
+	// Paragraph headerParagrah = new Paragraph("MATEEN", headerFont);
+	// Chapter chapter = new Chapter(headerParagrah, 1);
+	// headerFont.setColor(BaseColor.BLUE);
+	// headerParagrah.setAlignment(Element.ALIGN_CENTER);
+	// chapter.setNumberDepth(0);
+	// document.add(chapter);
+	// System.out.println("done");
+	// return file;
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// } finally {
+	// document.close();
+	// }
+	// return null;
+	// }
 
 	public static SyncInvoker constructMultipartRequest(String url, String header) {
 		Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
