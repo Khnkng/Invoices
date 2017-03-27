@@ -164,9 +164,9 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				pstmt.setString(1, proposalLine.getProposal_id());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of proposal lines deleted:" + rowCount);
-				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
-				}
+//				if (rowCount == 0) {
+//					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
+//				}
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error("Error updating proposal:" + proposalLine.getId() + ",  ", e);

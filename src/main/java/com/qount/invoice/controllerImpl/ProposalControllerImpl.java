@@ -1,40 +1,28 @@
 package com.qount.invoice.controllerImpl;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.SyncInvoker;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.json.JSONObject;
 
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Chapter;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfWriter;
 import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceLine;
+import com.qount.invoice.model.InvoiceLineTaxes;
+import com.qount.invoice.model.InvoiceTaxes;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
@@ -72,15 +60,15 @@ public class ProposalControllerImpl {
 				List<ProposalTaxes> proposalTaxesList = proposalObj.getProposalTaxes();
 				List<ProposalTaxes> proposalTaxResult = MySQLManager.getProposalTaxesDAOInstance()
 						.saveProposalTaxes(connection, proposalObj.getId(), proposalTaxesList);
-				if (!proposalTaxResult.isEmpty()) {
+				if (proposalTaxResult != null) {
 					List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance()
 							.batchSave(connection, proposalObj.getProposalLines());
-					if (!proposalLineResult.isEmpty()) {
+					if (proposalLineResult != null) {
 						List<ProposalLineTaxes> proposalLineTaxesList = ProposalParser
 								.getProposalLineTaxesList(proposalObj.getProposalLines());
 						List<ProposalLineTaxes> proposalLineTaxesResult = MySQLManager.getProposalLineTaxesDAOInstance()
 								.batchSave(connection, proposalLineTaxesList);
-						if (!proposalLineTaxesResult.isEmpty()) {
+						if (proposalLineTaxesResult != null) {
 							connection.commit();
 							return proposalObj;
 						}
@@ -121,9 +109,6 @@ public class ProposalControllerImpl {
 				ProposalTaxes deletedProposalTaxResult = MySQLManager.getProposalTaxesDAOInstance()
 						.deleteProposalTax(connection, proposalTaxes);
 				if (deletedProposalTaxResult != null) {
-					if (proposalTaxesList == null) {
-						proposalTaxesList = new ArrayList<>();
-					}
 					List<ProposalTaxes> proposalTaxesResult = MySQLManager.getProposalTaxesDAOInstance()
 							.saveProposalTaxes(connection, proposalId, proposalTaxesList);
 					if (proposalTaxesResult != null) {
@@ -140,8 +125,67 @@ public class ProposalControllerImpl {
 								List<ProposalLineTaxes> proposalLineTaxesResult = MySQLManager
 										.getProposalLineTaxesDAOInstance().batchSave(connection, proposalLineTaxesList);
 								if (proposalLineTaxesResult != null) {
+									Invoice invoiceObjToInsert = new Invoice();
+									if (proposalResult.getState().equals("accept")) {
+										List<InvoiceTaxes> invoiceTaxesList = new ArrayList<>();
+										List<InvoiceLine> invoiceLinesList = new ArrayList<>();
+										List<InvoiceLineTaxes> invoiceLineTaxesList = null;
+
+										BeanUtils.copyProperties(invoiceObjToInsert, proposalObj);
+
+										List<ProposalTaxes> ProposalTaxesList = proposalObj.getProposalTaxes();
+										Iterator<ProposalTaxes> ProposalTaxesListItr = ProposalTaxesList.iterator();
+										while (ProposalTaxesListItr.hasNext()) {
+											ProposalTaxes proposalTaxes2 = ProposalTaxesListItr.next();
+											InvoiceTaxes invoiceTaxes = new InvoiceTaxes();
+											BeanUtils.copyProperties(invoiceTaxes, proposalTaxes2);
+											invoiceTaxes.setInvoice_id(proposalTaxes2.getProposal_id());
+											invoiceTaxesList.add(invoiceTaxes);
+										}
+										invoiceObjToInsert.setInvoiceTaxes(invoiceTaxesList);
+
+										List<ProposalLine> proposalLinesList = proposalObj.getProposalLines();
+										Iterator<ProposalLine> ProposalLinesListItr = proposalLinesList.iterator();
+										while (ProposalLinesListItr.hasNext()) {
+											ProposalLine ProposalLine = ProposalLinesListItr.next();
+											InvoiceLine invoiceLine = new InvoiceLine();
+											BeanUtils.copyProperties(invoiceLine, ProposalLine);
+											invoiceLine.setId(ProposalLine.getId());
+											invoiceLine.setInvoice_id(ProposalLine.getProposal_id());
+
+											List<ProposalLineTaxes> proposalLineTaxesList2 = ProposalLine
+													.getProposalLineTaxes();
+											Iterator<ProposalLineTaxes> ProposalLinesTaxesListItr = proposalLineTaxesList2
+													.iterator();
+											invoiceLineTaxesList = new ArrayList<>();
+											while (ProposalLinesTaxesListItr.hasNext()) {
+												ProposalLineTaxes ProposalLineTax = ProposalLinesTaxesListItr.next();
+												InvoiceLineTaxes invoiceLineTaxes = new InvoiceLineTaxes();
+												BeanUtils.copyProperties(invoiceLineTaxes, ProposalLineTax);
+												invoiceLineTaxes
+														.setInvoice_line_id(ProposalLineTax.getProposal_line_id());
+												invoiceLineTaxesList.add(invoiceLineTaxes);
+											}
+											invoiceLine.setInvoiceLineTaxes(invoiceLineTaxesList);
+											invoiceLinesList.add(invoiceLine);
+										}
+										invoiceObjToInsert.setInvoiceLines(invoiceLinesList);
+										invoiceObjToInsert.setInvoice_date(new Date().toString());
+										invoiceObjToInsert.setId(proposalObj.getId());
+										Invoice checkIfRecordPresent = MySQLManager.getInvoiceDAOInstance()
+												.get(proposalId);
+										if (checkIfRecordPresent.getId() == null) {
+											Invoice invoiceCreated = InvoiceControllerImpl.createInvoice(userID,
+													invoiceObjToInsert);
+											if (invoiceCreated == null) {
+												throw new WebApplicationException(ResponseUtil.constructResponse(
+														Constants.FAILURE_STATUS, Constants.PARTIAL_SUCCESS,
+														Status.INTERNAL_SERVER_ERROR));
+											}
+										}
+									}
 									connection.commit();
-									return proposalResult;
+									return proposalObj;
 								}
 							}
 						}
@@ -155,8 +199,19 @@ public class ProposalControllerImpl {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
 		}
 
+	}
+
+	public static void main(String[] args) {
+		try {
+
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		}
 	}
 
 	public static List<Proposal> getProposals(String userId) {
@@ -209,67 +264,32 @@ public class ProposalControllerImpl {
 		}
 	}
 
-	private static File createPdf() {
-		File file = new File("F:/1.pdf");
-		Document document = new Document();
-		try {
-			PdfWriter.getInstance(document, new FileOutputStream(file));
-			int pageWidth = (12 + 1) * 150;
-			Rectangle two = new Rectangle(pageWidth, 600);
-			document.setPageSize(two);
-			document.open();
-			Font headerFont = FontFactory.getFont(FontFactory.HELVETICA, 24, Font.BOLD);
-			Paragraph headerParagrah = new Paragraph("MATEEN", headerFont);
-			Chapter chapter = new Chapter(headerParagrah, 1);
-			headerFont.setColor(BaseColor.BLUE);
-			headerParagrah.setAlignment(Element.ALIGN_CENTER);
-			chapter.setNumberDepth(0);
-			document.add(chapter);
-			System.out.println("done");
-			return file;
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			document.close();
-		}
-		return null;
-	}
-
-	@SuppressWarnings("resource")
-	public static void main(String[] args) {
-		try {
-			// File file = new File("F:/1.pdf");
-			File file = createPdf();
-			MultiPart multipartEntity = null;
-			try {
-				String url = "https://dev-services.qount.io/HalfService/emails/attachment";
-				FormDataBodyPart filePart = new FormDataBodyPart(file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
-				filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName("test.pdf").build());
-				JSONObject emailJson = new JSONObject(
-						"{\"recipients\":[\"mateen.khan@qount.io\"],\"cc_recipients\":[],\"subject\":\"Your A/P Aging Summary\",\"reportName\":\"A/P Aging Summary\",\"companyName\":\"cathy\",\"userName\":\"Uday Koorella\",\"mailBodyContentType\":\"text/html\",\"body\":\"asdf\"}");
-				multipartEntity = new FormDataMultiPart()
-						.field("emailRequest", emailJson.toString(), MediaType.APPLICATION_JSON_TYPE)
-						.bodyPart(filePart);
-				String auth = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2Rldi1hcHAucW91bnQuaW8vIiwidXNlcl9pZCI6InVkYXkua29vcmVsbGFAcW91bnQuaW8iLCJ1c2VybmFtZSI6InVkYXkua29vcmVsbGFAcW91bnQuaW8ifQ.GkrkWOHsK3G2cUBtFAOlb8W1MsJ3EUx7CJUPtIc5XQg";
-				Response response = constructMultipartRequest(url, auth)
-						.post(Entity.entity(multipartEntity, MediaType.MULTIPART_FORM_DATA));
-				int responseStatus = response.getStatus();
-				String responseString = response.readEntity(String.class);
-				System.out.println("responseStatus:" + responseStatus);
-				System.out.println("responseString:" + responseString);
-			} catch (Exception e) {
-				LOGGER.error(e);
-				throw e;
-			} finally {
-				// document.close();
-				if (null != multipartEntity) {
-					multipartEntity.close();
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	// private static File createPdf() {
+	// File file = new File("F:/1.pdf");
+	// Document document = new Document();
+	// try {
+	// PdfWriter.getInstance(document, new FileOutputStream(file));
+	// int pageWidth = (12 + 1) * 150;
+	// Rectangle two = new Rectangle(pageWidth, 600);
+	// document.setPageSize(two);
+	// document.open();
+	// Font headerFont = FontFactory.getFont(FontFactory.HELVETICA, 24,
+	// Font.BOLD);
+	// Paragraph headerParagrah = new Paragraph("MATEEN", headerFont);
+	// Chapter chapter = new Chapter(headerParagrah, 1);
+	// headerFont.setColor(BaseColor.BLUE);
+	// headerParagrah.setAlignment(Element.ALIGN_CENTER);
+	// chapter.setNumberDepth(0);
+	// document.add(chapter);
+	// System.out.println("done");
+	// return file;
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// } finally {
+	// document.close();
+	// }
+	// return null;
+	// }
 
 	public static SyncInvoker constructMultipartRequest(String url, String header) {
 		Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
