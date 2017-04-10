@@ -6,6 +6,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -36,7 +37,7 @@ public class InvoiceReportController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Returns Report PDF File", notes = "Genrates & Sends a PDF file", responseContainer = "java.lang.String")
-	public Response createPdfGet(@PathParam("invoiceID") String invoiceID, @PathParam("companyID") String companyID, @PathParam("customerID") String customerID) throws Exception {
-		return InvoiceReportControllerImpl.createPdf(companyID, customerID, invoiceID, null);
+	public Response createPdfGet(@PathParam("invoiceID") String invoiceID, @PathParam("companyID") String companyID, @PathParam("customerID") String customerID,@QueryParam("json") String json) throws Exception {
+		return InvoiceReportControllerImpl.createPdf(companyID, customerID, invoiceID, json);
 	}
 }
