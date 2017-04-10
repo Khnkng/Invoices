@@ -8,7 +8,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
-import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;

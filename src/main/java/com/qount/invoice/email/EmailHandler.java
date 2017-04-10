@@ -32,6 +32,8 @@ public class EmailHandler {
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url+ "HalfService/emails/attachment";
 //			String url = "https://dev-services.qount.io/HalfService/emails/attachment";
+			LOGGER.debug("email url:::"+url);
+			System.out.println(url);
 			String authorization = inputJson.optString("Authorization");
 			FormDataBodyPart filePart = new FormDataBodyPart(file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
 			filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName(fileName).build());

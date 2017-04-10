@@ -33,32 +33,26 @@ public class InvoiceLineControllerImpl {
 		try {
 			List<InvoiceLine> invoiceLineObjLst = InvoiceLineParser.getInvoiceLineList(userID, invoiceID, invoiceLines);
 			if (invoiceLineObjLst == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						"Database Error", Status.INTERNAL_SERVER_ERROR));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
-			List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection,
-					invoiceLineObjLst);
+			List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceLineObjLst);
 			if (invoiceLineResult != null) {
 				List<InvoiceLineTaxes> invoiceTaxesList = InvoiceLineParser.getInvoiceLineTaxesList(invoiceLineResult);
-				List<InvoiceLineTaxes> invoiceineTaxResult = MySQLManager.getInvoiceLineTaxesDAOInstance()
-						.save(connection, invoiceTaxesList);
+				List<InvoiceLineTaxes> invoiceineTaxResult = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceTaxesList);
 				if (invoiceineTaxResult != null) {
 					connection.commit();
 					return invoiceLineObjLst;
 				}
 			}
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
@@ -82,14 +76,14 @@ public class InvoiceLineControllerImpl {
 				invoiceLineTax.setInvoice_line_id(invoiceLineId);
 				MySQLManager.getInvoiceLineTaxesDAOInstance().deleteByInvoiceLineId(connection, invoiceLineTax);
 				List<InvoiceLineTaxes> invoiceLineTaxes = invoiceLineObj.getInvoiceLineTaxes();
-				if(invoiceLineTaxes == null){
+				if (invoiceLineTaxes == null) {
 					invoiceLineTaxes = new ArrayList<InvoiceLineTaxes>();
 				}
-					List<InvoiceLineTaxes> result = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineId, invoiceLineTaxes);
-					if (result != null) {
-						connection.commit();
-					}
-					return invoiceLineObj;
+				List<InvoiceLineTaxes> result = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineId, invoiceLineTaxes);
+				if (result != null) {
+					connection.commit();
+				}
+				return invoiceLineObj;
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
@@ -105,14 +99,12 @@ public class InvoiceLineControllerImpl {
 		try {
 			InvoiceLine InvoiceLine = InvoiceLineParser.getInvoiceLineObjToDelete(invoiceLineID);
 			if (InvoiceLine == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
 			return InvoiceLineDAOImpl.getInvoiceLineDAOImpl().deleteInvoiceLine(InvoiceLine);
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		}
 	}
 }
