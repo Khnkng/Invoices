@@ -22,11 +22,17 @@ public class Utilities {
 	public static String getLtmUrl(String hostName, String portName) {
 		String path = null;
 		try {
+			System.out.println("hostName:"+hostName);
+			System.out.println("portName:"+portName);
 			String internalLinkingAddressStr = PropertyManager.getProperty(hostName, null);
+			System.out.println("internalLinkingAddressStr:"+internalLinkingAddressStr);
 			String internalLinkingPortStr = PropertyManager.getProperty(portName, null);
+			System.out.println("internalLinkingPortStr:"+internalLinkingPortStr);
 			String internalLinkingAddress = null, internalLinkingPort = null;
 			internalLinkingAddress = System.getenv(internalLinkingAddressStr);
+			System.out.println("internalLinkingAddress:"+internalLinkingAddress);
 			internalLinkingPort = System.getenv(internalLinkingPortStr);
+			System.out.println("internalLinkingPort:"+internalLinkingPort);
 			if (!StringUtils.isBlank(internalLinkingAddress) && !StringUtils.isBlank(internalLinkingPort)) {
 				path = "http://" + internalLinkingAddress + ":" + internalLinkingPort + "/";
 			}
