@@ -20,25 +20,15 @@ public class Utilities {
 	public static String getLtmUrl(String hostName, String portName) {
 		String path = null;
 		try {
-			System.out.println("hostName:"+hostName);
-			System.out.println("portName:"+portName);
-//			String internalLinkingAddressStr = PropertyManager.getProperty(hostName, null);
-//			System.out.println("internalLinkingAddressStr:"+internalLinkingAddressStr);
-//			String internalLinkingPortStr = PropertyManager.getProperty(portName, null);
-//			System.out.println("internalLinkingPortStr:"+internalLinkingPortStr);
 			String internalLinkingAddress = null, internalLinkingPort = null;
 			internalLinkingAddress = System.getenv(hostName);
-			System.out.println("internalLinkingAddress:"+internalLinkingAddress);
 			internalLinkingPort = System.getenv(portName);
-			System.out.println("internalLinkingPort:"+internalLinkingPort);
 			if (!StringUtils.isBlank(internalLinkingAddress) && !StringUtils.isBlank(internalLinkingPort)) {
 				path = "http://" + internalLinkingAddress + ":" + internalLinkingPort + "/";
 			}
 			return path;
 		} catch (Exception e) {
 			LOGGER.error(e);
-			System.out.println(e);
-			e.printStackTrace();
 		}
 		return null;
 	}
