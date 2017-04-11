@@ -34,6 +34,7 @@ public class Utilities {
 		} catch (Exception e) {
 			LOGGER.error(e);
 			System.out.println(e);
+			e.printStackTrace();
 		}
 		return null;
 	}
