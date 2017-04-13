@@ -14,6 +14,7 @@ public class Constants {
 	public static final String FAILURE_STATUS = "Failure";
 	public static final String PRECONDITION_FAILED = "invalid input";
 	public static final String SUCCESS_STATUS = "Success";
+	public static final int SUCCESS_RESPONSE_CODE = 200;
 	public static final String UNEXPECTED_ERROR_STATUS = "Un-expected Error";
 	public static final String PARTIAL_SUCCESS = "proposal not inserted into invoices";
 	public static final String INVALID_REQUEST_ERROR_STATUS = "Invalid Request";
@@ -51,4 +52,5 @@ public class Constants {
 	public static final Font CURRENCY_FONT_3 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12.0f, Font.NORMAL, BaseColor.BLACK);
 	public static final Font CURRENCY_FONT_4 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 18.0f, Font.NORMAL, BaseColor.WHITE);
 
+	public static final String PROJECT_CURRENT_VERSION = "project.current.version";
 }
