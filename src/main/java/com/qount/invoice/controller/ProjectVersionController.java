@@ -20,13 +20,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Api(value = "Project Metadata Controller")
-
+@Path("/")
 public class ProjectVersionController {
 	/**
 	 * this method is used to get the Current version of Project
 	 */
 	@GET
-	@Path("/version")
+	@Path("version")
 	@ApiOperation(value = "Returns Project Current version ", notes = "Used to to get Project Current version", responseContainer = "java.lang.String")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getProjectCurrentVersion() {
