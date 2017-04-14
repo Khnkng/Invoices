@@ -108,7 +108,7 @@ public class CommonUtils {
 	public static UserCompany getCompany(String userID, String companyID) {
 		String path = LTMUtils.getHostAddress("half.service.docker.hostname", "half.service.docker.port",
 				"half.service.url");
-		path = path + "user/" + userID + "/companies2/" + companyID;
+		path = path + "HalfService/user/" + userID + "/companies2/" + companyID;
 		System.out.println("path = " + path);
 		LOGGER.debug("path = " + path);
 		String response = JerseyClient.get(path);
