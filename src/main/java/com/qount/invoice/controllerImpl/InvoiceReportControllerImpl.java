@@ -72,7 +72,7 @@ public class InvoiceReportControllerImpl {
 			if (e instanceof WebApplicationException) {
 				throw e;
 			}
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getStackTrace().toString(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			PdfUtil.deleteFile(pdfFile);
 		}
