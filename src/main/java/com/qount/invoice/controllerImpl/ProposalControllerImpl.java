@@ -72,7 +72,7 @@ public class ProposalControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getStackTrace().toString(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
@@ -174,7 +174,7 @@ public class ProposalControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getStackTrace().toString(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
@@ -198,7 +198,7 @@ public class ProposalControllerImpl {
 			return MySQLManager.getProposalDAOInstance().getProposalList(userId);
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getStackTrace().toString(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
 
@@ -215,7 +215,7 @@ public class ProposalControllerImpl {
 			return result;
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getStackTrace().toString(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 
 	}
@@ -229,7 +229,7 @@ public class ProposalControllerImpl {
 			return ProposalDAOImpl.getProposalDAOImpl().delete(proposal);
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getStackTrace().toString(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
 
