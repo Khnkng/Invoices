@@ -6,6 +6,7 @@ import java.sql.Connection;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -18,7 +19,9 @@ import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.pdf.PdfGenerator;
 import com.qount.invoice.pdf.PdfUtil;
 import com.qount.invoice.utils.CommonUtils;
+import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.ResponseUtil;
 
 /**
  * @author Mateen
@@ -48,14 +51,14 @@ public class InvoiceReportControllerImpl {
 			}
 			conn = DatabaseUtilities.getReadConnection();
 			invoiceReference = MySQLManager.getInvoiceDAOInstance().getInvoiceRelatedDetails(conn, invoiceReference);
-			Invoice invoice =  MySQLManager.getInvoiceDAOInstance().get(invoiceID);
+			Invoice invoice = MySQLManager.getInvoiceDAOInstance().get(invoiceID);
 			invoiceReference.setInvoice(invoice);
 			pdfFile = PdfGenerator.createPdf(invoiceReference);
 			if (pdfFile != null) {
 				JSONObject jsonObj = CommonUtils.getJsonFromString(json);
-				if(jsonObj!=null && jsonObj.length()>0){
+				if (jsonObj != null && jsonObj.length() > 0) {
 					boolean isMailSent = EmailHandler.sendEmail(pdfFile, jsonObj);
-					if(isMailSent){
+					if (isMailSent) {
 						return Response.ok("Email sent successfully!").build();
 					}
 				}
@@ -69,7 +72,7 @@ public class InvoiceReportControllerImpl {
 			if (e instanceof WebApplicationException) {
 				throw e;
 			}
-			return Response.status(500).entity(e.getLocalizedMessage()).build();
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getStackTrace().toString(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			PdfUtil.deleteFile(pdfFile);
 		}
