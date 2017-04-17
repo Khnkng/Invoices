@@ -107,7 +107,7 @@ public class CommonUtils {
 	 */
 	public static UserCompany getCompany(String userID, String companyID) {
 		String path = LTMUtils.getHostAddress("half.service.docker.hostname", "half.service.docker.port",
-				"half.service.url");
+				"oneapp.base.url");
 		path = path + "HalfService/user/" + userID + "/companies2/" + companyID;
 		System.out.println("path = " + path);
 		LOGGER.debug("path = " + path);
