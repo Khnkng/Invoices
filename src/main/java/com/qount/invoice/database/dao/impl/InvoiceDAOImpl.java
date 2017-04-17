@@ -210,7 +210,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLineTax.setInvoice_line_id(rset.getString("ilt_invoice_line_id"));
 						invoiceLineTax.setTax_id(rset.getString("ilt_tax_id"));
 						invoiceLineTax.setTax_rate(rset.getDouble("ilt_tax_rate"));
-						List<InvoiceLineTaxes> invoicesLineTaxes = new ArrayList<InvoiceLineTaxes>();
+						ArrayList<InvoiceLineTaxes> invoicesLineTaxes = new ArrayList<InvoiceLineTaxes>();
 						invoicesLineTaxes.add(invoiceLineTax);
 						invoiceLine.setInvoiceLineTaxes(invoicesLineTaxes);
 						invoice.getInvoiceLines().add(invoiceLine);

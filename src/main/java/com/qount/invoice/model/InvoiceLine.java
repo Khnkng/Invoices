@@ -1,6 +1,6 @@
 package com.qount.invoice.model;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -27,7 +27,7 @@ public class InvoiceLine {
 	private double price;
 	private String notes;
 	private String coa_id;
-	private List<InvoiceLineTaxes> invoiceLineTaxes;
+	private ArrayList<InvoiceLineTaxes> invoiceLineTaxes;
 
 	public String getCoa_id() {
 		return coa_id;
@@ -125,11 +125,11 @@ public class InvoiceLine {
 		this.notes = notes;
 	}
 
-	public List<InvoiceLineTaxes> getInvoiceLineTaxes() {
+	public ArrayList<InvoiceLineTaxes> getInvoiceLineTaxes() {
 		return invoiceLineTaxes;
 	}
 
-	public void setInvoiceLineTaxes(List<InvoiceLineTaxes> invoiceLineTaxes) {
+	public void setInvoiceLineTaxes(ArrayList<InvoiceLineTaxes> invoiceLineTaxes) {
 		this.invoiceLineTaxes = invoiceLineTaxes;
 	}
 

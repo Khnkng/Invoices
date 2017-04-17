@@ -113,7 +113,7 @@ public class ProposalControllerImpl {
 									if (proposalResult.getState().equals("accept")) {
 										List<InvoiceTaxes> invoiceTaxesList = new ArrayList<>();
 										List<InvoiceLine> invoiceLinesList = new ArrayList<>();
-										List<InvoiceLineTaxes> invoiceLineTaxesList = null;
+										ArrayList<InvoiceLineTaxes> invoiceLineTaxesList = null;
 
 										BeanUtils.copyProperties(invoiceObjToInsert, proposalObj);
 
