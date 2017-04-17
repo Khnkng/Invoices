@@ -166,7 +166,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	@Override
 	public Invoice get(String invoiceID) {
 		LOGGER.debug("entered get by invoice id:" +invoiceID);
-		Invoice invoice = new Invoice();
+		Invoice invoice = null;
 		List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -174,11 +174,16 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				invoice.setInvoiceLines(invoiceLines);
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_QRY);
 				pstmt.setString(1, invoiceID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
+					if(!StringUtils.isEmpty(rset.getString("id"))){
+						invoice = new Invoice();
+						invoice.setInvoiceLines(invoiceLines);
+					}else{
+						continue;
+					}
 					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("ilid"));
 					int invoiceLineIndex = invoice.getInvoiceLines().indexOf(invoiceLine);
