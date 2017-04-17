@@ -55,7 +55,6 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 					invoiceLine.setDescription(rset.getString("description"));
 					invoiceLine.setObjectives(rset.getString("objectives"));
 					invoiceLine.setAmount(rset.getDouble("amount"));
-					invoiceLine.setCurrency(rset.getString("currency"));
 					invoiceLine.setLast_updated_at(rset.getString("last_updated_at"));
 					invoiceLine.setLast_updated_by(rset.getString("last_updated_by"));
 					invoiceLine.setQuantity(rset.getDouble("quantity"));
@@ -77,6 +76,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 
 	@Override
 	public List<InvoiceLine> save(Connection connection, List<InvoiceLine> invoiceLines) {
+		LOGGER.debug("entered invoiceLine save:" + invoiceLines);
 		if (invoiceLines == null || invoiceLines.size() == 0) {
 			return invoiceLines;
 		}
@@ -93,7 +93,6 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 					pstmt.setString(ctr++, invoiceLine.getDescription());
 					pstmt.setString(ctr++, invoiceLine.getObjectives());
 					pstmt.setDouble(ctr++, invoiceLine.getAmount());
-					pstmt.setString(ctr++, invoiceLine.getCurrency());
 					pstmt.setString(ctr++, invoiceLine.getLast_updated_by());
 					pstmt.setString(ctr++, invoiceLine.getLast_updated_at());
 					pstmt.setDouble(ctr++, invoiceLine.getQuantity());
@@ -114,6 +113,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {
+			LOGGER.debug("exited invoiceLine save:" + invoiceLines);
 			DatabaseUtilities.closeStatement(pstmt);
 		}
 		return invoiceLines;
@@ -133,7 +133,6 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				pstmt.setString(ctr++, invoiceLine.getDescription());
 				pstmt.setString(ctr++, invoiceLine.getObjectives());
 				pstmt.setDouble(ctr++, invoiceLine.getAmount());
-				pstmt.setString(ctr++, invoiceLine.getCurrency());
 				pstmt.setString(ctr++, invoiceLine.getLast_updated_by());
 				pstmt.setString(ctr++, invoiceLine.getLast_updated_at());
 				pstmt.setDouble(ctr++, invoiceLine.getQuantity());
@@ -159,8 +158,9 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 
 	@Override
 	public InvoiceLine deleteByInvoiceId(Connection connection,InvoiceLine invoiceLine) {
+		LOGGER.debug("entered delete Invoice line By Invoice Id:"+invoiceLine);
 		if (invoiceLine == null || StringUtils.isBlank(invoiceLine.getInvoice_id())) {
-			return invoiceLine;
+			return null;
 		}
 		PreparedStatement pstmt = null;
 		try {
@@ -176,6 +176,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 			LOGGER.error(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited delete Invoice line By Invoice Id:"+invoiceLine);
 		}
 		return invoiceLine;
 	}

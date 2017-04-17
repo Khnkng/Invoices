@@ -100,8 +100,8 @@ public class InvoiceLineTaxesDAOImpl implements InvoiceLineTaxesDAO {
 			throw new WebApplicationException(e.getLocalizedMessage(), 500);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited invoiceLineTaxes save:" + InvoiceLinesTaxes);
 		}
-		LOGGER.debug("entered invoiceLineTaxes save:" + InvoiceLinesTaxes);
 		return InvoiceLinesTaxes;
 	}
 

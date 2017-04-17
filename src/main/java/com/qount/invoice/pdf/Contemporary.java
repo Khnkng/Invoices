@@ -431,7 +431,7 @@ public class Contemporary {
 				cell_3.setBorder(Rectangle.NO_BORDER);
 				table.addCell(cell_3);
 
-				Currencies currencies = invoiceLine.getCurrencies();
+				Currencies currencies = invoice.getCurrencies();
 				String currenciesJava_symbol = "";
 				if (currencies != null) {
 					currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();

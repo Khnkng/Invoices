@@ -95,11 +95,9 @@ public class PdfGenerator {
 			e.setQuantity(1);
 			e.setPrice(1.0);
 			e.setAmount(1.0);
-			e.setCurrencies(currencies);
 			e.setDescription("item1");
 //			e.setCurrency("\u20B9");
 			invoiceLines.add(e);
-			e.setCurrencies(currencies);
 			invoice.setInvoiceLines(invoiceLines);
 			InvoiceReference invoiceReference = new InvoiceReference();
 			invoiceReference.setInvoiceType("contemporary");
@@ -155,8 +153,6 @@ public class PdfGenerator {
 			e.setQuantity(1);
 			e.setPrice(1.0);
 			e.setAmount(1.0);
-			e.setCurrency("INR");
-			e.setCurrencies(currencies);
 			e.setDescription("item1");
 			invoiceLines.add(e);
 			invoice.setInvoiceLines(invoiceLines);

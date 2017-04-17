@@ -77,7 +77,7 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 
 	@Override
 	public InvoiceTaxes deleteByInvoiceId(Connection connection, InvoiceTaxes invoiceTaxes) {
-		LOGGER.debug("entered deleteByInvoiceId:" + invoiceTaxes);
+		LOGGER.debug("entered delete invoice taxes By Invoice Id:" + invoiceTaxes);
 		if (invoiceTaxes == null || StringUtils.isBlank(invoiceTaxes.getInvoice_id())) {
 			return invoiceTaxes;
 		}
@@ -102,7 +102,7 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		LOGGER.debug("exited deleteByInvoiceId:" + invoiceTaxes);
+		LOGGER.debug("exited delete invoice taxes By Invoice Id:" + invoiceTaxes);
 		return invoiceTaxes;
 	}
 

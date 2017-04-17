@@ -39,6 +39,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 	@Override
 	public Invoice save(Connection connection, Invoice invoice) {
+		LOGGER.debug("entered save(invoice):"+invoice);
 		if (invoice == null) {
 			return null;
 		}
@@ -87,20 +88,21 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				}
 			}
 		} catch (WebApplicationException e) {
-			LOGGER.error("Error inserting proposal:" + invoice.getId() + ",  ", e);
+			LOGGER.error("Error inserting invoice:" + invoice.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error(e);
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited save(invoice):"+invoice);
 		}
 		return invoice;
 	}
 
 	@Override
 	public Invoice update(Connection connection, Invoice invoice) {
+		LOGGER.debug("entered invoice update:"+invoice);
 		if (invoice == null) {
 			return null;
 		}
@@ -149,20 +151,21 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				}
 			}
 		} catch (WebApplicationException e) {
-			LOGGER.error("Error updating proposal:" + invoice.getId() + ",  ", e);
+			LOGGER.error("Error updating invoice:" + invoice.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error(e);
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited invoice update:"+invoice);
 		}
 		return invoice;
 	}
 
 	@Override
 	public Invoice get(String invoiceID) {
+		LOGGER.debug("entered get by invoice id:" +invoiceID);
 		Invoice invoice = new Invoice();
 		List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
 		PreparedStatement pstmt = null;
@@ -193,18 +196,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLine.setCoa_id(rset.getString("il_coa_id"));
 						invoiceLine.setObjectives(rset.getString("il_objectives"));
 						invoiceLine.setAmount(rset.getDouble("il_amount"));
-						invoiceLine.setCurrency(rset.getString("il_currency"));
 						invoiceLine.setLast_updated_at(rset.getString("il_last_updated_at"));
 						invoiceLine.setLast_updated_by(rset.getString("il_last_updated_by"));
 						invoiceLine.setQuantity(rset.getLong("il_quantity"));
 						invoiceLine.setPrice(rset.getDouble("il_price"));
 						invoiceLine.setNotes(rset.getString("il_notes"));
-						Currencies currencies = new Currencies();
-						currencies.setCode(rset.getString("il_code"));
-						currencies.setName(rset.getString("il_name"));
-						currencies.setHtml_symbol(rset.getString("il_html_symbol"));
-						currencies.setJava_symbol(rset.getString("il_java_symbol"));
-						invoiceLine.setCurrencies(currencies);
 						InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
 						invoiceLineTax.setInvoice_line_id(rset.getString("ilt_invoice_line_id"));
 						invoiceLineTax.setTax_id(rset.getString("ilt_tax_id"));
@@ -264,6 +260,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited get by invoice id:" +invoiceID);
 		}
 		return invoice;
 
@@ -271,6 +268,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 	@Override
 	public List<Invoice> getInvoiceList(String userID) {
+		LOGGER.debug("entered getInvoiceList userID:"+userID);
 		List<Invoice> invoiceLst = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -326,6 +324,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited getInvoiceList userID:"+userID);
 		}
 		return invoiceLst;
 
@@ -333,6 +332,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 	@Override
 	public Invoice delete(Invoice invoice) {
+		LOGGER.debug("entered invoice delete:"+invoice);
 		Connection connection = null;
 		if (invoice == null) {
 			return null;
@@ -358,6 +358,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited invoice delete:"+invoice);
 		}
 		return invoice;
 	}
