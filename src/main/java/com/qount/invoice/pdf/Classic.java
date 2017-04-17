@@ -433,7 +433,7 @@ public class Classic implements PdfPCellEvent {
 				cell_3.setCellEvent(new Classic(PdfPCell.BOX));
 				table.addCell(cell_3);
 
-				Currencies currencies = invoiceLine.getCurrencies();
+				Currencies currencies = invoice.getCurrencies();
 				String currenciesJava_symbol = "";
 				if (currencies != null) {
 					currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();

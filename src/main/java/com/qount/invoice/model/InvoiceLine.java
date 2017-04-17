@@ -21,7 +21,6 @@ public class InvoiceLine {
 	private String description;
 	private String objectives;
 	private double amount;
-	private String currency;
 	private String last_updated_by;
 	private String last_updated_at;
 	private double quantity;
@@ -29,15 +28,6 @@ public class InvoiceLine {
 	private String notes;
 	private String coa_id;
 	private List<InvoiceLineTaxes> invoiceLineTaxes;
-	private Currencies currencies;
-
-	public Currencies getCurrencies() {
-		return currencies;
-	}
-
-	public void setCurrencies(Currencies currencies) {
-		this.currencies = currencies;
-	}
 
 	public String getCoa_id() {
 		return coa_id;
@@ -93,14 +83,6 @@ public class InvoiceLine {
 
 	public void setAmount(double amount) {
 		this.amount = amount;
-	}
-
-	public String getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(String currency) {
-		this.currency = currency;
 	}
 
 	public String getLast_updated_by() {

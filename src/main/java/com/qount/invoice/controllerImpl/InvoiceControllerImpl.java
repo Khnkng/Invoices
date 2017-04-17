@@ -30,6 +30,7 @@ public class InvoiceControllerImpl {
 	private static final Logger LOGGER = Logger.getLogger(InvoiceControllerImpl.class);
 
 	public static Invoice createInvoice(String userID, Invoice invoice) {
+		LOGGER.debug("entered createInvoice(String userID:" + userID + ", Invoice invoice)" + invoice);
 		Connection connection = null;
 		try {
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice);
@@ -65,14 +66,16 @@ public class InvoiceControllerImpl {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited createInvoice(String userID:" + userID + ", Invoice invoice)" + invoice);
 		}
 
 	}
 
 	public static Invoice updateInvoice(String userID, String invoiceID, Invoice invoice) {
+		LOGGER.debug("entered updateInvoice userid:" + userID + " invoiceID:" + invoiceID + ": invoice" + invoice);
 		Connection connection = null;
 		try {
 			invoice.setId(invoiceID);
@@ -118,24 +121,31 @@ public class InvoiceControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited updateInvoice userid:" + userID + " invoiceID:" + invoiceID + ": invoice" + invoice);
 		}
 	}
 
 	public static List<Invoice> getInvoices(String userID) {
 		try {
+			LOGGER.debug("entered get invoices userID:" + userID);
 			if (StringUtils.isEmpty(userID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
 			return MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID);
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited get invoices userID:" + userID);
 		}
 	}
 
 	public static Invoice getInvoice(String userID, String invoiceID) {
 		try {
+			LOGGER.debug("entered getInvoice userID:" + userID + " invocieId:" + invoiceID);
 			if (StringUtils.isEmpty(userID) && StringUtils.isEmpty(invoiceID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
@@ -149,13 +159,16 @@ public class InvoiceControllerImpl {
 			return result;
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited getInvoice userID:" + userID + " invocieId:" + invoiceID);
 		}
 
 	}
 
 	public static Invoice deleteInvoiceById(String userID, String invoiceID) {
 		try {
+			LOGGER.debug("entered deleteInvoiceById userID: " + userID + " invoiceID" + invoiceID);
 			Invoice invoice = InvoiceParser.getInvoiceObjToDelete(userID, invoiceID);
 			if (invoice == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
@@ -163,7 +176,9 @@ public class InvoiceControllerImpl {
 			return MySQLManager.getInvoiceDAOInstance().delete(invoice);
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		}finally{
+			LOGGER.debug("exited deleteInvoiceById userID: " + userID + " invoiceID" + invoiceID);
 		}
 	}
 
