@@ -75,6 +75,7 @@ public class InvoiceReportControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			PdfUtil.deleteFile(pdfFile);
+			DatabaseUtilities.closeConnection(conn);
 		}
 		return Response.status(500).entity("server error while building pdf").build();
 	}
