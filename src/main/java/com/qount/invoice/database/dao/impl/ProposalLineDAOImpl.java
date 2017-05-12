@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -13,7 +14,9 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.model.ProposalLine;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.SqlQuerys;
 
 public class ProposalLineDAOImpl implements ProposalLineDAO {
 
@@ -29,45 +32,6 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	@Override
-	public boolean save(Connection connection, ProposalLine proposalLine) {
-		boolean result = false;
-		if (proposalLine == null) {
-			return result;
-		}
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		String sql = "INSERT INTO `proposal_lines` (`proposalID`, `lineID`, `line_number`, `description`, `quantity`, `unit_cost`, `total_amount`) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `line_number` = ?, `description` = ?, `quantity` = ?, `unit_cost` = ?, `total_amount` = ?;";
-		try {
-			conn = DatabaseUtilities.getReadWriteConnection();
-			if (conn != null) {
-				pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, proposalLine.getProposalID());
-				pstmt.setString(2, proposalLine.getLineID());
-				pstmt.setInt(3, proposalLine.getLine_number());
-				pstmt.setString(4, proposalLine.getDescription());
-				pstmt.setInt(5, proposalLine.getQuantity());
-				pstmt.setFloat(6, proposalLine.getUnit_cost());
-				pstmt.setFloat(7, proposalLine.getTotal_amount());
-				pstmt.setInt(8, proposalLine.getLine_number());
-				pstmt.setString(9, proposalLine.getDescription());
-				pstmt.setInt(10, proposalLine.getQuantity());
-				pstmt.setFloat(11, proposalLine.getUnit_cost());
-				pstmt.setFloat(12, proposalLine.getTotal_amount());
-				int rowCount = pstmt.executeUpdate();
-				result = rowCount != 0;
-				LOGGER.debug("proposal Line [" + proposalLine.getProposalID() + " : " + proposalLine.getLineID() + "]"
-						+ " created");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.error(e);
-		} finally {
-			DatabaseUtilities.closeStatement(pstmt);
-		}
-		return result;
-	}
-
-	@Override
 	public List<ProposalLine> getLines(Connection connection, String proposalID) {
 		List<ProposalLine> proposalLines = new ArrayList<>();
 		if (StringUtils.isBlank(proposalID)) {
@@ -75,26 +39,31 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
-		String sql = "SELECT `proposalID`,`lineID`,`line_number`,`description`,`quantity`,`unit_cost`,`total_amount` FROM proposal_lines WHERE `proposalID` = ?;";
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(sql);
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.GET_LINES_QRY);
 				pstmt.setString(1, proposalID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					ProposalLine proposalLine = new ProposalLine();
-					proposalLine.setProposalID(rset.getString("proposalID"));
-					proposalLine.setLineID(rset.getString("lineID"));
-					proposalLine.setLine_number(rset.getInt("line_number"));
+					proposalLine.setId(rset.getString("id"));
+					proposalLine.setProposal_id(rset.getString("proposal_id"));
 					proposalLine.setDescription(rset.getString("description"));
-					proposalLine.setQuantity(rset.getInt("quantity"));
-					proposalLine.setUnit_cost(rset.getFloat("unit_cost"));
-					proposalLine.setTotal_amount(rset.getFloat("total_amount"));
+					proposalLine.setObjectives(rset.getString("objectives"));
+					proposalLine.setAmount(rset.getDouble("amount"));
+					proposalLine.setCurrency(rset.getString("currency"));
+					proposalLine.setLast_updated_at(rset.getString("last_updated_at"));
+					proposalLine.setLast_updated_by(rset.getString("last_updated_by"));
+					proposalLine.setQuantity(rset.getDouble("quantity"));
+					proposalLine.setPrice(rset.getDouble("price"));
+					proposalLine.setNotes(rset.getString("notes"));
+					proposalLine.setItem_id(rset.getString("item_id"));
+					proposalLine.setCoa_id(rset.getString("coa_id"));
 					proposalLines.add(proposalLine);
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error retreving propsal lines with ID = " + proposalID + " x`", e);
+			LOGGER.error("Error retreving propsal lines with ID = " + proposalID, e);
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -103,99 +72,107 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	@Override
-	public boolean batchSave(Connection connection, List<ProposalLine> proposalLines) {
+	public List<ProposalLine> batchSave(Connection connection, List<ProposalLine> proposalLines) {
 		if (proposalLines.size() == 0) {
-			return true;
+			return proposalLines;
 		}
-		boolean result = false;
 		PreparedStatement pstmt = null;
-		String sql = "INSERT INTO `proposal_lines` (`proposalID`, `lineID`, `line_number`, `description`, `quantity`, `unit_cost`,`total_amount`) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `lineID` = ?, `line_number` = ?, `description` = ?, `quantity` = ?, `unit_cost` = ?, `total_amount` = ?";
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(sql);
-				for (ProposalLine proposalLine : proposalLines) {
-					pstmt.setString(1, proposalLine.getProposalID());
-					pstmt.setString(2, proposalLine.getLineID());
-					pstmt.setInt(3, proposalLine.getLine_number());
-					pstmt.setString(4, proposalLine.getDescription());
-					pstmt.setInt(5, proposalLine.getQuantity());
-					pstmt.setFloat(6, proposalLine.getUnit_cost());
-					pstmt.setFloat(7, proposalLine.getTotal_amount());
-					pstmt.setString(8, proposalLine.getLineID());
-					pstmt.setInt(9, proposalLine.getLine_number());
-					pstmt.setString(10, proposalLine.getDescription());
-					pstmt.setInt(11, proposalLine.getQuantity());
-					pstmt.setFloat(12, proposalLine.getUnit_cost());
-					pstmt.setFloat(13, proposalLine.getTotal_amount());
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.INSERT_QRY);
+				Iterator<ProposalLine> ProposalLineItr = proposalLines.iterator();
+				while (ProposalLineItr.hasNext()) {
+					ProposalLine proposalLine = ProposalLineItr.next();
+					pstmt.setString(1, proposalLine.getId());
+					pstmt.setString(2, proposalLine.getProposal_id());
+					pstmt.setString(3, proposalLine.getDescription());
+					pstmt.setString(4, proposalLine.getObjectives());
+					pstmt.setDouble(5, proposalLine.getAmount());
+					pstmt.setString(6, proposalLine.getCurrency());
+					pstmt.setString(7, proposalLine.getLast_updated_by());
+					pstmt.setString(8, proposalLine.getLast_updated_at());
+					pstmt.setDouble(9, proposalLine.getQuantity());
+					pstmt.setDouble(10, proposalLine.getPrice());
+					pstmt.setString(11, proposalLine.getNotes());
+					pstmt.setString(12, proposalLine.getItem_id());
+					pstmt.setString(13, proposalLine.getCoa_id());
 					pstmt.addBatch();
-
 				}
-				pstmt.executeBatch();
-				result = true;
+				int[] rowCount = pstmt.executeBatch();
+				if (rowCount == null) {
+					throw new WebApplicationException("unable to create proposal lines", 500);
+				}
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error creating proposal lines:" + ",  ", e);
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		return result;
-	}
-
-
-	@Override
-	public boolean batchDelete(Connection connection, List<ProposalLine> proposalLines) {
-		if (proposalLines.size() == 0) {
-			return true;
-		}
-		boolean result = false;
-		PreparedStatement pstmt = null;
-		String sql = "DELETE FROM `proposal_lines` WHERE `proposalID` = ? AND `lineID` = ?";
-		try {
-			if (connection != null) {
-				pstmt = connection.prepareStatement(sql);
-				for (ProposalLine proposalLine : proposalLines) {
-					pstmt.setString(1, proposalLine.getProposalID());
-					pstmt.setString(2, proposalLine.getLineID());
-					pstmt.addBatch();
-
-				}
-				pstmt.executeBatch();
-				result = true;
-			}
-		} catch (Exception e) {
-			LOGGER.error(e);
-		} finally {
-			DatabaseUtilities.closeStatement(pstmt);
-		}
-		return result;
+		return proposalLines;
 	}
 
 	@Override
-	public boolean batchSaveAndDelete(Connection connection, List<ProposalLine> proposalLines,
-			List<ProposalLine> deletionLines) {
-		if (batchDelete(connection,deletionLines)) {
-			return batchSave(connection,proposalLines);
-		}
-		return false;
-	}
-	
-	@Override
-	public ProposalLine deleteProposalLine(Connection connection, ProposalLine proposalLine) {
+	public ProposalLine update(Connection connection, ProposalLine proposalLine) {
 		if (proposalLine == null) {
 			return null;
 		}
 		PreparedStatement pstmt = null;
-		String sql = "DELETE FROM `proposal_lines` WHERE `proposalID` = ? AND `lineID` = ?;";
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(sql);
-				pstmt.setString(1, proposalLine.getProposalID());
-				pstmt.setString(2, proposalLine.getLineID());
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.UPADTE_QRY);
+				pstmt.setString(1, proposalLine.getDescription());
+				pstmt.setString(2, proposalLine.getObjectives());
+				pstmt.setDouble(3, proposalLine.getAmount());
+				pstmt.setString(4, proposalLine.getCurrency());
+				pstmt.setString(5, proposalLine.getLast_updated_by());
+				pstmt.setString(6, proposalLine.getLast_updated_at());
+				pstmt.setDouble(7, proposalLine.getQuantity());
+				pstmt.setDouble(8, proposalLine.getPrice());
+				pstmt.setString(9, proposalLine.getNotes());
+				pstmt.setString(10, proposalLine.getItem_id());
+				pstmt.setString(11, proposalLine.getCoa_id());
+				pstmt.setString(12, proposalLine.getId());
+				pstmt.setString(13, proposalLine.getProposal_id());
+			}
+			int rowCount = pstmt.executeUpdate();
+			if (rowCount == 0) {
+				throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error updating proposal:" + proposalLine.getId() + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		return proposalLine;
+	}
+
+	@Override
+	public ProposalLine delete(Connection connection,ProposalLine proposalLine) {
+		if (proposalLine == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.DELETE_PROPOSAL_LINE_QRY);
+				pstmt.setString(1, proposalLine.getProposal_id());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of proposal lines deleted:" + rowCount);
+//				if (rowCount == 0) {
+//					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
+//				}
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error updating proposal:" + proposalLine.getId() + ",  ", e);
+			throw e;
 		} catch (Exception e) {
-			LOGGER.error("Error deleting proposal lines:" + proposalLine.getProposalID() + ",  ", e);
+			LOGGER.error("Error deleting proposal lines:" + proposalLine.getId() + ",  ", e);
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);

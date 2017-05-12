@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.pdf.InvoiceReference;
 
 /**
  * DAO interface for proposalDAOImpl
@@ -14,14 +15,16 @@ import com.qount.invoice.model.Invoice;
  */
 public interface InvoiceDAO {
 
-	public boolean save(Connection connection, Invoice invoice);
-
-	public boolean update(Connection connection, Invoice invoice);
-
-	Invoice get(Connection connection, String companyID, String InvoiceID,String userID);
-
-	List<Invoice> getList(Connection connection, String companyID);
+	public Invoice save(Connection connection, Invoice invoice);
 	
-	Invoice delete(Connection connection,Invoice invoice);
+	public Invoice update(Connection connection, Invoice invoice);
+
+	public Invoice get(String InvoiceID);
+
+	public List<Invoice> getInvoiceList(String userID);
+	
+	public Invoice delete(Invoice invoice);
+	
+	public InvoiceReference getInvoiceRelatedDetails(Connection connection, InvoiceReference invoiceReference);
 
 }

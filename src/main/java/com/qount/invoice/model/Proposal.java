@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * 
  * @author Apurva, Qount.
@@ -14,86 +16,179 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Proposal {
 
-	private String userID;
-
-	private String companyID;
-
-	private String proposalID;
-
-	private String customer_name;
-
-	private float total_amount;
-
-	private int currencyID;
-
-	private boolean bank_account;
-
-	private boolean credit_card;
-
+	private String id;
+	private String user_id;
+	private String company_id;
+	private double amount;
+	private String currency;
+	private String description;
+	private String objectives;
+	private String last_updated_at;
+	private String last_updated_by;
+	private String state;
+	private String proposal_date;
+	private String acceptance_date;
+	private String acceptance_final_date;
+	private String notes;
+	private double discount;
+	private double deposit_amount;
+	private double processing_fees;
+	private String remainder_json;
+	private String remainder_mail_json;
+	private double amount_by_date;
 	private List<ProposalLine> proposalLines;
+	private List<ProposalTaxes> ProposalTaxes;
 
-	public String getCompanyID() {
-		return companyID;
+	public String getId() {
+		return id;
 	}
 
-	public String getUserID() {
-		return userID;
+	public void setId(String id) {
+		this.id = id;
 	}
 
-	public void setUserID(String userID) {
-		this.userID = userID;
+	public String getUser_id() {
+		return user_id;
 	}
 
-	public void setCompanyID(String companyID) {
-		this.companyID = companyID;
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
 	}
 
-	public String getProposalID() {
-		return proposalID;
+	public String getCompany_id() {
+		return company_id;
 	}
 
-	public void setProposalID(String proposalID) {
-		this.proposalID = proposalID;
+	public void setCompany_id(String company_id) {
+		this.company_id = company_id;
 	}
 
-	public String getCustomer_name() {
-		return customer_name;
+	public double getAmount() {
+		return amount;
 	}
 
-	public void setCustomer_name(String customer_name) {
-		this.customer_name = customer_name;
+	public void setAmount(double amount) {
+		this.amount = amount;
 	}
 
-	public float getTotal_amount() {
-		return total_amount;
+	public String getCurrency() {
+		return currency;
 	}
 
-	public void setTotal_amount(float total_amount) {
-		this.total_amount = total_amount;
+	public void setCurrency(String currency) {
+		this.currency = currency;
 	}
 
-	public int getCurrencyID() {
-		return currencyID;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setCurrencyID(int currency) {
-		this.currencyID = currency;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
-	public boolean isBank_account() {
-		return bank_account;
+	public String getObjectives() {
+		return objectives;
 	}
 
-	public void setBank_account(boolean bank_account) {
-		this.bank_account = bank_account;
+	public void setObjectives(String objectives) {
+		this.objectives = objectives;
 	}
 
-	public boolean isCredit_card() {
-		return credit_card;
+	public String getLast_updated_at() {
+		return last_updated_at;
 	}
 
-	public void setCredit_card(boolean credit_card) {
-		this.credit_card = credit_card;
+	public void setLast_updated_at(String last_updated_at) {
+		this.last_updated_at = last_updated_at;
+	}
+
+	public String getLast_updated_by() {
+		return last_updated_by;
+	}
+
+	public void setLast_updated_by(String last_updated_by) {
+		this.last_updated_by = last_updated_by;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getProposal_date() {
+		return proposal_date;
+	}
+
+	public void setProposal_date(String proposal_date) {
+		this.proposal_date = proposal_date;
+	}
+
+	public String getAcceptance_date() {
+		return acceptance_date;
+	}
+
+	public void setAcceptance_date(String acceptance_date) {
+		this.acceptance_date = acceptance_date;
+	}
+
+	public String getAcceptance_final_date() {
+		return acceptance_final_date;
+	}
+
+	public void setAcceptance_final_date(String acceptance_final_date) {
+		this.acceptance_final_date = acceptance_final_date;
+	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+	public double getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(double discount) {
+		this.discount = discount;
+	}
+
+	public double getDeposit_amount() {
+		return deposit_amount;
+	}
+
+	public void setDeposit_amount(double deposit_amount) {
+		this.deposit_amount = deposit_amount;
+	}
+
+	public double getProcessing_fees() {
+		return processing_fees;
+	}
+
+	public void setProcessing_fees(double processing_fees) {
+		this.processing_fees = processing_fees;
+	}
+
+	public String getRemainder_json() {
+		return remainder_json;
+	}
+
+	public void setRemainder_json(String remainder_json) {
+		this.remainder_json = remainder_json;
+	}
+
+	public String getRemainder_mail_json() {
+		return remainder_mail_json;
+	}
+
+	public void setRemainder_mail_json(String remainder_mail_json) {
+		this.remainder_mail_json = remainder_mail_json;
 	}
 
 	public List<ProposalLine> getProposalLines() {
@@ -105,6 +200,32 @@ public class Proposal {
 
 	public void setProposalLines(List<ProposalLine> proposalLines) {
 		this.proposalLines = proposalLines;
+	}
+
+	public List<ProposalTaxes> getProposalTaxes() {
+		return ProposalTaxes;
+	}
+
+	public void setProposalTaxes(List<ProposalTaxes> proposalTaxes) {
+		ProposalTaxes = proposalTaxes;
+	}
+
+	public double getAmount_by_date() {
+		return amount_by_date;
+	}
+
+	public void setAmount_by_date(double amount_by_date) {
+		this.amount_by_date = amount_by_date;
+	}
+
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
 	}
 
 }

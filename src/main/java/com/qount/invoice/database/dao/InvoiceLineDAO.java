@@ -3,8 +3,7 @@ package com.qount.invoice.database.dao;
 import java.sql.Connection;
 import java.util.List;
 
-import com.qount.invoice.model.Invoice;
-import com.qount.invoice.model.InvoiceLines;
+import com.qount.invoice.model.InvoiceLine;
 
 /**
  * DAO interface for proposalDAOImpl
@@ -15,18 +14,14 @@ import com.qount.invoice.model.InvoiceLines;
  */
 public interface InvoiceLineDAO {
 
-	public boolean save(Connection connection, InvoiceLines invoiceLine);
+	public List<InvoiceLine> getByInvoiceId(Connection connection, InvoiceLine invoiceLine);
 
-	public List<InvoiceLines> getLines(Connection connection, String invoiceID);
-
-	public boolean batchSave(Connection connection, List<InvoiceLines> invoiceLines);
-
-	public boolean batchDelete(Connection connection, List<InvoiceLines> invoiceLines);
-
-	boolean batchSaveAndDelete(Connection connection, List<InvoiceLines> invoiceLines,
-			List<InvoiceLines> deletionLines);
+	public List<InvoiceLine> save(Connection connection, List<InvoiceLine> invoiceLines);
 	
-	public InvoiceLines deleteInvoiceLine(Connection connection,InvoiceLines invoiceLines);
-	
-	
+	public InvoiceLine update(Connection connection, InvoiceLine invoiceLine);
+
+	public InvoiceLine deleteByInvoiceId(Connection connection,InvoiceLine invoiceLines);
+
+	public InvoiceLine deleteInvoiceLine(InvoiceLine invoiceLines);
+
 }

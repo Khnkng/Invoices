@@ -14,16 +14,13 @@ import com.qount.invoice.model.ProposalLine;
  */
 public interface ProposalLineDAO {
 
-	public boolean save(Connection connection, ProposalLine proposalLine);
 
 	public List<ProposalLine> getLines(Connection connection, String proposalID);
 
-	public boolean batchSave(Connection connection, List<ProposalLine> proposalLines);
-
-	public boolean batchDelete(Connection connection, List<ProposalLine> proposalLines);
-
-	boolean batchSaveAndDelete(Connection connection, List<ProposalLine> proposalLines,
-			List<ProposalLine> deletionLines);
+	public List<ProposalLine> batchSave(Connection connection, List<ProposalLine> proposalLines);
 	
-	public ProposalLine deleteProposalLine(Connection connection,ProposalLine proposalLine);
+	public ProposalLine update(Connection connection, ProposalLine proposalLine);
+
+	public ProposalLine delete(Connection connection,ProposalLine proposalLine);
+
 }

@@ -1,6 +1,7 @@
 package com.qount.invoice.database.mySQL;
 
 import java.io.File;
+import java.sql.Connection;
 
 import javax.sql.DataSource;
 
@@ -12,12 +13,23 @@ import com.jcraft.jsch.Session;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.InvoiceLineDAO;
+import com.qount.invoice.database.dao.InvoiceLineTaxesDAO;
+import com.qount.invoice.database.dao.InvoicePreferenceDAO;
+import com.qount.invoice.database.dao.InvoiceTaxesDAO;
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.database.dao.ProposalLineDAO;
+import com.qount.invoice.database.dao.ProposalLineTaxesDAO;
+import com.qount.invoice.database.dao.ProposalTaxesDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceLineDAOImpl;
+import com.qount.invoice.database.dao.impl.InvoiceLineTaxesDAOImpl;
+import com.qount.invoice.database.dao.impl.InvoicePreferenceDAOImpl;
+import com.qount.invoice.database.dao.impl.InvoiceTaxesDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
+import com.qount.invoice.database.dao.impl.ProposalLineTaxesDAOImpl;
+import com.qount.invoice.database.dao.impl.ProposalTaxesDAOImpl;
+import com.qount.invoice.utils.DatabaseUtilities;
 
 public class MySQLManager {
 
@@ -32,11 +44,21 @@ public class MySQLManager {
 	private static ProposalDAO proposalDAO = null;
 
 	private static ProposalLineDAO proposalLineDAO = null;
-
+	
+	private static ProposalLineTaxesDAO proposalLineTaxesDAO = null;
+	
+	private static ProposalTaxesDAO proposalTaxesDAO = null;
+	
 	private static InvoiceDAO invoiceDAO = null;
 
 	private static InvoiceLineDAO invoiceLineDAO = null;
 
+	private static InvoicePreferenceDAO invoicePreferenceDAO = null;
+	
+	private static InvoiceLineTaxesDAO invoiceLineTaxesDAO = null;
+	
+	private static InvoiceTaxesDAO invoiceTaxesDAO = null;
+	
 	private MySQLManager() {
 
 	}
@@ -51,7 +73,7 @@ public class MySQLManager {
 		int localPort = Integer.parseInt(PropertyManager.getProperty("mysql.localPort"));
 		String localSSHUrl = PropertyManager.getProperty("mysql.localSSHUrl");
 		BasicDataSource dataSource = new BasicDataSource();
-		String database = PropertyManager.getProperty("mysql.database");
+		String database = PropertyManager.getProperty("mysql.dataBaseName");
 		dataSource.setUrl("jdbc:mysql://" + localSSHUrl + ":" + localPort + "/" + database);
 		dataSource.setUsername(dbuserName);
 		dataSource.setPassword(dbpassword);
@@ -59,6 +81,17 @@ public class MySQLManager {
 		dataSource.setInitialSize(5);
 		dataSource.setMaxTotal(20);
 		dataSource.setMaxIdle(15);
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			if(conn!=null){
+				System.out.println("connection creation success");
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		} finally {
+			DatabaseUtilities.closeConnection(conn);
+		}
 		return dataSource;
 	}
 
@@ -117,6 +150,20 @@ public class MySQLManager {
 		return proposalLineDAO;
 	}
 	
+	public static ProposalLineTaxesDAO getProposalLineTaxesDAOInstance() {
+		if (proposalLineTaxesDAO == null) {
+			proposalLineTaxesDAO = ProposalLineTaxesDAOImpl.getProposalLineTaxesDAOImpl();
+		}
+		return proposalLineTaxesDAO;
+	}
+	
+	public static ProposalTaxesDAO getProposalTaxesDAOInstance() {
+		if (proposalTaxesDAO == null) {
+			proposalTaxesDAO = ProposalTaxesDAOImpl.getProposalTaxesDAOImpl();
+		}
+		return proposalTaxesDAO;
+	}
+	
 	public static InvoiceDAO getInvoiceDAOInstance() {
 		if (invoiceDAO == null) {
 			invoiceDAO = InvoiceDAOImpl.getInvoiceDAOImpl();
@@ -129,5 +176,26 @@ public class MySQLManager {
 			invoiceLineDAO = InvoiceLineDAOImpl.getInvoiceLineDAOImpl();
 		}
 		return invoiceLineDAO;
+	}
+	
+	public static InvoicePreferenceDAO getInvoicePreferenceDAOInstance() {
+		if (invoicePreferenceDAO == null) {
+			invoicePreferenceDAO = InvoicePreferenceDAOImpl.getInvoicePreferenceDAOImpl();
+		}
+		return invoicePreferenceDAO;
+	}
+	
+	public static InvoiceLineTaxesDAO getInvoiceLineTaxesDAOInstance() {
+		if (invoiceLineTaxesDAO == null) {
+			invoiceLineTaxesDAO = InvoiceLineTaxesDAOImpl.getInvoiceLineTaxesDAOImpl();
+		}
+		return invoiceLineTaxesDAO;
+	}
+	
+	public static InvoiceTaxesDAO getInvoiceTaxesDAOInstance() {
+		if (invoiceTaxesDAO == null) {
+			invoiceTaxesDAO = InvoiceTaxesDAOImpl.getInvoiceTaxesDAOImpl();
+		}
+		return invoiceTaxesDAO;
 	}
 }
