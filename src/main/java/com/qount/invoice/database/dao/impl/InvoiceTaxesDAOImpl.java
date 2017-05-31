@@ -126,6 +126,7 @@ public class InvoiceTaxesDAOImpl implements InvoiceTaxesDAO {
 					InvoiceTaxes invoiceTax = new InvoiceTaxes();
 					invoiceTax.setInvoice_id(rset.getString("invoice_id"));
 					invoiceTax.setTax_id(rset.getString("tax_id"));
+					invoiceTax.setName(rset.getString("name"));
 					invoiceTax.setTax_rate(rset.getDouble("tax_rate"));
 					invoiceTaxesList.add(invoiceTax);
 				}

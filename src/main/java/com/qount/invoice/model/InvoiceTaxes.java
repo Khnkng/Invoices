@@ -13,6 +13,15 @@ public class InvoiceTaxes {
 	private String invoice_id;
 	private String tax_id;
 	private Double tax_rate;
+	private String name;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public String getInvoice_id() {
 		return invoice_id;

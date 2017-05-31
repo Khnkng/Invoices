@@ -21,6 +21,15 @@ public class Customer {
 	private String customer_zipcode;
 	private String phone_number;
 	private String coa;
+	private String payment_spring_id;
+
+	public String getPayment_spring_id() {
+		return payment_spring_id;
+	}
+
+	public void setPayment_spring_id(String payment_spring_id) {
+		this.payment_spring_id = payment_spring_id;
+	}
 
 	public String getUser_id() {
 		return user_id;
