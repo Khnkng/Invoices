@@ -217,7 +217,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 	}
 
 	@Override
-	public List<Proposal> getProposalList(String user_id) {
+	public List<Proposal> getProposalList(String user_id,String comapnyId) {
 		List<Proposal> proposals = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -227,6 +227,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.Proposal.GET_PROPOSAL_LIST_QRY);
 				pstmt.setString(1, user_id);
+				pstmt.setString(2, comapnyId);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					Proposal proposal = new Proposal();

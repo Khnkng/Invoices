@@ -41,13 +41,15 @@ import com.qount.invoice.utils.ResponseUtil;
 public class ProposalControllerImpl {
 	private static final Logger LOGGER = Logger.getLogger(ProposalControllerImpl.class);
 
-	public static Proposal createProposal(String userId, Proposal proposal) {
+	public static Proposal createProposal(String userId, String companyId, Proposal proposal) {
 		Connection connection = null;
+		LOGGER.debug("entered create Proposal() userID:" + userId + " companyId:" + companyId + " proposal:" + proposal);
 		try {
-			Proposal proposalObj = ProposalParser.getProposalObj(userId, proposal);
-			if (proposalObj == null) {
+			Proposal proposalObj = ProposalParser.getProposalObj(userId, proposal, companyId);
+			if (proposalObj == null || StringUtils.isEmpty(userId) || StringUtils.isEmpty(companyId)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
+			proposalObj.setCompany_id(companyId);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
@@ -72,20 +74,23 @@ public class ProposalControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited create Proposal() userID:" + userId + " companyId:" + companyId + " proposal:" + proposal);
 		}
 	}
 
-	public static Proposal updateProposal(String userID, String proposalId, Proposal proposal) {
+	public static Proposal updateProposal(String userID, String companyId, String proposalId, Proposal proposal) {
 		Connection connection = null;
+		LOGGER.debug("entered update Proposal() userID:" + userID + " companyId:" + companyId + " proposal:" + proposal);
 		try {
 			proposal.setId(proposalId);
-			Proposal proposalObj = ProposalParser.getProposalObj(userID, proposal);
+			Proposal proposalObj = ProposalParser.getProposalObj(userID, proposal, companyId);
 			if (proposalObj == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
+			proposalObj.setCompany_id(companyId);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
@@ -155,7 +160,7 @@ public class ProposalControllerImpl {
 										invoiceObjToInsert.setId(proposalObj.getId());
 										Invoice checkIfRecordPresent = MySQLManager.getInvoiceDAOInstance().get(proposalId);
 										if (checkIfRecordPresent.getId() == null) {
-											Invoice invoiceCreated = InvoiceControllerImpl.createInvoice(userID, invoiceObjToInsert);
+											Invoice invoiceCreated = InvoiceControllerImpl.createInvoice(userID, proposal.getCompany_id(), invoiceObjToInsert);
 											if (invoiceCreated == null) {
 												throw new WebApplicationException(
 														ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PARTIAL_SUCCESS, Status.INTERNAL_SERVER_ERROR));
@@ -174,37 +179,33 @@ public class ProposalControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited update Proposal() userID:" + userID + " companyId:" + companyId + " proposal:" + proposal);
 		}
 
 	}
 
-	public static void main(String[] args) {
+	public static List<Proposal> getProposals(String userId, String comapnyId) {
 		try {
-
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw e;
-		}
-	}
-
-	public static List<Proposal> getProposals(String userId) {
-		try {
-			if (StringUtils.isEmpty(userId)) {
+			LOGGER.debug("entered get Proposals() userID:" + userId + " companyId:" + comapnyId);
+			if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(comapnyId)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
-			return MySQLManager.getProposalDAOInstance().getProposalList(userId);
+			return MySQLManager.getProposalDAOInstance().getProposalList(userId, comapnyId);
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited get Proposal() userID:" + userId + " companyId:" + comapnyId);
 		}
 	}
 
-	public static Proposal getProposal(String userId, String proposalId) {
+	public static Proposal getProposal(String proposalId) {
 		try {
-			if (StringUtils.isEmpty(userId) && StringUtils.isEmpty(proposalId)) {
+			LOGGER.debug("entered get Proposal() proposalId:" + proposalId);
+			if (StringUtils.isEmpty(proposalId)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
 			Proposal result = ProposalDAOImpl.getProposalDAOImpl().get(proposalId);
@@ -215,21 +216,26 @@ public class ProposalControllerImpl {
 			return result;
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited get Proposal() proposalId:" + proposalId);
 		}
 
 	}
 
-	public static Proposal deleteProposalById(String userId, String proposalId) {
+	public static Proposal deleteProposalById(String proposalId) {
 		try {
-			Proposal proposal = ProposalParser.getProposalObjToDelete(userId, proposalId);
+			LOGGER.debug("entered delete Proposal() proposalId:" + proposalId);
+			Proposal proposal = ProposalParser.getProposalObjToDelete(proposalId);
 			if (proposal == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
 			return ProposalDAOImpl.getProposalDAOImpl().delete(proposal);
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited delete Proposal() proposalId:" + proposalId);
 		}
 	}
 

@@ -34,13 +34,13 @@ public class ProposalParser {
 
 	private static final Logger LOGGER = Logger.getLogger(ProposalParser.class);
 
-	public static Proposal getProposalObj(String userId, Proposal proposal) {
+	public static Proposal getProposalObj(String userId, Proposal proposal,String companyId) {
 		try {
 			if (StringUtils.isEmpty(userId) && proposal == null) {
 				return null;
 			}
 			UserCompany userCompany = null;
-			userCompany = CommonUtils.getCompany(userId, proposal.getCompany_id());
+			userCompany = CommonUtils.getCompany(userId, companyId);
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			Timestamp proposal_date = convertStringToTimeStamp(proposal.getProposal_date(),
 					Constants.TIME_STATMP_TO_BILLS_FORMAT);
@@ -52,11 +52,11 @@ public class ProposalParser {
 			if (proposal.getId() == null) {
 				proposal.setId(UUID.randomUUID().toString());
 			}
-			proposal.setLast_updated_at(timestamp.toString());
+			proposal.setLast_updated_at(null==timestamp?null:timestamp.toString());
 			proposal.setLast_updated_by(userId);
-			proposal.setProposal_date(proposal_date.toString());
-			proposal.setAcceptance_date(acceptance_date.toString());
-			proposal.setAcceptance_final_date(acceptance_final_date.toString());
+			proposal.setProposal_date(null==proposal_date?null:proposal_date.toString());
+			proposal.setAcceptance_date(null==acceptance_date?null:acceptance_date.toString());
+			proposal.setAcceptance_final_date(null==acceptance_final_date?null:acceptance_final_date.toString());
 			setProposalAmountByDate(proposal, userCompany);
 
 			List<ProposalLine> proposalLines = proposal.getProposalLines();
@@ -68,7 +68,7 @@ public class ProposalParser {
 				ProposalLine line = proposalLineItr.next();
 				line.setId(UUID.randomUUID().toString());
 				line.setProposal_id(proposal.getId());
-				line.setLast_updated_at(timestamp.toString());
+				line.setLast_updated_at(null==timestamp?null:timestamp.toString());
 				line.setLast_updated_by(userId);
 			}
 
@@ -117,14 +117,13 @@ public class ProposalParser {
 
 	}
 
-	public static Proposal getProposalObjToDelete(String user_id, String proposal_id) {
+	public static Proposal getProposalObjToDelete(String proposal_id) {
 		try {
-			if (StringUtils.isEmpty(user_id) && StringUtils.isEmpty(proposal_id)) {
+			if (StringUtils.isEmpty(proposal_id)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
 						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
 			Proposal proposal = new Proposal();
-			proposal.setUser_id(user_id);
 			proposal.setId(proposal_id);
 			return proposal;
 		} catch (Exception e) {

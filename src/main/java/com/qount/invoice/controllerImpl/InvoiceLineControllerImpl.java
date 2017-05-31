@@ -1,6 +1,7 @@
 package com.qount.invoice.controllerImpl;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -57,42 +58,42 @@ public class InvoiceLineControllerImpl {
 		}
 	}
 
-//	public static InvoiceLine updateInvoiceLine(String userID, String invoiceID, String invoiceLineId, InvoiceLine invoiceLine) {
-//		Connection connection = null;
-//		try {
-//			InvoiceLine invoiceLineObj = InvoiceLineParser.getInvoiceLineObj(userID, invoiceID, invoiceLineId, invoiceLine);
-//			if (invoiceLineObj == null) {
-//				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
-//			}
-//			connection = DatabaseUtilities.getReadWriteConnection();
-//			if (connection == null) {
-//				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
-//			}
-//			connection.setAutoCommit(false);
-//			InvoiceLine InvoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().update(connection, invoiceLineObj);
-//			if (InvoiceLineResult != null) {
-//				InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
-//				invoiceLineTax.setInvoice_line_id(invoiceLineId);
-//				MySQLManager.getInvoiceLineTaxesDAOInstance().deleteByInvoiceLineId(connection, invoiceLineTax);
-//				List<InvoiceLineTaxes> invoiceLineTaxes = invoiceLineObj.getInvoiceLineTaxes();
-//				if (invoiceLineTaxes == null) {
-//					invoiceLineTaxes = new ArrayList<InvoiceLineTaxes>();
-//				}
-//				List<InvoiceLineTaxes> result = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineId, invoiceLineTaxes);
-//				if (result != null) {
-//					connection.commit();
-//				}
-//				return invoiceLineObj;
-//			}
-//			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
-//		} catch (Exception e) {
-//			LOGGER.error(e);
-//			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
-//		} finally {
-//			DatabaseUtilities.closeConnection(connection);
-//		}
-//
-//	}
+	public static InvoiceLine updateInvoiceLine(String userID, String invoiceID, String invoiceLineId, InvoiceLine invoiceLine) {
+		Connection connection = null;
+		try {
+			InvoiceLine invoiceLineObj = InvoiceLineParser.getInvoiceLineObj(userID, invoiceID, invoiceLineId, invoiceLine);
+			if (invoiceLineObj == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			connection.setAutoCommit(false);
+			InvoiceLine InvoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().update(connection, invoiceLineObj);
+			if (InvoiceLineResult != null) {
+				InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
+				invoiceLineTax.setInvoice_line_id(invoiceLineId);
+				MySQLManager.getInvoiceLineTaxesDAOInstance().deleteByInvoiceLineId(connection, invoiceLineTax);
+				List<InvoiceLineTaxes> invoiceLineTaxes = invoiceLineObj.getInvoiceLineTaxes();
+				if (invoiceLineTaxes == null) {
+					invoiceLineTaxes = new ArrayList<InvoiceLineTaxes>();
+				}
+				List<InvoiceLineTaxes> result = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineId, invoiceLineTaxes);
+				if (result != null) {
+					connection.commit();
+				}
+				return invoiceLineObj;
+			}
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+		}
+
+	}
 
 	public static InvoiceLine deleteInvoiceLineById(String userID, String invoiceLineID) {
 		try {

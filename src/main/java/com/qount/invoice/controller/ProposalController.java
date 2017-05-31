@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiOperation;
  *
  */
 @Api(value = "proposal")
-@Path("/user/{userID}/proposal")
+@Path("/users/{userID}/companies/{companyID}/proposal")
 public class ProposalController {
 
 	@POST
@@ -38,8 +38,8 @@ public class ProposalController {
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
 			+ "json = {\"company_id\":\"82e6b951-25d9-490c-a8d0-0952a6c53a78\",\"company_name\":\"TestTaxes\",\"amount\":50000,\"currency\":\"INR\",\"description\":\"testing 1\",\"objectives\":\"testing 1\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"last_updated_by\":\"apurva.khune@qount.io\",\"first_name\":\"Apurva\",\"last_name\":\"Khune\",\"state\":\"unpaid\",\"proposal_date\":\"2017-01-01 11:05:47\",\"acceptance_date\":\"2017-01-03 11:05:47\",\"acceptance_final_date\":\"2017-01-30 11:05:47\",\"notes\":\"notes\",\"item_id\":\"07f9ec5e-a808-4962-bd17-9b5957b128c8\",\"item_name\":\"White Cards\",\"coa_id\":\"04ec2ea5-8f4b-4112-9a37-89a52a6269de\",\"coa_name\":\"Office Expenses\",\"discount\":2.3,\"deposit_amount\":1000,\"processing_fees\":10,\"remainder_json\":{\"abc\":\"def\"},\"remainder_mail_json\":{\"mail\":\"json\"},\"proposalLines\":[{\"description\":\"proposalLine desc\",\"objectives\":\"proposalLine obj\",\"amount\":3000,\"currency\":\"INR\",\"last_updated_by\":\"apurva.khune@qount.io\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"quantity\":45,\"price\":0,\"notes\":\"proposalLine notes\",\"proposalLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"9.0000\"},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":\"9.0000\"}]},{\"description\":\"proposalLine desc\",\"objectives\":\"proposalLine obj\",\"amount\":3000,\"currency\":\"INR\",\"last_updated_by\":\"apurva.khune@qount.io\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"quantity\":45,\"price\":0,\"notes\":\"proposalLine notes\",\"proposalLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"9.0000\"},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":\"9.0000\"}]}],\"proposalTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"12.8\"}]}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public Proposal createProposal(@PathParam("userID") String userID, @Valid Proposal proposal) {
-		return ProposalControllerImpl.createProposal(userID, proposal);
+	public Proposal createProposal(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @Valid Proposal proposal) {
+		return ProposalControllerImpl.createProposal(userID, companyID, proposal);
 	}
 
 	@Path("/{proposalID}")
@@ -51,17 +51,17 @@ public class ProposalController {
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
 			+ "json ={\"company_id\":\"82e6b951-25d9-490c-a8d0-0952a6c53a78\",\"company_name\":\"TestTaxes\",\"amount\":23000,\"currency\":\"INR\",\"description\":\"updated\",\"objectives\":\"updated\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"last_updated_by\":\"apurva.khune@qount.io\",\"first_name\":\"Apurva\",\"last_name\":\"Khune\",\"state\":\"paid\",\"proposal_date\":\"2017-01-01 11:05:47\",\"acceptance_date\":\"2017-01-03 11:05:47\",\"acceptance_final_date\":\"2017-01-30 11:05:47\",\"notes\":\"notes\",\"item_id\":\"07f9ec5e-a808-4962-bd17-9b5957b128c8\",\"item_name\":\"White Cards\",\"coa_id\":\"04ec2ea5-8f4b-4112-9a37-89a52a6269de\",\"coa_name\":\"Office Expenses\",\"discount\":25,\"deposit_amount\":5000,\"processing_fees\":20,\"remainder_json\":\"updated sample json\",\"remainder_mail_json\":\"updated sample json\",\"proposalTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"78.96\"}]}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public Proposal update(@PathParam("userID") String userID, @PathParam("proposalID") String proposalID,
+	public Proposal update(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("proposalID") String proposalID,
 			@Valid Proposal proposal) {
-		return ProposalControllerImpl.updateProposal(userID, proposalID, proposal);
+		return ProposalControllerImpl.updateProposal(userID, companyID, proposalID, proposal);
 	}
 
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve proposals of company", value = "retieves proposals", responseContainer = "java.lang.String")
-	public List<Proposal> getProposals(@PathParam("userID") String userID) {
-		return ProposalControllerImpl.getProposals(userID);
+	public List<Proposal> getProposals(@PathParam("userID") String userID,@PathParam("companyID") @NotNull String companyID) {
+		return ProposalControllerImpl.getProposals(userID,companyID);
 	}
 
 	@Path("/{proposalID}")
@@ -70,7 +70,7 @@ public class ProposalController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve proposal of company", value = "retieves proposal", responseContainer = "java.lang.String")
 	public Proposal getProposal(@PathParam("userID") String userID, @PathParam("proposalID") String proposalID) {
-		return ProposalControllerImpl.getProposal(userID, proposalID);
+		return ProposalControllerImpl.getProposal(proposalID);
 	}
 
 	@DELETE
@@ -79,7 +79,7 @@ public class ProposalController {
 	@ApiOperation(value = "Delete proposal", notes = "Used to delete a proposal.<br>", responseContainer = "java.lang.String")
 	public Proposal deleteProposalById(@PathParam("userID") String userID,
 			@PathParam("proposalID") @NotNull String proposalID) {
-		return ProposalControllerImpl.deleteProposalById(userID, proposalID);
+		return ProposalControllerImpl.deleteProposalById(proposalID);
 	}
 
 }

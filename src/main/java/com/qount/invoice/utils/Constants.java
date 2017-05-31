@@ -1,6 +1,7 @@
 package com.qount.invoice.utils;
 
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import com.google.gson.Gson;
 import com.itextpdf.text.BaseColor;
@@ -30,8 +31,10 @@ public class Constants {
 	public static final String SWAGGER_API_PACKAGE = "com.qount.invoice.controller";
 	public static final String BILLS_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
 	public static final String INVOICE_UI_DATE_FORMAT = "MM/dd/yy";
+	public static final String INVOICE_MAIL_DATE_FORMAT = "MMM dd, yyyy";
 	public static final SimpleDateFormat TIME_STATMP_TO_BILLS_FORMAT = new SimpleDateFormat(BILLS_DATE_FORMAT);
 	public static final SimpleDateFormat TIME_STATMP_TO_INVOICE_FORMAT = new SimpleDateFormat(INVOICE_UI_DATE_FORMAT);
+	public static final SimpleDateFormat TIME_STATMP_TO_INVOICE_MAIL_FORMAT = new SimpleDateFormat(INVOICE_MAIL_DATE_FORMAT);
 	public static final String FONT1 = "PlayfairDisplay-Regular.ttf";
 	public static final String FONT2 = "arial.ttf";
 
@@ -53,4 +56,14 @@ public class Constants {
 	public static final Font CURRENCY_FONT_4 = FontFactory.getFont(Constants.FONT1, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 18.0f, Font.NORMAL, BaseColor.WHITE);
 
 	public static final String PROJECT_CURRENT_VERSION = "project.current.version";
+	// public static final String PAYMENT_SPRING_API_DATE_FORMAT_STR =
+	// "yyyy-MM-ddThh:mm:ss.SSSZ";
+	public static final String INVOICE_DATE_FORMAT_STR = "yyyy-MM-dd hh:mm:ss";
+	// public static final SimpleDateFormat PAYMENT_SPRING_API_DATE_FORMAT = new
+	// SimpleDateFormat(PAYMENT_SPRING_API_DATE_FORMAT_STR);
+	public static final SimpleDateFormat INVOICE_DATE_FORMAT = new SimpleDateFormat(INVOICE_DATE_FORMAT_STR);
+	public static final SimpleDateFormat DATE_FORMAT_GMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	static {
+		DATE_FORMAT_GMT.setTimeZone(TimeZone.getTimeZone("GMT"));
+	}
 }

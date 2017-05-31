@@ -52,7 +52,80 @@ public class Invoice {
 	private double sub_totoal;
 	private double amount_by_date;
 	private Currencies currencies;
+	private String action;
+	private String actionType;
+	private String created_at;
+	private String payment_spring_token;
+	private String ends_after;
+	private String bill_immediately;
+	private String plan_id;
+	private String amountToPay;
+	private double amount_paid;
 	
+	public double getAmount_paid() {
+		return amount_paid;
+	}
+
+	public void setAmount_paid(double amount_paid) {
+		this.amount_paid = amount_paid;
+	}
+
+	public String getAmountToPay() {
+		return amountToPay;
+	}
+
+	public void setAmountToPay(String amountToPay) {
+		this.amountToPay = amountToPay;
+	}
+
+	public String getBill_immediately() {
+		return bill_immediately;
+	}
+
+	public void setBill_immediately(String bill_immediately) {
+		this.bill_immediately = bill_immediately;
+	}
+
+	public String getPlan_id() {
+		return plan_id;
+	}
+
+	public void setPlan_id(String plan_id) {
+		this.plan_id = plan_id;
+	}
+
+	public String getEnds_after() {
+		return ends_after;
+	}
+
+	public void setEnds_after(String ends_after) {
+		this.ends_after = ends_after;
+	}
+
+	public String getActionType() {
+		return actionType;
+	}
+
+	public void setActionType(String actionType) {
+		this.actionType = actionType;
+	}
+
+	public String getPayment_spring_token() {
+		return payment_spring_token;
+	}
+
+	public void setPayment_spring_token(String payment_spring_token) {
+		this.payment_spring_token = payment_spring_token;
+	}
+
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+
 	public Currencies getCurrencies() {
 		return currencies;
 	}
@@ -357,6 +430,14 @@ public class Invoice {
 		this.amount_by_date = amount_by_date;
 	}
 
+	public String getCreated_at() {
+		return created_at;
+	}
+
+	public void setCreated_at(String created_at) {
+		this.created_at = created_at;
+	}
+
 	@Override
 	public String toString() {
 		try {
@@ -367,4 +448,7 @@ public class Invoice {
 		return super.toString();
 	}
 
+	public static void main(String[] args) {
+		System.out.println(new Invoice());
+	}
 }
