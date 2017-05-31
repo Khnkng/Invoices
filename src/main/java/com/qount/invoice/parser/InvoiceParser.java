@@ -257,6 +257,8 @@ public class InvoiceParser {
 					}
 				}
 			}
+		} catch (WebApplicationException e) {
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}finally {

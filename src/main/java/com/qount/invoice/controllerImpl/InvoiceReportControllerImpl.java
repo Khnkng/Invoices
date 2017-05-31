@@ -52,6 +52,9 @@ public class InvoiceReportControllerImpl {
 			}
 			conn = DatabaseUtilities.getReadConnection();
 			invoiceReference = MySQLManager.getInvoiceDAOInstance().getInvoiceRelatedDetails(conn, invoiceReference);
+			if(invoiceReference==null){
+				throw new WebApplicationException("please create invoice settings");
+			}
 			Invoice invoice = MySQLManager.getInvoiceDAOInstance().get(invoiceID);
 			invoiceReference.setInvoice(invoice);
 			pdfFile = PdfGenerator.createPdf(invoiceReference);
