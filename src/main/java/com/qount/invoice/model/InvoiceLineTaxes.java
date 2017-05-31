@@ -11,6 +11,15 @@ public class InvoiceLineTaxes {
 	private String invoice_line_id;
 	private String tax_id;
 	private double tax_rate;
+	private String name;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public String getInvoice_line_id() {
 		return invoice_line_id;

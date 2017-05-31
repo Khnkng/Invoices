@@ -61,7 +61,16 @@ public class Invoice {
 	private String plan_id;
 	private String amountToPay;
 	private double amount_paid;
+	private Customer customer;
 	
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
 	public double getAmount_paid() {
 		return amount_paid;
 	}

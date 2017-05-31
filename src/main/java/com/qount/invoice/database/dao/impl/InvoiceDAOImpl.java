@@ -173,6 +173,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public Invoice get(String invoiceID) {
 		LOGGER.debug("entered get by invoice id:" + invoiceID);
 		Invoice invoice = null;
+		Customer customer = null;
 		List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -186,6 +187,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				while (rset.next()) {
 					if (invoice == null) {
 						invoice = new Invoice();
+						customer = new Customer();
+						invoice.setCustomer(customer);
 						invoice.setInvoiceLines(invoiceLines);
 					}
 					InvoiceLine invoiceLine = new InvoiceLine();
@@ -196,6 +199,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
 						invoiceLineTax.setInvoice_line_id(rset.getString("ilt_invoice_line_id"));
 						invoiceLineTax.setTax_id(rset.getString("ilt_tax_id"));
+						invoiceLineTax.setName(rset.getString("ilt_name"));
 						invoiceLineTax.setTax_rate(rset.getDouble("ilt_tax_rate"));
 						invoiceLine.getInvoiceLineTaxes().add(invoiceLineTax);
 					} else if (invoiceLineIndex == -1) {
@@ -229,6 +233,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLast_updated_by(rset.getString("last_updated_by"));
 							invoice.setLast_updated_at(rset.getString("last_updated_at"));
 							invoice.setCustomer_id(rset.getString("customer_id"));
+							customer.setCustomer_id(rset.getString("customer_id"));
 							invoice.setState(rset.getString("state"));
 							invoice.setInvoice_date(rset.getString("invoice_date"));
 							invoice.setAcceptance_date(rset.getString("acceptance_date"));
@@ -254,6 +259,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setSub_totoal(rset.getDouble("sub_totoal"));
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 							invoice.setCreated_at(rset.getString("i_created_at"));
+							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
+							customer.setCustomer_name(rset.getString("customer_name"));
+							customer.setEmail_id(rset.getString("email_id"));
 							Currencies currencies_2 = new Currencies();
 							currencies_2.setCode(rset.getString("code"));
 							currencies_2.setName(rset.getString("name"));
@@ -266,7 +274,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error fetching invoice for invoiceID [ " + invoiceID + " ]", e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e.getMessage());
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
