@@ -9,6 +9,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.qount.invoice.database.mySQL.MySQLManager;
@@ -57,7 +58,13 @@ public class InvoiceReportControllerImpl {
 			if (pdfFile != null) {
 				JSONObject jsonObj = CommonUtils.getJsonFromString(json);
 				if (jsonObj != null && jsonObj.length() > 0) {
-					boolean isMailSent = EmailHandler.sendEmail(pdfFile, jsonObj);
+					if(jsonObj.optJSONObject("emailJson").optJSONArray("recipients") == null || jsonObj.optJSONObject("emailJson").optJSONArray("recipients").length() ==0){
+						JSONArray recipients = new JSONArray();
+						recipients.put(invoiceReference.getCustomer().getEmail_id());
+						jsonObj.optJSONObject("emailJson").remove("recipients");
+						jsonObj.optJSONObject("emailJson").put("recipients", recipients);
+					}
+					boolean isMailSent = EmailHandler.sendEmail(pdfFile, jsonObj, invoiceID);
 					if (isMailSent) {
 						return Response.ok("Email sent successfully!").build();
 					}

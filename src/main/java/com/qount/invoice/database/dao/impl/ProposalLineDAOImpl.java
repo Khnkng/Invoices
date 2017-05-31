@@ -161,7 +161,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.DELETE_PROPOSAL_LINE_QRY);
-				pstmt.setString(1, proposalLine.getProposal_id());
+				pstmt.setString(1, proposalLine.getId());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of proposal lines deleted:" + rowCount);
 //				if (rowCount == 0) {

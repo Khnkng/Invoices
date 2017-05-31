@@ -13,7 +13,7 @@ import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.utils.SqlQuerys;
 
 /**
- * DAO interface for InvoicePreferenceDAOImpl
+ * DAOImpl  for InvoicePreferenceDAOImpl
  * 
  * @author Mateen, Qount.
  * @version 1.0, 25 Jan 2017
@@ -120,6 +120,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.GET_QRY);
 				pstmt.setString(rowCtr++, invoicePreference.getCompanyId());
 				rset = pstmt.executeQuery();
+				// only 1 record because every company can have only one invoice setting at a time
 				if (rset != null && rset.next()) {
 					invoicePreference.setId(rset.getString("id"));
 					invoicePreference.setCompanyId(rset.getString("company_id"));

@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiOperation;
  *
  */
 @Api(value = "Invoice Preference")
-@Path("/user/{userId}/company/{companyId}/invoice/preference")
+@Path("/users/{userId}/companies/{companyId}/invoice/preference")
 public class InvoicePreferenceController {
 
 	@POST

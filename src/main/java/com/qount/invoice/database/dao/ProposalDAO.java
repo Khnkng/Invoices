@@ -20,7 +20,7 @@ public interface ProposalDAO {
 
 	public Proposal get(String proposalID);
 
-	public List<Proposal> getProposalList(String userID);
+	public List<Proposal> getProposalList(String userID, String comapnyId);
 
 	public Proposal delete(Proposal proposal);
 

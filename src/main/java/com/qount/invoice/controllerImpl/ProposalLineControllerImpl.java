@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
+import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.model.ProposalLineTaxes;
@@ -50,7 +51,7 @@ public class ProposalLineControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
@@ -80,29 +81,31 @@ public class ProposalLineControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
 
 	}
 
-	// public static ProposalLine deleteProposalLineById(String userID, String
-	// proposalLineID) {
-	// try {
-	// ProposalLine proposalLine =
-	// ProposalLineParser.getProposalLineObjToDelete(proposalLineID);
-	// if (proposalLine == null) {
-	// throw new
-	// WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-	// Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
-	// }
-	// return ProposalLineDAOImpl.getProposalLineDAOImpl().delete(proposalLine);
-	// } catch (Exception e) {
-	// LOGGER.error(e);
-	// throw new
-	// WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-	// Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
-	// }
-	// }
+	public static ProposalLine deleteProposalLineById(String userID, String proposalLineID) {
+		Connection connection = null;
+		try {
+			ProposalLine proposalLine = ProposalLineParser.getProposalLineObjToDelete(proposalLineID);
+			if (proposalLine == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			}
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			return ProposalLineDAOImpl.getProposalLineDAOImpl().delete(connection,proposalLine);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+		}
+		
+	}
 }

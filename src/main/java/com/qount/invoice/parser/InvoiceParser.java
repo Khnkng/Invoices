@@ -7,14 +7,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
+import com.qount.invoice.common.PropertyManager;
+import com.qount.invoice.controllerImpl.InvoiceReportControllerImpl;
 import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
@@ -36,13 +41,13 @@ import com.qount.invoice.utils.ResponseUtil;
 public class InvoiceParser {
 	private static final Logger LOGGER = Logger.getLogger(InvoiceParser.class);
 
-	public static Invoice getInvoiceObj(String userId, Invoice invoice) {
+	public static Invoice getInvoiceObj(String userId, Invoice invoice, String companyID) {
 		try {
-			if (StringUtils.isEmpty(userId) && invoice == null) {
+			if (StringUtils.isEmpty(userId) || invoice == null || StringUtils.isEmpty(companyID)) {
 				return null;
 			}
 			UserCompany userCompany = null;
-			userCompany = CommonUtils.getCompany(userId, invoice.getCompany_id());
+			userCompany = CommonUtils.getCompany(userId, companyID);
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			Timestamp acceptance_date = convertStringToTimeStamp(invoice.getAcceptance_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
@@ -50,7 +55,6 @@ public class InvoiceParser {
 			Timestamp recurring_start_date = convertStringToTimeStamp(invoice.getRecurring_start_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			Timestamp recurring_end_date = convertStringToTimeStamp(invoice.getRecurring_end_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			Timestamp payment_date = convertStringToTimeStamp(invoice.getPayment_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-
 			invoice.setUser_id(userId);
 			if (StringUtils.isBlank(invoice.getId())) {
 				invoice.setId(UUID.randomUUID().toString());
@@ -71,14 +75,13 @@ public class InvoiceParser {
 			Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 			while (invoiceLineItr.hasNext()) {
 				InvoiceLine line = invoiceLineItr.next();
-				if(StringUtils.isBlank(line.getId())){
+				if (StringUtils.isBlank(line.getId())) {
 					line.setId(UUID.randomUUID().toString());
 				}
 				line.setInvoice_id(invoice.getId());
 				line.setLast_updated_at(timestamp.toString());
 				line.setLast_updated_by(userId);
 			}
-
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e.getLocalizedMessage(), 500);
@@ -119,11 +122,6 @@ public class InvoiceParser {
 			LOGGER.error(e);
 		}
 		return invoice;
-	}
-
-	public static void main(String[] args) {
-		String str = "2017-12-30 00:00:00.0";
-		System.out.println(convertTimeStampToString(str, Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 	}
 
 	public static List<InvoiceLineTaxes> getInvoiceLineTaxesList(List<InvoiceLine> invoiceLinesList) {
@@ -202,7 +200,7 @@ public class InvoiceParser {
 
 	}
 
-	public static InvoiceReference getInvoiceReference(String companyID, String customerID,String invoiceID) {
+	public static InvoiceReference getInvoiceReference(String companyID, String customerID, String invoiceID) {
 		try {
 			InvoiceReference invoiceReference = new InvoiceReference();
 			Company company = new Company();
@@ -221,5 +219,49 @@ public class InvoiceParser {
 			LOGGER.error(e);
 		}
 		return null;
+	}
+
+	public static JSONObject createInvoiceLstResult(List<Invoice> invoiceLst,Map<String, String> badges){
+		JSONObject result = new JSONObject();
+		try {
+			if (invoiceLst !=null && !invoiceLst.isEmpty() ) {
+				result.put("invoices", invoiceLst);
+			}
+			if(badges!=null && !badges.isEmpty()){
+				result.put("badges", badges);
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return result;
+	}
+	
+	public static boolean sendInvoiceEmail(String companyID, Invoice invoice,String invoiceID){
+		try {
+			LOGGER.debug("entered sendInvoiceEmail companyID: "+companyID+" invoice: "+invoice+" invoiceID:"+invoice);
+			if (StringUtils.isEmpty(companyID) ||StringUtils.isEmpty(invoiceID) || invoice == null || StringUtils.isEmpty(invoice.getCustomer_id())) {
+				return false;
+			}
+			JSONObject json = new JSONObject();
+			JSONObject emailJson = new JSONObject();
+			emailJson.put("subject", PropertyManager.getProperty("invoice.subject"));
+			emailJson.put("mailBodyContentType", PropertyManager.getProperty("mail.body.content.type"));
+			json.put("emailJson", emailJson);
+			json.put("fileName", PropertyManager.getProperty("invoice.email.attachment.name"));
+			Response emailRespone = InvoiceReportControllerImpl.createPdf(companyID, invoice.getCustomer_id(), invoiceID, json.toString());
+			if(emailRespone!=null && emailRespone.getStatus()==200){
+				String resultStr = emailRespone.getEntity().toString();
+				if(StringUtils.isNotEmpty(resultStr)){
+					if(resultStr.equals("Email sent successfully!")){
+						return true;
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}finally {
+			LOGGER.debug("exited sendInvoiceEmail companyID: "+companyID+" invoice: "+invoice+" invoiceID:"+invoice);
+		}
+		return false;
 	}
 }

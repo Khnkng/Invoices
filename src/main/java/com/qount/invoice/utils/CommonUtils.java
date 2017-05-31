@@ -2,7 +2,9 @@ package com.qount.invoice.utils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -119,4 +121,23 @@ public class CommonUtils {
 		}
 		return Constants.GSON.fromJson(response, UserCompany.class);
 	}
+	
+	public static String convertDate(String sourceDate, SimpleDateFormat sourceDateFormat, SimpleDateFormat resultDateFormat){
+		try {
+			return resultDateFormat.format(sourceDateFormat.parse(sourceDate));
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return null;
+	}
+	
+	public static String getGMTDateTime(Date sourceDate){
+		try {
+			return Constants.DATE_FORMAT_GMT.format(sourceDate);
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return null;
+	}
+	
 }
