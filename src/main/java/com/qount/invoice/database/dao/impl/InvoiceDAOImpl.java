@@ -495,6 +495,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					customer.setEmail_id(rset.getString("email_id"));
 					invoicePreference.setStandardMemo(rset.getString("standard_memo"));
 					invoicePreference.setDefaultFooter(rset.getString("default_footer"));
+				}else{
+					return null;
 				}
 			}
 		} catch (Exception e) {
