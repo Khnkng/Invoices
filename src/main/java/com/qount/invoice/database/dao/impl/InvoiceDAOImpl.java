@@ -260,7 +260,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setRecurring_end_date(rset.getString("recurring_end_date"));
 							invoice.setIs_mails_automated(rset.getBoolean("is_mails_automated"));
 							invoice.setIs_cc_current_user(rset.getBoolean("is_cc_current_user"));
-							invoice.setPayment_spring_customer_id(rset.getString("payment_spring_customer_id"));
+							invoice.setPayment_spring_customer_id(rset.getString("payment_spring_id"));
 							invoice.setPo_number(rset.getString("po_number"));
 							invoice.setDocument_id(rset.getString("document_id"));
 							invoice.setAmount_due(rset.getDouble("amount_due"));
