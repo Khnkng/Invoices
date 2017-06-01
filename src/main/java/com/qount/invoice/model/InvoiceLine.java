@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 public class InvoiceLine {
 
 	private String id;
+	private Item item;
 	private String item_id;
 	private String invoice_id;
 	private String description;
@@ -26,8 +27,17 @@ public class InvoiceLine {
 	private double quantity;
 	private double price;
 	private String notes;
+	private Coa coa;
 	private String coa_id;
 	private ArrayList<InvoiceLineTaxes> invoiceLineTaxes;
+
+	public String getItem_id() {
+		return item_id;
+	}
+
+	public void setItem_id(String item_id) {
+		this.item_id = item_id;
+	}
 
 	public String getCoa_id() {
 		return coa_id;
@@ -37,12 +47,20 @@ public class InvoiceLine {
 		this.coa_id = coa_id;
 	}
 
-	public String getItem_id() {
-		return item_id;
+	public Item getItem() {
+		return item;
 	}
 
-	public void setItem_id(String item_id) {
-		this.item_id = item_id;
+	public void setItem(Item item) {
+		this.item = item;
+	}
+
+	public Coa getCoa() {
+		return coa;
+	}
+
+	public void setCoa(Coa coa) {
+		this.coa = coa;
 	}
 
 	public String getId() {
