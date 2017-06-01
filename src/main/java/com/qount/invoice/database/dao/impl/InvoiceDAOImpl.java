@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
+import com.qount.invoice.model.Coa;
 import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
@@ -22,6 +23,7 @@ import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.model.Item;
 import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -205,8 +207,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					} else if (invoiceLineIndex == -1) {
 						invoiceLine.setInvoice_id(rset.getString("invoice_id"));
 						invoiceLine.setDescription(rset.getString("il_description"));
-						invoiceLine.setItem_id(rset.getString("il_item_id"));
-						invoiceLine.setCoa_id(rset.getString("il_coa_id"));
+						Item item = new Item();
+						item.setId(rset.getString("il_item_id"));
+						item.setName(rset.getString("il_item_name"));
+						invoiceLine.setItem(item);
+						Coa coa = new Coa();
+						coa.setId(rset.getString("il_coa_id"));
+						coa.setName(rset.getString("il_coa_name"));
+						invoiceLine.setCoa(coa);
 						invoiceLine.setObjectives(rset.getString("il_objectives"));
 						invoiceLine.setAmount(rset.getDouble("il_amount"));
 						invoiceLine.setLast_updated_at(rset.getString("il_last_updated_at"));
@@ -218,6 +226,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLineTax.setInvoice_line_id(rset.getString("ilt_invoice_line_id"));
 						invoiceLineTax.setTax_id(rset.getString("ilt_tax_id"));
 						invoiceLineTax.setTax_rate(rset.getDouble("ilt_tax_rate"));
+						invoiceLineTax.setName(rset.getString("ilt_name"));
 						ArrayList<InvoiceLineTaxes> invoicesLineTaxes = new ArrayList<InvoiceLineTaxes>();
 						invoicesLineTaxes.add(invoiceLineTax);
 						invoiceLine.setInvoiceLineTaxes(invoicesLineTaxes);
