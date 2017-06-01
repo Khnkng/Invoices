@@ -376,10 +376,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public List<Invoice> getInvoiceList(String userID, String companyID) {
-		LOGGER.debug("entered getInvoiceList userID:" + userID + " companyID:" + companyID);
-		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
-			throw new WebApplicationException("userID or companyID cannot be empty");
+	public List<Invoice> getInvoiceList(String userID, String companyID, String state) {
+		LOGGER.debug("entered getInvoiceList userID:" + userID + " companyID:" + companyID+ "state:"+state);
+		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)|| StringUtils.isEmpty(state)) {
+			throw new WebApplicationException("userID or companyID or state cannot be empty");
 		}
 		List<Invoice> invoiceLst = new ArrayList<>();
 		PreparedStatement pstmt = null;
@@ -388,9 +388,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICES_LIST_QRY);
-				pstmt.setString(1, userID);
-				pstmt.setString(2, companyID);
+				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
+				query +="`user_id`='"+userID + "' AND `company_id`= '"+companyID+"' ";
+				if(!state.equals("paid")){
+					query +="AND (state !='paid' OR state IS NULL );";					
+				}else{
+					query +="AND state='paid'";
+				}
+				pstmt = connection.prepareStatement(query);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					Invoice invoice = new Invoice();
@@ -438,7 +443,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
-			LOGGER.debug("exited getInvoiceList userID:" + userID + " companyID:" + companyID);
+			LOGGER.debug("exited getInvoiceList userID:" + userID + " companyID:" + companyID+ "state:"+state);
 		}
 		return invoiceLst;
 

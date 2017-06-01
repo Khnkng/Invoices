@@ -158,13 +158,13 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static Response getInvoices(String userID, String companyID) {
+	public static Response getInvoices(String userID, String companyID, String state) {
 		try {
-			LOGGER.debug("entered get invoices userID:" + userID + " companyID:" + companyID);
-			if (StringUtils.isEmpty(userID)) {
+			LOGGER.debug("entered get invoices userID:" + userID + " companyID:" + companyID+" state:"+state);
+			if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
-			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID, companyID);
+			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID, companyID, state);
 			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
 			JSONObject result = InvoiceParser.createInvoiceLstResult(invoiceLst, badges);
 			return Response.status(200).entity(result.toString()).build();
@@ -175,7 +175,7 @@ public class InvoiceControllerImpl {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
-			LOGGER.debug("exited get invoices userID:" + userID + " companyID:" + companyID);
+			LOGGER.debug("exited get invoices userID:" + userID + " companyID:" + companyID+" state:"+state);
 		}
 	}
 
