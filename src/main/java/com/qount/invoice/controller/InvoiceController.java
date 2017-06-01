@@ -10,6 +10,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -59,8 +60,8 @@ public class InvoiceController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve proposals of company", value = "retieves proposals", responseContainer = "java.lang.String")
-	public Response getInvoices(@PathParam("userID") @NotNull String userID,@PathParam("companyID") @NotNull String companyID) {
-		return InvoiceControllerImpl.getInvoices(userID,companyID);
+	public Response getInvoices(@PathParam("userID") @NotNull String userID,@PathParam("companyID") @NotNull String companyID,@QueryParam("state") String state) {
+		return InvoiceControllerImpl.getInvoices(userID,companyID,state);
 	}
 
 	@Path("/{invoiceID}")

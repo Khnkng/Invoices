@@ -27,7 +27,7 @@ public interface InvoiceDAO {
 	
 	public InvoiceMail getInvoiceMailDetails(String InvoiceID);
 
-	public List<Invoice> getInvoiceList(String userID,String companyID);
+	public List<Invoice> getInvoiceList(String userID,String companyID, String state);
 	
 	public Invoice delete(Invoice invoice);
 	
