@@ -46,6 +46,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
+			invoice.setState("email sent");
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceTaxes> incoiceTaxesList = invoiceObj.getInvoiceTaxes();
