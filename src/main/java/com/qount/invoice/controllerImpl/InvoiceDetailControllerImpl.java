@@ -120,6 +120,10 @@ public class InvoiceDetailControllerImpl {
 			}
 			path = path + "PaymentSpring/companies/" + companyId + "/" + urlAction;
 			path = path.replace("{comapnyID}", companyId);
+			System.out.println("*******************************************");
+			System.out.println(path);
+			System.out.println(payloadObj);
+			System.out.println("*******************************************");
 			JSONObject responseJson = HTTPClient.post(path, payloadObj.toString());
 			if (responseJson != null && responseJson.length() != 0) {
 				return responseJson;

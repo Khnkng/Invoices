@@ -30,7 +30,7 @@ public class InvoiceReportController {
 			+ "sample input: {\"emailJson\":{\"recipients\":[\"mateen.khan@qount.io\"],\"cc_recipients\":[],\"subject\":\"Your A/P Aging Summary\",\"reportName\":\"A/P Aging Summary\",\"companyName\":\"cathy\",\"userName\":\"Uday Koorella\",\"mailBodyContentType\":\"text/html\"},\"template\":\"asdf\",\"fileName\":\"as.pdf\",\"authorization\":\"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2Rldi1hcHAucW91bnQuaW8vIiwidXNlcl9pZCI6InVkYXkua29vcmVsbGFAcW91bnQuaW8iLCJ1c2VybmFtZSI6InVkYXkua29vcmVsbGFAcW91bnQuaW8ifQ.GkrkWOHsK3G2cUBtFAOlb8W1MsJ3EUx7CJUPtIc5XQg\"}", responseContainer = "java.lang.String")
 	public Response createPdf(@PathParam("invoiceID") String invoiceID, @PathParam("companyID") String companyID, @PathParam("customerID") String customerID, String json)
 			throws Exception {
-		return InvoiceReportControllerImpl.createPdf(companyID, customerID, invoiceID, json);
+		return InvoiceReportControllerImpl.createPdfAndSendEmail(companyID, customerID, invoiceID, json);
 	}
 
 	@GET
@@ -39,6 +39,6 @@ public class InvoiceReportController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Returns Report PDF File", notes = "Genrates & Sends a PDF file", responseContainer = "java.lang.String")
 	public Response createPdfGet(@PathParam("invoiceID") String invoiceID, @PathParam("companyID") String companyID, @PathParam("customerID") String customerID,@QueryParam("json") String json) throws Exception {
-		return InvoiceReportControllerImpl.createPdf(companyID, customerID, invoiceID, json);
+		return InvoiceReportControllerImpl.createPdfAndSendEmail(companyID, customerID, invoiceID, json);
 	}
 }
