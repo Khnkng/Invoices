@@ -42,7 +42,7 @@ public class InvoiceReportControllerImpl {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Response createPdf(String companyID, String customerID, String invoiceID, String json) throws Exception {
+	public static Response createPdfAndSendEmail(String companyID, String customerID, String invoiceID, String json) throws Exception {
 		File pdfFile = null;
 		Connection conn = null;
 		try {

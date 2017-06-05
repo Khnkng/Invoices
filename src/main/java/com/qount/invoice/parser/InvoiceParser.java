@@ -248,7 +248,7 @@ public class InvoiceParser {
 			emailJson.put("mailBodyContentType", PropertyManager.getProperty("mail.body.content.type"));
 			json.put("emailJson", emailJson);
 			json.put("fileName", PropertyManager.getProperty("invoice.email.attachment.name"));
-			Response emailRespone = InvoiceReportControllerImpl.createPdf(companyID, invoice.getCustomer_id(), invoiceID, json.toString());
+			Response emailRespone = InvoiceReportControllerImpl.createPdfAndSendEmail(companyID, invoice.getCustomer_id(), invoiceID, json.toString());
 			if(emailRespone!=null && emailRespone.getStatus()==200){
 				String resultStr = emailRespone.getEntity().toString();
 				if(StringUtils.isNotEmpty(resultStr)){

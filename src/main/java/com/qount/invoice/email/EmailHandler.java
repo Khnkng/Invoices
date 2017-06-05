@@ -32,6 +32,7 @@ public class EmailHandler {
 			String fileName = inputJson.optString("fileName");
 			String template = inputJson.optString("template");
 			if(StringUtils.isEmpty(template)){
+				String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link")+invoiceId;
 				InvoiceMail invoiceMail = MySQLManager.getInvoiceDAOInstance().getInvoiceMailDetails(invoiceId);
 				String currencySymbol = Utilities.getCurrencyHtmlSymbol(invoiceMail.getCurrencyHtml_symbol()	);
 				template = PropertyManager.getProperty("invocie.mail.template");
@@ -46,6 +47,7 @@ public class EmailHandler {
 						.replace("${currencyCode}", StringUtils.isEmpty(invoiceMail.getCurrencyCode())?"":invoiceMail.getCurrencyCode())
 						.replace("${invoiceDate}", StringUtils.isEmpty(invocieDateStr)?"":invocieDateStr)
 						.replace("${customerEmail}", StringUtils.isEmpty(invoiceMail.getCustomerEmail())?"":invoiceMail.getCustomerEmail())
+						.replace("${invoiceLinkUrl}", invoiceLinkUrl)
 						.replace("${message}", inputJson.optString("message"));
 			}
 			System.out.println(template);
