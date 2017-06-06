@@ -23,6 +23,15 @@ public class InvoiceMail {
 	private String invoiceDueDate;
 	private String customerEmail;
 	private String invoiceCreatedAt;
+	private String invoiceId;
+
+	public String getInvoiceId() {
+		return invoiceId;
+	}
+
+	public void setInvoiceId(String invoiceId) {
+		this.invoiceId = invoiceId;
+	}
 
 	public String getCurrencyHtml_symbol() {
 		return currencyHtml_symbol;

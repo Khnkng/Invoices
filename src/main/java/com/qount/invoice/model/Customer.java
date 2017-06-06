@@ -22,6 +22,15 @@ public class Customer {
 	private String phone_number;
 	private String coa;
 	private String payment_spring_id;
+	private String term;
+
+	public String getTerm() {
+		return term;
+	}
+
+	public void setTerm(String term) {
+		this.term = term;
+	}
 
 	public String getPayment_spring_id() {
 		return payment_spring_id;

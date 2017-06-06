@@ -60,7 +60,7 @@ public class InvoiceControllerImpl {
 						List<InvoiceLineTaxes> invoiceLineTaxesList = InvoiceParser.getInvoiceLineTaxesList(invoiceObj.getInvoiceLines());
 						List<InvoiceLineTaxes> invoiceLineTaxesResult = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineTaxesList);
 						if (invoiceLineTaxesResult != null) {
-							if(InvoiceParser.sendInvoiceEmail(companyID, invoiceResult, invoice.getId())){
+							if(sendInvoiceEmail(invoiceResult)){
 								connection.commit();
 								return InvoiceParser.convertTimeStampToString(invoiceObj);
 							}
@@ -119,7 +119,8 @@ public class InvoiceControllerImpl {
 								List<InvoiceLineTaxes> invoiceLineTaxesResult = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineTaxesList);
 								if (invoiceLineTaxesResult != null) {
 									connection.commit();
-									return invoiceResult;
+//									return invoiceResult;
+									return InvoiceParser.convertTimeStampToString(invoiceResult);
 								}
 							}
 						}
@@ -171,7 +172,8 @@ public class InvoiceControllerImpl {
 				List<InvoiceTaxes> invoiceTaxesList = MySQLManager.getInvoiceTaxesDAOInstance().getByInvoiceID(invoiceTax);
 				result.setInvoiceTaxes(invoiceTaxesList);
 			}
-			return result;
+			return InvoiceParser.convertTimeStampToString(result);
+//			return result;
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -188,7 +190,8 @@ public class InvoiceControllerImpl {
 			if (invoice == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
-			return MySQLManager.getInvoiceDAOInstance().delete(invoice);
+			Invoice invoiceObj = MySQLManager.getInvoiceDAOInstance().delete(invoice);
+			return InvoiceParser.convertTimeStampToString(invoiceObj);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -197,4 +200,28 @@ public class InvoiceControllerImpl {
 		}
 	}
 
+	private static boolean sendInvoiceEmail(Invoice invoice) {
+		try {
+			LOGGER.debug("entered sendInvoiceEmail invoice: " + invoice );
+			if (invoice == null) {
+				return false;
+			}
+			Response emailRespone = InvoiceReportControllerImpl.createPdfAndSendEmail(invoice);
+			if (emailRespone != null && emailRespone.getStatus() == 200) {
+				String resultStr = emailRespone.getEntity().toString();
+				if (StringUtils.isNotEmpty(resultStr)) {
+					if (resultStr.equals("Email sent successfully!")) {
+						return true;
+					}
+				}
+			}
+		} catch (WebApplicationException e) {
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(e);
+		} finally {
+			LOGGER.debug("exited sendInvoiceEmail  invoice: " + invoice );
+		}
+		return false;
+	}
 }
