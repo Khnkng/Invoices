@@ -42,7 +42,7 @@ public class Invoice {
 	private boolean is_mails_automated;
 	private boolean is_cc_current_user;
 	private String payment_spring_customer_id;
-	private int number;
+	private String number;
 	private String po_number;
 	private String document_id;
 	private List<InvoiceLine> invoiceLines;
@@ -62,7 +62,16 @@ public class Invoice {
 	private String amountToPay;
 	private double amount_paid;
 	private Customer customer;
+	private String companyName;
 	
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
 	public Customer getCustomer() {
 		return customer;
 	}
@@ -391,11 +400,11 @@ public class Invoice {
 		this.payment_spring_customer_id = payment_spring_customer_id;
 	}
 
-	public int getNumber() {
+	public String getNumber() {
 		return number;
 	}
 
-	public void setNumber(int number) {
+	public void setNumber(String number) {
 		this.number = number;
 	}
 

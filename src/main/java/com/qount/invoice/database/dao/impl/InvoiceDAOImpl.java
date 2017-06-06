@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setString(ctr++, invoice.getCreated_at());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
+				pstmt.setString(ctr++, invoice.getNumber());
+				pstmt.setLong(ctr++, new Date().getTime());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -152,6 +155,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getCustomer_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
+				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -233,6 +237,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.getInvoiceLines().add(invoiceLine);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
+							invoice.setNumber(rset.getString("i_number"));
 							invoice.setUser_id(rset.getString("user_id"));
 							invoice.setCompany_id(rset.getString("company_id"));
 							invoice.setAmount(rset.getDouble("amount"));
@@ -268,6 +273,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setSub_totoal(rset.getDouble("sub_totoal"));
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 							invoice.setCreated_at(rset.getString("i_created_at"));
+							invoice.setCompanyName(rset.getString("company_name"));
 							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
 							customer.setCustomer_name(rset.getString("customer_name"));
 							customer.setEmail_id(rset.getString("email_id"));

@@ -11,6 +11,9 @@ import org.apache.log4j.Logger;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.qount.invoice.common.PropertyManager;
+import com.qount.invoice.database.dao.CompanyDAO;
+import com.qount.invoice.database.dao.CurrencyDAO;
+import com.qount.invoice.database.dao.CustomerDAO;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.InvoiceLineDAO;
 import com.qount.invoice.database.dao.InvoiceLineTaxesDAO;
@@ -21,6 +24,9 @@ import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.database.dao.ProposalLineTaxesDAO;
 import com.qount.invoice.database.dao.ProposalTaxesDAO;
+import com.qount.invoice.database.dao.impl.CompanyDAOImpl;
+import com.qount.invoice.database.dao.impl.CurrencyDAOImpl;
+import com.qount.invoice.database.dao.impl.CustomerDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceLineDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceLineTaxesDAOImpl;
@@ -46,23 +52,29 @@ public class MySQLManager {
 	private static ProposalDAO proposalDAO = null;
 
 	private static ProposalLineDAO proposalLineDAO = null;
-	
+
 	private static ProposalLineTaxesDAO proposalLineTaxesDAO = null;
-	
+
 	private static ProposalTaxesDAO proposalTaxesDAO = null;
-	
+
 	private static InvoiceDAO invoiceDAO = null;
 
 	private static InvoiceLineDAO invoiceLineDAO = null;
 
 	private static InvoicePreferenceDAO invoicePreferenceDAO = null;
-	
+
 	private static InvoiceLineTaxesDAO invoiceLineTaxesDAO = null;
-	
+
 	private static InvoiceTaxesDAO invoiceTaxesDAO = null;
-	
+
 	private static InvoicePaymentDAO invoicePaymentDAO = null;
-	
+
+	private static CurrencyDAO currencyDAO = null;
+
+	private static CustomerDAO customerDAO = null;
+
+	private static CompanyDAO companyDAO = null;
+
 	private MySQLManager() {
 
 	}
@@ -88,7 +100,7 @@ public class MySQLManager {
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
-			if(conn!=null){
+			if (conn != null) {
 				System.out.println("connection creation success");
 			}
 		} catch (Exception e) {
@@ -153,21 +165,21 @@ public class MySQLManager {
 		}
 		return proposalLineDAO;
 	}
-	
+
 	public static ProposalLineTaxesDAO getProposalLineTaxesDAOInstance() {
 		if (proposalLineTaxesDAO == null) {
 			proposalLineTaxesDAO = ProposalLineTaxesDAOImpl.getProposalLineTaxesDAOImpl();
 		}
 		return proposalLineTaxesDAO;
 	}
-	
+
 	public static ProposalTaxesDAO getProposalTaxesDAOInstance() {
 		if (proposalTaxesDAO == null) {
 			proposalTaxesDAO = ProposalTaxesDAOImpl.getProposalTaxesDAOImpl();
 		}
 		return proposalTaxesDAO;
 	}
-	
+
 	public static InvoiceDAO getInvoiceDAOInstance() {
 		if (invoiceDAO == null) {
 			invoiceDAO = InvoiceDAOImpl.getInvoiceDAOImpl();
@@ -181,32 +193,53 @@ public class MySQLManager {
 		}
 		return invoiceLineDAO;
 	}
-	
+
 	public static InvoicePreferenceDAO getInvoicePreferenceDAOInstance() {
 		if (invoicePreferenceDAO == null) {
 			invoicePreferenceDAO = InvoicePreferenceDAOImpl.getInvoicePreferenceDAOImpl();
 		}
 		return invoicePreferenceDAO;
 	}
-	
+
 	public static InvoiceLineTaxesDAO getInvoiceLineTaxesDAOInstance() {
 		if (invoiceLineTaxesDAO == null) {
 			invoiceLineTaxesDAO = InvoiceLineTaxesDAOImpl.getInvoiceLineTaxesDAOImpl();
 		}
 		return invoiceLineTaxesDAO;
 	}
-	
+
 	public static InvoiceTaxesDAO getInvoiceTaxesDAOInstance() {
 		if (invoiceTaxesDAO == null) {
 			invoiceTaxesDAO = InvoiceTaxesDAOImpl.getInvoiceTaxesDAOImpl();
 		}
 		return invoiceTaxesDAO;
 	}
-	
+
 	public static InvoicePaymentDAO getInvoicePaymentDAOInstance() {
 		if (invoicePaymentDAO == null) {
 			invoicePaymentDAO = InvoicePaymentDAOImpl.getInvoicePaymentDAOImpl();
 		}
 		return invoicePaymentDAO;
+	}
+
+	public static CurrencyDAO getCurrencyDAOInstance() {
+		if (currencyDAO == null) {
+			currencyDAO = CurrencyDAOImpl.getCurrencyDAOImpl();
+		}
+		return currencyDAO;
+	}
+
+	public static CustomerDAO getCustomerDAOInstance() {
+		if (customerDAO == null) {
+			customerDAO = CustomerDAOImpl.getCustomerDAOImpl();
+		}
+		return customerDAO;
+	}
+
+	public static CompanyDAO getCompanyDAOInstance() {
+		if (companyDAO == null) {
+			companyDAO = CompanyDAOImpl.getCompanyDAOImpl();
+		}
+		return companyDAO;
 	}
 }

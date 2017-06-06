@@ -15,7 +15,6 @@ import org.glassfish.jersey.media.multipart.MultiPart;
 import org.json.JSONObject;
 
 import com.qount.invoice.common.PropertyManager;
-import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.JersyClientUtilities;
@@ -25,16 +24,19 @@ public class EmailHandler {
 
 	private static final Logger LOGGER = Logger.getLogger(EmailHandler.class);
 
-	public static boolean sendEmail(File file, JSONObject inputJson,String  invoiceId) throws Exception{
+	public static boolean sendEmail(File file, JSONObject inputJson,InvoiceMail invoiceMail) throws Exception{
+		LOGGER.debug("entered send mail method inputJson:"+inputJson+ " invoiceMail:"+invoiceMail);
+		if(invoiceMail == null){
+			return false;
+		}
 		MultiPart multipartEntity = null;
 		FormDataMultiPart dataMultiPart = null;
 		try {
 			String fileName = inputJson.optString("fileName");
 			String template = inputJson.optString("template");
 			if(StringUtils.isEmpty(template)){
-				String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link")+invoiceId;
-				InvoiceMail invoiceMail = MySQLManager.getInvoiceDAOInstance().getInvoiceMailDetails(invoiceId);
-				String currencySymbol = Utilities.getCurrencyHtmlSymbol(invoiceMail.getCurrencyHtml_symbol()	);
+				String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link")+invoiceMail.getInvoiceId();
+				String currencySymbol = Utilities.getCurrencyHtmlSymbol(invoiceMail.getCurrencyHtml_symbol());
 				template = PropertyManager.getProperty("invocie.mail.template");
 				String invocieCreatedAtStr = Utilities.convertDate(invoiceMail.getInvoiceCreatedAt(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_MAIL_FORMAT);
 				String invocieDateStr = Utilities.convertDate(invoiceMail.getInvocieDate(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_MAIL_FORMAT);
