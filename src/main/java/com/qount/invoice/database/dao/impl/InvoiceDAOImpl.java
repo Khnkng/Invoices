@@ -91,6 +91,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getCreated_at());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getNumber());
+				pstmt.setString(ctr++, invoice.getTerm());
 				pstmt.setLong(ctr++, new Date().getTime());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -156,6 +157,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getNumber());
+				pstmt.setString(ctr++, invoice.getTerm());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -215,6 +217,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						item.setId(rset.getString("il_item_id"));
 						item.setName(rset.getString("il_item_name"));
 						invoiceLine.setItem(item);
+						invoiceLine.setItem_id(item.getId());
 						Coa coa = new Coa();
 						coa.setId(rset.getString("il_coa_id"));
 						coa.setName(rset.getString("il_coa_name"));
@@ -238,6 +241,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
 							invoice.setNumber(rset.getString("i_number"));
+							invoice.setTerm(rset.getString("i_term"));
 							invoice.setUser_id(rset.getString("user_id"));
 							invoice.setCompany_id(rset.getString("company_id"));
 							invoice.setAmount(rset.getDouble("amount"));
