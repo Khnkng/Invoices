@@ -65,12 +65,10 @@ public class InvoiceDetailControllerImpl {
 			}
 			JSONObject result = invokeChargePaymentSpringApi(companyID, payloadObj, urlAction);
 			if (result == null || result.length() == 0) {
-				throw new WebApplicationException(
-						ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "server error while making one time invoice payment", Status.INTERNAL_SERVER_ERROR));
+				throw new WebApplicationException("server error while making one time invoice payment");
 			}
 			if (result.containsKey("errors")) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, result.optJSONArray("errors").optJSONObject(0).optString("message"),
-						Status.INTERNAL_SERVER_ERROR));
+				throw new WebApplicationException(result.optJSONArray("errors").optJSONObject(0).optString("message"));
 			}
 			InvoicePayment invoicePayment = new InvoicePayment();
 			invoicePayment.setId(UUID.randomUUID().toString());
@@ -102,7 +100,7 @@ public class InvoiceDetailControllerImpl {
 			}
 			return true;
 		} catch (Exception e) {
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getMessage(), Status.INTERNAL_SERVER_ERROR));
 		}finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
