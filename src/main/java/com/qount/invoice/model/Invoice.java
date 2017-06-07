@@ -63,7 +63,16 @@ public class Invoice {
 	private double amount_paid;
 	private Customer customer;
 	private String companyName;
+	private String term;
 	
+	public String getTerm() {
+		return term;
+	}
+
+	public void setTerm(String term) {
+		this.term = term;
+	}
+
 	public String getCompanyName() {
 		return companyName;
 	}
