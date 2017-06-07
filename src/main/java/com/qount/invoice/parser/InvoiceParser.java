@@ -154,16 +154,21 @@ public class InvoiceParser {
 
 	public static List<InvoiceLineTaxes> getInvoiceLineTaxesList(List<InvoiceLine> invoiceLinesList) {
 		List<InvoiceLineTaxes> result = new ArrayList<InvoiceLineTaxes>();
+		if(invoiceLinesList==null || invoiceLinesList.isEmpty()){
+			return result;
+		}
 		Iterator<InvoiceLine> invoiceLineItr = invoiceLinesList.iterator();
 		while (invoiceLineItr.hasNext()) {
 			InvoiceLine invoiceLine = invoiceLineItr.next();
 			List<InvoiceLineTaxes> lineTaxesList = invoiceLine.getInvoiceLineTaxes();
-			if (lineTaxesList != null) {
+			if (lineTaxesList != null && !lineTaxesList.isEmpty()) {
 				Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
 				while (invoiceLineTaxesItr.hasNext()) {
 					InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
-					invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
-					result.add(invoiceLineTaxes);
+					if(invoiceLineTaxes!=null){
+						invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
+						result.add(invoiceLineTaxes);
+					}
 				}
 			}
 		}

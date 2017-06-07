@@ -60,7 +60,7 @@ public class InvoiceControllerImpl {
 						List<InvoiceLineTaxes> invoiceLineTaxesList = InvoiceParser.getInvoiceLineTaxesList(invoiceObj.getInvoiceLines());
 						List<InvoiceLineTaxes> invoiceLineTaxesResult = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineTaxesList);
 						if (invoiceLineTaxesResult != null) {
-							if(sendInvoiceEmail(invoiceResult)){
+							if (sendInvoiceEmail(invoiceResult)) {
 								connection.commit();
 								return InvoiceParser.convertTimeStampToString(invoiceObj);
 							}
@@ -70,8 +70,7 @@ public class InvoiceControllerImpl {
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.UNEXPECTED_ERROR_STATUS, Status.INTERNAL_SERVER_ERROR));
 		} catch (WebApplicationException e) {
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -107,22 +106,17 @@ public class InvoiceControllerImpl {
 					if (invoiceTaxesList == null) {
 						invoiceTaxesList = new ArrayList<>();
 					}
-					List<InvoiceTaxes> invoiceTaxesResult = MySQLManager.getInvoiceTaxesDAOInstance().save(connection, invoiceID, invoiceTaxesList);
-					if (invoiceTaxesResult != null) {
-						InvoiceLine invoiceLine = new InvoiceLine();
-						invoiceLine.setInvoice_id(invoiceID);
-						InvoiceLine deletedInvoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().deleteByInvoiceId(connection, invoiceLine);
-						if (deletedInvoiceLineResult != null) {
-							List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
-							if (invoiceLineResult != null) {
-								List<InvoiceLineTaxes> invoiceLineTaxesList = InvoiceParser.getInvoiceLineTaxesList(invoiceObj.getInvoiceLines());
-								List<InvoiceLineTaxes> invoiceLineTaxesResult = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineTaxesList);
-								if (invoiceLineTaxesResult != null) {
-									connection.commit();
-//									return invoiceResult;
-									return InvoiceParser.convertTimeStampToString(invoiceResult);
-								}
-							}
+					MySQLManager.getInvoiceTaxesDAOInstance().save(connection, invoiceID, invoiceTaxesList);
+					InvoiceLine invoiceLine = new InvoiceLine();
+					invoiceLine.setInvoice_id(invoiceID);
+					InvoiceLine deletedInvoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().deleteByInvoiceId(connection, invoiceLine);
+					if (deletedInvoiceLineResult != null) {
+						List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
+						if (invoiceLineResult != null) {
+							List<InvoiceLineTaxes> invoiceLineTaxesList = InvoiceParser.getInvoiceLineTaxesList(invoiceObj.getInvoiceLines());
+							MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineTaxesList);
+							connection.commit();
+							return InvoiceParser.convertTimeStampToString(invoiceResult);
 						}
 					}
 
@@ -140,7 +134,7 @@ public class InvoiceControllerImpl {
 
 	public static Response getInvoices(String userID, String companyID, String state) {
 		try {
-			LOGGER.debug("entered get invoices userID:" + userID + " companyID:" + companyID+" state:"+state);
+			LOGGER.debug("entered get invoices userID:" + userID + " companyID:" + companyID + " state:" + state);
 			if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
 			}
@@ -155,7 +149,7 @@ public class InvoiceControllerImpl {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
-			LOGGER.debug("exited get invoices userID:" + userID + " companyID:" + companyID+" state:"+state);
+			LOGGER.debug("exited get invoices userID:" + userID + " companyID:" + companyID + " state:" + state);
 		}
 	}
 
@@ -173,7 +167,7 @@ public class InvoiceControllerImpl {
 				result.setInvoiceTaxes(invoiceTaxesList);
 			}
 			return InvoiceParser.convertTimeStampToString(result);
-//			return result;
+			// return result;
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -202,7 +196,7 @@ public class InvoiceControllerImpl {
 
 	private static boolean sendInvoiceEmail(Invoice invoice) {
 		try {
-			LOGGER.debug("entered sendInvoiceEmail invoice: " + invoice );
+			LOGGER.debug("entered sendInvoiceEmail invoice: " + invoice);
 			if (invoice == null) {
 				return false;
 			}
@@ -220,7 +214,7 @@ public class InvoiceControllerImpl {
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {
-			LOGGER.debug("exited sendInvoiceEmail  invoice: " + invoice );
+			LOGGER.debug("exited sendInvoiceEmail  invoice: " + invoice);
 		}
 		return false;
 	}
