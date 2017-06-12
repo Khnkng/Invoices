@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * 
  * @author Apurva, Qount.
@@ -18,6 +20,7 @@ public class InvoiceLine {
 	private String id;
 	private Item item;
 	private String item_id;
+	private String item_name;
 	private String invoice_id;
 	private String description;
 	private String objectives;
@@ -30,6 +33,14 @@ public class InvoiceLine {
 	private Coa coa;
 	private String coa_id;
 	private ArrayList<InvoiceLineTaxes> invoiceLineTaxes;
+
+	public String getItem_name() {
+		return item_name;
+	}
+
+	public void setItem_name(String item_name) {
+		this.item_name = item_name;
+	}
 
 	public String getItem_id() {
 		return item_id;
@@ -166,4 +177,13 @@ public class InvoiceLine {
 		return super.equals(obj);
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
 }

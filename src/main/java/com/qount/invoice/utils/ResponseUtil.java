@@ -33,8 +33,8 @@ public class ResponseUtil {
 	 */
 	public static String getSuccessEntity(){
 		JSONObject responseJSON = new JSONObject();
-		responseJSON.put(STATUS, Constants.SUCCESS_STATUS);
-		responseJSON.put(MESSAGE, Constants.SUCCESS_STATUS);
+		responseJSON.put(STATUS, Constants.SUCCESS_STATUS_STR);
+		responseJSON.put(MESSAGE, Constants.SUCCESS_STATUS_STR);
 		return responseJSON.toString();
 	}
 	

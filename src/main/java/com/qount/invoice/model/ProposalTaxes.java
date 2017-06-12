@@ -1,5 +1,7 @@
 package com.qount.invoice.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * @author Apurva
  * @version 1.0 Jan 15 2017
@@ -33,4 +35,13 @@ public class ProposalTaxes {
 		this.tax_rate = tax_rate;
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
 }

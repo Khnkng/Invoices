@@ -30,6 +30,7 @@ import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.utils.Constants;
+import com.qount.invoice.utils.Utilities;
 
 /**
  * 
@@ -308,7 +309,7 @@ public class Contemporary {
 			cell_7.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_7);
 
-			String invoicePonumber = StringUtils.isBlank(invoice.getPo_number()) ? "" : invoice.getPo_number();
+			String invoicePonumber = invoice.getAmount_due() + "";
 			Chunk c8 = new Chunk(invoicePonumber, f2);
 			Phrase paymentDue = new Phrase(c8);
 			PdfPCell cell_8 = new PdfPCell(paymentDue);
@@ -317,10 +318,10 @@ public class Contemporary {
 
 			Currencies currencies = invoice.getCurrencies();
 			String currenciesCode = "";
-			String currenciesJava_symbol = "";
+			String currenciesSymbol = "";
 			if (currencies != null) {
 				currenciesCode = StringUtils.isEmpty(currencies.getCode()) ? "" : currencies.getCode();
-				currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();
+				currenciesSymbol = Utilities.getCurrencySymbol(currenciesCode);
 			}
 			Chunk c9 = new Chunk("Amount Due (" + currenciesCode + "): ", f);
 			Phrase amountDueLabel = new Phrase(c9);
@@ -328,7 +329,7 @@ public class Contemporary {
 			cell_9.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			cell_9.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_9);
-			String curAmount = currenciesJava_symbol + " " + invoice.getAmount_due();
+			String curAmount = currenciesSymbol + " " + invoice.getAmount_due();
 			Chunk c10 = new Chunk(curAmount, f3);
 			Phrase amountDue = new Phrase(c10);
 			PdfPCell cell_10 = new PdfPCell(amountDue);
@@ -413,8 +414,8 @@ public class Contemporary {
 			Iterator<InvoiceLine> invoiceLinesItr = invoice.getInvoiceLines().iterator();
 			while (invoiceLinesItr.hasNext()) {
 				InvoiceLine invoiceLine = invoiceLinesItr.next();
-				String desc = StringUtils.isEmpty(invoiceLine.getDescription()) ? "" : invoiceLine.getDescription();
-				Chunk c1 = new Chunk(desc, f);
+				String itemName = StringUtils.isEmpty(invoiceLine.getItem_name())?invoiceLine.getDescription():invoiceLine.getItem_name();
+				Chunk c1 = new Chunk(itemName, f);
 				Phrase invocieItemsLabel = new Phrase(c1);
 				PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
 				cellOne.setBorder(Rectangle.NO_BORDER);
@@ -432,18 +433,19 @@ public class Contemporary {
 				table.addCell(cell_3);
 
 				Currencies currencies = invoice.getCurrencies();
-				String currenciesJava_symbol = "";
+				String currenciesSymbol = "";
 				if (currencies != null) {
-					currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();
+					currenciesSymbol = Utilities.getCurrencySymbol(invoice.getCurrencies().getCode());
+//					currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();
 				}
-				Chunk c5 = new Chunk(currenciesJava_symbol + " " + invoiceLine.getPrice(), f3);
+				Chunk c5 = new Chunk(currenciesSymbol + " " + invoiceLine.getPrice(), f3);
 				Phrase invocieDateLabel = new Phrase(c5);
 				PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
 				cell_5.setBorder(Rectangle.NO_BORDER);
 				cell_5.setHorizontalAlignment(Element.ALIGN_RIGHT);
 				table.addCell(cell_5);
 
-				Chunk c7 = new Chunk(currenciesJava_symbol + " " + invoiceLine.getAmount(), f3);
+				Chunk c7 = new Chunk(currenciesSymbol + " " + invoiceLine.getAmount(), f3);
 				Phrase paymentDueLabel = new Phrase(c7);
 				PdfPCell cell_7 = new PdfPCell(paymentDueLabel);
 				cell_7.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -489,12 +491,12 @@ public class Contemporary {
 			table.addCell(cellOne);
 
 			Currencies currencies = invoice.getCurrencies();
-			String java_symbol = "";
+			String currencySymbol = "";
 			if (currencies != null) {
-				java_symbol = currencies.getJava_symbol();
+				currencySymbol = Utilities.getCurrencySymbol(invoice.getCurrencies().getCode());
 			}
 //			Chunk c3 = new Chunk(html_symbol + " " + invoice.getAmount(), f3);
-			Chunk c3 = new Chunk(java_symbol + " " + invoice.getAmount(), f3);
+			Chunk c3 = new Chunk(currencySymbol + " " + invoice.getAmount(), f3);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 			cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -534,10 +536,10 @@ public class Contemporary {
 
 			Currencies currencies = invoice.getCurrencies();
 			String code = "";
-			String java_symbol = "";
+			String currencySymbol = "";
 			if (currencies != null) {
 				code = currencies.getCode();
-				java_symbol = currencies.getJava_symbol();
+				currencySymbol = Utilities.getCurrencySymbol(code);
 			}
 			Chunk c1 = new Chunk("Amount Due(" + code + "):", f);
 			Phrase invocieItemsLabel = new Phrase(c1);
@@ -548,7 +550,7 @@ public class Contemporary {
 			cellOne.setMinimumHeight(20f);
 			table.addCell(cellOne);
 
-			Chunk c3 = new Chunk(java_symbol + " " + invoice.getAmount_due(), f3);
+			Chunk c3 = new Chunk(currencySymbol + " " + invoice.getAmount_due(), f3);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);
 			cell_3.setHorizontalAlignment(Element.ALIGN_RIGHT);

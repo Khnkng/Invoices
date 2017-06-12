@@ -39,7 +39,7 @@ public class InvoiceDetailController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve invoice for given id", value = "retieves invoice", responseContainer = "java.lang.String")
-	public Invoice getInvoice(@PathParam("invoiceID") @NotNull String invoiceID,@QueryParam("action") String action) {
+	public Invoice openInvoice(@PathParam("invoiceID") @NotNull String invoiceID,@QueryParam("action") String action) {
 		Invoice invoice = InvoiceControllerImpl.getInvoice(invoiceID);
 		return invoice;
 	}
@@ -51,7 +51,7 @@ public class InvoiceDetailController {
 	@ApiOperation(notes = "Used to retieve invoice for given id", value = "retieves invoice", responseContainer = "java.lang.String")
 	public Invoice payInvoice(@PathParam("invoiceID") @NotNull String invoiceID,@NotNull @QueryParam("action") String action,@Valid Invoice inputInvoice) {
 		if(StringUtils.isEmpty(action)){
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 		}else if(action.equals("pay")){
 			Invoice invoice = InvoiceControllerImpl.getInvoice(invoiceID);
 			if(InvoiceDetailControllerImpl.makeInvoicePayment(invoice, invoiceID,inputInvoice)){;

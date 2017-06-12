@@ -120,8 +120,8 @@ public class ProposalParser {
 	public static Proposal getProposalObjToDelete(String proposal_id) {
 		try {
 			if (StringUtils.isEmpty(proposal_id)) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Proposal proposal = new Proposal();
 			proposal.setId(proposal_id);
@@ -135,8 +135,8 @@ public class ProposalParser {
 	public static ProposalLine getProposalLineObjToDeleteProposalLine(String proposal_id, String proposalLine_id) {
 		try {
 			if (StringUtils.isEmpty(proposal_id) && StringUtils.isEmpty(proposalLine_id)) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			ProposalLine proposalLine = new ProposalLine();
 			proposalLine.setId(proposalLine_id);

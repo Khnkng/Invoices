@@ -5,6 +5,7 @@ import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -53,6 +54,9 @@ public class Utilities {
 				if ("AUD".equalsIgnoreCase(currencyCode)) {
 					return "$";
 				}
+				if ("USD".equalsIgnoreCase(currencyCode)) {
+					return "$";
+				}
 				symbol = Currency.getInstance(currencyCode).getSymbol();
 				currencyCache.put(currencyCode, symbol);
 			}
@@ -67,9 +71,9 @@ public class Utilities {
 		try {
 			if (StringUtils.isNotBlank(currencyHtmlSymbol)) {
 				if(currencyHtmlSymbol.contains(",")){
-					return currencyHtmlSymbol.split(",")[0]+";";
+					return currencyHtmlSymbol.split(",")[0];
 				}else{
-					return currencyHtmlSymbol+";";
+					return currencyHtmlSymbol;
 				}
 			}
 		} catch (Exception e) {
@@ -87,8 +91,19 @@ public class Utilities {
 		return null;
 	}
 	
+	public static void throwPreExceptionForEmptyString(String...strings){
+		if(strings == null || strings.length==0){
+			throw new WebApplicationException(Constants.PRECONDITION_FAILED_STR);
+		}
+		for(String str:strings){
+			if(StringUtils.isEmpty(str)){
+				throw new WebApplicationException(Constants.PRECONDITION_FAILED_STR);
+			}
+		}
+	}
+	
 	public static void main(String[] args) {
-		System.out.println(getCurrencyHtmlSymbol("&#8360"));
+		throwPreExceptionForEmptyString("mateen",null,null,null);
 	}
 
 }

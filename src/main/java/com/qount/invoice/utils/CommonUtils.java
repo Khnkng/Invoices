@@ -116,7 +116,7 @@ public class CommonUtils {
 		String response = JerseyClient.get(path);
 		if (StringUtils.isBlank(response)) {
 			LOGGER.error("invalid company userID [ " + userID + "] companyID [ " + companyID + " ]");
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
 					"Invalid Company", Status.PRECONDITION_FAILED));
 		}
 		return Constants.GSON.fromJson(response, UserCompany.class);

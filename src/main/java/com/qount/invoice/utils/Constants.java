@@ -12,11 +12,11 @@ import com.itextpdf.text.pdf.BaseFont;
 
 public class Constants {
 
-	public static final String FAILURE_STATUS = "Failure";
-	public static final String PRECONDITION_FAILED = "invalid input";
-	public static final String SUCCESS_STATUS = "Success";
+	public static final String FAILURE_STATUS_STR = "Failure";
+	public static final String PRECONDITION_FAILED_STR = "invalid input";
+	public static final String SUCCESS_STATUS_STR = "Success";
 	public static final int SUCCESS_RESPONSE_CODE = 200;
-	public static final String UNEXPECTED_ERROR_STATUS = "Un-expected Error";
+	public static final String UNEXPECTED_ERROR_STATUS_STR = "Un-expected Error";
 	public static final String PARTIAL_SUCCESS = "proposal not inserted into invoices";
 	public static final String INVALID_REQUEST_ERROR_STATUS = "Invalid Request";
 	public static final String DATABASE_ERROR_STATUS = "Database Error";

@@ -176,6 +176,37 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 	}
+	
+	@Override
+	public Invoice updateState(Connection connection, Invoice invoice) {
+		LOGGER.debug("entered invoice updateSate:" + invoice);
+		if (invoice == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				int ctr = 1;
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_STATE_QRY);
+				pstmt.setString(ctr++, invoice.getState());
+				pstmt.setString(ctr++, invoice.getId());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount == 0) {
+					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error updating invoice state:" + invoice.getId() + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited invoice updateState:" + invoice);
+		}
+		return invoice;
+	}
 
 	@Override
 	public Invoice get(String invoiceID) {
@@ -281,6 +312,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
 							customer.setCustomer_name(rset.getString("customer_name"));
 							customer.setEmail_id(rset.getString("email_id"));
+							customer.setCard_name(rset.getString("card_name"));
 							Currencies currencies_2 = new Currencies();
 							currencies_2.setCode(rset.getString("code"));
 							currencies_2.setName(rset.getString("name"));
@@ -514,6 +546,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(2, customerId);
 				rset = pstmt.executeQuery();
 				if (rset.next()) {
+					invoicePreference.setItems(rset.getString("items"));
+					invoicePreference.setUnits(rset.getString("units"));
+					invoicePreference.setPrice(rset.getString("price"));
+					invoicePreference.setAmount(rset.getString("amount"));
 					invoicePreference.setDefaultTitle(rset.getString("default_title"));
 					invoiceReference.setInvoiceType(rset.getString("template_type"));
 					invoicePreference.setDefaultSubHeading(rset.getString("default_sub_heading"));
