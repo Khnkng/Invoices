@@ -1,5 +1,7 @@
 package com.qount.invoice.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Business object used in CustomerDAOImpl
  * 
@@ -23,6 +25,15 @@ public class Customer {
 	private String coa;
 	private String payment_spring_id;
 	private String term;
+	private String card_name;
+
+	public String getCard_name() {
+		return card_name;
+	}
+
+	public void setCard_name(String card_name) {
+		this.card_name = card_name;
+	}
 
 	public String getTerm() {
 		return term;
@@ -144,4 +155,13 @@ public class Customer {
 		this.coa = coa;
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
 }

@@ -91,8 +91,8 @@ public class ProposalLineParser {
 	public static ProposalLine getProposalLineObjToDelete(String proposalLineID) {
 		try {
 			if (StringUtils.isEmpty(proposalLineID)) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			ProposalLine proposalLine = new ProposalLine();
 			proposalLine.setId(proposalLineID);

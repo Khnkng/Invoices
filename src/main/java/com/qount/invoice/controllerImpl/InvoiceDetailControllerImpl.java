@@ -26,6 +26,7 @@ import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.LTMUtils;
 import com.qount.invoice.utils.ResponseUtil;
+import com.qount.invoice.utils.Utilities;
 
 /**
  * 
@@ -36,7 +37,31 @@ import com.qount.invoice.utils.ResponseUtil;
 public class InvoiceDetailControllerImpl {
 	private static final Logger LOGGER = Logger.getLogger(InvoiceDetailControllerImpl.class);
 
-	public static boolean makeInvoicePayment(Invoice invoice, String invoiceID,Invoice inputInvoice) {
+	public static Invoice openInvoice(String invoiceID) {
+		Connection connection = null;
+		try {
+			Utilities.throwPreExceptionForEmptyString(invoiceID);
+			Invoice invoice = MySQLManager.getInvoiceDAOInstance().get(invoiceID);
+			if (invoice == null) {
+				throw new WebApplicationException(
+						ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "unable to find invoice for given invoice id: " + invoiceID, Status.INTERNAL_SERVER_ERROR));
+			}
+			invoice.setState("Opened");
+			connection = DatabaseUtilities.getReadWriteConnection();
+			Invoice updatedInvoice = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
+			if(updatedInvoice == null){
+				throw new WebApplicationException("unable to update the invoice state");
+			}else{
+				return invoice;
+			}
+		} catch (Exception e) {
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+		}
+	}
+
+	public static boolean makeInvoicePayment(Invoice invoice, String invoiceID, Invoice inputInvoice) {
 		Connection connection = null;
 		try {
 			JSONObject payloadObj = null;
@@ -48,7 +73,7 @@ public class InvoiceDetailControllerImpl {
 			case "one_time_charge":
 				if (StringUtils.isBlank(inputInvoice.getPayment_spring_token())) {
 					throw new WebApplicationException(
-							ResponseUtil.constructResponse(Constants.FAILURE_STATUS, "payment token is mandatory for one time invoice payment", Status.INTERNAL_SERVER_ERROR));
+							ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "payment token is mandatory for one time invoice payment", Status.INTERNAL_SERVER_ERROR));
 				}
 				payloadObj = getOneTimeChargePaymentSpringJson(inputInvoice.getPayment_spring_token(), amountToPayInCents);
 				urlAction = "charge";
@@ -100,12 +125,12 @@ public class InvoiceDetailControllerImpl {
 			}
 			return true;
 		} catch (Exception e) {
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getMessage(), Status.INTERNAL_SERVER_ERROR));
-		}finally {
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
 	}
-	
+
 	private static JSONObject invokeChargePaymentSpringApi(String companyId, JSONObject payloadObj, String urlAction) {
 		try {
 			LOGGER.debug("entered invokeChargePaymentSpringApi companyId:" + companyId);
@@ -134,7 +159,7 @@ public class InvoiceDetailControllerImpl {
 		}
 		return null;
 	}
-	
+
 	private static JSONObject getSubscriptionPaymentSpringJson(String customer_id, String ends_after, String plan_id, String bill_immediately) {
 		try {
 			if (StringUtils.isEmpty(customer_id) || StringUtils.isEmpty(ends_after)) {
@@ -151,7 +176,7 @@ public class InvoiceDetailControllerImpl {
 			throw e;
 		}
 	}
-	
+
 	private static JSONObject getOneTimeChargePaymentSpringJson(String payment_spring_token, double amount) {
 		try {
 			if (StringUtils.isEmpty(payment_spring_token)) {
@@ -233,4 +258,5 @@ public class InvoiceDetailControllerImpl {
 		} while (!StringUtils.isEmpty(inputValue));
 
 	}
+
 }

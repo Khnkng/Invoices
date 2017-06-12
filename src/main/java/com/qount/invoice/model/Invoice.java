@@ -64,7 +64,16 @@ public class Invoice {
 	private Customer customer;
 	private String companyName;
 	private String term;
+	private boolean sendMail;
 	
+	public boolean isSendMail() {
+		return sendMail;
+	}
+
+	public void setSendMail(boolean sendMail) {
+		this.sendMail = sendMail;
+	}
+
 	public String getTerm() {
 		return term;
 	}

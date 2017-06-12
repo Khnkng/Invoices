@@ -65,6 +65,8 @@ public class InvoiceParser {
 			invoice.setPayment_date(payment_date != null ? payment_date.toString() : null);
 			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
+			invoice.setAmount_due(invoice.getAmount());
+			invoice.setAmount_paid(0);
 			setInvoiceAmountByDate(invoice, userCompany);
 			List<InvoiceLine> invoiceLines = invoice.getInvoiceLines();
 			if (invoiceLines == null) {
@@ -187,7 +189,7 @@ public class InvoiceParser {
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			// throw new WebApplicationException(e.getLocalizedMessage(), 500);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
 

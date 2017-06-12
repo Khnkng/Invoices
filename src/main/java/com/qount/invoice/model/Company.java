@@ -1,5 +1,7 @@
 package com.qount.invoice.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Business object used in CustomerDAOImpl
  * 
@@ -181,5 +183,14 @@ public class Company {
 		this.active=active;
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
 
 }

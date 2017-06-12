@@ -52,12 +52,14 @@ public class EmailHandler {
 						.replace("${invoiceLinkUrl}", invoiceLinkUrl)
 						.replace("${message}", inputJson.optString("message"));
 			}
-			System.out.println(template);
-			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
-			String portName = PropertyManager.getProperty("half.service.docker.port");
-			String url = Utilities.getLtmUrl(hostName, portName);
-			url = url+ "HalfService/emails/attachment";
-//			String url = "https://dev-services.qount.io/HalfService/emails/attachment";
+			if(StringUtils.equals("true", PropertyManager.getProperty("print.mail.template"))){
+				System.out.println(template);
+			}
+//			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
+//			String portName = PropertyManager.getProperty("half.service.docker.port");
+//			String url = Utilities.getLtmUrl(hostName, portName);
+//			url = url+ "HalfService/emails/attachment";
+			String url = "https://dev-services.qount.io/HalfService/emails/attachment";
 			String authorization = inputJson.optString("Authorization");
 			FormDataBodyPart filePart = new FormDataBodyPart(file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
 			filePart.setContentDisposition(FormDataContentDisposition.name("file").fileName(fileName).build());
