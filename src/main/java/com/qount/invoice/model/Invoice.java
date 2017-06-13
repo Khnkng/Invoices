@@ -65,7 +65,16 @@ public class Invoice {
 	private String companyName;
 	private String term;
 	private boolean sendMail;
+	private String recepientsMails;
 	
+	public String getRecepientsMails() {
+		return recepientsMails;
+	}
+
+	public void setRecepientsMails(String recepientsMails) {
+		this.recepientsMails = recepientsMails;
+	}
+
 	public boolean isSendMail() {
 		return sendMail;
 	}

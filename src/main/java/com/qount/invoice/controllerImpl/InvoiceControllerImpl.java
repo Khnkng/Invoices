@@ -63,6 +63,7 @@ public class InvoiceControllerImpl {
 						invoice.setCurrencies(currencies);
 						if (invoiceLineTaxesResult != null) {
 							if (invoice.isSendMail()) {
+								invoiceResult.setRecepientsMails(invoice.getRecepientsMails());
 								if (sendInvoiceEmail(invoiceResult)) {
 									invoice.setState("Email Sent");
 								}
