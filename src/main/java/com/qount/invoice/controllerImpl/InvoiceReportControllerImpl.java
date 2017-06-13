@@ -70,12 +70,15 @@ public class InvoiceReportControllerImpl {
 				jsonObj.put("emailJson", emailJson);
 				jsonObj.put("fileName", PropertyManager.getProperty("invoice.email.attachment.name"));
 				if (jsonObj != null && jsonObj.length() > 0) {
-					if (jsonObj.optJSONObject("emailJson").optJSONArray("recipients") == null || jsonObj.optJSONObject("emailJson").optJSONArray("recipients").length() == 0) {
 						JSONArray recipients = new JSONArray();
-						recipients.put(invoiceReference.getCustomer().getEmail_id());
+						String recepientsStr = invoice.getRecepientsMails();
+						if(StringUtils.isEmpty(recepientsStr)){
+							throw new WebApplicationException("'recepientsMails' cannot be empty");
+						}
+						recepientsStr = "["+recepientsStr+"]";
+						recipients.put(recepientsStr);
 						jsonObj.optJSONObject("emailJson").remove("recipients");
 						jsonObj.optJSONObject("emailJson").put("recipients", recipients);
-					}
 					Currencies currencies = MySQLManager.getCurrencyDAOInstance().get(conn, invoice.getCurrency());
 					Customer tempCustomer = new Customer();
 					tempCustomer.setCustomer_id(invoice.getCustomer_id());
@@ -110,4 +113,10 @@ public class InvoiceReportControllerImpl {
 		return Response.status(500).entity("server error while building pdf").build();
 	}
 
+
+	public static void main(String[] args) {
+		String str="asd,asd,asd";
+		JSONArray recipients = new JSONArray("["+str+"]");
+		System.out.println(recipients);
+	}
 }
