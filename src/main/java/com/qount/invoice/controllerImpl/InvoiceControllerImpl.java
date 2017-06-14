@@ -151,9 +151,6 @@ public class InvoiceControllerImpl {
 			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
 			JSONObject result = InvoiceParser.createInvoiceLstResult(invoiceLst, badges);
 			return Response.status(200).entity(result.toString()).build();
-			// return
-			// MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID,
-			// companyID);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -176,7 +173,6 @@ public class InvoiceControllerImpl {
 				result.setInvoiceTaxes(invoiceTaxesList);
 			}
 			return InvoiceParser.convertTimeStampToString(result);
-			// return result;
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));

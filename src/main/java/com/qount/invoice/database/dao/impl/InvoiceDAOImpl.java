@@ -93,7 +93,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setLong(ctr++, new Date().getTime());
 				pstmt.setString(ctr++, invoice.getTerm());
-				pstmt.setString(ctr++, invoice.getRecepientsMails());
+				pstmt.setString(ctr++, invoice.getRecepientsMails().toString());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -159,7 +159,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setString(ctr++, invoice.getTerm());
-				pstmt.setString(ctr++, invoice.getRecepientsMails());
+				pstmt.setString(ctr++, invoice.getRecepientsMails().toString());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -311,7 +311,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 							invoice.setCreated_at(rset.getString("i_created_at"));
 							invoice.setCompanyName(rset.getString("company_name"));
-							invoice.setRecepientsMails(rset.getString("recepients_mails"));
+							invoice.setRecepientsMails(CommonUtils.getJsonArrayFromString(rset.getString("recepients_mails")));
 							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
 							customer.setCustomer_name(rset.getString("customer_name"));
 							customer.setEmail_ids(CommonUtils.getJsonArrayFromString(rset.getString("email_ids")));
@@ -364,7 +364,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoiceMail.setCustomerEmails(CommonUtils.getJsonArrayFromString(rset.getString("cust_email_ids")));
 					invoiceMail.setInvoiceCreatedAt(rset.getString("i_created_at"));
 					invoiceMail.setCurrencyHtml_symbol(rset.getString("html_symbol"));
-					invoiceMail.setRecepients_mails(rset.getString("recepients_mails"));
+					invoiceMail.setRecepients_mails(CommonUtils.getJsonArrayFromString(rset.getString("recepients_mails")));
 				}
 			}
 		} catch (Exception e) {

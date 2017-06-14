@@ -70,12 +70,7 @@ public class InvoiceReportControllerImpl {
 				jsonObj.put("emailJson", emailJson);
 				jsonObj.put("fileName", PropertyManager.getProperty("invoice.email.attachment.name"));
 				if (jsonObj != null && jsonObj.length() > 0) {
-						JSONArray recipients = new JSONArray();
-						String recepientsStr = invoice.getRecepientsMails();
-						if(StringUtils.isEmpty(recepientsStr)){
-							throw new WebApplicationException("'recepientsMails' cannot be empty");
-						}
-						recipients.put(recepientsStr);
+						JSONArray recipients = invoice.getRecepientsMails();
 						jsonObj.optJSONObject("emailJson").remove("recipients");
 						jsonObj.optJSONObject("emailJson").put("recipients", recipients);
 					Currencies currencies = MySQLManager.getCurrencyDAOInstance().get(conn, invoice.getCurrency());

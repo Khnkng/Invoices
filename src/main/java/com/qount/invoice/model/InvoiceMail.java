@@ -26,7 +26,7 @@ public class InvoiceMail {
 	private JSONArray customerEmails;
 	private String invoiceCreatedAt;
 	private String invoiceId;
-	private String recepients_mails;
+	private JSONArray recepients_mails;
 
 	public String getInvoiceId() {
 		return invoiceId;
@@ -132,11 +132,11 @@ public class InvoiceMail {
 		this.customerEmails = customerEmails;
 	}
 
-	public String getRecepients_mails() {
+	public JSONArray getRecepients_mails() {
 		return recepients_mails;
 	}
 
-	public void setRecepients_mails(String recepients_mails) {
+	public void setRecepients_mails(JSONArray recepients_mails) {
 		this.recepients_mails = recepients_mails;
 	}
 
