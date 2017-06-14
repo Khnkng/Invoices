@@ -50,6 +50,24 @@ public class CommonUtils {
 		}
 		return result;
 	}
+	
+	public static List<String> getListString(String str) {
+		List<String> result = null;
+		try {
+			if (!StringUtils.isBlank(str)) {
+				JSONArray emailArr = getJsonArrayFromString(str);
+				if(isValidJSONArray(emailArr)){
+					result = new ArrayList<String>();
+					for(int i=0;i<emailArr.length();i++){
+						result.add(emailArr.optString(i));
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return result;
+	}
 
 	public static JSONArray getJsonArrayFromString(String str) {
 		JSONArray result = null;

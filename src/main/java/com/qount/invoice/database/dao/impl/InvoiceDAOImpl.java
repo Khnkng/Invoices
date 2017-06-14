@@ -311,7 +311,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 							invoice.setCreated_at(rset.getString("i_created_at"));
 							invoice.setCompanyName(rset.getString("company_name"));
-							invoice.setRecepientsMailsArr(CommonUtils.getJsonArrayFromString(rset.getString("recepients_mails")));
+							invoice.setRecepientsMails(CommonUtils.getListString(rset.getString("recepients_mails")));
 							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
 							customer.setCustomer_name(rset.getString("customer_name"));
 							customer.setEmail_ids(CommonUtils.getJsonArrayFromString(rset.getString("email_ids")));
