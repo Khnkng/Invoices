@@ -458,6 +458,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setSub_totoal(rset.getDouble("sub_totoal"));
 					invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 					invoice.setId(rset.getString("id"));
+					invoice.setNumber(rset.getString("number"));
 					// invoice.setUser_id(rset.getString("user_id"));
 					// invoice.setCompany_id(rset.getString("company_id"));
 					// invoice.setDescription(rset.getString("description"));

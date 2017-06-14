@@ -1,5 +1,6 @@
 package com.qount.invoice.utils;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
@@ -67,4 +68,8 @@ public class Constants {
 		DATE_FORMAT_GMT.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 	public static final String DEFAULT_INVOICE_CURRENCY = "USD";
+	public static final CurrencyConverter CURRENCY_CONVERTER = new CurrencyConverter();
+	public static final String INVOICE_CONVERSION_DATE_FORMAT_STR = "yyyy-MM-dd";
+	public static final SimpleDateFormat INVOICE_CONVERSION_DATE_FORMAT = new SimpleDateFormat(INVOICE_CONVERSION_DATE_FORMAT_STR);
+	public static final DecimalFormat INVOICE_CONVERSION_DECIMALFORMAT = new DecimalFormat("#.##");
 }
