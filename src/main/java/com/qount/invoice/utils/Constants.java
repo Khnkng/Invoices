@@ -66,4 +66,5 @@ public class Constants {
 	static {
 		DATE_FORMAT_GMT.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
+	public static final String DEFAULT_INVOICE_CURRENCY = "USD";
 }

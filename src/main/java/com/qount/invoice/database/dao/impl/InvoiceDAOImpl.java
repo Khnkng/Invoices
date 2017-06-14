@@ -104,7 +104,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e.getLocalizedMessage());
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			LOGGER.debug("exited save(invoice):" + invoice);
@@ -171,7 +171,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e.getLocalizedMessage());
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			LOGGER.debug("exited invoice update:" + invoice);
@@ -202,7 +202,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e.getLocalizedMessage());
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			LOGGER.debug("exited invoice updateState:" + invoice);
@@ -328,7 +328,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error fetching invoice for invoiceID [ " + invoiceID + " ]", e);
-			throw new WebApplicationException(e.getMessage());
+			throw new WebApplicationException(e.getLocalizedMessage());
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -369,7 +369,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error fetching invoice for invoiceID [ " + invoiceID + " ]", e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e.getLocalizedMessage());
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -410,7 +410,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error fetching count for invoice: userID" + userID+" companyID"+companyID, e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e.getLocalizedMessage());
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -484,7 +484,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error fetching invoices for user_id [ " + userID + " ]", e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e.getLocalizedMessage());
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -519,7 +519,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Error deleting invoice:" + invoice.getId() + ",  ", e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e.getLocalizedMessage());
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
@@ -573,7 +573,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error fetching InvoiceRelatedDetails", e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e.getLocalizedMessage());
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
