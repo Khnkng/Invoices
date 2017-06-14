@@ -56,6 +56,11 @@ public class InvoicePaymentDAOImpl implements InvoicePaymentDAO {
 				pstmt.setString(ctr++, invoicePayment.getStatus());
 				pstmt.setString(ctr++, invoicePayment.getPeriod_start());
 				pstmt.setString(ctr++, invoicePayment.getPeriod_end());
+				pstmt.setString(ctr++, invoicePayment.getCurrency_from());
+				pstmt.setString(ctr++, invoicePayment.getCurrency_to());
+				pstmt.setFloat(ctr++, invoicePayment.getConversion());
+				pstmt.setString(ctr++, invoicePayment.getConversionDate());
+				pstmt.setDouble(ctr++, invoicePayment.getCurrency_amount());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
