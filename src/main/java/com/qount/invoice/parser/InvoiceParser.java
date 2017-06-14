@@ -285,7 +285,7 @@ public class InvoiceParser {
 			invoiceMail.setCompanyName(invoice.getCompanyName());
 			invoiceMail.setCurrencyCode(invoice.getCurrencies().getCode());
 			invoiceMail.setCurrencyHtml_symbol(invoice.getCurrencies().getHtml_symbol());
-			invoiceMail.setCustomerEmail(invoice.getCustomer().getEmail_id());
+			invoiceMail.setCustomerEmails(invoice.getCustomer().getEmail_ids());
 			invoiceMail.setCustomerName(invoice.getCustomer().getCustomer_name());
 			invoiceMail.setInvocieDate(invoice.getInvoice_date());
 			invoiceMail.setInvoiceCreatedAt(invoice.getCreated_at());

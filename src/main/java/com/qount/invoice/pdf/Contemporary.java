@@ -235,14 +235,14 @@ public class Contemporary {
 
 			createEmptyLine(document);
 
-			String customerEmail = StringUtils.isBlank(customer.getEmail_id()) ? "" : customer.getEmail_id();
-			Font f3 = Constants.F1;
-			Chunk c3 = new Chunk(customerEmail, f3);
-			Paragraph p3 = new Paragraph(c3);
-			p3.setAlignment(Element.ALIGN_LEFT);
-			p3.setSpacingBefore(-5);
-			p3.setIndentationLeft(10);
-			document.add(p3);
+//			String customerEmail = CommonUtils.isValidJSONArray(customer.getEmail_ids()) ? "" : customer.getEmail_ids().toString();
+//			Font f3 = Constants.F1;
+//			Chunk c3 = new Chunk(customerEmail, f3);
+//			Paragraph p3 = new Paragraph(c3);
+//			p3.setAlignment(Element.ALIGN_LEFT);
+//			p3.setSpacingBefore(-5);
+//			p3.setIndentationLeft(10);
+//			document.add(p3);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw e;

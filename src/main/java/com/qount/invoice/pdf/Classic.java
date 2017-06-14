@@ -242,14 +242,14 @@ public class Classic implements PdfPCellEvent {
 
 			createEmptyLine(document);
 
-			String email_id = StringUtils.isEmpty(customer.getEmail_id()) ? "" : customer.getEmail_id();
-			Font f3 = Constants.F1;
-			Chunk c3 = new Chunk(email_id, f3);
-			Paragraph p3 = new Paragraph(c3);
-			p3.setAlignment(Element.ALIGN_LEFT);
-			p3.setSpacingBefore(-5);
-			p3.setIndentationLeft(10);
-			document.add(p3);
+//			String email_id = CommonUtils.isValidJSONArray(customer.getEmail_ids()) ? "" : customer.getEmail_ids().toString();
+//			Font f3 = Constants.F1;
+//			Chunk c3 = new Chunk(email_id, f3);
+//			Paragraph p3 = new Paragraph(c3);
+//			p3.setAlignment(Element.ALIGN_LEFT);
+//			p3.setSpacingBefore(-5);
+//			p3.setIndentationLeft(10);
+//			document.add(p3);
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}

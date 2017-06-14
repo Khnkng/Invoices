@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.CustomerDAO;
 import com.qount.invoice.model.Customer;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
 
@@ -74,7 +75,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 				pstmt.setString(8, customer.getCustomer_state());
 				pstmt.setString(9, customer.getCustomer_name());
 				pstmt.setString(10, customer.getCustomer_zipcode());
-				pstmt.setString(11, customer.getEmail_id());
+				pstmt.setString(11, customer.getEmail_ids().toString());
 				pstmt.setString(12, customer.getPhone_number());
 				pstmt.setString(13, customer.getCoa());
 				pstmt.setString(14, customer.getPayment_spring_id());
@@ -116,7 +117,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 				pstmt.setString(5, customer.getCustomer_state());
 				pstmt.setString(6, customer.getCustomer_name());
 				pstmt.setString(7, customer.getCustomer_zipcode());
-				pstmt.setString(8, customer.getEmail_id());
+				pstmt.setString(8, customer.getEmail_ids().toString());
 				pstmt.setString(9, customer.getPhone_number());
 				pstmt.setString(10, customer.getUser_id());
 				pstmt.setString(11, customer.getCompany_id());
@@ -199,7 +200,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 					customer.setCustomer_state(rset.getString("customer_state"));
 					customer.setCustomer_name(rset.getString("customer_name"));
 					customer.setCustomer_zipcode(rset.getString("customer_zipcode"));
-					customer.setEmail_id(rset.getString("email_id"));
+					customer.setEmail_ids(CommonUtils.getJsonArrayFromString(rset.getString("email_ids")));
 					customer.setPhone_number(rset.getString("phone_number"));
 					customer.setCoa(rset.getString("coa"));
 					customer.setTerm(rset.getString("term"));
@@ -247,7 +248,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 						customer1.setCustomer_state(rset.getString("customer_state"));
 						customer1.setCustomer_name(rset.getString("customer_name"));
 						customer1.setCustomer_zipcode(rset.getString("customer_zipcode"));
-						customer1.setEmail_id(rset.getString("email_id"));
+						customer.setEmail_ids(CommonUtils.getJsonArrayFromString(rset.getString("email_ids")));
 						customer1.setPhone_number(rset.getString("phone_number"));
 						customer1.setCoa(rset.getString("coa"));
 						customer1.setTerm(rset.getString("term"));
