@@ -40,8 +40,7 @@ public class InvoiceDetailController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve invoice for given id", value = "retieves invoice", responseContainer = "java.lang.String")
 	public Invoice openInvoice(@PathParam("invoiceID") @NotNull String invoiceID,@QueryParam("action") String action) {
-		Invoice invoice = InvoiceControllerImpl.getInvoice(invoiceID);
-		return invoice;
+		return InvoiceControllerImpl.getInvoice(invoiceID);
 	}
 	
 	@Path("/{invoiceID}")

@@ -25,6 +25,7 @@ import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.pdf.PdfGenerator;
 import com.qount.invoice.pdf.PdfUtil;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.ResponseUtil;
@@ -70,14 +71,12 @@ public class InvoiceReportControllerImpl {
 				jsonObj.put("emailJson", emailJson);
 				jsonObj.put("fileName", PropertyManager.getProperty("invoice.email.attachment.name"));
 				if (jsonObj != null && jsonObj.length() > 0) {
-						JSONArray recipients = new JSONArray();
-						String recepientsStr = invoice.getRecepientsMails();
-						if(StringUtils.isEmpty(recepientsStr)){
-							throw new WebApplicationException("'recepientsMails' cannot be empty");
-						}
-						recipients.put(recepientsStr);
-						jsonObj.optJSONObject("emailJson").remove("recipients");
-						jsonObj.optJSONObject("emailJson").put("recipients", recipients);
+					JSONArray recipients = invoice.getRecepientsMails();
+					if(!CommonUtils.isValidJSONArray(recipients)){
+						throw new WebApplicationException("no email recipients found for current invoice");
+					}
+					jsonObj.optJSONObject("emailJson").remove("recipients");
+					jsonObj.optJSONObject("emailJson").put("recipients", recipients);
 					Currencies currencies = MySQLManager.getCurrencyDAOInstance().get(conn, invoice.getCurrency());
 					Customer tempCustomer = new Customer();
 					tempCustomer.setCustomer_id(invoice.getCustomer_id());

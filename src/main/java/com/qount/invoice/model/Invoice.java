@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.json.JSONArray;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -65,13 +67,13 @@ public class Invoice {
 	private String companyName;
 	private String term;
 	private boolean sendMail;
-	private String recepientsMails;
+	private JSONArray recepientsMails;
 	
-	public String getRecepientsMails() {
+	public JSONArray getRecepientsMails() {
 		return recepientsMails;
 	}
 
-	public void setRecepientsMails(String recepientsMails) {
+	public void setRecepientsMails(JSONArray recepientsMails) {
 		this.recepientsMails = recepientsMails;
 	}
 
