@@ -140,4 +140,22 @@ public class CommonUtils {
 		return null;
 	}
 	
+	public static boolean isValidStrings(String...strings) throws Exception{
+		try {
+			if(strings==null || strings.length==0){
+				throw new Exception("empty input");
+			}
+			int argIndex =1;
+			for(String str:strings){
+				if(StringUtils.isEmpty(str)){
+					throw new Exception("empty string at arg position:"+argIndex);
+				}
+				++argIndex;
+			}
+			return true;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		}
+	}
 }

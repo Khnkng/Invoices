@@ -20,6 +20,51 @@ public class InvoicePayment {
 	private String status;
 	private String period_start;
 	private String period_end;
+	private String currency_from;
+	private String currency_to;
+	private float conversion;
+	private String conversionDate;
+	private double currency_amount;
+	
+	public String getCurrency_from() {
+		return currency_from;
+	}
+
+	public void setCurrency_from(String currency_from) {
+		this.currency_from = currency_from;
+	}
+
+	public String getCurrency_to() {
+		return currency_to;
+	}
+
+	public void setCurrency_to(String currency_to) {
+		this.currency_to = currency_to;
+	}
+
+	public float getConversion() {
+		return conversion;
+	}
+
+	public void setConversion(float conversion) {
+		this.conversion = conversion;
+	}
+
+	public String getConversionDate() {
+		return conversionDate;
+	}
+
+	public void setConversionDate(String conversionDate) {
+		this.conversionDate = conversionDate;
+	}
+
+	public double getCurrency_amount() {
+		return currency_amount;
+	}
+
+	public void setCurrency_amount(double currency_amount) {
+		this.currency_amount = currency_amount;
+	}
 
 	public String getPeriod_end() {
 		return period_end;

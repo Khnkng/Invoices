@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +25,7 @@ import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoicePayment;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
+import com.qount.invoice.utils.CurrencyConverter;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.LTMUtils;
 import com.qount.invoice.utils.ResponseUtil;
@@ -49,9 +52,9 @@ public class InvoiceDetailControllerImpl {
 			invoice.setState("Opened");
 			connection = DatabaseUtilities.getReadWriteConnection();
 			Invoice updatedInvoice = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
-			if(updatedInvoice == null){
+			if (updatedInvoice == null) {
 				throw new WebApplicationException("unable to update the invoice state");
-			}else{
+			} else {
 				return invoice;
 			}
 		} catch (Exception e) {
@@ -68,7 +71,17 @@ public class InvoiceDetailControllerImpl {
 			String urlAction = null;
 			invoice.setAmountToPay(inputInvoice.getAmountToPay());
 			String companyID = invoice.getCompany_id();
-			long amountToPayInCents = convertDollarToCent(invoice.getAmountToPay());
+			String currency = invoice.getCurrencies() != null ? invoice.getCurrencies().getCode() : invoice.getCurrency();
+			long amountToPayInCents = 0;
+			if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
+				double convertedAmountToPay = convertInvoiceAmount(Constants.DEFAULT_INVOICE_CURRENCY, currency, invoice.getAmount());
+				amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
+			} else {
+				amountToPayInCents = convertDollarToCent(invoice.getAmountToPay());
+			}
+			if (StringUtils.isEmpty(currency)) {
+				throw new WebApplicationException("invoice currency is empty!");
+			}
 			switch (inputInvoice.getAction()) {
 			case "one_time_charge":
 				if (StringUtils.isBlank(inputInvoice.getPayment_spring_token())) {
@@ -243,20 +256,26 @@ public class InvoiceDetailControllerImpl {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		String inputValue;
-		do {
-			inputValue = br.readLine();
-			try {
-				long cent = convertDollarToCent(inputValue);
-				System.out.println(cent);
-				System.out.println(convertCentToDollar(cent));
-			} catch (Exception e) {
-				System.out.println("enter valid value");
+	private static double convertInvoiceAmount(String currencyFrom, String currencyTo, double amount) throws Exception {
+		try {
+			if (!CommonUtils.isValidStrings(currencyFrom, currencyTo)) {
+				throw new Exception("invalid input invoiceCurrency:" + currencyFrom + " ,companyCurrency:" + currencyTo);
 			}
-		} while (!StringUtils.isEmpty(inputValue));
-
+			if (amount < 0.00d) {
+				throw new Exception("negative amount");
+			}
+			String formatedDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+			CurrencyConverter converter = new CurrencyConverter();
+			float conversion = converter.convert(currencyFrom, currencyTo, formatedDate);
+			amount = amount * conversion;
+			amount = Double.valueOf(new DecimalFormat("#.##").format(amount));
+			return amount;
+		} catch (Exception e) {
+			throw e;
+		}
 	}
 
+	public static void main(String[] args) throws Exception {
+		System.out.println(convertInvoiceAmount("USD", "INR", 1));
+	}
 }
