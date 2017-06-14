@@ -67,14 +67,23 @@ public class Invoice {
 	private String companyName;
 	private String term;
 	private boolean sendMail;
-	private JSONArray recepientsMails;
+	private List<String> recepientsMails;
+	private JSONArray recepientsMailsArr;
 	
-	public JSONArray getRecepientsMails() {
+	public List<String> getRecepientsMails() {
 		return recepientsMails;
 	}
 
-	public void setRecepientsMails(JSONArray recepientsMails) {
+	public void setRecepientsMails(List<String> recepientsMails) {
 		this.recepientsMails = recepientsMails;
+	}
+
+	public JSONArray getRecepientsMailsArr() {
+		return recepientsMailsArr;
+	}
+
+	public void setRecepientsMailsArr(JSONArray recepientsMailsArr) {
+		this.recepientsMailsArr = recepientsMailsArr;
 	}
 
 	public boolean isSendMail() {

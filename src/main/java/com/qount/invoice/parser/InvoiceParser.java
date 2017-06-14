@@ -83,6 +83,7 @@ public class InvoiceParser {
 				line.setLast_updated_by(userId);
 			}
 			invoice.setCreated_at(new Timestamp(System.currentTimeMillis()).toString());
+			invoice.setRecepientsMailsArr(CommonUtils.getJsonArrayFromList(invoice.getRecepientsMails()));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e.getLocalizedMessage(), 500);

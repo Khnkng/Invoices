@@ -62,6 +62,21 @@ public class CommonUtils {
 		}
 		return result;
 	}
+	
+	public static JSONArray getJsonArrayFromList(List<String> lst) {
+		JSONArray result = null;
+		try {
+			if (lst!=null && !lst.isEmpty()) {
+				result = new JSONArray();
+				for(int i=0;i<lst.size();i++){
+					result.put(lst.get(i));
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return result;
+	}
 
 	public static boolean isValidJSON(JSONObject jsonObject) {
 		boolean result = false;
