@@ -17,22 +17,22 @@ import com.qount.invoice.pdf.InvoiceReference;
  */
 public interface InvoiceDAO {
 
-	public Invoice save(Connection connection, Invoice invoice);
-	
-	public Invoice update(Connection connection, Invoice invoice);
-	
-	public Invoice updateState(Connection connection, Invoice invoice);
+	public Invoice save(Connection connection, Invoice invoice) throws Exception;;
 
-	public Invoice get(String InvoiceID);
-	
-	public Map<String, String> getCount(String userID,String companyID);
-	
-	public InvoiceMail getInvoiceMailDetails(String InvoiceID);
+	public Invoice update(Connection connection, Invoice invoice) throws Exception;;
 
-	public List<Invoice> getInvoiceList(String userID,String companyID, String state);
-	
-	public Invoice delete(Invoice invoice);
-	
-	public InvoiceReference getInvoiceRelatedDetails(Connection connection, InvoiceReference invoiceReference);
+	public Invoice updateState(Connection connection, Invoice invoice) throws Exception;;
+
+	public Invoice get(String InvoiceID) throws Exception;;
+
+	public Map<String, String> getCount(String userID, String companyID) throws Exception;;
+
+	public InvoiceMail getInvoiceMailDetails(String InvoiceID) throws Exception;;
+
+	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception;;
+
+	public Invoice delete(Invoice invoice) throws Exception;
+
+	public InvoiceReference getInvoiceRelatedDetails(Connection connection, InvoiceReference invoiceReference) throws Exception;
 
 }

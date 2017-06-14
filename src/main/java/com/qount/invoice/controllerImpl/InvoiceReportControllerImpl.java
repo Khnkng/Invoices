@@ -6,7 +6,6 @@ import java.sql.Connection;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -26,9 +25,7 @@ import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.pdf.PdfGenerator;
 import com.qount.invoice.pdf.PdfUtil;
 import com.qount.invoice.utils.CommonUtils;
-import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
-import com.qount.invoice.utils.ResponseUtil;
 
 /**
  * @author Mateen
@@ -71,7 +68,7 @@ public class InvoiceReportControllerImpl {
 				jsonObj.put("emailJson", emailJson);
 				jsonObj.put("fileName", PropertyManager.getProperty("invoice.email.attachment.name"));
 				if (jsonObj != null && jsonObj.length() > 0) {
-					JSONArray recipients = invoice.getRecepientsMails();
+					JSONArray recipients = invoice.getRecepientsMailsArr();
 					if(!CommonUtils.isValidJSONArray(recipients)){
 						throw new WebApplicationException("no email recipients found for current invoice");
 					}
@@ -100,10 +97,7 @@ public class InvoiceReportControllerImpl {
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
-			if (e instanceof WebApplicationException) {
-				throw e;
-			}
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw e;
 		} finally {
 			PdfUtil.deleteFile(pdfFile);
 			DatabaseUtilities.closeConnection(conn);
