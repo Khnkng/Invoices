@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.model.InvoiceMail;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.JersyClientUtilities;
 import com.qount.invoice.utils.Utilities;
@@ -48,7 +49,7 @@ public class EmailHandler {
 						.replace("${amount}", StringUtils.isEmpty(invoiceMail.getAmount()+"")?"":invoiceMail.getAmount()+"")
 						.replace("${currencyCode}", StringUtils.isEmpty(invoiceMail.getCurrencyCode())?"":invoiceMail.getCurrencyCode())
 						.replace("${invoiceDate}", StringUtils.isEmpty(invocieDateStr)?"":invocieDateStr)
-						.replace("${customerEmail}", StringUtils.isEmpty(invoiceMail.getCustomerEmail())?"":invoiceMail.getCustomerEmail())
+						.replace("${customerEmail}", CommonUtils.isValidJSONArray(invoiceMail.getCustomerEmails())?"":invoiceMail.getCustomerEmails().toString())
 						.replace("${invoiceLinkUrl}", invoiceLinkUrl)
 						.replace("${message}", inputJson.optString("message"));
 			}

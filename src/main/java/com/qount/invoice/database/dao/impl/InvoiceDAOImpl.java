@@ -93,6 +93,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setLong(ctr++, new Date().getTime());
 				pstmt.setString(ctr++, invoice.getTerm());
+				pstmt.setString(ctr++, invoice.getRecepientsMails());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -158,6 +159,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setString(ctr++, invoice.getTerm());
+				pstmt.setString(ctr++, invoice.getRecepientsMails());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -309,9 +311,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 							invoice.setCreated_at(rset.getString("i_created_at"));
 							invoice.setCompanyName(rset.getString("company_name"));
+							invoice.setRecepientsMails(rset.getString("recepients_mails"));
 							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
 							customer.setCustomer_name(rset.getString("customer_name"));
-							customer.setEmail_id(rset.getString("email_id"));
+							customer.setEmail_ids(CommonUtils.getJsonArrayFromString(rset.getString("email_ids")));
 							customer.setCard_name(rset.getString("card_name"));
 							Currencies currencies_2 = new Currencies();
 							currencies_2.setCode(rset.getString("code"));
@@ -358,9 +361,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoiceMail.setAmount(rset.getDouble("i_amount"));
 					invoiceMail.setAmount_by_date(rset.getDouble("i_amount_by_date"));
 					invoiceMail.setInvoiceDueDate(rset.getString("i_acceptance_final_date"));
-					invoiceMail.setCustomerEmail(rset.getString("cust_email_id"));
+					invoiceMail.setCustomerEmails(CommonUtils.getJsonArrayFromString(rset.getString("cust_email_ids")));
 					invoiceMail.setInvoiceCreatedAt(rset.getString("i_created_at"));
 					invoiceMail.setCurrencyHtml_symbol(rset.getString("html_symbol"));
+					invoiceMail.setRecepients_mails(rset.getString("recepients_mails"));
 				}
 			}
 		} catch (Exception e) {
@@ -560,7 +564,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					company.setCountry(rset.getString("country"));
 					company.setPhone_number(rset.getString("phone_number"));
 					customer.setCustomer_name(rset.getString("customer_name"));
-					customer.setEmail_id(rset.getString("email_id"));
+					customer.setEmail_ids(CommonUtils.getJsonArrayFromString(rset.getString("email_ids")));
 					invoicePreference.setStandardMemo(rset.getString("standard_memo"));
 					invoicePreference.setDefaultFooter(rset.getString("default_footer"));
 				}else{

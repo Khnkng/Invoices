@@ -1,5 +1,7 @@
 package com.qount.invoice.model;
 
+import org.json.JSONArray;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -21,9 +23,10 @@ public class InvoiceMail {
 	private double amount_by_date;
 	private String currencyCode;
 	private String invoiceDueDate;
-	private String customerEmail;
+	private JSONArray customerEmails;
 	private String invoiceCreatedAt;
 	private String invoiceId;
+	private String recepients_mails;
 
 	public String getInvoiceId() {
 		return invoiceId;
@@ -121,12 +124,20 @@ public class InvoiceMail {
 		this.invoiceDueDate = invoiceDueDate;
 	}
 
-	public String getCustomerEmail() {
-		return customerEmail;
+	public JSONArray getCustomerEmails() {
+		return customerEmails;
 	}
 
-	public void setCustomerEmail(String customerEmail) {
-		this.customerEmail = customerEmail;
+	public void setCustomerEmails(JSONArray customerEmails) {
+		this.customerEmails = customerEmails;
+	}
+
+	public String getRecepients_mails() {
+		return recepients_mails;
+	}
+
+	public void setRecepients_mails(String recepients_mails) {
+		this.recepients_mails = recepients_mails;
 	}
 
 	@Override

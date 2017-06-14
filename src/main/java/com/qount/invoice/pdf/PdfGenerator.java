@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 
 import com.itextpdf.text.Document;
 import com.qount.invoice.model.Company;
@@ -111,7 +112,7 @@ public class PdfGenerator {
 			company.setPhone_number("8801446657");
 			invoiceReference.setCompany(company);
 			Customer customer = new Customer();
-			customer.setEmail_id("makjavaprogrammer@gmail.com");
+			customer.setEmail_ids(new JSONArray("[makjavaprogrammer@gmail.com]"));
 			customer.setCustomer_name("mateen");
 			invoiceReference.setCustomer(customer);
 			return invoiceReference;

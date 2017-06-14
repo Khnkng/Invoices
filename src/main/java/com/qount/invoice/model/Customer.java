@@ -1,5 +1,7 @@
 package com.qount.invoice.model;
 
+import org.json.JSONArray;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -13,7 +15,7 @@ public class Customer {
 	private String user_id;
 	private String company_id;
 	private String customer_id;
-	private String email_id;
+	private JSONArray email_ids;
 	private String customer_name;
 	private String customer_ein;
 	private String customer_address;
@@ -75,12 +77,12 @@ public class Customer {
 		this.customer_id = customer_id;
 	}
 
-	public String getEmail_id() {
-		return email_id;
+	public JSONArray getEmail_ids() {
+		return email_ids;
 	}
 
-	public void setEmail_id(String email_id) {
-		this.email_id = email_id;
+	public void setEmail_ids(JSONArray email_ids) {
+		this.email_ids = email_ids;
 	}
 
 	public String getCustomer_name() {
