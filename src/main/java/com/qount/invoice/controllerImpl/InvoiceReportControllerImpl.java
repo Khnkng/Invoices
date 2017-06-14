@@ -75,7 +75,6 @@ public class InvoiceReportControllerImpl {
 						if(StringUtils.isEmpty(recepientsStr)){
 							throw new WebApplicationException("'recepientsMails' cannot be empty");
 						}
-						recepientsStr = "["+recepientsStr+"]";
 						recipients.put(recepientsStr);
 						jsonObj.optJSONObject("emailJson").remove("recipients");
 						jsonObj.optJSONObject("emailJson").put("recipients", recipients);
