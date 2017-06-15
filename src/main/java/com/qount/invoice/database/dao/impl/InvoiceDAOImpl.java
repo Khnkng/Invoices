@@ -94,6 +94,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setLong(ctr++, new Date().getTime());
 				pstmt.setString(ctr++, invoice.getTerm());
 				pstmt.setString(ctr++, invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, invoice.getPlan_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));

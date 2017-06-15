@@ -69,7 +69,16 @@ public class Invoice {
 	private boolean sendMail;
 	private List<String> recepientsMails;
 	private JSONArray recepientsMailsArr;
+	private PaymentSpringPlan paymentSpringPlan;
 	
+	public PaymentSpringPlan getPaymentSpringPlan() {
+		return paymentSpringPlan;
+	}
+
+	public void setPaymentSpringPlan(PaymentSpringPlan paymentSpringPlan) {
+		this.paymentSpringPlan = paymentSpringPlan;
+	}
+
 	public List<String> getRecepientsMails() {
 		return recepientsMails;
 	}

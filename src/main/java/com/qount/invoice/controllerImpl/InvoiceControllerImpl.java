@@ -13,15 +13,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoiceTaxes;
+import com.qount.invoice.model.PaymentSpringPlan;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.PaymentSpringUtilities;
 import com.qount.invoice.utils.ResponseUtil;
 
 /**
@@ -47,6 +50,10 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
+			String action = invoice.getAction();
+			if (StringUtils.isNotEmpty(action) && StringUtils.equals(action, "create_plan")) {
+				invoice.setPlan_id(createPaymentSpringPlan(invoice.getPaymentSpringPlan(), companyID));
+			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceTaxes> incoiceTaxesList = invoiceObj.getInvoiceTaxes();
@@ -68,7 +75,7 @@ public class InvoiceControllerImpl {
 									invoice.setState("Email Sent");
 								}
 							}
-							if(StringUtils.isEmpty(invoice.getState())){
+							if (StringUtils.isEmpty(invoice.getState())) {
 								invoice.setState("Draft");
 							}
 							connection.commit();
@@ -199,7 +206,7 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	private static boolean sendInvoiceEmail(Invoice invoice) {
+	private static boolean sendInvoiceEmail(Invoice invoice) throws Exception {
 		try {
 			LOGGER.debug("entered sendInvoiceEmail invoice: " + invoice);
 			if (invoice == null) {
@@ -218,9 +225,29 @@ public class InvoiceControllerImpl {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
+			throw e;
 		} finally {
 			LOGGER.debug("exited sendInvoiceEmail  invoice: " + invoice);
 		}
 		return false;
+	}
+
+	private static String createPaymentSpringPlan(PaymentSpringPlan paymentSpringPlan, String companyID) throws Exception {
+		try {
+			LOGGER.debug("entered createPaymentSpringPlan  paymentSpringPlan: " + paymentSpringPlan +" companyID:"+companyID );
+			JSONObject paymentPlanJsonObj = InvoiceParser.getJsonForPaymentSpringPlan(paymentSpringPlan);
+			JSONObject paymentPlanResponse = PaymentSpringUtilities.invokePaymentSpringApi(companyID, paymentPlanJsonObj, PropertyManager.getProperty("payment.spring.payment.url"),
+					Constants.POST);
+			String planId = paymentPlanResponse.optString("id");
+			if(StringUtils.isEmpty(planId)){
+				throw new WebApplicationException("unable to create plan for:"+paymentSpringPlan);
+			}
+			return planId;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		} finally {
+			LOGGER.debug("exited createPaymentSpringPlan  paymentSpringPlan: " + paymentSpringPlan +" companyID:"+companyID );
+		}
 	}
 }

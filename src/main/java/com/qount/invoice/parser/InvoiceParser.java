@@ -24,6 +24,7 @@ import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.model.PaymentSpringPlan;
 import com.qount.invoice.model.UserCompany;
 import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.utils.CommonUtils;
@@ -120,7 +121,7 @@ public class InvoiceParser {
 				invoice.setRecurring_start_date(
 						convertTimeStampToString(invoice.getRecurring_start_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 				invoice.setRecurring_end_date(
-					convertTimeStampToString(invoice.getRecurring_end_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						convertTimeStampToString(invoice.getRecurring_end_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
@@ -157,7 +158,7 @@ public class InvoiceParser {
 
 	public static List<InvoiceLineTaxes> getInvoiceLineTaxesList(List<InvoiceLine> invoiceLinesList) {
 		List<InvoiceLineTaxes> result = new ArrayList<InvoiceLineTaxes>();
-		if(invoiceLinesList==null || invoiceLinesList.isEmpty()){
+		if (invoiceLinesList == null || invoiceLinesList.isEmpty()) {
 			return result;
 		}
 		Iterator<InvoiceLine> invoiceLineItr = invoiceLinesList.iterator();
@@ -168,7 +169,7 @@ public class InvoiceParser {
 				Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
 				while (invoiceLineTaxesItr.hasNext()) {
 					InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
-					if(invoiceLineTaxes!=null){
+					if (invoiceLineTaxes != null) {
 						invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
 						result.add(invoiceLineTaxes);
 					}
@@ -238,14 +239,14 @@ public class InvoiceParser {
 
 	public static InvoiceReference getInvoiceReference(Invoice invoice) {
 		try {
-			if(StringUtils.isBlank(invoice.getId())){
+			if (StringUtils.isBlank(invoice.getId())) {
 				throw new WebApplicationException("invoice Id cannot be empty");
 			}
 			InvoiceReference invoiceReference = new InvoiceReference();
 			Company company = new Company();
 			company.setId(invoice.getCompany_id());
 			Customer customer = new Customer();
-			String customerId = invoice.getCustomer() == null ? invoice.getCustomer_id() : invoice.getCustomer().getCustomer_id(); 
+			String customerId = invoice.getCustomer() == null ? invoice.getCustomer_id() : invoice.getCustomer().getCustomer_id();
 			customer.setCustomer_id(customerId);
 			invoiceReference.setCompany(company);
 			invoiceReference.setCustomer(customer);
@@ -275,9 +276,9 @@ public class InvoiceParser {
 		return result;
 	}
 
-	public static InvoiceMail getInvoiceMailFromInvoice(Invoice invoice){
+	public static InvoiceMail getInvoiceMailFromInvoice(Invoice invoice) {
 		try {
-			if(invoice.getCurrencies() == null || invoice.getCustomer() == null){
+			if (invoice.getCurrencies() == null || invoice.getCustomer() == null) {
 				return null;
 			}
 			InvoiceMail invoiceMail = new InvoiceMail();
@@ -298,5 +299,27 @@ public class InvoiceParser {
 			LOGGER.error(e);
 		}
 		return null;
+	}
+
+	public static JSONObject getJsonForPaymentSpringPlan(PaymentSpringPlan paymentSpringPlan) throws Exception {
+		try {
+			LOGGER.debug("entered getJsonForPaymentSpringPlan :"+paymentSpringPlan);
+			JSONObject result = new JSONObject(paymentSpringPlan.toString());
+			return result;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		}finally{
+			LOGGER.debug("exited getJsonForPaymentSpringPlan :"+paymentSpringPlan);
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		PaymentSpringPlan paymentSpringPlan = new PaymentSpringPlan();
+		paymentSpringPlan.setAmount("100");
+		paymentSpringPlan.setDay("1");
+		paymentSpringPlan.setFrequency("yearly");
+		paymentSpringPlan.setName("yearly");
+		System.out.println(getJsonForPaymentSpringPlan(paymentSpringPlan));
 	}
 }
