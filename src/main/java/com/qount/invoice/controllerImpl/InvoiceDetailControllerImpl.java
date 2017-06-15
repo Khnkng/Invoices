@@ -144,7 +144,7 @@ public class InvoiceDetailControllerImpl {
 		}
 	}
 
-	private static JSONObject invokeChargePaymentSpringApi(String companyId, JSONObject payloadObj, String urlAction) {
+	private static JSONObject invokeChargePaymentSpringApi(String companyId, JSONObject payloadObj, String urlAction) throws Exception{
 		try {
 			LOGGER.debug("entered invokeChargePaymentSpringApi companyId:" + companyId);
 			if (StringUtils.isEmpty(companyId) || payloadObj == null || payloadObj.length() == 0) {

@@ -72,4 +72,5 @@ public class Constants {
 	public static final String INVOICE_CONVERSION_DATE_FORMAT_STR = "yyyy-MM-dd";
 	public static final SimpleDateFormat INVOICE_CONVERSION_DATE_FORMAT = new SimpleDateFormat(INVOICE_CONVERSION_DATE_FORMAT_STR);
 	public static final DecimalFormat INVOICE_CONVERSION_DECIMALFORMAT = new DecimalFormat("#.##");
+	public static final String POST = "post";
 }

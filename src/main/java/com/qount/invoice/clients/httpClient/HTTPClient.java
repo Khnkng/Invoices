@@ -29,7 +29,7 @@ public class HTTPClient {
 	 * @param payload
 	 * @return
 	 */
-	public static JSONObject post(String url, String payload) {
+	public static JSONObject post(String url, String payload) throws Exception{
 		JSONObject responseJSON = null;
 		CloseableHttpResponse responseEntity = null;
 		try {
@@ -46,8 +46,8 @@ public class HTTPClient {
 				responseJSON = new JSONObject(response);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("Error calling service", e);
+			throw e;
 		} finally {
 			if (responseEntity != null) {
 				try {
