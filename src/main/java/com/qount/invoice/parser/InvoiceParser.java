@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
@@ -77,8 +78,14 @@ public class InvoiceParser {
 			}
 			invoice.setCreated_at(new Timestamp(System.currentTimeMillis()).toString());
 			invoice.setRecepientsMailsArr(CommonUtils.getJsonArrayFromList(invoice.getRecepientsMails()));
-			if(invoice.getPaymentSpringPlan()==null){
+			if (invoice.getPaymentSpringPlan() == null) {
 				invoice.setPaymentSpringPlan(new PaymentSpringPlan());
+			} else {
+				PaymentSpringPlan paymentSpringPlan = invoice.getPaymentSpringPlan();
+				if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getDay(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
+						paymentSpringPlan.getName())) {
+					throw new WebApplicationException(PropertyManager.getProperty("payment.spring.invalid.plan.msg"));
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -283,17 +290,18 @@ public class InvoiceParser {
 
 	public static JSONObject getJsonForPaymentSpringPlan(PaymentSpringPlan paymentSpringPlan) throws Exception {
 		try {
-			LOGGER.debug("entered getJsonForPaymentSpringPlan :"+paymentSpringPlan);
+			LOGGER.debug("entered getJsonForPaymentSpringPlan :" + paymentSpringPlan);
 			JSONObject result = new JSONObject(paymentSpringPlan.toString());
+			CommonUtils.removeKeysIfNull(result, "bill_immediately","ends_after");
 			return result;
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw e;
-		}finally{
-			LOGGER.debug("exited getJsonForPaymentSpringPlan :"+paymentSpringPlan);
+		} finally {
+			LOGGER.debug("exited getJsonForPaymentSpringPlan :" + paymentSpringPlan);
 		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		PaymentSpringPlan paymentSpringPlan = new PaymentSpringPlan();
 		paymentSpringPlan.setAmount("100");

@@ -7,8 +7,8 @@ import java.util.TimeZone;
 import com.google.gson.Gson;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Font.FontFamily;
+import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.pdf.BaseFont;
 
 public class Constants {
@@ -73,4 +73,5 @@ public class Constants {
 	public static final SimpleDateFormat INVOICE_CONVERSION_DATE_FORMAT = new SimpleDateFormat(INVOICE_CONVERSION_DATE_FORMAT_STR);
 	public static final DecimalFormat INVOICE_CONVERSION_DECIMALFORMAT = new DecimalFormat("#.##");
 	public static final String POST = "post";
+	public static final String SUBSCRIPTION_CUSTOMER_CHARGE = "subscription_customer_charge";
 }

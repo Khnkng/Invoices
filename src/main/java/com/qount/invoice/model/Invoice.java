@@ -49,7 +49,6 @@ public class Invoice {
 	private String created_at;
 	private String payment_spring_token;
 	private String ends_after;
-	private String bill_immediately;
 	private String plan_id;
 	private String amountToPay;
 	private double amount_paid;
@@ -131,14 +130,6 @@ public class Invoice {
 
 	public void setAmountToPay(String amountToPay) {
 		this.amountToPay = amountToPay;
-	}
-
-	public String getBill_immediately() {
-		return bill_immediately;
-	}
-
-	public void setBill_immediately(String bill_immediately) {
-		this.bill_immediately = bill_immediately;
 	}
 
 	public String getPlan_id() {

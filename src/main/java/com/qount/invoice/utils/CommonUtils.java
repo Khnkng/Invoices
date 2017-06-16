@@ -50,15 +50,15 @@ public class CommonUtils {
 		}
 		return result;
 	}
-	
+
 	public static List<String> getListString(String str) {
 		List<String> result = null;
 		try {
 			if (!StringUtils.isBlank(str)) {
 				JSONArray emailArr = getJsonArrayFromString(str);
-				if(isValidJSONArray(emailArr)){
+				if (isValidJSONArray(emailArr)) {
 					result = new ArrayList<String>();
-					for(int i=0;i<emailArr.length();i++){
+					for (int i = 0; i < emailArr.length(); i++) {
 						result.add(emailArr.optString(i));
 					}
 				}
@@ -80,13 +80,13 @@ public class CommonUtils {
 		}
 		return result;
 	}
-	
+
 	public static JSONArray getJsonArrayFromList(List<String> lst) {
 		JSONArray result = null;
 		try {
-			if (lst!=null && !lst.isEmpty()) {
+			if (lst != null && !lst.isEmpty()) {
 				result = new JSONArray();
-				for(int i=0;i<lst.size();i++){
+				for (int i = 0; i < lst.size(); i++) {
 					result.put(lst.get(i));
 				}
 			}
@@ -130,8 +130,7 @@ public class CommonUtils {
 	public static Response constructResponse(String message, int statusHeader) {
 		JSONObject responseJSON = new JSONObject();
 		responseJSON.put(MESSAGE, message);
-		return Response.status(statusHeader).entity(responseJSON.toString()).type(MediaType.APPLICATION_JSON_TYPE)
-				.build();
+		return Response.status(statusHeader).entity(responseJSON.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
 	}
 
 	/**
@@ -141,21 +140,19 @@ public class CommonUtils {
 	 * @return
 	 */
 	public static UserCompany getCompany(String userID, String companyID) {
-		String path = LTMUtils.getHostAddress("half.service.docker.hostname", "half.service.docker.port",
-				"oneapp.base.url");
+		String path = LTMUtils.getHostAddress("half.service.docker.hostname", "half.service.docker.port", "oneapp.base.url");
 		path = path + "HalfService/user/" + userID + "/companies2/" + companyID;
 		System.out.println("path = " + path);
 		LOGGER.debug("path = " + path);
 		String response = JerseyClient.get(path);
 		if (StringUtils.isBlank(response)) {
 			LOGGER.error("invalid company userID [ " + userID + "] companyID [ " + companyID + " ]");
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
-					"Invalid Company", Status.PRECONDITION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Invalid Company", Status.PRECONDITION_FAILED));
 		}
 		return Constants.GSON.fromJson(response, UserCompany.class);
 	}
-	
-	public static String convertDate(String sourceDate, SimpleDateFormat sourceDateFormat, SimpleDateFormat resultDateFormat){
+
+	public static String convertDate(String sourceDate, SimpleDateFormat sourceDateFormat, SimpleDateFormat resultDateFormat) {
 		try {
 			return resultDateFormat.format(sourceDateFormat.parse(sourceDate));
 		} catch (Exception e) {
@@ -163,8 +160,8 @@ public class CommonUtils {
 		}
 		return null;
 	}
-	
-	public static String getGMTDateTime(Date sourceDate){
+
+	public static String getGMTDateTime(Date sourceDate) {
 		try {
 			return Constants.DATE_FORMAT_GMT.format(sourceDate);
 		} catch (Exception e) {
@@ -172,20 +169,29 @@ public class CommonUtils {
 		}
 		return null;
 	}
-	
-	public static boolean isValidStrings(String...strings) throws Exception{
+
+	public static boolean isValidStrings(String... strings) throws Exception {
 		try {
-			if(strings==null || strings.length==0){
+			if (strings == null || strings.length == 0) {
 				throw new Exception("empty input");
 			}
-			int argIndex =1;
-			for(String str:strings){
-				if(StringUtils.isEmpty(str)){
-					throw new Exception("empty string at arg position:"+argIndex);
+			for (String str : strings) {
+				if (StringUtils.isEmpty(str)) {
+					return false;
 				}
-				++argIndex;
 			}
 			return true;
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return false;
+	}
+	
+	public static void removeKeysIfNull(JSONObject input, String... keys) {
+		try {
+			for (String key : keys) {
+				input.remove(key);
+			}
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw e;
