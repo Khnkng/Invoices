@@ -77,7 +77,9 @@ public class InvoiceDetailControllerImpl {
 				invoicePayment.setCurrency_amount(convertedAmountToPay);
 				amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
 			} else {
-				amountToPayInCents = convertDollarToCent(invoice.getAmountToPay());
+				if(!inputInvoice.getAction().equals(Constants.SUBSCRIPTION_CUSTOMER_CHARGE)){
+					amountToPayInCents = convertDollarToCent(invoice.getAmountToPay());
+				}
 			}
 			if (StringUtils.isEmpty(currency)) {
 				throw new WebApplicationException("invoice currency is empty!");
@@ -95,9 +97,9 @@ public class InvoiceDetailControllerImpl {
 				payloadObj = getOneTimeCustomerChargePaymentSpringJson(invoice.getPayment_spring_customer_id(), amountToPayInCents);
 				urlAction = "charge";
 				break;
-			case "subscription_customer_charge":
-				payloadObj = getSubscriptionPaymentSpringJson(invoice.getPayment_spring_customer_id(), invoice.getEnds_after(), invoice.getPlan_id(),
-						invoice.getBill_immediately());
+			case Constants.SUBSCRIPTION_CUSTOMER_CHARGE:
+				payloadObj = getSubscriptionPaymentSpringJson(invoice.getPayment_spring_customer_id(), invoice.getPaymentSpringPlan().getEnds_after(), invoice.getPlan_id(),
+						invoice.getPaymentSpringPlan().getBill_immediately());
 				urlAction = "subscription";
 				break;
 			}
@@ -182,7 +184,9 @@ public class InvoiceDetailControllerImpl {
 			payloadObj.put("ends_after", ends_after);
 			payloadObj.put("plan_id", plan_id);
 			payloadObj.put("customer_id", customer_id);
-			payloadObj.put("bill_immediately", bill_immediately);
+			if(StringUtils.isNotBlank(bill_immediately)){
+				payloadObj.put("bill_immediately", bill_immediately);
+			}
 			return payloadObj;
 		} catch (Exception e) {
 			LOGGER.error(e);

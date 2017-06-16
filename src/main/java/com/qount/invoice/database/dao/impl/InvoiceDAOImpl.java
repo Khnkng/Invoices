@@ -90,6 +90,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getName());
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getAmount());
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getDay());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getEnds_after());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getBill_immediately());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -151,6 +153,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getName());
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getAmount());
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getDay());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getEnds_after());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getBill_immediately());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -270,6 +274,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							paymentSpringPlan.setName(rset.getString("plan_name"));
 							paymentSpringPlan.setAmount(rset.getString("plan_amount"));
 							paymentSpringPlan.setDay(rset.getString("plan_day"));
+							paymentSpringPlan.setEnds_after(rset.getString("plan_ends_after"));
+							paymentSpringPlan.setBill_immediately(rset.getString("plan_bill_immediately"));
 							invoice.setNumber(rset.getString("i_number"));
 							invoice.setTerm(rset.getString("i_term"));
 							invoice.setUser_id(rset.getString("user_id"));
