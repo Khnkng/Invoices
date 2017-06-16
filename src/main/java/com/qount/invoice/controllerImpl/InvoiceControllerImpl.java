@@ -53,6 +53,7 @@ public class InvoiceControllerImpl {
 			String action = invoice.getAction();
 			if (StringUtils.isNotEmpty(action) && StringUtils.equals(action, "create_plan")) {
 				invoice.setPlan_id(createPaymentSpringPlan(invoice.getPaymentSpringPlan(), companyID));
+				invoice.setIs_recurring(true);
 			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
@@ -112,6 +113,11 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
+			String action = invoice.getAction();
+			if (StringUtils.isNotEmpty(action) && StringUtils.equals(action, "create_plan")) {
+				invoice.setPlan_id(createPaymentSpringPlan(invoice.getPaymentSpringPlan(), companyID));
+				invoice.setIs_recurring(true);
+			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				List<InvoiceTaxes> invoiceTaxesList = invoiceObj.getInvoiceTaxes();
@@ -240,7 +246,7 @@ public class InvoiceControllerImpl {
 					Constants.POST);
 			String planId = paymentPlanResponse.optString("id");
 			if(StringUtils.isEmpty(planId)){
-				throw new WebApplicationException("unable to create plan for:"+paymentSpringPlan);
+				throw new WebApplicationException(paymentPlanResponse.optJSONArray("errors").optJSONObject(0).optString("message"));
 			}
 			return planId;
 		} catch (Exception e) {

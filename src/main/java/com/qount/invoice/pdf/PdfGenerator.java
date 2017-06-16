@@ -81,7 +81,6 @@ public class PdfGenerator {
 //			invoice.setNumber(6);
 			invoice.setPo_number("po1");
 			invoice.setInvoice_date("February 1, 2017");
-			invoice.setAcceptance_date("February 2, 2017");
 			invoice.setAmount_due(1.0d);
 //			invoice.setCurrency("\u20B9");
 			invoice.setCurrencies(currencies);
@@ -142,7 +141,6 @@ public class PdfGenerator {
 //			invoice.setNumber(6);
 			invoice.setPo_number("po1");
 			invoice.setInvoice_date("February 1, 2017");
-			invoice.setAcceptance_date("February 2, 2017");
 			invoice.setAmount_due(1.0d);
 			invoice.setCurrency("INR");
 			invoicePreference.setItems("Items");

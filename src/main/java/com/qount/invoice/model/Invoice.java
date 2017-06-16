@@ -28,21 +28,11 @@ public class Invoice {
 	private String customer_id;
 	private String state;
 	private String invoice_date;
-	private String acceptance_date;
-	private String acceptance_final_date;
 	private String notes;
 	private double discount;
 	private double deposit_amount;
 	private double processing_fees;
-	private String remainder_json;
-	private String remainder_mail_json;
 	private boolean is_recurring;
-	private String recurring_frequency;
-	private double recurring_frequency_value;
-	private String recurring_start_date;
-	private String recurring_end_date;
-	private boolean is_mails_automated;
-	private boolean is_cc_current_user;
 	private String payment_spring_customer_id;
 	private String number;
 	private String po_number;
@@ -319,22 +309,6 @@ public class Invoice {
 		this.state = state;
 	}
 
-	public String getAcceptance_date() {
-		return acceptance_date;
-	}
-
-	public void setAcceptance_date(String acceptance_date) {
-		this.acceptance_date = acceptance_date;
-	}
-
-	public String getAcceptance_final_date() {
-		return acceptance_final_date;
-	}
-
-	public void setAcceptance_final_date(String acceptance_final_date) {
-		this.acceptance_final_date = acceptance_final_date;
-	}
-
 	public String getNotes() {
 		return notes;
 	}
@@ -367,76 +341,12 @@ public class Invoice {
 		this.processing_fees = processing_fees;
 	}
 
-	public String getRemainder_json() {
-		return remainder_json;
-	}
-
-	public void setRemainder_json(String remainder_json) {
-		this.remainder_json = remainder_json;
-	}
-
-	public String getRemainder_mail_json() {
-		return remainder_mail_json;
-	}
-
-	public void setRemainder_mail_json(String remainder_mail_json) {
-		this.remainder_mail_json = remainder_mail_json;
-	}
-
 	public boolean is_recurring() {
 		return is_recurring;
 	}
 
 	public void setIs_recurring(boolean is_recurring) {
 		this.is_recurring = is_recurring;
-	}
-
-	public String getRecurring_frequency() {
-		return recurring_frequency;
-	}
-
-	public void setRecurring_frequency(String recurring_frequency) {
-		this.recurring_frequency = recurring_frequency;
-	}
-
-	public double getRecurring_frequency_value() {
-		return recurring_frequency_value;
-	}
-
-	public void setRecurring_frequency_value(double recurring_frequency_value) {
-		this.recurring_frequency_value = recurring_frequency_value;
-	}
-
-	public String getRecurring_start_date() {
-		return recurring_start_date;
-	}
-
-	public void setRecurring_start_date(String recurring_start_date) {
-		this.recurring_start_date = recurring_start_date;
-	}
-
-	public String getRecurring_end_date() {
-		return recurring_end_date;
-	}
-
-	public void setRecurring_end_date(String recurring_end_date) {
-		this.recurring_end_date = recurring_end_date;
-	}
-
-	public boolean is_mails_automated() {
-		return is_mails_automated;
-	}
-
-	public void setIs_mails_automated(boolean is_mails_automated) {
-		this.is_mails_automated = is_mails_automated;
-	}
-
-	public boolean is_cc_current_user() {
-		return is_cc_current_user;
-	}
-
-	public void setIs_cc_current_user(boolean is_cc_current_user) {
-		this.is_cc_current_user = is_cc_current_user;
 	}
 
 	public String getPayment_spring_customer_id() {

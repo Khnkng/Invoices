@@ -25,6 +25,7 @@ import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.model.Item;
+import com.qount.invoice.model.PaymentSpringPlan;
 import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -65,21 +66,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getLast_updated_at());
 				pstmt.setString(ctr++, invoice.getState());
 				pstmt.setString(ctr++, invoice.getInvoice_date());
-				pstmt.setString(ctr++, invoice.getAcceptance_date());
-				pstmt.setString(ctr++, invoice.getAcceptance_final_date());
 				pstmt.setString(ctr++, invoice.getNotes());
 				pstmt.setDouble(ctr++, invoice.getDiscount());
 				pstmt.setDouble(ctr++, invoice.getDeposit_amount());
 				pstmt.setDouble(ctr++, invoice.getProcessing_fees());
-				pstmt.setString(ctr++, invoice.getRemainder_json());
-				pstmt.setString(ctr++, invoice.getRemainder_mail_json());
-				pstmt.setBoolean(ctr++, invoice.is_recurring());
-				pstmt.setString(ctr++, invoice.getRecurring_frequency());
-				pstmt.setDouble(ctr++, invoice.getRecurring_frequency_value());
-				pstmt.setString(ctr++, invoice.getRecurring_start_date());
-				pstmt.setString(ctr++, invoice.getRecurring_end_date());
-				pstmt.setBoolean(ctr++, invoice.is_mails_automated());
-				pstmt.setBoolean(ctr++, invoice.is_cc_current_user());
 				pstmt.setString(ctr++, invoice.getPayment_spring_customer_id());
 				pstmt.setString(ctr++, invoice.getPo_number());
 				pstmt.setString(ctr++, invoice.getDocument_id());
@@ -95,6 +85,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getTerm());
 				pstmt.setString(ctr++, invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
+				pstmt.setBoolean(ctr++, invoice.is_recurring());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getFrequency());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getName());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getAmount());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getDay());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -134,21 +129,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getLast_updated_at());
 				pstmt.setString(ctr++, invoice.getState());
 				pstmt.setString(ctr++, invoice.getInvoice_date());
-				pstmt.setString(ctr++, invoice.getAcceptance_date());
-				pstmt.setString(ctr++, invoice.getAcceptance_final_date());
 				pstmt.setString(ctr++, invoice.getNotes());
 				pstmt.setDouble(ctr++, invoice.getDiscount());
 				pstmt.setDouble(ctr++, invoice.getDeposit_amount());
 				pstmt.setDouble(ctr++, invoice.getProcessing_fees());
-				pstmt.setString(ctr++, invoice.getRemainder_json());
-				pstmt.setString(ctr++, invoice.getRemainder_mail_json());
-				pstmt.setBoolean(ctr++, invoice.is_recurring());
-				pstmt.setString(ctr++, invoice.getRecurring_frequency());
-				pstmt.setDouble(ctr++, invoice.getRecurring_frequency_value());
-				pstmt.setString(ctr++, invoice.getRecurring_start_date());
-				pstmt.setString(ctr++, invoice.getRecurring_end_date());
-				pstmt.setBoolean(ctr++, invoice.is_mails_automated());
-				pstmt.setBoolean(ctr++, invoice.is_cc_current_user());
 				pstmt.setString(ctr++, invoice.getPayment_spring_customer_id());
 				pstmt.setString(ctr++, invoice.getPo_number());
 				pstmt.setString(ctr++, invoice.getDocument_id());
@@ -161,6 +145,12 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setString(ctr++, invoice.getTerm());
 				pstmt.setString(ctr++, invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, invoice.getPlan_id());
+				pstmt.setBoolean(ctr++, invoice.is_recurring());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getFrequency());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getName());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getAmount());
+				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getDay());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -217,6 +207,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		Invoice invoice = null;
 		Customer customer = null;
 		List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
+		PaymentSpringPlan paymentSpringPlan = new PaymentSpringPlan();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Connection connection = null;
@@ -274,6 +265,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.getInvoiceLines().add(invoiceLine);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
+							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
+							paymentSpringPlan.setFrequency(rset.getString("plan_frequency"));
+							paymentSpringPlan.setName(rset.getString("plan_name"));
+							paymentSpringPlan.setAmount(rset.getString("plan_amount"));
+							paymentSpringPlan.setDay(rset.getString("plan_day"));
 							invoice.setNumber(rset.getString("i_number"));
 							invoice.setTerm(rset.getString("i_term"));
 							invoice.setUser_id(rset.getString("user_id"));
@@ -287,22 +283,13 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setCustomer_id(rset.getString("customer_id"));
 							customer.setCustomer_id(rset.getString("customer_id"));
 							invoice.setState(rset.getString("state"));
+							invoice.setPlan_id(rset.getString("plan_id"));
 							invoice.setInvoice_date(rset.getString("invoice_date"));
-							invoice.setAcceptance_date(rset.getString("acceptance_date"));
-							invoice.setAcceptance_final_date(rset.getString("acceptance_final_date"));
 							invoice.setNotes(rset.getString("notes"));
 							invoice.setDiscount(rset.getDouble("discount"));
 							invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
 							invoice.setProcessing_fees(rset.getDouble("processing_fees"));
-							invoice.setRemainder_json(rset.getString("remainder_json"));
-							invoice.setRemainder_mail_json(rset.getString("remainder_mail_json"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
-							invoice.setRecurring_frequency(rset.getString("recurring_frequency"));
-							invoice.setRecurring_frequency_value(rset.getDouble("recurring_frequency_value"));
-							invoice.setRecurring_start_date(rset.getString("recurring_start_date"));
-							invoice.setRecurring_end_date(rset.getString("recurring_end_date"));
-							invoice.setIs_mails_automated(rset.getBoolean("is_mails_automated"));
-							invoice.setIs_cc_current_user(rset.getBoolean("is_cc_current_user"));
 							invoice.setPayment_spring_customer_id(rset.getString("payment_spring_id"));
 							invoice.setPo_number(rset.getString("po_number"));
 							invoice.setDocument_id(rset.getString("document_id"));
@@ -323,6 +310,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							currencies_2.setHtml_symbol(rset.getString("html_symbol"));
 							currencies_2.setJava_symbol(rset.getString("java_symbol"));
 							invoice.setCurrencies(currencies_2);
+							invoice.setPaymentSpringPlan(paymentSpringPlan);
 						}
 					}
 				}
