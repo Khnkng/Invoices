@@ -297,7 +297,7 @@ public class InvoiceParser {
 		try {
 			LOGGER.debug("entered getJsonForPaymentSpringPlan :" + paymentSpringPlan);
 			JSONObject result = new JSONObject(paymentSpringPlan.toString());
-			CommonUtils.removeKeysIfNull(result, "bill_immediately","ends_after");
+			CommonUtils.removeKeysIfNull(result, "bill_immediately","ends_after","day");
 			return result;
 		} catch (Exception e) {
 			LOGGER.error(e);
