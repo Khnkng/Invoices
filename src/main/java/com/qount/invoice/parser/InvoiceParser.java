@@ -87,8 +87,7 @@ public class InvoiceParser {
 							paymentSpringPlan.getName())) {
 						throw new WebApplicationException(PropertyManager.getProperty("payment.spring.daily.invalid.plan.msg"));
 					}
-				}
-				if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getDay(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
+				}else  if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getDay(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
 						paymentSpringPlan.getName())) {
 					throw new WebApplicationException(PropertyManager.getProperty("payment.spring.invalid.plan.msg"));
 				}
