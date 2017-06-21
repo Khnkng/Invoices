@@ -190,7 +190,9 @@ public class CommonUtils {
 	public static void removeKeysIfNull(JSONObject input, String... keys) {
 		try {
 			for (String key : keys) {
-				input.remove(key);
+				if(StringUtils.isEmpty(input.optString(key))){
+					input.remove(key);
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
