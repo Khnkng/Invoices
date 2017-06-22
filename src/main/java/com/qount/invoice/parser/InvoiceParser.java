@@ -82,18 +82,20 @@ public class InvoiceParser {
 				invoice.setPaymentSpringPlan(new PaymentSpringPlan());
 			} else {
 				PaymentSpringPlan paymentSpringPlan = invoice.getPaymentSpringPlan();
-				if (StringUtils.equals(paymentSpringPlan.getFrequency(), "daily")) {
-					if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
-							paymentSpringPlan.getName())) {
-						throw new WebApplicationException(PropertyManager.getProperty("payment.spring.daily.invalid.plan.msg"));
-					}
-				} else {
-					if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
-							paymentSpringPlan.getName())) {
-						throw new WebApplicationException(PropertyManager.getProperty("payment.spring.invalid.plan.msg"));
-					}
-					if (StringUtils.isEmpty(paymentSpringPlan.getDay()) && paymentSpringPlan.getDay_map() == null ) {
-						throw new WebApplicationException(PropertyManager.getProperty("payment.spring.day.invalid.plan.msg"));
+				if(paymentSpringPlan!=null){
+					if (StringUtils.equals(paymentSpringPlan.getFrequency(), "daily")) {
+						if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
+								paymentSpringPlan.getName())) {
+							throw new WebApplicationException(PropertyManager.getProperty("payment.spring.daily.invalid.plan.msg"));
+						}
+					} else {
+						if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
+								paymentSpringPlan.getName())) {
+							throw new WebApplicationException(PropertyManager.getProperty("payment.spring.invalid.plan.msg"));
+						}
+						if (StringUtils.isEmpty(paymentSpringPlan.getDay()) && paymentSpringPlan.getDay_map() == null ) {
+							throw new WebApplicationException(PropertyManager.getProperty("payment.spring.day.invalid.plan.msg"));
+						}
 					}
 				}
 			}
@@ -166,7 +168,7 @@ public class InvoiceParser {
 				Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
 				while (invoiceLineTaxesItr.hasNext()) {
 					InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
-					if (invoiceLineTaxes != null) {
+					if (invoiceLineTaxes != null && StringUtils.isNotBlank(invoiceLineTaxes.getTax_id())) {
 						invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
 						result.add(invoiceLineTaxes);
 					}
