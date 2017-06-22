@@ -187,6 +187,23 @@ public class CommonUtils {
 		return false;
 	}
 	
+	public static boolean isAnyStringValid(String... strings) throws Exception {
+		try {
+			if (strings == null || strings.length == 0) {
+				throw new Exception("empty input");
+			}
+			for (String str : strings) {
+				if (StringUtils.isNotBlank(str)) {
+					return true;
+				}
+			}
+			return false;
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return false;
+	}
+	
 	public static void removeKeysIfNull(JSONObject input, String... keys) {
 		try {
 			for (String key : keys) {

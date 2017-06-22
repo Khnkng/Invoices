@@ -211,7 +211,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		Invoice invoice = null;
 		Customer customer = null;
 		List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
-		PaymentSpringPlan paymentSpringPlan = new PaymentSpringPlan();
+		PaymentSpringPlan paymentSpringPlan = null;
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Connection connection = null;
@@ -270,12 +270,21 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
-							paymentSpringPlan.setFrequency(rset.getString("plan_frequency"));
-							paymentSpringPlan.setName(rset.getString("plan_name"));
-							paymentSpringPlan.setAmount(rset.getString("plan_amount"));
-							paymentSpringPlan.setDay(rset.getString("plan_day"));
-							paymentSpringPlan.setEnds_after(rset.getString("plan_ends_after"));
-							paymentSpringPlan.setBill_immediately(rset.getString("plan_bill_immediately"));
+							String plan_frequency = rset.getString("plan_frequency");
+							String plan_name = rset.getString("plan_name");
+							String plan_amount = rset.getString("plan_amount");
+							String plan_day = rset.getString("plan_day");
+							String plan_ends_after = rset.getString("plan_ends_after");
+							String plan_bill_immediately = rset.getString("plan_bill_immediately");
+							if(CommonUtils.isAnyStringValid(plan_frequency,plan_name,plan_amount,plan_day,plan_ends_after,plan_bill_immediately)){
+								paymentSpringPlan = new PaymentSpringPlan();
+								paymentSpringPlan.setFrequency(plan_frequency);
+								paymentSpringPlan.setName(plan_name);
+								paymentSpringPlan.setAmount(plan_amount);
+								paymentSpringPlan.setDay(plan_day);
+								paymentSpringPlan.setEnds_after(plan_ends_after);
+								paymentSpringPlan.setBill_immediately(plan_bill_immediately);
+							}
 							invoice.setNumber(rset.getString("i_number"));
 							invoice.setTerm(rset.getString("i_term"));
 							invoice.setUser_id(rset.getString("user_id"));
