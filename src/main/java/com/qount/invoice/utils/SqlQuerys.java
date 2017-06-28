@@ -94,4 +94,12 @@ public class SqlQuerys {
 		public static final String RETRIEVE_BY_ID_QRY = "SELECT `user_id`,`company_id`,`customer_id`,`customer_address`,`customer_city`,`customer_country`,`customer_ein`,`customer_state`,`customer_name`,`customer_zipcode`,`email_ids`,`phone_number`, `coa`, `term` FROM  company_customers WHERE `customer_id`= ? ";
 		public static final String RETRIEVE_LIST_BY_ID_QRY = "SELECT `user_id`,`company_id`,`customer_id`,`customer_address`,`customer_city`,`customer_country`,`customer_ein`,`customer_state`,`customer_name`,`customer_zipcode`,`email_ids`,`phone_number`,`coa`, `term` FROM  company_customers WHERE `user_id`= ? AND `company_id` = ?;";
 	}
+	
+	public final class InvoicePlan{
+		public static final String INSERT_QRY = "INSERT INTO invoice_plan ( `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately`, `day_map` ) VALUES( ?, ?, ?, ?, ?, ?, ? );";
+		public static final String UPDATE_QRY = "UPDATE invoice_plan SET `name` = ?, `amount` = ?, `frequency` = ?, `ends_after` = ?, `bill_immediately` = ?, `day_map` = ? WHERE `id` = ?;";
+		public static final String DELETE_QRY = "DELETE FROM invoice_plan WHERE  `id` = ?;";
+		public static final String GET_QRY = "SELECT `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately`, `day_map` from `invoice_plan` WHERE `id` = ?;";
+		public static final String GET_ALL_QRY = "SELECT `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately` FROM invoice_plan;";
+	}
 }
