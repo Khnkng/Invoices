@@ -15,7 +15,7 @@ public interface InvoicePlanDAO {
 
 	InvoicePlan get(Connection conn, InvoicePlan invoicePlan);
 
-	List<InvoicePlan> getAll(Connection conn);
+	List<InvoicePlan> getAll(Connection conn,InvoicePlan invoicePlan);
 
 	InvoicePlan delete(Connection conn, InvoicePlan invoicePlan);
 

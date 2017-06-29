@@ -16,7 +16,62 @@ public class InvoicePlan {
 	private String frequency;
 	private String ends_after;
 	private String bill_immediately;
-	private String day_map;
+	private DaysMap day_map;
+	private String user_id;
+	private String company_id;
+	private String created_by;
+	private long created_at_mills;
+	private String last_updated_by;
+	private long last_updated_at;
+	
+
+	public String getUser_id() {
+		return user_id;
+	}
+
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
+	}
+
+	public String getCompany_id() {
+		return company_id;
+	}
+
+	public void setCompany_id(String company_id) {
+		this.company_id = company_id;
+	}
+
+	public String getCreated_by() {
+		return created_by;
+	}
+
+	public void setCreated_by(String created_by) {
+		this.created_by = created_by;
+	}
+
+	public long getCreated_at_mills() {
+		return created_at_mills;
+	}
+
+	public void setCreated_at_mills(long created_at_mills) {
+		this.created_at_mills = created_at_mills;
+	}
+
+	public String getLast_updated_by() {
+		return last_updated_by;
+	}
+
+	public void setLast_updated_by(String last_updated_by) {
+		this.last_updated_by = last_updated_by;
+	}
+
+	public long getLast_updated_at() {
+		return last_updated_at;
+	}
+
+	public void setLast_updated_at(long last_updated_at) {
+		this.last_updated_at = last_updated_at;
+	}
 
 	public String getId() {
 		return id;
@@ -42,7 +97,7 @@ public class InvoicePlan {
 		return bill_immediately;
 	}
 
-	public String getDay_map() {
+	public DaysMap getDay_map() {
 		return day_map;
 	}
 
@@ -70,7 +125,7 @@ public class InvoicePlan {
 		this.bill_immediately=bill_immediately;
 	}
 
-	public void setDay_map(String day_map) {
+	public void setDay_map(DaysMap day_map) {
 		this.day_map=day_map;
 	}
 

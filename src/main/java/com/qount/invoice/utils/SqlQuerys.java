@@ -96,10 +96,10 @@ public class SqlQuerys {
 	}
 	
 	public final class InvoicePlan{
-		public static final String INSERT_QRY = "INSERT INTO invoice_plan ( `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately`, `day_map` ) VALUES( ?, ?, ?, ?, ?, ?, ? );";
-		public static final String UPDATE_QRY = "UPDATE invoice_plan SET `name` = ?, `amount` = ?, `frequency` = ?, `ends_after` = ?, `bill_immediately` = ?, `day_map` = ? WHERE `id` = ?;";
+		public static final String INSERT_QRY = "INSERT INTO invoice_plan ( `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately`, `user_id`, `company_id`, `created_by`, `created_at_mills`, `last_updated_by`, `last_updated_at`, `day_month` , `day_day` , `day_week`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );";
+		public static final String UPDATE_QRY = "UPDATE invoice_plan SET `name` = ?, `amount` = ?, `frequency` = ?, `ends_after` = ?, `bill_immediately` = ?,  `user_id` = ?, `company_id` = ?, `last_updated_by` = ?, `last_updated_at` = ?, `day_month` = ? , `day_day` = ? , `day_week` = ? WHERE `id` = ?;";
 		public static final String DELETE_QRY = "DELETE FROM invoice_plan WHERE  `id` = ?;";
-		public static final String GET_QRY = "SELECT `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately`, `day_map` from `invoice_plan` WHERE `id` = ?;";
-		public static final String GET_ALL_QRY = "SELECT `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately` FROM invoice_plan;";
+		public static final String GET_QRY = "SELECT `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately`, `user_id`, `company_id`, `created_by`, `created_at_mills`, `last_updated_by`, `last_updated_at`,`day_month` , `day_day` , `day_week` FROM invoice_plan WHERE `id` = ?;";
+		public static final String GET_ALL_QRY = "SELECT `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately` FROM invoice_plan WHERE `user_id` = ? and `company_id` = ?;";
 	}
 }
