@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -11,6 +12,7 @@ import javax.ws.rs.WebApplicationException;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoicePlanDAO;
+import com.qount.invoice.model.DaysMap;
 import com.qount.invoice.model.InvoicePlan;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
@@ -37,19 +39,30 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
+		DaysMap daysMap = null;
 		try {
 			if (conn != null) {
 				pstmt = conn.prepareStatement(SqlQuerys.InvoicePlan.GET_QRY);
 				pstmt.setString(1, InvoicePlan.getId());
 				rset = pstmt.executeQuery();
-				while (rset.next()) {
+				if (rset.next()) {
+					daysMap = new DaysMap();
 					InvoicePlan.setId(rset.getString("id"));
 					InvoicePlan.setName(rset.getString("name"));
 					InvoicePlan.setAmount(rset.getString("amount"));
 					InvoicePlan.setFrequency(rset.getString("frequency"));
 					InvoicePlan.setEnds_after(rset.getString("ends_after"));
 					InvoicePlan.setBill_immediately(rset.getString("bill_immediately"));
-					InvoicePlan.setDay_map(rset.getString("day_map"));
+					InvoicePlan.setUser_id(rset.getString("user_id"));
+					InvoicePlan.setCompany_id(rset.getString("company_id"));
+					InvoicePlan.setCreated_by(rset.getString("created_by"));
+					InvoicePlan.setCreated_at_mills(rset.getLong("created_at_mills"));
+					InvoicePlan.setLast_updated_by(rset.getString("last_updated_by"));
+					InvoicePlan.setLast_updated_at(rset.getLong("last_updated_at"));
+					daysMap.setMonth(rset.getString("day_month"));
+					daysMap.setDay(rset.getString("day_day"));
+					daysMap.setWeek(rset.getString("day_week"));
+					InvoicePlan.setDay_map(daysMap);
 				}
 			}
 		}catch(WebApplicationException e) {
@@ -67,7 +80,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 	}
 
 	@Override
-	public	List<InvoicePlan> getAll(Connection conn){
+	public	List<InvoicePlan> getAll(Connection conn,InvoicePlan invoicePlan){
 		LOGGER.debug("entered getAll");
 		List<InvoicePlan> result = null;
 		PreparedStatement pstmt = null;
@@ -76,6 +89,8 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 			if (conn != null) {
 				result = new ArrayList<InvoicePlan>();
 				pstmt = conn.prepareStatement(SqlQuerys.InvoicePlan.GET_ALL_QRY);
+				pstmt.setString(1, invoicePlan.getUser_id());
+				pstmt.setString(2, invoicePlan.getCompany_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					InvoicePlan InvoicePlan= new InvoicePlan();
@@ -146,8 +161,16 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 				pstmt.setString(ctr++, InvoicePlan.getFrequency());
 				pstmt.setString(ctr++, InvoicePlan.getEnds_after());
 				pstmt.setString(ctr++, InvoicePlan.getBill_immediately());
-				pstmt.setString(ctr++, InvoicePlan.getDay_map());
-				int rowCount = pstmt.executeUpdate();
+				pstmt.setString(ctr++, InvoicePlan.getUser_id());
+				pstmt.setString(ctr++, InvoicePlan.getCompany_id());
+				pstmt.setString(ctr++, InvoicePlan.getCreated_by());
+				pstmt.setLong(ctr++, new Date().getTime());
+				pstmt.setString(ctr++, InvoicePlan.getLast_updated_by());
+				pstmt.setLong(ctr++, new Date().getTime());
+				pstmt.setString(ctr++, InvoicePlan.getDay_map().getMonth());
+				pstmt.setString(ctr++, InvoicePlan.getDay_map().getDay());
+				pstmt.setString(ctr++, InvoicePlan.getDay_map().getWeek());
+				int rowCount = pstmt.executeUpdate();	
 				if (rowCount == 0) {
 					throw new WebApplicationException(Utilities.constructResponse("no record inserted", 500));
 				}			}
@@ -179,7 +202,13 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 				pstmt.setString(ctr++, InvoicePlan.getFrequency());
 				pstmt.setString(ctr++, InvoicePlan.getEnds_after());
 				pstmt.setString(ctr++, InvoicePlan.getBill_immediately());
-				pstmt.setString(ctr++, InvoicePlan.getDay_map());
+				pstmt.setString(ctr++, InvoicePlan.getUser_id());
+				pstmt.setString(ctr++, InvoicePlan.getCompany_id());
+				pstmt.setString(ctr++, InvoicePlan.getLast_updated_by());
+				pstmt.setLong(ctr++, new Date().getTime());
+				pstmt.setString(ctr++, InvoicePlan.getDay_map().getMonth());
+				pstmt.setString(ctr++, InvoicePlan.getDay_map().getDay());
+				pstmt.setString(ctr++, InvoicePlan.getDay_map().getWeek());
 				pstmt.setString(ctr++, InvoicePlan.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
