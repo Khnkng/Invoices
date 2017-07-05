@@ -82,6 +82,17 @@ public class SqlQuerys {
 
 	}
 	
+	public final class Payments {
+		public static final String INSERT_QRY = "INSERT INTO invoice_payments_latest ( `id`,`received_from`,`payment_amount`,`currency_code`,`reference_no`,`payment_date`,`memo`,`company_id`,`type`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		public static final String RETRIEVE_BY_ID_QRY = "SELECT * FROM invoice_payments_latest WHERE `company_id` = ?;";
+	}
+	
+	public final class PaymentsLines {
+		public static final String INSERT_QRY = "INSERT INTO invoice_payments_lines ( `id`,`invoice_id`,`amount`,`payment_id`) VALUES( ?, ?, ?, ?);";
+		public static final String DELETE_QRY = "DELETE FROM invoice_payments_lines WHERE `payment_id` = ?;";
+		public static final String GET_LIST_QRY = "SELECT pl.invoice_id, inv.amount, inv.invoice_date, inv.term, inv.state, pl.amount AS payment_amount FROM invoice_payments_lines AS pl, invoice AS inv WHERE pl.invoice_id = inv.id AND pl.payment_id = ?;";
+	}
+	
 	public final class Currencies {
 		public static final String RETRIEVE_LIST = "select `code`,`name`,`html_symbol`,`java_symbol` from  currencies;";
 		public static final String GET = "select `code`,`name`,`html_symbol`,`java_symbol` from  currencies where `code` = ?";

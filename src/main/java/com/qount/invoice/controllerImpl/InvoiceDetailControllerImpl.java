@@ -107,7 +107,7 @@ public class InvoiceDetailControllerImpl {
 			if (result == null || result.length() == 0) {
 				throw new WebApplicationException("server error while making one time invoice payment");
 			}
-			if (result.containsKey("errors")) {
+			if (result.has("errors")) {
 				throw new WebApplicationException(result.optJSONArray("errors").optJSONObject(0).optString("message"));
 			}
 			
