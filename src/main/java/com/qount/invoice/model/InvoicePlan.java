@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class InvoicePlan {
 	
 	private String id;
+	private String plan_id;
 	private String name;
 	private String amount;
 	private String frequency;
@@ -24,6 +25,13 @@ public class InvoicePlan {
 	private String last_updated_by;
 	private long last_updated_at;
 	
+	public String getPlan_id() {
+		return plan_id;
+	}
+
+	public void setPlan_id(String plan_id) {
+		this.plan_id = plan_id;
+	}
 
 	public String getUser_id() {
 		return user_id;

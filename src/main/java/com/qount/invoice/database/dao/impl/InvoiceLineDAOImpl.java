@@ -100,6 +100,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 					pstmt.setString(ctr++, invoiceLine.getNotes());
 					pstmt.setString(ctr++, invoiceLine.getItem_id());
 					pstmt.setString(ctr++, invoiceLine.getCoa_id());
+					pstmt.setString(ctr++, invoiceLine.getType());
 					ctr = 1;
 					pstmt.addBatch();
 				}

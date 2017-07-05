@@ -13,18 +13,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoiceTaxes;
-import com.qount.invoice.model.PaymentSpringPlan;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
-import com.qount.invoice.utils.PaymentSpringUtilities;
 import com.qount.invoice.utils.ResponseUtil;
 
 /**
@@ -50,39 +47,32 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
-			String action = invoice.getAction();
-			if (StringUtils.isNotEmpty(action) && StringUtils.equals(action, "create_plan")) {
-				invoice.setPlan_id(createPaymentSpringPlan(invoice.getPaymentSpringPlan(), companyID));
-				invoice.setIs_recurring(true);
-			}
+			// recurring if invoice has plan id
+			invoice.setIs_recurring(StringUtils.isNotEmpty(invoice.getPlan_id()));
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceTaxes> incoiceTaxesList = invoiceObj.getInvoiceTaxes();
 				if (incoiceTaxesList == null) {
 					incoiceTaxesList = new ArrayList<InvoiceTaxes>();
 				}
-				List<InvoiceTaxes> invoiceTaxResult = MySQLManager.getInvoiceTaxesDAOInstance().save(connection, invoiceObj.getId(), incoiceTaxesList);
-				if (invoiceTaxResult != null) {
-					List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
-					if (!invoiceLineResult.isEmpty()) {
-						List<InvoiceLineTaxes> invoiceLineTaxesList = InvoiceParser.getInvoiceLineTaxesList(invoiceObj.getInvoiceLines());
-						List<InvoiceLineTaxes> invoiceLineTaxesResult = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineTaxesList);
-						Currencies currencies = MySQLManager.getCurrencyDAOInstance().get(connection, invoice.getCurrency());
-						invoice.setCurrencies(currencies);
-						if (invoiceLineTaxesResult != null) {
-							if (invoice.isSendMail()) {
-								invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
-								if (sendInvoiceEmail(invoiceResult)) {
-									invoice.setState("Email Sent");
-								}
-							}
-							if (StringUtils.isEmpty(invoice.getState())) {
-								invoice.setState("Draft");
-							}
-							connection.commit();
-							return InvoiceParser.convertTimeStampToString(invoiceObj);
+				MySQLManager.getInvoiceTaxesDAOInstance().save(connection, invoiceObj.getId(), incoiceTaxesList);
+				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
+				if (!invoiceLineResult.isEmpty()) {
+					List<InvoiceLineTaxes> invoiceLineTaxesList = InvoiceParser.getInvoiceLineTaxesList(invoiceObj.getInvoiceLines());
+					MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineTaxesList);
+					Currencies currencies = MySQLManager.getCurrencyDAOInstance().get(connection, invoice.getCurrency());
+					invoice.setCurrencies(currencies);
+					if (invoice.isSendMail()) {
+						invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
+						if (sendInvoiceEmail(invoiceResult)) {
+							invoice.setState("Email Sent");
 						}
 					}
+					if (StringUtils.isEmpty(invoice.getState())) {
+						invoice.setState("Draft");
+					}
+					connection.commit();
+					return InvoiceParser.convertTimeStampToString(invoiceObj);
 				}
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
@@ -113,11 +103,8 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
-			String action = invoice.getAction();
-			if (StringUtils.isNotEmpty(action) && StringUtils.equals(action, "create_plan")) {
-				invoice.setPlan_id(createPaymentSpringPlan(invoice.getPaymentSpringPlan(), companyID));
-				invoice.setIs_recurring(true);
-			}
+			// recurring if invoice has plan id
+			invoice.setIs_recurring(StringUtils.isNotEmpty(invoice.getPlan_id()));
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				List<InvoiceTaxes> invoiceTaxesList = invoiceObj.getInvoiceTaxes();
@@ -236,24 +223,5 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited sendInvoiceEmail  invoice: " + invoice);
 		}
 		return false;
-	}
-
-	private static String createPaymentSpringPlan(PaymentSpringPlan paymentSpringPlan, String companyID) throws Exception {
-		try {
-			LOGGER.debug("entered createPaymentSpringPlan  paymentSpringPlan: " + paymentSpringPlan +" companyID:"+companyID );
-			JSONObject paymentPlanJsonObj = InvoiceParser.getJsonForPaymentSpringPlan(paymentSpringPlan);
-			JSONObject paymentPlanResponse = PaymentSpringUtilities.invokePaymentSpringApi(companyID, paymentPlanJsonObj, PropertyManager.getProperty("payment.spring.payment.url"),
-					Constants.POST);
-			String planId = paymentPlanResponse.optString("id");
-			if(StringUtils.isEmpty(planId)){
-				throw new WebApplicationException(paymentPlanResponse.optJSONArray("errors").optJSONObject(0).optString("message"));
-			}
-			return planId;
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw e;
-		} finally {
-			LOGGER.debug("exited createPaymentSpringPlan  paymentSpringPlan: " + paymentSpringPlan +" companyID:"+companyID );
-		}
 	}
 }
