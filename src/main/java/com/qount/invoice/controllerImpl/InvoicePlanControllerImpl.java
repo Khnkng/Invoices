@@ -9,12 +9,15 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
+import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.InvoicePlan;
 import com.qount.invoice.parser.InvoicePlanParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.PaymentSpringUtilities;
 import com.qount.invoice.utils.ResponseUtil;
 
 /**
@@ -44,6 +47,7 @@ public class InvoicePlanControllerImpl {
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
+			invoicePlan.setPlan_id(createPaymentSpringPlan(invoicePlan, companyId));
 			InvoicePlan resultInvoicePlan = MySQLManager.getInvoicePlanDAOInstance().create(connection, invoicePlan);
 			if (resultInvoicePlan != null) {
 				return resultInvoicePlan;
@@ -146,6 +150,25 @@ public class InvoicePlanControllerImpl {
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited deleteInvoicePlan() invoicePlanId:" + invoicePlanId);
+		}
+	}
+	
+	private static String createPaymentSpringPlan(InvoicePlan invoicePlan, String companyID) throws Exception {
+		try {
+			LOGGER.debug("entered createPaymentSpringPlan  paymentSpringPlan: " + invoicePlan +" companyID:"+companyID );
+			JSONObject paymentPlanJsonObj = InvoicePlanParser.getJsonForPaymentSpringPlan(invoicePlan);
+			JSONObject paymentPlanResponse = PaymentSpringUtilities.invokePaymentSpringApi(companyID, paymentPlanJsonObj, PropertyManager.getProperty("payment.spring.payment.url"),
+					Constants.POST);
+			String planId = paymentPlanResponse.optString("id");
+			if(StringUtils.isEmpty(planId)){
+				throw new WebApplicationException(paymentPlanResponse.optJSONArray("errors").optJSONObject(0).optString("message"));
+			}
+			return planId;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		} finally {
+			LOGGER.debug("exited createPaymentSpringPlan  paymentSpringPlan: " + invoicePlan +" companyID:"+companyID );
 		}
 	}
 

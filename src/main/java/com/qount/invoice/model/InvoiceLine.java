@@ -33,6 +33,15 @@ public class InvoiceLine {
 	private Coa coa;
 	private String coa_id;
 	private ArrayList<InvoiceLineTaxes> invoiceLineTaxes;
+	private String type;
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 
 	public String getItem_name() {
 		return item_name;

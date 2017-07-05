@@ -59,6 +59,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 					InvoicePlan.setCreated_at_mills(rset.getLong("created_at_mills"));
 					InvoicePlan.setLast_updated_by(rset.getString("last_updated_by"));
 					InvoicePlan.setLast_updated_at(rset.getLong("last_updated_at"));
+					InvoicePlan.setPlan_id(rset.getString("plan_id"));
 					daysMap.setMonth(rset.getString("day_month"));
 					daysMap.setDay(rset.getString("day_day"));
 					daysMap.setWeek(rset.getString("day_week"));
@@ -100,6 +101,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 					InvoicePlan.setFrequency(rset.getString("frequency"));
 					InvoicePlan.setEnds_after(rset.getString("ends_after"));
 					InvoicePlan.setBill_immediately(rset.getString("bill_immediately"));
+					InvoicePlan.setPlan_id(rset.getString("plan_id"));
 					result.add(InvoicePlan);
 				}
 			}
@@ -170,6 +172,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 				pstmt.setString(ctr++, InvoicePlan.getDay_map().getMonth());
 				pstmt.setString(ctr++, InvoicePlan.getDay_map().getDay());
 				pstmt.setString(ctr++, InvoicePlan.getDay_map().getWeek());
+				pstmt.setString(ctr++, InvoicePlan.getPlan_id());
 				int rowCount = pstmt.executeUpdate();	
 				if (rowCount == 0) {
 					throw new WebApplicationException(Utilities.constructResponse("no record inserted", 500));
@@ -209,6 +212,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 				pstmt.setString(ctr++, InvoicePlan.getDay_map().getMonth());
 				pstmt.setString(ctr++, InvoicePlan.getDay_map().getDay());
 				pstmt.setString(ctr++, InvoicePlan.getDay_map().getWeek());
+				pstmt.setString(ctr++, InvoicePlan.getPlan_id());
 				pstmt.setString(ctr++, InvoicePlan.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {

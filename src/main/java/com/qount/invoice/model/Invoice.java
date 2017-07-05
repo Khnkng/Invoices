@@ -59,7 +59,16 @@ public class Invoice {
 	private List<String> recepientsMails;
 	private JSONArray recepientsMailsArr;
 	private PaymentSpringPlan paymentSpringPlan;
+	private String payment_options;
 	
+	public String getPayment_options() {
+		return payment_options;
+	}
+
+	public void setPayment_options(String payment_options) {
+		this.payment_options = payment_options;
+	}
+
 	public PaymentSpringPlan getPaymentSpringPlan() {
 		return paymentSpringPlan;
 	}
@@ -417,4 +426,5 @@ public class Invoice {
 	public static void main(String[] args) {
 		System.out.println(new Invoice());
 	}
+	
 }
