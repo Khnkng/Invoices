@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Invoice;
@@ -139,6 +140,64 @@ public class InvoiceControllerImpl {
 			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited updateInvoice userid:" + userID + " companyID:" + companyID + " invoiceID:" + invoiceID + ": invoice" + invoice);
 		}
+	}
+
+	public static Invoice updateInvoiceState(String invoiceID, Invoice invoice) {
+		LOGGER.debug("entered updateInvoiceState invoiceID:" + invoiceID + ": invoice" + invoice);
+		Connection connection = null;
+		try {
+			if (invoice == null || StringUtils.isAnyEmpty(invoiceID, invoice.getState())) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			invoice.setId(invoiceID);
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			connection.setAutoCommit(false);
+			switch (invoice.getState()) {
+			case "sent":
+				return markInvoiceAsSent(connection, invoice);
+			case "paid":
+				return markInvoiceAsPaid(connection, invoice);
+			default:
+				break;
+			}
+				
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited updateInvoiceState invoiceID:" + invoiceID + ": invoice" + invoice);
+		}
+	}
+	
+	private static Invoice markInvoiceAsSent(Connection connection, Invoice invoice) throws Exception{
+		Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
+		if (invoiceResult != null) {
+			return invoice;
+		}
+		return null;
+	}
+	
+	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception{
+		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
+		if(dbInvoice.getAmount() > invoice.getAmount()){
+			throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
+		}
+		if(dbInvoice.getAmount() == invoice.getAmount()){
+			invoice.setState("paid");
+		}
+		if(dbInvoice.getAmount() < invoice.getAmount()){
+			invoice.setState("partially paid");
+		}
+		Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
+		if (invoiceResult != null) {
+			return invoice;
+		}
+		return null;
 	}
 
 	public static Response getInvoices(String userID, String companyID, String state) {

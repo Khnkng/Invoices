@@ -34,6 +34,15 @@ public class InvoiceLine {
 	private String coa_id;
 	private ArrayList<InvoiceLineTaxes> invoiceLineTaxes;
 	private String type;
+	private String task_id;
+
+	public String getTask_id() {
+		return task_id;
+	}
+
+	public void setTask_id(String task_id) {
+		this.task_id = task_id;
+	}
 
 	public String getType() {
 		return type;

@@ -254,6 +254,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						coa.setName(rset.getString("il_coa_name"));
 						invoiceLine.setCoa(coa);
 						invoiceLine.setObjectives(rset.getString("il_objectives"));
+						invoiceLine.setTask_id(rset.getString("il_task_id"));
 						invoiceLine.setAmount(rset.getDouble("il_amount"));
 						invoiceLine.setLast_updated_at(rset.getString("il_last_updated_at"));
 						invoiceLine.setLast_updated_by(rset.getString("il_last_updated_by"));

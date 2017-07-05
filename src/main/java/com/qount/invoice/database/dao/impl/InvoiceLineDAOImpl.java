@@ -62,6 +62,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 					invoiceLine.setNotes(rset.getString("notes"));
 					invoiceLine.setItem_id(rset.getString("item_id"));
 					invoiceLine.setCoa_id(rset.getString("coa_id"));
+					invoiceLine.setTask_id(rset.getString("task_id"));
 					invoiceLines.add(invoiceLine);
 				}
 			}
@@ -101,6 +102,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 					pstmt.setString(ctr++, invoiceLine.getItem_id());
 					pstmt.setString(ctr++, invoiceLine.getCoa_id());
 					pstmt.setString(ctr++, invoiceLine.getType());
+					pstmt.setString(ctr++, invoiceLine.getTask_id());
 					ctr = 1;
 					pstmt.addBatch();
 				}
@@ -141,6 +143,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				pstmt.setString(ctr++, invoiceLine.getNotes());
 				pstmt.setString(ctr++, invoiceLine.getItem_id());
 				pstmt.setString(ctr++, invoiceLine.getCoa_id());
+				pstmt.setString(ctr++, invoiceLine.getTask_id());
 				pstmt.setString(ctr++, invoiceLine.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount > 0) {
