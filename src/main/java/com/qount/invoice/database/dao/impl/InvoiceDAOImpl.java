@@ -92,6 +92,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getDay());
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getEnds_after());
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getBill_immediately());
+				pstmt.setString(ctr++, invoice.getPayment_options());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -155,6 +156,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getDay());
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getEnds_after());
 				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getBill_immediately());
+				pstmt.setString(ctr++, invoice.getPayment_options());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -258,6 +260,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLine.setQuantity(rset.getLong("il_quantity"));
 						invoiceLine.setPrice(rset.getDouble("il_price"));
 						invoiceLine.setNotes(rset.getString("il_notes"));
+						invoiceLine.setType(rset.getString("il_type"));
 						InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
 						invoiceLineTax.setInvoice_line_id(rset.getString("ilt_invoice_line_id"));
 						invoiceLineTax.setTax_id(rset.getString("ilt_tax_id"));
@@ -285,6 +288,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 								paymentSpringPlan.setEnds_after(plan_ends_after);
 								paymentSpringPlan.setBill_immediately(plan_bill_immediately);
 							}
+							invoice.setPayment_options(rset.getString("payment_options"));
 							invoice.setNumber(rset.getString("i_number"));
 							invoice.setTerm(rset.getString("i_term"));
 							invoice.setUser_id(rset.getString("user_id"));
