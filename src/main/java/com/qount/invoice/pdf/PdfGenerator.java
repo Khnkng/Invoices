@@ -54,7 +54,7 @@ public class PdfGenerator {
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
-			e.printStackTrace();
+//			e.printStackTrace();
 		}finally {
 			PdfUtil.closeDocumentStream(document);
 			PdfUtil.closeFileStream(fout);

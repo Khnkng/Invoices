@@ -82,7 +82,7 @@ public class InvoiceParser {
 				invoice.setPaymentSpringPlan(new PaymentSpringPlan());
 			} else {
 				PaymentSpringPlan paymentSpringPlan = invoice.getPaymentSpringPlan();
-				if(paymentSpringPlan!=null){
+				if (paymentSpringPlan != null) {
 					if (StringUtils.equals(paymentSpringPlan.getFrequency(), "daily")) {
 						if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
 								paymentSpringPlan.getName())) {
@@ -93,7 +93,7 @@ public class InvoiceParser {
 								paymentSpringPlan.getName())) {
 							throw new WebApplicationException(PropertyManager.getProperty("payment.spring.invalid.plan.msg"));
 						}
-						if (StringUtils.isEmpty(paymentSpringPlan.getDay()) && paymentSpringPlan.getDay_map() == null ) {
+						if (StringUtils.isEmpty(paymentSpringPlan.getDay()) && paymentSpringPlan.getDay_map() == null) {
 							throw new WebApplicationException(PropertyManager.getProperty("payment.spring.day.invalid.plan.msg"));
 						}
 					}
@@ -178,7 +178,7 @@ public class InvoiceParser {
 		return result;
 	}
 
-	public static Invoice getInvoiceObjToDelete(String user_id, String invoice_id) {
+	public static Invoice getInvoiceObjToDelete(String user_id, String companyID, String invoice_id) {
 		try {
 			if (StringUtils.isEmpty(user_id) && StringUtils.isEmpty(invoice_id)) {
 				return null;
@@ -186,6 +186,7 @@ public class InvoiceParser {
 			Invoice invoice = new Invoice();
 			invoice.setUser_id(user_id);
 			invoice.setId(invoice_id);
+			invoice.setCompany_id(companyID);
 			return invoice;
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -304,7 +305,7 @@ public class InvoiceParser {
 		try {
 			LOGGER.debug("entered getJsonForPaymentSpringPlan :" + paymentSpringPlan);
 			JSONObject result = new JSONObject(paymentSpringPlan.toString());
-			if(StringUtils.isEmpty(result.optString("day"))){
+			if (StringUtils.isEmpty(result.optString("day"))) {
 				result.put("day", result.optJSONObject("day_map"));
 				result.remove("day_map");
 			}

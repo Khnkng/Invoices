@@ -520,6 +520,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.DELETE_QRY);
 				pstmt.setString(1, invoice.getId());
+				pstmt.setString(2, invoice.getUser_id());
+				pstmt.setString(3, invoice.getCompany_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
@@ -538,6 +540,78 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.debug("exited invoice delete:" + invoice);
 		}
 		return invoice;
+	}
+
+	@Override
+	public boolean deleteLst(String userId, String companyId, String lst) throws Exception {
+		LOGGER.debug("entered invoice delete lst:" + lst);
+		Connection connection = null;
+		if (StringUtils.isEmpty(lst)) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Invoice.DELETE_LST_QRY;
+				query +=lst+") AND `user_id` = '"+userId+"' AND `company_id` ='"+companyId+"';";
+				pstmt = connection.prepareStatement(query);
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of invoice deleted:" + rowCount);
+				if (rowCount > 0) {
+					return true;
+				}else{
+					return false;
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("no record deleted:" + lst + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("Error deleting invoice lst:" + lst + ",  ", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited invoice delete lst:" + lst);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateStateAsSent(String userId, String companyId, String lst) throws Exception {
+		LOGGER.debug("entered updateStateAsSent lst:" + lst);
+		Connection connection = null;
+		if (StringUtils.isEmpty(lst)) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Invoice.UPDATE_AS_SENT_QRY;
+				query +=lst+") AND `user_id` = '"+userId+"' AND `company_id` ='"+companyId+"';";
+				pstmt = connection.prepareStatement(query);
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of invoice updated:" + rowCount);
+				if (rowCount > 0) {
+					return true;
+				}else{
+					return false;
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("no record updated:" + lst + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("Error updateStateAsSent lst:" + lst + ",  ", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited updateStateAsSent lst:" + lst);
+		}
+		return false;
 	}
 
 	@Override
