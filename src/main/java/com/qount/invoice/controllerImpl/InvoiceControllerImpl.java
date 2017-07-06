@@ -21,6 +21,7 @@ import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoiceTaxes;
 import com.qount.invoice.parser.InvoiceParser;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.ResponseUtil;
@@ -163,7 +164,7 @@ public class InvoiceControllerImpl {
 			default:
 				break;
 			}
-				
+
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
@@ -173,24 +174,24 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited updateInvoiceState invoiceID:" + invoiceID + ": invoice" + invoice);
 		}
 	}
-	
-	private static Invoice markInvoiceAsSent(Connection connection, Invoice invoice) throws Exception{
+
+	private static Invoice markInvoiceAsSent(Connection connection, Invoice invoice) throws Exception {
 		Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
 		if (invoiceResult != null) {
 			return invoice;
 		}
 		return null;
 	}
-	
-	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception{
+
+	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception {
 		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
-		if(dbInvoice.getAmount() > invoice.getAmount()){
+		if (dbInvoice.getAmount() > invoice.getAmount()) {
 			throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 		}
-		if(dbInvoice.getAmount() == invoice.getAmount()){
+		if (dbInvoice.getAmount() == invoice.getAmount()) {
 			invoice.setState("paid");
 		}
-		if(dbInvoice.getAmount() < invoice.getAmount()){
+		if (dbInvoice.getAmount() < invoice.getAmount()) {
 			invoice.setState("partially paid");
 		}
 		Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
@@ -241,10 +242,10 @@ public class InvoiceControllerImpl {
 
 	}
 
-	public static Invoice deleteInvoiceById(String userID, String invoiceID) {
+	public static Invoice deleteInvoiceById(String userID, String companyID, String invoiceID) {
 		try {
-			LOGGER.debug("entered deleteInvoiceById userID: " + userID + " invoiceID" + invoiceID);
-			Invoice invoice = InvoiceParser.getInvoiceObjToDelete(userID, invoiceID);
+			LOGGER.debug("entered deleteInvoiceById userID: " + userID + " companyID: " + companyID + " invoiceID" + invoiceID);
+			Invoice invoice = InvoiceParser.getInvoiceObjToDelete(userID, companyID, invoiceID);
 			if (invoice == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
@@ -254,7 +255,39 @@ public class InvoiceControllerImpl {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
-			LOGGER.debug("exited deleteInvoiceById userID: " + userID + " invoiceID" + invoiceID);
+			LOGGER.debug("exited deleteInvoiceById userID: " + userID + " companyID: " + companyID + " invoiceID" + invoiceID);
+		}
+	}
+
+	public static boolean deleteInvoicesById(String userID, String companyID, List<String> ids) {
+		try {
+			LOGGER.debug("entered deleteInvoicesById userID: " + userID + " companyID:" + companyID + " ids:" + ids);
+			if (StringUtils.isAnyBlank(userID, companyID) || ids == null || ids.isEmpty()) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(ids);
+			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited deleteInvoicesById userID: " + userID + " companyID:" + companyID + " ids:" + ids);
+		}
+	}
+
+	public static boolean updateInvoicesAsSent(String userID, String companyID, List<String> ids) {
+		try {
+			LOGGER.debug("entered updateInvoicesAsSent userID: " + userID + " companyID:" + companyID + " ids:" + ids);
+			if (StringUtils.isAnyBlank(userID, companyID) || ids == null || ids.isEmpty()) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(ids);
+			return MySQLManager.getInvoiceDAOInstance().updateStateAsSent(userID, companyID, commaSeparatedLst);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited updateInvoicesAsSent userID: " + userID + " companyID:" + companyID + " ids:" + ids);
 		}
 	}
 
