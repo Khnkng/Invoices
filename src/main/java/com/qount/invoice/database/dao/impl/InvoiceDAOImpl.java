@@ -280,7 +280,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							String plan_day = rset.getString("plan_day");
 							String plan_ends_after = rset.getString("plan_ends_after");
 							String plan_bill_immediately = rset.getString("plan_bill_immediately");
-							if(CommonUtils.isAnyStringValid(plan_frequency,plan_name,plan_amount,plan_day,plan_ends_after,plan_bill_immediately)){
+							if (CommonUtils.isAnyStringValid(plan_frequency, plan_name, plan_amount, plan_day, plan_ends_after, plan_bill_immediately)) {
 								paymentSpringPlan = new PaymentSpringPlan();
 								paymentSpringPlan.setFrequency(plan_frequency);
 								paymentSpringPlan.setName(plan_name);
@@ -445,10 +445,12 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
 				query += "`user_id`='" + userID + "' AND `company_id`= '" + companyID + "' ";
-				if (!state.equals("paid")) {
-					query += "AND (state !='paid' OR state IS NULL );";
-				} else {
-					query += "AND state='paid'";
+				if (!StringUtils.isEmpty(state)) {
+					if (!state.equals("paid")) {
+						query += "AND (state !='paid' OR state IS NULL );";
+					} else {
+						query += "AND state='paid'";
+					}
 				}
 				pstmt = connection.prepareStatement(query);
 				rset = pstmt.executeQuery();
