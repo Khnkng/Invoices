@@ -16,6 +16,7 @@ import com.qount.invoice.model.Invoice;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.pdf.PdfGenerator;
+import com.qount.invoice.pdf.PdfUtil;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.ResponseUtil;
@@ -26,9 +27,9 @@ import com.qount.invoice.utils.ResponseUtil;
  * @author Mateen
  * @version 1.0 Jul 06 2017
  */
-public class InvoicePdfControllerImpl {
+public class InvoicePreviewControllerImpl {
 
-	private static Logger LOGGER = Logger.getLogger(InvoicePdfControllerImpl.class);
+	private static Logger LOGGER = Logger.getLogger(InvoicePreviewControllerImpl.class);
 
 	private static File createPdf(String invoiceId) throws Exception {
 		LOGGER.debug("entered createPdf invoiceId:" + invoiceId);
@@ -60,8 +61,9 @@ public class InvoicePdfControllerImpl {
 
 	public static Response getInvoicePdfPrevew(String invoiceId) {
 		LOGGER.debug("exited getInvoicePdfPrevew invoiceId:" + invoiceId);
+		File pdfFile = null;
 		try {
-			File pdfFile = createPdf(invoiceId);
+			pdfFile = createPdf(invoiceId);
 			ResponseBuilder responseBuilder = Response.ok(pdfFile);
 			responseBuilder.header("Content-Type", "application/pdf");
 			responseBuilder.header("Content-Disposition", "attachment; filename=" + pdfFile.getName());
@@ -72,6 +74,7 @@ public class InvoicePdfControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			LOGGER.debug("exited getInvoicePdfPrevew invoiceId:" + invoiceId);
+			PdfUtil.deleteFile(pdfFile);
 		}
 	}
 

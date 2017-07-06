@@ -35,7 +35,7 @@ public class PdfGenerator {
 			if (null != invoiceReference && !StringUtils.isBlank(invoiceReference.getInvoiceType())) {
 				document = new Document();
 				pdfFile = new File(UUID.randomUUID().toString()+".pdf");
-				pdfFile = new File("F:/2.pdf");
+//				pdfFile = new File("F:/2.pdf");
 				fout = new FileOutputStream(pdfFile);
 //				System.out.println(pdfFile.getAbsolutePath());
 				switch (invoiceReference.getInvoiceType().toLowerCase()) {

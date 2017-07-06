@@ -9,7 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.qount.invoice.controllerImpl.InvoicePdfControllerImpl;
+import com.qount.invoice.controllerImpl.InvoicePreviewControllerImpl;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @Api(value = "Invoice pdf")
 @Path("/invoice/{invoiceID}/preview")
-public class InvoicePdfController {
+public class InvoicePreviewController {
 
 
 
@@ -32,7 +32,7 @@ public class InvoicePdfController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve invoice of company", value = "retieves invoice", responseContainer = "java.lang.String")
 	public Response getInvoicePreview(@PathParam("invoiceID") @NotNull String invoiceID) {
-		return InvoicePdfControllerImpl.getInvoicePdfPrevew(invoiceID);
+		return InvoicePreviewControllerImpl.getInvoicePdfPrevew(invoiceID);
 	}
 
 
