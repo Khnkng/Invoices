@@ -1,6 +1,7 @@
 package com.qount.invoice.pdf;
 
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +29,7 @@ import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
+import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.Utilities;
@@ -452,6 +454,41 @@ public class Contemporary {
 				cell_7.setBorder(Rectangle.NO_BORDER);
 				cell_7.setPaddingRight(20f);
 				table.addCell(cell_7);
+				
+				ArrayList<InvoiceLineTaxes> invoiceLineTaxes = invoiceLine.getInvoiceLineTaxes();
+				if(invoiceLineTaxes!=null && !invoiceLineTaxes.isEmpty()){
+					Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = invoiceLineTaxes.iterator();
+					while(invoiceLineTaxesItr.hasNext()){
+						InvoiceLineTaxes invoiceLineTax = invoiceLineTaxesItr.next();
+						String taxName = invoiceLineTax.getName();
+						String taxRate = invoiceLineTax.getTax_rate()+"";
+						if(StringUtils.isNotEmpty(taxName)){
+							PdfPCell emptyCell  = new PdfPCell(new Phrase(""));
+							emptyCell.setBorder(Rectangle.NO_BORDER);
+							table.addCell(emptyCell);
+							table.addCell(emptyCell);
+							
+							Chunk c8 = new Chunk(taxName, f3);
+							Phrase taxLabel = new Phrase(c8);
+							PdfPCell cell_8 = new PdfPCell(taxLabel);
+							cell_8.setHorizontalAlignment(Element.ALIGN_RIGHT);
+							cell_8.setBorder(Rectangle.NO_BORDER);
+							table.addCell(cell_8);
+							
+							
+							Chunk c9 = new Chunk(currenciesSymbol+taxRate, f3);
+							Phrase taxAmount = new Phrase(c9);
+							PdfPCell cell_9 = new PdfPCell(taxAmount);
+							cell_9.setHorizontalAlignment(Element.ALIGN_RIGHT);
+							cell_9.setBorder(Rectangle.NO_BORDER);
+							cell_9.setPaddingRight(20f);
+							table.addCell(cell_9);
+						}
+					}
+				}
+				
+				
+				
 			}
 			table.setWidthPercentage(100);
 			document.add(table);
