@@ -433,8 +433,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	@Override
 	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception {
 		LOGGER.debug("entered getInvoiceList userID:" + userID + " companyID:" + companyID + "state:" + state);
-		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID) || StringUtils.isEmpty(state)) {
-			throw new WebApplicationException("userID or companyID or state cannot be empty");
+		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
+			throw new WebApplicationException("userID or companyID cannot be empty");
 		}
 		List<Invoice> invoiceLst = new ArrayList<>();
 		PreparedStatement pstmt = null;
