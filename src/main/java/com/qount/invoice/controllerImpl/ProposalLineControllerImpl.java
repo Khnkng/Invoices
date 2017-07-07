@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.parser.ProposalLineParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -40,14 +39,9 @@ public class ProposalLineControllerImpl {
 			connection.setAutoCommit(false);
 			List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance().batchSave(connection, proposalLineObjLst);
 			if (proposalLineResult != null) {
-				List<ProposalLineTaxes> proposalTaxesList = ProposalLineParser.getProposalLineTaxesList(proposalLineResult);
-				List<ProposalLineTaxes> proposaLineTaxResult = MySQLManager.getProposalLineTaxesDAOInstance().batchSave(connection, proposalTaxesList);
-				if (!proposaLineTaxResult.isEmpty()) {
-					connection.commit();
-					return proposalLineObjLst;
-				}
+				connection.commit();
+				return proposalLineObjLst;
 			}
-
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
@@ -71,12 +65,8 @@ public class ProposalLineControllerImpl {
 			connection.setAutoCommit(false);
 			ProposalLine proposalLineResult = MySQLManager.getProposalLineDAOInstance().update(connection, proposalLineObj);
 			if (proposalLineResult != null) {
-				List<ProposalLineTaxes> proposalLineTaxesResult = MySQLManager.getProposalLineTaxesDAOInstance().batchDeleteAndSave(connection, proposalID, proposalLineId,
-						proposalLineResult.getProposalLineTaxes());
-				if (proposalLineTaxesResult != null) {
-					connection.commit();
-					return proposalLineObj;
-				}
+				connection.commit();
+				return proposalLineObj;
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
@@ -99,13 +89,13 @@ public class ProposalLineControllerImpl {
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
-			return ProposalLineDAOImpl.getProposalLineDAOImpl().delete(connection,proposalLine);
+			return ProposalLineDAOImpl.getProposalLineDAOImpl().delete(connection, proposalLine);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
-		
+
 	}
 }

@@ -17,8 +17,6 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.model.ProposalLineTaxes;
-import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.model.UserCompany;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
@@ -70,17 +68,6 @@ public class ProposalParser {
 				line.setProposal_id(proposal.getId());
 				line.setLast_updated_at(null==timestamp?null:timestamp.toString());
 				line.setLast_updated_by(userId);
-			}
-
-			List<ProposalTaxes> proposalTaxesList = proposal.getProposalTaxes();
-			if (proposalTaxesList == null) {
-				proposalTaxesList = new ArrayList<>();
-				proposal.setProposalTaxes(proposalTaxesList);
-			}
-			Iterator<ProposalTaxes> proposalTaxesListItr = proposalTaxesList.iterator();
-			while (proposalTaxesListItr.hasNext()) {
-				ProposalTaxes proposalTaxes = proposalTaxesListItr.next();
-				proposalTaxes.setProposal_id(proposal.getId());
 			}
 
 		} catch (Exception e) {
@@ -155,21 +142,5 @@ public class ProposalParser {
 			LOGGER.error(e);
 		}
 		return null;
-	}
-
-	public static List<ProposalLineTaxes> getProposalLineTaxesList(List<ProposalLine> proposalLinesList) {
-		List<ProposalLineTaxes> restlt = new ArrayList<ProposalLineTaxes>();
-		Iterator<ProposalLine> ProposalLineItr = proposalLinesList.iterator();
-		while (ProposalLineItr.hasNext()) {
-			ProposalLine proposalLine = ProposalLineItr.next();
-			List<ProposalLineTaxes> lineTaxesList = proposalLine.getProposalLineTaxes();
-			Iterator<ProposalLineTaxes> ProposalLineTaxesItr = lineTaxesList.iterator();
-			while (ProposalLineTaxesItr.hasNext()) {
-				ProposalLineTaxes proposalLineTaxes = ProposalLineTaxesItr.next();
-				proposalLineTaxes.setProposal_line_id(proposalLine.getId());
-				restlt.add(proposalLineTaxes);
-			}
-		}
-		return restlt;
 	}
 }

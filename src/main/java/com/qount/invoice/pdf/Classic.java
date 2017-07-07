@@ -1,7 +1,6 @@
 package com.qount.invoice.pdf;
 
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +29,6 @@ import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
-import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.utils.Constants;
 
@@ -244,14 +242,16 @@ public class Classic implements PdfPCellEvent {
 
 			createEmptyLine(document);
 
-//			String email_id = CommonUtils.isValidJSONArray(customer.getEmail_ids()) ? "" : customer.getEmail_ids().toString();
-//			Font f3 = Constants.F1;
-//			Chunk c3 = new Chunk(email_id, f3);
-//			Paragraph p3 = new Paragraph(c3);
-//			p3.setAlignment(Element.ALIGN_LEFT);
-//			p3.setSpacingBefore(-5);
-//			p3.setIndentationLeft(10);
-//			document.add(p3);
+			// String email_id =
+			// CommonUtils.isValidJSONArray(customer.getEmail_ids()) ? "" :
+			// customer.getEmail_ids().toString();
+			// Font f3 = Constants.F1;
+			// Chunk c3 = new Chunk(email_id, f3);
+			// Paragraph p3 = new Paragraph(c3);
+			// p3.setAlignment(Element.ALIGN_LEFT);
+			// p3.setSpacingBefore(-5);
+			// p3.setIndentationLeft(10);
+			// document.add(p3);
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
@@ -287,7 +287,7 @@ public class Classic implements PdfPCellEvent {
 			cell_3.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_3);
 
-			String po_number = StringUtils.isEmpty(invoice.getPo_number()) ? "" : invoice.getPo_number();
+			String po_number = StringUtils.isEmpty(invoice.getNumber()) ? "" : invoice.getNumber();
 			Chunk c4 = new Chunk(po_number, f2);
 			Phrase poNumber = new Phrase(c4);
 			PdfPCell cell_4 = new PdfPCell(poNumber);
@@ -315,7 +315,7 @@ public class Classic implements PdfPCellEvent {
 			cell_7.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_7);
 
-			String po_number_str = StringUtils.isEmpty(invoice.getPo_number()) ? "" : invoice.getPo_number();
+			String po_number_str = StringUtils.isEmpty(invoice.getNumber()) ? "" : invoice.getNumber();
 			Chunk c8 = new Chunk(po_number_str, f2);
 			Phrase paymentDue = new Phrase(c8);
 			PdfPCell cell_8 = new PdfPCell(paymentDue);
@@ -415,7 +415,7 @@ public class Classic implements PdfPCellEvent {
 			Iterator<InvoiceLine> invoiceLinesItr = invoice.getInvoiceLines().iterator();
 			while (invoiceLinesItr.hasNext()) {
 				InvoiceLine invoiceLine = invoiceLinesItr.next();
-				
+
 				String desc = StringUtils.isEmpty(invoiceLine.getDescription()) ? "" : invoiceLine.getDescription();
 				Chunk c1 = new Chunk(desc, f);
 				Phrase invocieItemsLabel = new Phrase(c1);
@@ -440,7 +440,7 @@ public class Classic implements PdfPCellEvent {
 				if (currencies != null) {
 					currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();
 				}
-				
+
 				Chunk c5 = new Chunk(currenciesJava_symbol + " " + invoiceLine.getPrice(), f2);
 				Phrase invocieDateLabel = new Phrase(c5);
 				PdfPCell cell_5 = new PdfPCell(invocieDateLabel);
@@ -457,38 +457,6 @@ public class Classic implements PdfPCellEvent {
 				cell_7.setCellEvent(new Classic(PdfPCell.BOX));
 				cell_7.setPaddingRight(20f);
 				table.addCell(cell_7);
-				
-				ArrayList<InvoiceLineTaxes> invoiceLineTaxes = invoiceLine.getInvoiceLineTaxes();
-				if(invoiceLineTaxes!=null && !invoiceLineTaxes.isEmpty()){
-					Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = invoiceLineTaxes.iterator();
-					while(invoiceLineTaxesItr.hasNext()){
-						InvoiceLineTaxes invoiceLineTax = invoiceLineTaxesItr.next();
-						String taxName = invoiceLineTax.getName();
-						String taxRate = invoiceLineTax.getTax_rate()+"";
-						if(StringUtils.isNotEmpty(taxName)){
-							PdfPCell emptyCell  = new PdfPCell(new Phrase(""));
-							emptyCell.setBorder(Rectangle.NO_BORDER);
-							table.addCell(emptyCell);
-							table.addCell(emptyCell);
-							
-							Chunk c8 = new Chunk(taxName, f2);
-							Phrase taxLabel = new Phrase(c8);
-							PdfPCell cell_8 = new PdfPCell(taxLabel);
-							cell_8.setHorizontalAlignment(Element.ALIGN_RIGHT);
-							cell_8.setBorder(Rectangle.NO_BORDER);
-							table.addCell(cell_8);
-							
-							
-							Chunk c9 = new Chunk(currenciesJava_symbol+taxRate, f2);
-							Phrase taxAmount = new Phrase(c9);
-							PdfPCell cell_9 = new PdfPCell(taxAmount);
-							cell_9.setHorizontalAlignment(Element.ALIGN_RIGHT);
-							cell_9.setBorder(Rectangle.NO_BORDER);
-							cell_9.setPaddingRight(20f);
-							table.addCell(cell_9);
-						}
-					}
-				}
 			}
 			table.setWidthPercentage(100);
 			document.add(table);
@@ -499,7 +467,7 @@ public class Classic implements PdfPCellEvent {
 
 	private static void createTotal(Document document, Invoice invoice) {
 		if (null == invoice) {
-			return;
+			return;	
 		}
 		try {
 			PdfPTable table = new PdfPTable(4);
@@ -613,7 +581,7 @@ public class Classic implements PdfPCellEvent {
 			p2.setIndentationLeft(10);
 
 			Font f = Constants.F1;
-			String notes = StringUtils.isEmpty(invoice.getNotes())?"":invoice.getNotes();
+			String notes = StringUtils.isEmpty(invoice.getNotes()) ? "" : invoice.getNotes();
 			Chunk c = new Chunk(notes, f);
 			Paragraph p = new Paragraph(c);
 			p.setAlignment(Element.ALIGN_LEFT);

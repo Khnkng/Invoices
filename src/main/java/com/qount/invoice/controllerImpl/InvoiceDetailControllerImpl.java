@@ -93,14 +93,14 @@ public class InvoiceDetailControllerImpl {
 				payloadObj = getOneTimeChargePaymentSpringJson(inputInvoice.getPayment_spring_token(), amountToPayInCents);
 				urlAction = "charge";
 				break;
-			case "one_time_customer_charge":
-				payloadObj = getOneTimeCustomerChargePaymentSpringJson(invoice.getPayment_spring_customer_id(), amountToPayInCents);
-				urlAction = "charge";
-				break;
+//			case "one_time_customer_charge":
+//				payloadObj = getOneTimeCustomerChargePaymentSpringJson(invoice.getPayment_spring_customer_id(), amountToPayInCents);
+//				urlAction = "charge";
+//				break;
 			case Constants.SUBSCRIPTION_CUSTOMER_CHARGE:
-				payloadObj = getSubscriptionPaymentSpringJson(invoice.getPayment_spring_customer_id(), invoice.getPaymentSpringPlan().getEnds_after(), invoice.getPlan_id(),
-						invoice.getPaymentSpringPlan().getBill_immediately());
-				urlAction = "subscription";
+//				payloadObj = getSubscriptionPaymentSpringJson(invoice.getPayment_spring_customer_id(), invoice.getPaymentSpringPlan().getEnds_after(), invoice.getPlan_id(),
+//						invoice.getPaymentSpringPlan().getBill_immediately());
+//				urlAction = "subscription";
 				break;
 			}
 			JSONObject result = invokeChargePaymentSpringApi(companyID, payloadObj, urlAction);

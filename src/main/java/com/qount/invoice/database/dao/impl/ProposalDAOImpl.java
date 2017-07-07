@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
@@ -152,14 +151,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 					ProposalLine proposalLine = new ProposalLine();
 					proposalLine.setId(rset.getString("plid"));
 					int proposalLineIndex = proposal.getProposalLines().indexOf(proposalLine);
-					if (proposalLineIndex != -1) {
-						proposalLine = proposal.getProposalLines().get(proposalLineIndex);
-						ProposalLineTaxes proposalLineTax = new ProposalLineTaxes();
-						proposalLineTax.setProposal_line_id(rset.getString("plt_proposal_line_id"));
-						proposalLineTax.setTax_id(rset.getString("plt_tax_id"));
-						proposalLineTax.setTax_rate(rset.getDouble("plt_tax_rate"));
-						proposalLine.getProposalLineTaxes().add(proposalLineTax);
-					} else if (proposalLineIndex == -1) {
+					if (proposalLineIndex == -1) {
 						proposalLine.setProposal_id(rset.getString("proposal_id"));
 						proposalLine.setDescription(rset.getString("pl_description"));
 						proposalLine.setObjectives(rset.getString("pl_objectives"));
@@ -170,13 +162,6 @@ public class ProposalDAOImpl implements ProposalDAO {
 						proposalLine.setQuantity(rset.getLong("pl_quantity"));
 						proposalLine.setPrice(rset.getDouble("pl_price"));
 						proposalLine.setNotes(rset.getString("pl_notes"));
-						ProposalLineTaxes proposalLineTax = new ProposalLineTaxes();
-						proposalLineTax.setProposal_line_id(rset.getString("plt_proposal_line_id"));
-						proposalLineTax.setTax_id(rset.getString("plt_tax_id"));
-						proposalLineTax.setTax_rate(rset.getDouble("plt_tax_rate"));
-						List<ProposalLineTaxes> proposalLineTaxes = new ArrayList<ProposalLineTaxes>();
-						proposalLineTaxes.add(proposalLineTax);
-						proposalLine.setProposalLineTaxes(proposalLineTaxes);
 						proposal.getProposalLines().add(proposalLine);
 						if (StringUtils.isBlank(proposal.getId())) {
 							proposal.setId(rset.getString("id"));

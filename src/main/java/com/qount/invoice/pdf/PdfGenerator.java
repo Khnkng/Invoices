@@ -84,7 +84,6 @@ public class PdfGenerator {
 			invoicePreference.setDefaultTitle("DEFAULT TITLE 1");
 			invoicePreference.setDefaultSubHeading("Default subheading 1");
 //			invoice.setNumber(6);
-			invoice.setPo_number("po1");
 			invoice.setInvoice_date("February 1, 2017");
 			invoice.setAmount_due(1.0d);
 //			invoice.setCurrency("\u20B9");
@@ -143,8 +142,7 @@ public class PdfGenerator {
 			invoicePreference.setDefaultFooter("Default footer 1");
 			invoicePreference.setDefaultTitle("DEFAULT TITLE 1");
 			invoicePreference.setDefaultSubHeading("Default subheading 1");
-//			invoice.setNumber(6);
-			invoice.setPo_number("po1");
+			invoice.setNumber("6");
 			invoice.setInvoice_date("February 1, 2017");
 			invoice.setAmount_due(1.0d);
 			invoice.setCurrency("INR");
