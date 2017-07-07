@@ -1,8 +1,5 @@
 package com.qount.invoice.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +28,15 @@ public class ProposalLine {
 	private String notes;
 	private String item_id;
 	private String coa_id;
-	private List<ProposalLineTaxes> proposalLineTaxes;
+	private String tax_id;
+
+	public String getTax_id() {
+		return tax_id;
+	}
+
+	public void setTax_id(String tax_id) {
+		this.tax_id = tax_id;
+	}
 
 	public String getId() {
 		return id;
@@ -119,19 +124,6 @@ public class ProposalLine {
 
 	public void setNotes(String notes) {
 		this.notes = notes;
-	}
-
-	public List<ProposalLineTaxes> getProposalLineTaxes() {
-		if (proposalLineTaxes == null) {
-
-			proposalLineTaxes = new ArrayList<>();
-
-		}
-		return proposalLineTaxes;
-	}
-
-	public void setProposalLineTaxes(List<ProposalLineTaxes> proposalLineTaxes) {
-		this.proposalLineTaxes = proposalLineTaxes;
 	}
 
 	public String getItem_id() {

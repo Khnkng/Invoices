@@ -37,7 +37,6 @@ public class Proposal {
 	private String remainder_mail_json;
 	private double amount_by_date;
 	private List<ProposalLine> proposalLines;
-	private List<ProposalTaxes> ProposalTaxes;
 
 	public String getId() {
 		return id;
@@ -200,14 +199,6 @@ public class Proposal {
 
 	public void setProposalLines(List<ProposalLine> proposalLines) {
 		this.proposalLines = proposalLines;
-	}
-
-	public List<ProposalTaxes> getProposalTaxes() {
-		return ProposalTaxes;
-	}
-
-	public void setProposalTaxes(List<ProposalTaxes> proposalTaxes) {
-		ProposalTaxes = proposalTaxes;
 	}
 
 	public double getAmount_by_date() {

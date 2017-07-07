@@ -1,7 +1,6 @@
 package com.qount.invoice.pdf;
 
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +28,6 @@ import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
-import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.Utilities;
@@ -237,14 +235,16 @@ public class Contemporary {
 
 			createEmptyLine(document);
 
-//			String customerEmail = CommonUtils.isValidJSONArray(customer.getEmail_ids()) ? "" : customer.getEmail_ids().toString();
-//			Font f3 = Constants.F1;
-//			Chunk c3 = new Chunk(customerEmail, f3);
-//			Paragraph p3 = new Paragraph(c3);
-//			p3.setAlignment(Element.ALIGN_LEFT);
-//			p3.setSpacingBefore(-5);
-//			p3.setIndentationLeft(10);
-//			document.add(p3);
+			// String customerEmail =
+			// CommonUtils.isValidJSONArray(customer.getEmail_ids()) ? "" :
+			// customer.getEmail_ids().toString();
+			// Font f3 = Constants.F1;
+			// Chunk c3 = new Chunk(customerEmail, f3);
+			// Paragraph p3 = new Paragraph(c3);
+			// p3.setAlignment(Element.ALIGN_LEFT);
+			// p3.setSpacingBefore(-5);
+			// p3.setIndentationLeft(10);
+			// document.add(p3);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw e;
@@ -283,7 +283,7 @@ public class Contemporary {
 			cell_3.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_3);
 
-			String invoicePo_number = StringUtils.isBlank(invoice.getPo_number()) ? "" : invoice.getPo_number();
+			String invoicePo_number = StringUtils.isBlank(invoice.getNumber()) ? "" : invoice.getNumber();
 			Chunk c4 = new Chunk(invoicePo_number, f2);
 			Phrase poNumber = new Phrase(c4);
 			PdfPCell cell_4 = new PdfPCell(poNumber);
@@ -416,7 +416,7 @@ public class Contemporary {
 			Iterator<InvoiceLine> invoiceLinesItr = invoice.getInvoiceLines().iterator();
 			while (invoiceLinesItr.hasNext()) {
 				InvoiceLine invoiceLine = invoiceLinesItr.next();
-				String itemName = StringUtils.isEmpty(invoiceLine.getItem_name())?invoiceLine.getDescription():invoiceLine.getItem_name();
+				String itemName = StringUtils.isEmpty(invoiceLine.getItem_name()) ? invoiceLine.getDescription() : invoiceLine.getItem_name();
 				Chunk c1 = new Chunk(itemName, f);
 				Phrase invocieItemsLabel = new Phrase(c1);
 				PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
@@ -438,7 +438,9 @@ public class Contemporary {
 				String currenciesSymbol = "";
 				if (currencies != null) {
 					currenciesSymbol = Utilities.getCurrencySymbol(invoice.getCurrencies().getCode());
-//					currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();
+					// currenciesJava_symbol =
+					// StringUtils.isEmpty(currencies.getJava_symbol()) ? "" :
+					// currencies.getJava_symbol();
 				}
 				Chunk c5 = new Chunk(currenciesSymbol + " " + invoiceLine.getPrice(), f3);
 				Phrase invocieDateLabel = new Phrase(c5);
@@ -454,41 +456,6 @@ public class Contemporary {
 				cell_7.setBorder(Rectangle.NO_BORDER);
 				cell_7.setPaddingRight(20f);
 				table.addCell(cell_7);
-				
-				ArrayList<InvoiceLineTaxes> invoiceLineTaxes = invoiceLine.getInvoiceLineTaxes();
-				if(invoiceLineTaxes!=null && !invoiceLineTaxes.isEmpty()){
-					Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = invoiceLineTaxes.iterator();
-					while(invoiceLineTaxesItr.hasNext()){
-						InvoiceLineTaxes invoiceLineTax = invoiceLineTaxesItr.next();
-						String taxName = invoiceLineTax.getName();
-						String taxRate = invoiceLineTax.getTax_rate()+"";
-						if(StringUtils.isNotEmpty(taxName)){
-							PdfPCell emptyCell  = new PdfPCell(new Phrase(""));
-							emptyCell.setBorder(Rectangle.NO_BORDER);
-							table.addCell(emptyCell);
-							table.addCell(emptyCell);
-							
-							Chunk c8 = new Chunk(taxName, f3);
-							Phrase taxLabel = new Phrase(c8);
-							PdfPCell cell_8 = new PdfPCell(taxLabel);
-							cell_8.setHorizontalAlignment(Element.ALIGN_RIGHT);
-							cell_8.setBorder(Rectangle.NO_BORDER);
-							table.addCell(cell_8);
-							
-							
-							Chunk c9 = new Chunk(currenciesSymbol+taxRate, f3);
-							Phrase taxAmount = new Phrase(c9);
-							PdfPCell cell_9 = new PdfPCell(taxAmount);
-							cell_9.setHorizontalAlignment(Element.ALIGN_RIGHT);
-							cell_9.setBorder(Rectangle.NO_BORDER);
-							cell_9.setPaddingRight(20f);
-							table.addCell(cell_9);
-						}
-					}
-				}
-				
-				
-				
 			}
 			table.setWidthPercentage(100);
 			document.add(table);
@@ -532,7 +499,8 @@ public class Contemporary {
 			if (currencies != null) {
 				currencySymbol = Utilities.getCurrencySymbol(invoice.getCurrencies().getCode());
 			}
-//			Chunk c3 = new Chunk(html_symbol + " " + invoice.getAmount(), f3);
+			// Chunk c3 = new Chunk(html_symbol + " " + invoice.getAmount(),
+			// f3);
 			Chunk c3 = new Chunk(currencySymbol + " " + invoice.getAmount(), f3);
 			Phrase poNumberLabel = new Phrase(c3);
 			PdfPCell cell_3 = new PdfPCell(poNumberLabel);

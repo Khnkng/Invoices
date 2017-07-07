@@ -1,7 +1,6 @@
 package com.qount.invoice.parser;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.InvoiceLine;
-import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.ResponseUtil;
@@ -62,24 +60,6 @@ public class InvoiceLineParser {
 			return null;
 		}
 		return invoiceLine;
-	}
-
-	public static List<InvoiceLineTaxes> getInvoiceLineTaxesList(List<InvoiceLine> invoiceLinesList) {
-		List<InvoiceLineTaxes> result = new ArrayList<InvoiceLineTaxes>();
-		Iterator<InvoiceLine> invoiceLineItr = invoiceLinesList.iterator();
-		while (invoiceLineItr.hasNext()) {
-			InvoiceLine invoiceLine = invoiceLineItr.next();
-			List<InvoiceLineTaxes> lineTaxesList = invoiceLine.getInvoiceLineTaxes();
-			if (lineTaxesList != null) {
-				Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
-				while (invoiceLineTaxesItr.hasNext()) {
-					InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
-					invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
-					result.add(invoiceLineTaxes);
-				}
-			}
-		}
-		return result;
 	}
 
 	public static InvoiceLine getInvoiceLineObjToDelete(String invoiceLineID) {

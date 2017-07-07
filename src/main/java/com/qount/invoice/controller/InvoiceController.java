@@ -65,7 +65,7 @@ public class InvoiceController {
 			+ "json ={\"state\":\"sent\"}" + "</div>", responseContainer = "java.lang.String")
 	public Invoice updateInvoiceState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID,
 			@Valid Invoice invoice) {
-		return InvoiceControllerImpl.updateInvoice(userID, companyID, invoiceID, invoice);
+		return InvoiceControllerImpl.updateInvoiceState(invoiceID, invoice);
 	}
 
 	@GET
