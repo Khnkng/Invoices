@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @XmlRootElement
 public class Invoice {
+	
 	private String id;
 	private String user_id;
 	private String company_id;
@@ -33,12 +34,9 @@ public class Invoice {
 	private double deposit_amount;
 	private double processing_fees;
 	private boolean is_recurring;
-	private String payment_spring_customer_id;
 	private String number;
-	private String po_number;
 	private String document_id;
 	private List<InvoiceLine> invoiceLines;
-	private List<InvoiceTaxes> invoiceTaxes;
 	private double amount_due;
 	private String payment_date;
 	private double sub_totoal;
@@ -58,23 +56,41 @@ public class Invoice {
 	private boolean sendMail;
 	private List<String> recepientsMails;
 	private JSONArray recepientsMailsArr;
-	private PaymentSpringPlan paymentSpringPlan;
 	private String payment_options;
+	private String send_to;
+	private String email_state;
+	private String due_date;
 	
+	public String getDue_date() {
+		return due_date;
+	}
+
+	public void setDue_date(String due_date) {
+		this.due_date = due_date;
+	}
+
+	public String getEmail_state() {
+		return email_state;
+	}
+
+	public void setEmail_state(String email_state) {
+		this.email_state = email_state;
+	}
+
+	public String getSend_to() {
+		return send_to;
+	}
+
+	public void setSend_to(String send_to) {
+		this.send_to = send_to;
+	}
+
 	public String getPayment_options() {
 		return payment_options;
 	}
 
 	public void setPayment_options(String payment_options) {
 		this.payment_options = payment_options;
-	}
-
-	public PaymentSpringPlan getPaymentSpringPlan() {
-		return paymentSpringPlan;
-	}
-
-	public void setPaymentSpringPlan(PaymentSpringPlan paymentSpringPlan) {
-		this.paymentSpringPlan = paymentSpringPlan;
 	}
 
 	public List<String> getRecepientsMails() {
@@ -349,28 +365,12 @@ public class Invoice {
 		this.is_recurring = is_recurring;
 	}
 
-	public String getPayment_spring_customer_id() {
-		return payment_spring_customer_id;
-	}
-
-	public void setPayment_spring_customer_id(String payment_spring_customer_id) {
-		this.payment_spring_customer_id = payment_spring_customer_id;
-	}
-
 	public String getNumber() {
 		return number;
 	}
 
 	public void setNumber(String number) {
 		this.number = number;
-	}
-
-	public String getPo_number() {
-		return po_number;
-	}
-
-	public void setPo_number(String po_number) {
-		this.po_number = po_number;
 	}
 
 	public String getDocument_id() {
@@ -387,14 +387,6 @@ public class Invoice {
 
 	public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
 		this.invoiceLines = invoiceLines;
-	}
-
-	public List<InvoiceTaxes> getInvoiceTaxes() {
-		return invoiceTaxes;
-	}
-
-	public void setInvoiceTaxes(List<InvoiceTaxes> invoiceTaxes) {
-		this.invoiceTaxes = invoiceTaxes;
 	}
 
 	public double getAmount_by_date() {

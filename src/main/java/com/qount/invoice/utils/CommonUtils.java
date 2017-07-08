@@ -32,6 +32,18 @@ public class CommonUtils {
 		return joiner.join(strings);
 	}
 
+	public static String toQoutedCommaSeparatedString(List<String> strings) {
+		String result = null;
+		if (strings != null && !strings.isEmpty()) {
+			result = "";
+			for (int i = 0; i < strings.size(); i++) {
+				result += "'" + strings.get(i) + "',";
+			}
+			result = result.substring(0, result.length() - 1);
+		}
+		return result;
+	}
+
 	public static List<String> fromCommaSeparatedString(String string) {
 		if (StringUtils.isBlank(string)) {
 			return new ArrayList<>();
@@ -186,7 +198,7 @@ public class CommonUtils {
 		}
 		return false;
 	}
-	
+
 	public static boolean isAnyStringValid(String... strings) throws Exception {
 		try {
 			if (strings == null || strings.length == 0) {
@@ -203,11 +215,11 @@ public class CommonUtils {
 		}
 		return false;
 	}
-	
+
 	public static void removeKeysIfNull(JSONObject input, String... keys) {
 		try {
 			for (String key : keys) {
-				if(StringUtils.isEmpty(input.optString(key))){
+				if (StringUtils.isEmpty(input.optString(key))) {
 					input.remove(key);
 				}
 			}

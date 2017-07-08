@@ -21,11 +21,9 @@ import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
-import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.model.Item;
-import com.qount.invoice.model.PaymentSpringPlan;
 import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -58,6 +56,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				pstmt.setString(ctr++, invoice.getUser_id());
 				pstmt.setString(ctr++, invoice.getCompany_id());
+				pstmt.setString(ctr++, invoice.getCustomer_id());
 				pstmt.setDouble(ctr++, invoice.getAmount());
 				pstmt.setString(ctr++, invoice.getCurrency());
 				pstmt.setString(ctr++, invoice.getDescription());
@@ -70,29 +69,23 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getDiscount());
 				pstmt.setDouble(ctr++, invoice.getDeposit_amount());
 				pstmt.setDouble(ctr++, invoice.getProcessing_fees());
-				pstmt.setString(ctr++, invoice.getPayment_spring_customer_id());
-				pstmt.setString(ctr++, invoice.getPo_number());
+				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setString(ctr++, invoice.getDocument_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
 				pstmt.setString(ctr++, invoice.getPayment_date());
-				pstmt.setString(ctr++, invoice.getCustomer_id());
 				pstmt.setDouble(ctr++, invoice.getSub_totoal());
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setString(ctr++, invoice.getCreated_at());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
-				pstmt.setString(ctr++, invoice.getNumber());
-				pstmt.setLong(ctr++, new Date().getTime());
 				pstmt.setString(ctr++, invoice.getTerm());
+				pstmt.setLong(ctr++, new Date().getTime());
 				pstmt.setString(ctr++, invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getFrequency());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getName());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getAmount());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getDay());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getEnds_after());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getBill_immediately());
 				pstmt.setString(ctr++, invoice.getPayment_options());
+				pstmt.setString(ctr++, invoice.getEmail_state());
+				pstmt.setString(ctr++, invoice.getSend_to());
+				pstmt.setString(ctr++, invoice.getDue_date());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -124,6 +117,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
 				pstmt.setString(ctr++, invoice.getUser_id());
 				pstmt.setString(ctr++, invoice.getCompany_id());
+				pstmt.setString(ctr++, invoice.getCustomer_id());
 				pstmt.setDouble(ctr++, invoice.getAmount());
 				pstmt.setString(ctr++, invoice.getCurrency());
 				pstmt.setString(ctr++, invoice.getDescription());
@@ -136,27 +130,21 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getDiscount());
 				pstmt.setDouble(ctr++, invoice.getDeposit_amount());
 				pstmt.setDouble(ctr++, invoice.getProcessing_fees());
-				pstmt.setString(ctr++, invoice.getPayment_spring_customer_id());
-				pstmt.setString(ctr++, invoice.getPo_number());
+				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setString(ctr++, invoice.getDocument_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
 				pstmt.setString(ctr++, invoice.getPayment_date());
 				pstmt.setDouble(ctr++, invoice.getSub_totoal());
-				pstmt.setString(ctr++, invoice.getCustomer_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
-				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setString(ctr++, invoice.getTerm());
 				pstmt.setString(ctr++, invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getFrequency());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getName());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getAmount());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getDay());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getEnds_after());
-				pstmt.setString(ctr++, invoice.getPaymentSpringPlan().getBill_immediately());
 				pstmt.setString(ctr++, invoice.getPayment_options());
+				pstmt.setString(ctr++, invoice.getEmail_state());
+				pstmt.setString(ctr++, invoice.getSend_to());
+				pstmt.setString(ctr++, invoice.getDue_date());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -213,7 +201,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		Invoice invoice = null;
 		Customer customer = null;
 		List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
-		PaymentSpringPlan paymentSpringPlan = null;
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Connection connection = null;
@@ -231,18 +218,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setInvoiceLines(invoiceLines);
 					}
 					InvoiceLine invoiceLine = new InvoiceLine();
-					invoiceLine.setId(rset.getString("ilid"));
+					invoiceLine.setId(rset.getString("il_id"));
 					int invoiceLineIndex = invoice.getInvoiceLines().indexOf(invoiceLine);
-					if (invoiceLineIndex != -1) {
-						invoiceLine = invoice.getInvoiceLines().get(invoiceLineIndex);
-						InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
-						invoiceLineTax.setInvoice_line_id(rset.getString("ilt_invoice_line_id"));
-						invoiceLineTax.setTax_id(rset.getString("ilt_tax_id"));
-						invoiceLineTax.setName(rset.getString("ilt_name"));
-						invoiceLineTax.setTax_rate(rset.getDouble("ilt_tax_rate"));
-						invoiceLine.getInvoiceLineTaxes().add(invoiceLineTax);
-					} else if (invoiceLineIndex == -1) {
-						invoiceLine.setInvoice_id(rset.getString("invoice_id"));
+					if (invoiceLineIndex == -1) {
+						invoiceLine.setInvoice_id(rset.getString("il_invoice_id"));
 						invoiceLine.setDescription(rset.getString("il_description"));
 						Item item = new Item();
 						item.setId(rset.getString("il_item_id"));
@@ -250,10 +229,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLine.setItem(item);
 						invoiceLine.setItem_id(item.getId());
 						Coa coa = new Coa();
-						coa.setId(rset.getString("il_coa_id"));
+						coa.setId(rset.getString("il_item_id"));
 						coa.setName(rset.getString("il_coa_name"));
 						invoiceLine.setCoa(coa);
 						invoiceLine.setObjectives(rset.getString("il_objectives"));
+						invoiceLine.setTax_id(rset.getString("il_tax_id"));
 						invoiceLine.setAmount(rset.getDouble("il_amount"));
 						invoiceLine.setLast_updated_at(rset.getString("il_last_updated_at"));
 						invoiceLine.setLast_updated_by(rset.getString("il_last_updated_by"));
@@ -261,67 +241,43 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLine.setPrice(rset.getDouble("il_price"));
 						invoiceLine.setNotes(rset.getString("il_notes"));
 						invoiceLine.setType(rset.getString("il_type"));
-						InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
-						invoiceLineTax.setInvoice_line_id(rset.getString("ilt_invoice_line_id"));
-						invoiceLineTax.setTax_id(rset.getString("ilt_tax_id"));
-						invoiceLineTax.setTax_rate(rset.getDouble("ilt_tax_rate"));
-						invoiceLineTax.setName(rset.getString("ilt_name"));
-						ArrayList<InvoiceLineTaxes> invoicesLineTaxes = new ArrayList<InvoiceLineTaxes>();
-						invoicesLineTaxes.add(invoiceLineTax);
-						invoiceLine.setInvoiceLineTaxes(invoicesLineTaxes);
 						invoice.getInvoiceLines().add(invoiceLine);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
-							String plan_frequency = rset.getString("plan_frequency");
-							String plan_name = rset.getString("plan_name");
-							String plan_amount = rset.getString("plan_amount");
-							String plan_day = rset.getString("plan_day");
-							String plan_ends_after = rset.getString("plan_ends_after");
-							String plan_bill_immediately = rset.getString("plan_bill_immediately");
-							if(CommonUtils.isAnyStringValid(plan_frequency,plan_name,plan_amount,plan_day,plan_ends_after,plan_bill_immediately)){
-								paymentSpringPlan = new PaymentSpringPlan();
-								paymentSpringPlan.setFrequency(plan_frequency);
-								paymentSpringPlan.setName(plan_name);
-								paymentSpringPlan.setAmount(plan_amount);
-								paymentSpringPlan.setDay(plan_day);
-								paymentSpringPlan.setEnds_after(plan_ends_after);
-								paymentSpringPlan.setBill_immediately(plan_bill_immediately);
-							}
-							invoice.setPayment_options(rset.getString("payment_options"));
-							invoice.setNumber(rset.getString("i_number"));
-							invoice.setTerm(rset.getString("i_term"));
 							invoice.setUser_id(rset.getString("user_id"));
 							invoice.setCompany_id(rset.getString("company_id"));
+							invoice.setCustomer_id(rset.getString("customer_id"));
 							invoice.setAmount(rset.getDouble("amount"));
 							invoice.setCurrency(rset.getString("currency"));
 							invoice.setDescription(rset.getString("description"));
 							invoice.setObjectives(rset.getString("objectives"));
 							invoice.setLast_updated_by(rset.getString("last_updated_by"));
 							invoice.setLast_updated_at(rset.getString("last_updated_at"));
-							invoice.setCustomer_id(rset.getString("customer_id"));
-							customer.setCustomer_id(rset.getString("customer_id"));
 							invoice.setState(rset.getString("state"));
-							invoice.setPlan_id(rset.getString("plan_id"));
 							invoice.setInvoice_date(rset.getString("invoice_date"));
 							invoice.setNotes(rset.getString("notes"));
-							invoice.setDiscount(rset.getDouble("discount"));
+							invoice.setDiscount(rset.getLong("discount"));
 							invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
 							invoice.setProcessing_fees(rset.getDouble("processing_fees"));
-							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
-							invoice.setPayment_spring_customer_id(rset.getString("payment_spring_id"));
-							invoice.setPo_number(rset.getString("po_number"));
+							invoice.setNumber(rset.getString("number"));
 							invoice.setDocument_id(rset.getString("document_id"));
 							invoice.setAmount_due(rset.getDouble("amount_due"));
 							invoice.setPayment_date(rset.getString("payment_date"));
 							invoice.setSub_totoal(rset.getDouble("sub_totoal"));
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
-							invoice.setCreated_at(rset.getString("i_created_at"));
-							invoice.setCompanyName(rset.getString("company_name"));
+							invoice.setCreated_at(rset.getString("created_at"));
+							invoice.setAmount_paid(rset.getDouble("amount_paid"));
+							invoice.setTerm(rset.getString("term"));
 							invoice.setRecepientsMails(CommonUtils.getListString(rset.getString("recepients_mails")));
+							invoice.setPlan_id(rset.getString("plan_id"));
+							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
+							invoice.setPayment_options(rset.getString("payment_options"));
+							invoice.setEmail_state(rset.getString("email_state"));
+							invoice.setSend_to(rset.getString("send_to"));
+							customer.setCustomer_id(rset.getString("customer_id"));
 							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
 							customer.setCustomer_name(rset.getString("customer_name"));
-							customer.setEmail_ids(CommonUtils.getJsonArrayFromString(rset.getString("email_ids")));
 							customer.setCard_name(rset.getString("card_name"));
 							Currencies currencies_2 = new Currencies();
 							currencies_2.setCode(rset.getString("code"));
@@ -329,7 +285,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							currencies_2.setHtml_symbol(rset.getString("html_symbol"));
 							currencies_2.setJava_symbol(rset.getString("java_symbol"));
 							invoice.setCurrencies(currencies_2);
-							invoice.setPaymentSpringPlan(paymentSpringPlan);
 						}
 					}
 				}
@@ -432,8 +387,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	@Override
 	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception {
 		LOGGER.debug("entered getInvoiceList userID:" + userID + " companyID:" + companyID + "state:" + state);
-		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID) || StringUtils.isEmpty(state)) {
-			throw new WebApplicationException("userID or companyID or state cannot be empty");
+		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
+			throw new WebApplicationException("userID or companyID cannot be empty");
 		}
 		List<Invoice> invoiceLst = new ArrayList<>();
 		PreparedStatement pstmt = null;
@@ -444,50 +399,26 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
 				query += "`user_id`='" + userID + "' AND `company_id`= '" + companyID + "' ";
-				if (!state.equals("paid")) {
-					query += "AND (state !='paid' OR state IS NULL );";
-				} else {
-					query += "AND state='paid'";
+				if (!StringUtils.isEmpty(state)) {
+					if (!state.equals("paid")) {
+						query += "AND (state !='paid' OR state IS NULL );";
+					} else {
+						query += "AND state='paid'";
+					}
 				}
 				pstmt = connection.prepareStatement(query);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					Invoice invoice = new Invoice();
-					invoice.setPo_number(rset.getString("po_number"));
+					invoice.setNumber(rset.getString("number"));
+					invoice.setId(rset.getString("id"));
 					invoice.setInvoice_date(rset.getString("invoice_date"));
 					invoice.setPayment_date(rset.getString("payment_date"));
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setCurrency(rset.getString("currency"));
-					invoice.setLast_updated_by(rset.getString("last_updated_by"));
-					invoice.setLast_updated_at(rset.getString("last_updated_at"));
-					invoice.setCustomer_id(rset.getString("customer_id"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
-					invoice.setSub_totoal(rset.getDouble("sub_totoal"));
-					invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
-					invoice.setId(rset.getString("id"));
-					invoice.setNumber(rset.getString("number"));
-					// invoice.setUser_id(rset.getString("user_id"));
-					// invoice.setCompany_id(rset.getString("company_id"));
-					// invoice.setDescription(rset.getString("description"));
-					// invoice.setObjectives(rset.getString("objectives"));
-					// invoice.setAcceptance_date(rset.getString("acceptance_date"));
-					// invoice.setAcceptance_final_date(rset.getString("acceptance_final_date"));
-					// invoice.setNotes(rset.getString("notes"));
-					// invoice.setDiscount(rset.getDouble("discount"));
-					// invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
-					// invoice.setProcessing_fees(rset.getDouble("processing_fees"));
-					// invoice.setRemainder_json(rset.getString("remainder_json"));
-					// invoice.setRemainder_mail_json(rset.getString("remainder_mail_json"));
-					// invoice.setIs_recurring(rset.getBoolean("is_recurring"));
-					// invoice.setRecurring_frequency(rset.getString("recurring_frequency"));
-					// invoice.setRecurring_frequency_value(rset.getDouble("recurring_frequency_value"));
-					// invoice.setRecurring_start_date(rset.getString("recurring_start_date"));
-					// invoice.setRecurring_end_date(rset.getString("recurring_end_date"));
-					// invoice.setIs_mails_automated(rset.getBoolean("is_mails_automated"));
-					// invoice.setIs_cc_current_user(rset.getBoolean("is_cc_current_user"));
-					// invoice.setPayment_spring_customer_id(rset.getString("payment_spring_customer_id"));
-					// invoice.setDocument_id(rset.getString("document_id"));
+					invoice.setDue_date(rset.getString("due_date"));
 					invoiceLst.add(invoice);
 				}
 			}
@@ -517,6 +448,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.DELETE_QRY);
 				pstmt.setString(1, invoice.getId());
+				pstmt.setString(2, invoice.getUser_id());
+				pstmt.setString(3, invoice.getCompany_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
@@ -535,6 +468,78 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.debug("exited invoice delete:" + invoice);
 		}
 		return invoice;
+	}
+
+	@Override
+	public boolean deleteLst(String userId, String companyId, String lst) throws Exception {
+		LOGGER.debug("entered invoice delete lst:" + lst);
+		Connection connection = null;
+		if (StringUtils.isEmpty(lst)) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Invoice.DELETE_LST_QRY;
+				query +=lst+") AND `user_id` = '"+userId+"' AND `company_id` ='"+companyId+"';";
+				pstmt = connection.prepareStatement(query);
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of invoice deleted:" + rowCount);
+				if (rowCount > 0) {
+					return true;
+				}else{
+					return false;
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("no record deleted:" + lst + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("Error deleting invoice lst:" + lst + ",  ", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited invoice delete lst:" + lst);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateStateAsSent(String userId, String companyId, String lst) throws Exception {
+		LOGGER.debug("entered updateStateAsSent lst:" + lst);
+		Connection connection = null;
+		if (StringUtils.isEmpty(lst) || StringUtils.isAnyBlank(companyId,userId)) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Invoice.UPDATE_AS_SENT_QRY;
+				query +=lst+") AND `user_id` = '"+userId+"' AND `company_id` ='"+companyId+"';";
+				pstmt = connection.prepareStatement(query);
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of invoice updated:" + rowCount);
+				if (rowCount > 0) {
+					return true;
+				}else{
+					return false;
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("no record updated:" + lst + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("Error updateStateAsSent lst:" + lst + ",  ", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited updateStateAsSent lst:" + lst);
+		}
+		return false;
 	}
 
 	@Override

@@ -21,12 +21,8 @@ import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
-import com.qount.invoice.model.InvoiceLineTaxes;
-import com.qount.invoice.model.InvoiceTaxes;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.model.ProposalLineTaxes;
-import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.parser.ProposalParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -57,18 +53,10 @@ public class ProposalControllerImpl {
 			connection.setAutoCommit(false);
 			Proposal proposalResult = MySQLManager.getProposalDAOInstance().save(connection, proposalObj);
 			if (proposalResult != null) {
-				List<ProposalTaxes> proposalTaxesList = proposalObj.getProposalTaxes();
-				List<ProposalTaxes> proposalTaxResult = MySQLManager.getProposalTaxesDAOInstance().saveProposalTaxes(connection, proposalObj.getId(), proposalTaxesList);
-				if (proposalTaxResult != null) {
-					List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance().batchSave(connection, proposalObj.getProposalLines());
-					if (proposalLineResult != null) {
-						List<ProposalLineTaxes> proposalLineTaxesList = ProposalParser.getProposalLineTaxesList(proposalObj.getProposalLines());
-						List<ProposalLineTaxes> proposalLineTaxesResult = MySQLManager.getProposalLineTaxesDAOInstance().batchSave(connection, proposalLineTaxesList);
-						if (proposalLineTaxesResult != null) {
-							connection.commit();
-							return proposalObj;
-						}
-					}
+				List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance().batchSave(connection, proposalObj.getProposalLines());
+				if (proposalLineResult != null) {
+					connection.commit();
+					return proposalObj;
 				}
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
@@ -98,83 +86,43 @@ public class ProposalControllerImpl {
 			connection.setAutoCommit(false);
 			Proposal proposalResult = MySQLManager.getProposalDAOInstance().updateProposal(connection, proposalObj);
 			if (proposalResult != null) {
-				List<ProposalTaxes> proposalTaxesList = proposalObj.getProposalTaxes();
-				ProposalTaxes proposalTaxes = new ProposalTaxes();
-				proposalTaxes.setProposal_id(proposalId);
-				ProposalTaxes deletedProposalTaxResult = MySQLManager.getProposalTaxesDAOInstance().deleteProposalTax(connection, proposalTaxes);
-				if (deletedProposalTaxResult != null) {
-					List<ProposalTaxes> proposalTaxesResult = MySQLManager.getProposalTaxesDAOInstance().saveProposalTaxes(connection, proposalId, proposalTaxesList);
-					if (proposalTaxesResult != null) {
-						ProposalLine proposalLine = new ProposalLine();
-						proposalLine.setProposal_id(proposalId);
-						ProposalLine deletedProposalLineResult = MySQLManager.getProposalLineDAOInstance().delete(connection, proposalLine);
-						if (deletedProposalLineResult != null) {
-							List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance().batchSave(connection, proposalObj.getProposalLines());
-							if (proposalLineResult != null) {
-								List<ProposalLineTaxes> proposalLineTaxesList = ProposalParser.getProposalLineTaxesList(proposalObj.getProposalLines());
-								List<ProposalLineTaxes> proposalLineTaxesResult = MySQLManager.getProposalLineTaxesDAOInstance().batchSave(connection, proposalLineTaxesList);
-								if (proposalLineTaxesResult != null) {
-									Invoice invoiceObjToInsert = new Invoice();
-									if (proposalResult.getState().equals("accept")) {
-										List<InvoiceTaxes> invoiceTaxesList = new ArrayList<>();
-										List<InvoiceLine> invoiceLinesList = new ArrayList<>();
-										ArrayList<InvoiceLineTaxes> invoiceLineTaxesList = null;
-
-										BeanUtils.copyProperties(invoiceObjToInsert, proposalObj);
-
-										List<ProposalTaxes> ProposalTaxesList = proposalObj.getProposalTaxes();
-										Iterator<ProposalTaxes> ProposalTaxesListItr = ProposalTaxesList.iterator();
-										while (ProposalTaxesListItr.hasNext()) {
-											ProposalTaxes proposalTaxes2 = ProposalTaxesListItr.next();
-											InvoiceTaxes invoiceTaxes = new InvoiceTaxes();
-											BeanUtils.copyProperties(invoiceTaxes, proposalTaxes2);
-											invoiceTaxes.setInvoice_id(proposalTaxes2.getProposal_id());
-											invoiceTaxesList.add(invoiceTaxes);
-										}
-										invoiceObjToInsert.setInvoiceTaxes(invoiceTaxesList);
-
-										List<ProposalLine> proposalLinesList = proposalObj.getProposalLines();
-										Iterator<ProposalLine> ProposalLinesListItr = proposalLinesList.iterator();
-										while (ProposalLinesListItr.hasNext()) {
-											ProposalLine ProposalLine = ProposalLinesListItr.next();
-											InvoiceLine invoiceLine = new InvoiceLine();
-											BeanUtils.copyProperties(invoiceLine, ProposalLine);
-											invoiceLine.setId(ProposalLine.getId());
-											invoiceLine.setInvoice_id(ProposalLine.getProposal_id());
-
-											List<ProposalLineTaxes> proposalLineTaxesList2 = ProposalLine.getProposalLineTaxes();
-											Iterator<ProposalLineTaxes> ProposalLinesTaxesListItr = proposalLineTaxesList2.iterator();
-											invoiceLineTaxesList = new ArrayList<>();
-											while (ProposalLinesTaxesListItr.hasNext()) {
-												ProposalLineTaxes ProposalLineTax = ProposalLinesTaxesListItr.next();
-												InvoiceLineTaxes invoiceLineTaxes = new InvoiceLineTaxes();
-												BeanUtils.copyProperties(invoiceLineTaxes, ProposalLineTax);
-												invoiceLineTaxes.setInvoice_line_id(ProposalLineTax.getProposal_line_id());
-												invoiceLineTaxesList.add(invoiceLineTaxes);
-											}
-											invoiceLine.setInvoiceLineTaxes(invoiceLineTaxesList);
-											invoiceLinesList.add(invoiceLine);
-										}
-										invoiceObjToInsert.setInvoiceLines(invoiceLinesList);
-										invoiceObjToInsert.setInvoice_date(new Date().toString());
-										invoiceObjToInsert.setId(proposalObj.getId());
-										Invoice checkIfRecordPresent = MySQLManager.getInvoiceDAOInstance().get(proposalId);
-										if (checkIfRecordPresent.getId() == null) {
-											Invoice invoiceCreated = InvoiceControllerImpl.createInvoice(userID, proposal.getCompany_id(), invoiceObjToInsert);
-											if (invoiceCreated == null) {
-												throw new WebApplicationException(
-														ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PARTIAL_SUCCESS, Status.INTERNAL_SERVER_ERROR));
-											}
-										}
-									}
-									connection.commit();
-									return proposalObj;
+				ProposalLine proposalLine = new ProposalLine();
+				proposalLine.setProposal_id(proposalId);
+				ProposalLine deletedProposalLineResult = MySQLManager.getProposalLineDAOInstance().delete(connection, proposalLine);
+				if (deletedProposalLineResult != null) {
+					List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance().batchSave(connection, proposalObj.getProposalLines());
+					if (proposalLineResult != null) {
+						Invoice invoiceObjToInsert = new Invoice();
+						if (proposalResult.getState().equals("accept")) {
+							List<InvoiceLine> invoiceLinesList = new ArrayList<>();
+							BeanUtils.copyProperties(invoiceObjToInsert, proposalObj);
+							List<ProposalLine> proposalLinesList = proposalObj.getProposalLines();
+							Iterator<ProposalLine> ProposalLinesListItr = proposalLinesList.iterator();
+							while (ProposalLinesListItr.hasNext()) {
+								ProposalLine ProposalLine = ProposalLinesListItr.next();
+								InvoiceLine invoiceLine = new InvoiceLine();
+								BeanUtils.copyProperties(invoiceLine, ProposalLine);
+								invoiceLine.setId(ProposalLine.getId());
+								invoiceLine.setInvoice_id(ProposalLine.getProposal_id());
+								invoiceLinesList.add(invoiceLine);
+							}
+							invoiceObjToInsert.setInvoiceLines(invoiceLinesList);
+							invoiceObjToInsert.setInvoice_date(new Date().toString());
+							invoiceObjToInsert.setId(proposalObj.getId());
+							Invoice checkIfRecordPresent = MySQLManager.getInvoiceDAOInstance().get(proposalId);
+							if (checkIfRecordPresent.getId() == null) {
+								Invoice invoiceCreated = InvoiceControllerImpl.createInvoice(userID, proposal.getCompany_id(), invoiceObjToInsert);
+								if (invoiceCreated == null) {
+									throw new WebApplicationException(
+											ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PARTIAL_SUCCESS, Status.INTERNAL_SERVER_ERROR));
 								}
 							}
 						}
+						connection.commit();
+						return proposalObj;
 					}
-
 				}
+
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
@@ -209,10 +157,6 @@ public class ProposalControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Proposal result = ProposalDAOImpl.getProposalDAOImpl().get(proposalId);
-			if (result != null) {
-				List<ProposalTaxes> proposalTaxesList = MySQLManager.getProposalTaxesDAOInstance().getByProposalID(proposalId);
-				result.setProposalTaxes(proposalTaxesList);
-			}
 			return result;
 		} catch (Exception e) {
 			LOGGER.error(e);

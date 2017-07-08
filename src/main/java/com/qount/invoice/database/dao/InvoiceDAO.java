@@ -35,4 +35,7 @@ public interface InvoiceDAO {
 
 	public InvoiceReference getInvoiceRelatedDetails(Connection connection, InvoiceReference invoiceReference) throws Exception;
 
+	public boolean deleteLst(String userId, String companyId, String lst) throws Exception;
+
+	public boolean updateStateAsSent(String userId, String companyId, String lst) throws Exception;
 }

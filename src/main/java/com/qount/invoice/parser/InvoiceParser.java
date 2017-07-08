@@ -17,12 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
-import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.model.PaymentSpringPlan;
@@ -43,19 +41,23 @@ public class InvoiceParser {
 
 	public static Invoice getInvoiceObj(String userId, Invoice invoice, String companyID) {
 		try {
-			if (StringUtils.isEmpty(userId) || invoice == null || StringUtils.isEmpty(companyID) || StringUtils.isEmpty(invoice.getCurrency())) {
-				return null;
+			if (invoice == null || StringUtils.isAnyBlank(userId,companyID,invoice.getCurrency())) {
+				throw new WebApplicationException("userId, companyId, currency are mandatory");
 			}
 			UserCompany userCompany = null;
+			invoice.setCompany_id(companyID);
+			invoice.setIs_recurring(StringUtils.isNotEmpty(invoice.getPlan_id()));
 			userCompany = CommonUtils.getCompany(userId, companyID);
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			Timestamp payment_date = convertStringToTimeStamp(invoice.getPayment_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			invoice.setUser_id(userId);
 			if (StringUtils.isBlank(invoice.getId())) {
 				invoice.setId(UUID.randomUUID().toString());
 			}
 			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
+			invoice.setDue_date(due_date != null ? due_date.toString() : null);
 			invoice.setPayment_date(payment_date != null ? payment_date.toString() : null);
 			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
@@ -76,29 +78,8 @@ public class InvoiceParser {
 				line.setLast_updated_at(timestamp.toString());
 				line.setLast_updated_by(userId);
 			}
-			invoice.setCreated_at(new Timestamp(System.currentTimeMillis()).toString());
+			invoice.setCreated_at(timestamp.toString());
 			invoice.setRecepientsMailsArr(CommonUtils.getJsonArrayFromList(invoice.getRecepientsMails()));
-			if (invoice.getPaymentSpringPlan() == null) {
-				invoice.setPaymentSpringPlan(new PaymentSpringPlan());
-			} else {
-				PaymentSpringPlan paymentSpringPlan = invoice.getPaymentSpringPlan();
-				if(paymentSpringPlan!=null){
-					if (StringUtils.equals(paymentSpringPlan.getFrequency(), "daily")) {
-						if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
-								paymentSpringPlan.getName())) {
-							throw new WebApplicationException(PropertyManager.getProperty("payment.spring.daily.invalid.plan.msg"));
-						}
-					} else {
-						if (!CommonUtils.isValidStrings(paymentSpringPlan.getAmount(), paymentSpringPlan.getEnds_after(), paymentSpringPlan.getFrequency(),
-								paymentSpringPlan.getName())) {
-							throw new WebApplicationException(PropertyManager.getProperty("payment.spring.invalid.plan.msg"));
-						}
-						if (StringUtils.isEmpty(paymentSpringPlan.getDay()) && paymentSpringPlan.getDay_map() == null ) {
-							throw new WebApplicationException(PropertyManager.getProperty("payment.spring.day.invalid.plan.msg"));
-						}
-					}
-				}
-			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e.getLocalizedMessage(), 500);
@@ -146,6 +127,8 @@ public class InvoiceParser {
 								convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 						invoice.setPayment_date(
 								convertTimeStampToString(invoice.getPayment_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setDue_date(
+								convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 					}
 				}
 			}
@@ -155,37 +138,15 @@ public class InvoiceParser {
 		return invoiceLst;
 	}
 
-	public static List<InvoiceLineTaxes> getInvoiceLineTaxesList(List<InvoiceLine> invoiceLinesList) {
-		List<InvoiceLineTaxes> result = new ArrayList<InvoiceLineTaxes>();
-		if (invoiceLinesList == null || invoiceLinesList.isEmpty()) {
-			return result;
-		}
-		Iterator<InvoiceLine> invoiceLineItr = invoiceLinesList.iterator();
-		while (invoiceLineItr.hasNext()) {
-			InvoiceLine invoiceLine = invoiceLineItr.next();
-			List<InvoiceLineTaxes> lineTaxesList = invoiceLine.getInvoiceLineTaxes();
-			if (lineTaxesList != null && !lineTaxesList.isEmpty()) {
-				Iterator<InvoiceLineTaxes> invoiceLineTaxesItr = lineTaxesList.iterator();
-				while (invoiceLineTaxesItr.hasNext()) {
-					InvoiceLineTaxes invoiceLineTaxes = invoiceLineTaxesItr.next();
-					if (invoiceLineTaxes != null && StringUtils.isNotBlank(invoiceLineTaxes.getTax_id())) {
-						invoiceLineTaxes.setInvoice_line_id(invoiceLine.getId());
-						result.add(invoiceLineTaxes);
-					}
-				}
-			}
-		}
-		return result;
-	}
-
-	public static Invoice getInvoiceObjToDelete(String user_id, String invoice_id) {
+	public static Invoice getInvoiceObjToDelete(String user_id, String companyID, String invoice_id) {
 		try {
-			if (StringUtils.isEmpty(user_id) && StringUtils.isEmpty(invoice_id)) {
+			if (StringUtils.isAnyBlank(user_id,invoice_id)) {
 				return null;
 			}
 			Invoice invoice = new Invoice();
 			invoice.setUser_id(user_id);
 			invoice.setId(invoice_id);
+			invoice.setCompany_id(companyID);
 			return invoice;
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -304,7 +265,7 @@ public class InvoiceParser {
 		try {
 			LOGGER.debug("entered getJsonForPaymentSpringPlan :" + paymentSpringPlan);
 			JSONObject result = new JSONObject(paymentSpringPlan.toString());
-			if(StringUtils.isEmpty(result.optString("day"))){
+			if (StringUtils.isEmpty(result.optString("day"))) {
 				result.put("day", result.optJSONObject("day_map"));
 				result.remove("day_map");
 			}

@@ -16,29 +16,21 @@ import com.qount.invoice.database.dao.CurrencyDAO;
 import com.qount.invoice.database.dao.CustomerDAO;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.InvoiceLineDAO;
-import com.qount.invoice.database.dao.InvoiceLineTaxesDAO;
 import com.qount.invoice.database.dao.InvoicePaymentDAO;
 import com.qount.invoice.database.dao.InvoicePlanDAO;
 import com.qount.invoice.database.dao.InvoicePreferenceDAO;
-import com.qount.invoice.database.dao.InvoiceTaxesDAO;
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.database.dao.ProposalLineDAO;
-import com.qount.invoice.database.dao.ProposalLineTaxesDAO;
-import com.qount.invoice.database.dao.ProposalTaxesDAO;
 import com.qount.invoice.database.dao.impl.CompanyDAOImpl;
 import com.qount.invoice.database.dao.impl.CurrencyDAOImpl;
 import com.qount.invoice.database.dao.impl.CustomerDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceLineDAOImpl;
-import com.qount.invoice.database.dao.impl.InvoiceLineTaxesDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoicePaymentDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoicePlanDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoicePreferenceDAOImpl;
-import com.qount.invoice.database.dao.impl.InvoiceTaxesDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
-import com.qount.invoice.database.dao.impl.ProposalLineTaxesDAOImpl;
-import com.qount.invoice.database.dao.impl.ProposalTaxesDAOImpl;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class MySQLManager {
@@ -55,19 +47,11 @@ public class MySQLManager {
 
 	private static ProposalLineDAO proposalLineDAO = null;
 
-	private static ProposalLineTaxesDAO proposalLineTaxesDAO = null;
-
-	private static ProposalTaxesDAO proposalTaxesDAO = null;
-
 	private static InvoiceDAO invoiceDAO = null;
 
 	private static InvoiceLineDAO invoiceLineDAO = null;
 
 	private static InvoicePreferenceDAO invoicePreferenceDAO = null;
-
-	private static InvoiceLineTaxesDAO invoiceLineTaxesDAO = null;
-
-	private static InvoiceTaxesDAO invoiceTaxesDAO = null;
 
 	private static InvoicePaymentDAO invoicePaymentDAO = null;
 
@@ -170,20 +154,6 @@ public class MySQLManager {
 		return proposalLineDAO;
 	}
 
-	public static ProposalLineTaxesDAO getProposalLineTaxesDAOInstance() {
-		if (proposalLineTaxesDAO == null) {
-			proposalLineTaxesDAO = ProposalLineTaxesDAOImpl.getProposalLineTaxesDAOImpl();
-		}
-		return proposalLineTaxesDAO;
-	}
-
-	public static ProposalTaxesDAO getProposalTaxesDAOInstance() {
-		if (proposalTaxesDAO == null) {
-			proposalTaxesDAO = ProposalTaxesDAOImpl.getProposalTaxesDAOImpl();
-		}
-		return proposalTaxesDAO;
-	}
-
 	public static InvoiceDAO getInvoiceDAOInstance() {
 		if (invoiceDAO == null) {
 			invoiceDAO = InvoiceDAOImpl.getInvoiceDAOImpl();
@@ -203,20 +173,6 @@ public class MySQLManager {
 			invoicePreferenceDAO = InvoicePreferenceDAOImpl.getInvoicePreferenceDAOImpl();
 		}
 		return invoicePreferenceDAO;
-	}
-
-	public static InvoiceLineTaxesDAO getInvoiceLineTaxesDAOInstance() {
-		if (invoiceLineTaxesDAO == null) {
-			invoiceLineTaxesDAO = InvoiceLineTaxesDAOImpl.getInvoiceLineTaxesDAOImpl();
-		}
-		return invoiceLineTaxesDAO;
-	}
-
-	public static InvoiceTaxesDAO getInvoiceTaxesDAOInstance() {
-		if (invoiceTaxesDAO == null) {
-			invoiceTaxesDAO = InvoiceTaxesDAOImpl.getInvoiceTaxesDAOImpl();
-		}
-		return invoiceTaxesDAO;
 	}
 
 	public static InvoicePaymentDAO getInvoicePaymentDAOInstance() {

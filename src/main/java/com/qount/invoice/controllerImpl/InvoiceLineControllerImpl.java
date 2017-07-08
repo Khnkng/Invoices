@@ -1,7 +1,6 @@
 package com.qount.invoice.controllerImpl;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -12,7 +11,6 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.database.dao.impl.InvoiceLineDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.InvoiceLine;
-import com.qount.invoice.model.InvoiceLineTaxes;
 import com.qount.invoice.parser.InvoiceLineParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -42,17 +40,13 @@ public class InvoiceLineControllerImpl {
 			connection.setAutoCommit(false);
 			List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceLineObjLst);
 			if (invoiceLineResult != null) {
-				List<InvoiceLineTaxes> invoiceTaxesList = InvoiceLineParser.getInvoiceLineTaxesList(invoiceLineResult);
-				List<InvoiceLineTaxes> invoiceineTaxResult = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceTaxesList);
-				if (invoiceineTaxResult != null) {
-					connection.commit();
-					return invoiceLineObjLst;
-				}
+				connection.commit();
+				return invoiceLineObjLst;
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
@@ -72,23 +66,13 @@ public class InvoiceLineControllerImpl {
 			connection.setAutoCommit(false);
 			InvoiceLine InvoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().update(connection, invoiceLineObj);
 			if (InvoiceLineResult != null) {
-				InvoiceLineTaxes invoiceLineTax = new InvoiceLineTaxes();
-				invoiceLineTax.setInvoice_line_id(invoiceLineId);
-				MySQLManager.getInvoiceLineTaxesDAOInstance().deleteByInvoiceLineId(connection, invoiceLineTax);
-				List<InvoiceLineTaxes> invoiceLineTaxes = invoiceLineObj.getInvoiceLineTaxes();
-				if (invoiceLineTaxes == null) {
-					invoiceLineTaxes = new ArrayList<InvoiceLineTaxes>();
-				}
-				List<InvoiceLineTaxes> result = MySQLManager.getInvoiceLineTaxesDAOInstance().save(connection, invoiceLineId, invoiceLineTaxes);
-				if (result != null) {
-					connection.commit();
-				}
+				connection.commit();
 				return invoiceLineObj;
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}
@@ -104,7 +88,7 @@ public class InvoiceLineControllerImpl {
 			return InvoiceLineDAOImpl.getInvoiceLineDAOImpl().deleteInvoiceLine(InvoiceLine);
 		} catch (Exception e) {
 			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
 }

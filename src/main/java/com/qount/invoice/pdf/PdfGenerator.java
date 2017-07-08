@@ -35,7 +35,7 @@ public class PdfGenerator {
 			if (null != invoiceReference && !StringUtils.isBlank(invoiceReference.getInvoiceType())) {
 				document = new Document();
 				pdfFile = new File(UUID.randomUUID().toString()+".pdf");
-//				pdfFile = new File("F:/1.pdf");
+//				pdfFile = new File("F:/2.pdf");
 				fout = new FileOutputStream(pdfFile);
 //				System.out.println(pdfFile.getAbsolutePath());
 				switch (invoiceReference.getInvoiceType().toLowerCase()) {
@@ -48,13 +48,13 @@ public class PdfGenerator {
 				case "classic":
 					document = Classic.createPdf(invoiceReference,document,fout);
 					break;
-
 				default:
 					break;
 				}
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
+//			e.printStackTrace();
 		}finally {
 			PdfUtil.closeDocumentStream(document);
 			PdfUtil.closeFileStream(fout);
@@ -62,6 +62,10 @@ public class PdfGenerator {
 		return pdfFile;
 	}
 	
+	
+	public static void main(String[] args) {
+		createPdf(getMockDataForContemporary());
+	}
 	
 	public static InvoiceReference getMockDataForContemporary(){
 		try {
@@ -74,12 +78,12 @@ public class PdfGenerator {
 			invoice.setCurrencies(currencies);
 			invoice.setAmount(1.00);
 			invoice.setAmount_due(1.00);
+			invoice.setNumber("dddddd");
 			invoice.setNotes("Standard memo 1");
 			invoicePreference.setDefaultFooter("Default footer 1");
 			invoicePreference.setDefaultTitle("DEFAULT TITLE 1");
 			invoicePreference.setDefaultSubHeading("Default subheading 1");
 //			invoice.setNumber(6);
-			invoice.setPo_number("po1");
 			invoice.setInvoice_date("February 1, 2017");
 			invoice.setAmount_due(1.0d);
 //			invoice.setCurrency("\u20B9");
@@ -138,8 +142,7 @@ public class PdfGenerator {
 			invoicePreference.setDefaultFooter("Default footer 1");
 			invoicePreference.setDefaultTitle("DEFAULT TITLE 1");
 			invoicePreference.setDefaultSubHeading("Default subheading 1");
-//			invoice.setNumber(6);
-			invoice.setPo_number("po1");
+			invoice.setNumber("6");
 			invoice.setInvoice_date("February 1, 2017");
 			invoice.setAmount_due(1.0d);
 			invoice.setCurrency("INR");
