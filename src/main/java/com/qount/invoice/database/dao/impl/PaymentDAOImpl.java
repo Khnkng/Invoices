@@ -62,7 +62,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					System.out.println("exp"+e);
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
 				} finally {
-					DatabaseUtilities.closeStatement(pstmt);
+					DatabaseUtilities.closeResources(null, pstmt, connection);
 				}
 				deletePaymentLines(payment.getId());
 				for(PaymentLine paymentLine:payment.getPaymentLines()) {
@@ -89,7 +89,7 @@ public class PaymentDAOImpl implements paymentDAO{
 				} catch (SQLException e) {
 					throw new WebApplicationException(CommonUtils.constructResponse("unable to delete payment lines", 500));
 				} finally {
-					DatabaseUtilities.closeStatement(pstmt);
+					DatabaseUtilities.closeResources(null, pstmt, connection);
 				}
 			}
 	}
@@ -114,7 +114,7 @@ public class PaymentDAOImpl implements paymentDAO{
 				} catch (SQLException e) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
 				} finally {
-					DatabaseUtilities.closeStatement(pstmt);
+					DatabaseUtilities.closeResources(null, pstmt, connection);
 				}
 			}
 	}
@@ -172,7 +172,7 @@ public class PaymentDAOImpl implements paymentDAO{
 				} catch (SQLException e) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
 				} finally {
-					DatabaseUtilities.closeStatement(pstmt);
+					DatabaseUtilities.closeResources(rset, pstmt, connection);
 				}
 			}
 			return lines;
@@ -207,7 +207,7 @@ public class PaymentDAOImpl implements paymentDAO{
 				} catch (SQLException e) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
 				} finally {
-					DatabaseUtilities.closeStatement(pstmt);
+					DatabaseUtilities.closeResources(rset, pstmt, connection);
 				}
 			}	
 		return payments;	
