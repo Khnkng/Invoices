@@ -48,16 +48,15 @@ public class InvoiceParser {
 			invoice.setCompany_id(companyID);
 			invoice.setIs_recurring(StringUtils.isNotEmpty(invoice.getPlan_id()));
 			userCompany = CommonUtils.getCompany(userId, companyID);
+			invoice.setCompanyName(userCompany.getName());
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			Timestamp payment_date = convertStringToTimeStamp(invoice.getPayment_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			invoice.setUser_id(userId);
 			if (StringUtils.isBlank(invoice.getId())) {
 				invoice.setId(UUID.randomUUID().toString());
 			}
 			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
-			invoice.setDue_date(due_date != null ? due_date.toString() : null);
 			invoice.setPayment_date(payment_date != null ? payment_date.toString() : null);
 			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
@@ -127,8 +126,6 @@ public class InvoiceParser {
 								convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 						invoice.setPayment_date(
 								convertTimeStampToString(invoice.getPayment_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setDue_date(
-								convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 					}
 				}
 			}
