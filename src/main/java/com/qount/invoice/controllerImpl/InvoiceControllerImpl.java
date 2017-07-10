@@ -279,11 +279,11 @@ public class InvoiceControllerImpl {
 					.replace("{{due date}}", dueDate)
 					.replace("${invoiceLinkUrl}", invoiceLinkUrl);
 			emailJson.put("body", template);
-//			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
-//			String portName = PropertyManager.getProperty("half.service.docker.port");
-//			String url = Utilities.getLtmUrl(hostName, portName);
-//			url = url+ "HalfService/emails";
-			String url = "https://dev-services.qount.io/HalfService/emails";
+			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
+			String portName = PropertyManager.getProperty("half.service.docker.port");
+			String url = Utilities.getLtmUrl(hostName, portName);
+			url = url+ "HalfService/emails";
+//			String url = "https://dev-services.qount.io/HalfService/emails";
 			Object result = HTTPClient.postObject(url,emailJson.toString());
 			if(result!=null && result instanceof java.lang.String && result.equals("true")){
 				return true;
