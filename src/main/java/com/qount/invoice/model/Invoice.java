@@ -59,7 +59,6 @@ public class Invoice {
 	private String payment_options;
 	private String send_to;
 	private String email_state;
-	private String due_date;
 	private String refrence_number;
 	private String payment_method;
 	
@@ -77,14 +76,6 @@ public class Invoice {
 
 	public void setRefrence_number(String refrence_number) {
 		this.refrence_number = refrence_number;
-	}
-
-	public String getDue_date() {
-		return due_date;
-	}
-
-	public void setDue_date(String due_date) {
-		this.due_date = due_date;
 	}
 
 	public String getEmail_state() {
