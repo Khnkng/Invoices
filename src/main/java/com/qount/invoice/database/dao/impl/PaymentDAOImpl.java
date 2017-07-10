@@ -46,7 +46,11 @@ public class PaymentDAOImpl implements paymentDAO{
 					pstmt = connection.prepareStatement(SqlQuerys.Payments.INSERT_QRY);
 					pstmt.setString(ctr++, payment.getId());
 					pstmt.setString(ctr++, payment.getReceivedFrom());
-					pstmt.setDouble(ctr++, payment.getPaymentAmount().doubleValue());
+					double amt = 0;
+					if(payment.getPaymentAmount() != null) {
+						amt = payment.getPaymentAmount().doubleValue();
+					}
+					pstmt.setDouble(ctr++, amt);
 					pstmt.setString(ctr++, payment.getCurrencyCode());
 					pstmt.setString(ctr++, payment.getReferenceNo());
 					pstmt.setDate(ctr++, getSQLDateFromString(payment.getPaymentDate(), Constants.INVOICE_UI_DATE_FORMAT));
@@ -105,7 +109,11 @@ public class PaymentDAOImpl implements paymentDAO{
 					pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.INSERT_QRY);
 					pstmt.setString(ctr++, UUID.randomUUID().toString());
 					pstmt.setString(ctr++, paymentLine.getInvoiceId());
-					pstmt.setDouble(ctr++, paymentLine.getAmount().doubleValue());
+					double amt = 0;
+					if(paymentLine.getAmount() != null) {
+						amt = paymentLine.getAmount().doubleValue();
+					}
+					pstmt.setDouble(ctr++, amt);
 					pstmt.setString(ctr++, paymentId);
 					int affectedRows = pstmt.executeUpdate();
 					if (affectedRows == 0) {

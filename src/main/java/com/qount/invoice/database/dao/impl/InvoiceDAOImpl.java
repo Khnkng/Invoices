@@ -3,6 +3,7 @@ package com.qount.invoice.database.dao.impl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.model.Item;
 import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.utils.CommonUtils;
+import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
 
@@ -618,13 +620,13 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					Invoice invoice = new Invoice();
 					invoice.setNumber(rset.getString("number"));
 					invoice.setId(rset.getString("id"));
-					invoice.setInvoice_date(rset.getString("invoice_date"));
-					invoice.setPayment_date(rset.getString("payment_date"));
+					invoice.setInvoice_date(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setPayment_date(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
-					invoice.setDue_date(rset.getString("due_date"));
+					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					invoiceLst.add(invoice);
 				}
 			}
@@ -638,5 +640,19 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.debug("exited getInvoiceList userID:" + userID + " companyID:" + companyID + "cientID:" + clientID);
 		}
 		return invoiceLst;	}
+	
+	private String getDateStringFromSQLDate(java.sql.Date date, String format) {
+		String dateStr = null;
+		try {
+            if (StringUtils.isNoneBlank(format)) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                Date utilDate = new Date(date.getTime());
+                dateStr = dateFormat.format(utilDate);
+            }
+        } catch (Exception e) {
+        	throw new WebApplicationException(CommonUtils.constructResponse("cannot parse date", 400));
+        }
+        return dateStr;
+	}
 
 }
