@@ -58,9 +58,9 @@ public class InvoiceControllerImpl {
 					if (sendInvoiceEmail(invoiceResult)) {
 						invoice.setState("sent");
 					}
-					if (StringUtils.isEmpty(invoice.getState())) {
-						invoice.setState("draft");
-					}
+				}
+				if (StringUtils.isEmpty(invoice.getState())) {
+					invoice.setState("draft");
 				}
 				if (!invoiceLineResult.isEmpty()) {
 					connection.commit();
@@ -103,6 +103,12 @@ public class InvoiceControllerImpl {
 				if (deletedInvoiceLineResult != null) {
 					List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 					if (invoiceLineResult != null) {
+						if (invoice.isSendMail()) {
+							invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
+							if (sendInvoiceEmail(invoiceResult)) {
+								invoice.setState("sent");
+							}
+						}
 						connection.commit();
 						return InvoiceParser.convertTimeStampToString(invoiceResult);
 					}
@@ -271,7 +277,7 @@ public class InvoiceControllerImpl {
 			emailJson.put("mailBodyContentType", PropertyManager.getProperty("mail.body.content.type"));
 			String template = PropertyManager.getProperty("invocie.mail.template");
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link")+invoice.getId();
-			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getPayment_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String currency = StringUtils.isEmpty(invoice.getCurrency())?"":Utilities.getCurrencySymbol(invoice.getCurrency());
 			template = template.replace("{{invoice number}}", StringUtils.isBlank(invoice.getNumber())?"":invoice.getNumber())
 					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName())?"":invoice.getCompanyName())

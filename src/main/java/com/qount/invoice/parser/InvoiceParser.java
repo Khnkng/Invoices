@@ -51,13 +51,13 @@ public class InvoiceParser {
 			invoice.setCompanyName(userCompany.getName());
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp payment_date = convertStringToTimeStamp(invoice.getPayment_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp payment_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			invoice.setUser_id(userId);
 			if (StringUtils.isBlank(invoice.getId())) {
 				invoice.setId(UUID.randomUUID().toString());
 			}
 			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
-			invoice.setPayment_date(payment_date != null ? payment_date.toString() : null);
+			invoice.setDue_date(payment_date != null ? payment_date.toString() : null);
 			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
 			invoice.setAmount_due(invoice.getAmount());
@@ -108,7 +108,7 @@ public class InvoiceParser {
 		try {
 			if (invoice != null) {
 				invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-				invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+				invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
@@ -124,8 +124,8 @@ public class InvoiceParser {
 					if (invoice != null) {
 						invoice.setInvoice_date(
 								convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setPayment_date(
-								convertTimeStampToString(invoice.getPayment_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setDue_date(
+								convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 					}
 				}
 			}
@@ -248,7 +248,7 @@ public class InvoiceParser {
 			invoiceMail.setCustomerName(invoice.getCustomer().getCustomer_name());
 			invoiceMail.setInvocieDate(invoice.getInvoice_date());
 			invoiceMail.setInvoiceCreatedAt(invoice.getCreated_at());
-			invoiceMail.setInvoiceDueDate(invoice.getPayment_date());
+			invoiceMail.setInvoiceDueDate(invoice.getDue_date());
 			invoiceMail.setInvoiceId(invoice.getId());
 			invoiceMail.setInvoiceNumber(invoice.getNumber());
 			return invoiceMail;

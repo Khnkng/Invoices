@@ -70,7 +70,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setString(ctr++, invoice.getDocument_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
-				pstmt.setString(ctr++, invoice.getPayment_date());
+				pstmt.setString(ctr++, invoice.getDue_date());
 				pstmt.setDouble(ctr++, invoice.getSub_totoal());
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setString(ctr++, invoice.getCreated_at());
@@ -132,12 +132,12 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getNumber());
 				pstmt.setString(ctr++, invoice.getDocument_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
-				pstmt.setString(ctr++, invoice.getPayment_date());
+				pstmt.setString(ctr++, invoice.getDue_date());
 				pstmt.setDouble(ctr++, invoice.getSub_totoal());
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getTerm());
-				pstmt.setString(ctr++, invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, invoice.getRecepientsMailsArr()==null?null:invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
 				pstmt.setString(ctr++, invoice.getPayment_options());
@@ -299,7 +299,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setNumber(rset.getString("number"));
 							invoice.setDocument_id(rset.getString("document_id"));
 							invoice.setAmount_due(rset.getDouble("amount_due"));
-							invoice.setPayment_date(rset.getString("payment_date"));
+							invoice.setDue_date(rset.getString("due_date"));
 							invoice.setSub_totoal(rset.getDouble("sub_totoal"));
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 							invoice.setCreated_at(rset.getString("created_at"));
@@ -406,9 +406,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				while (rset.next()) {
 					Invoice invoice = new Invoice();
 					invoice.setNumber(rset.getString("number"));
+					invoice.setCustomer_id(rset.getString("customer_id"));
 					invoice.setId(rset.getString("id"));
 					invoice.setInvoice_date(rset.getString("invoice_date"));
-					invoice.setPayment_date(rset.getString("payment_date"));
+					invoice.setDue_date(rset.getString("due_date"));
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
@@ -559,8 +560,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					Invoice invoice = new Invoice();
 					invoice.setNumber(rset.getString("number"));
 					invoice.setId(rset.getString("id"));
+
 					invoice.setInvoice_date(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
-					invoice.setPayment_date(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
