@@ -16,15 +16,11 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.model.Coa;
-import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
-import com.qount.invoice.model.InvoiceMail;
-import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.model.Item;
-import com.qount.invoice.pdf.InvoiceReference;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
@@ -86,6 +82,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getEmail_state());
 				pstmt.setString(ctr++, invoice.getSend_to());
 				pstmt.setString(ctr++, invoice.getDue_date());
+				pstmt.setString(ctr++, invoice.getRefrence_number());
+				pstmt.setString(ctr++, invoice.getPayment_method());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -145,6 +143,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getEmail_state());
 				pstmt.setString(ctr++, invoice.getSend_to());
 				pstmt.setString(ctr++, invoice.getDue_date());
+				pstmt.setString(ctr++, invoice.getRefrence_number());
+				pstmt.setString(ctr++, invoice.getPayment_method());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -175,6 +175,40 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_STATE_QRY);
+				pstmt.setString(ctr++, invoice.getState());
+				pstmt.setString(ctr++, invoice.getId());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount == 0) {
+					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error updating invoice state:" + invoice.getId() + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited invoice updateState:" + invoice);
+		}
+		return invoice;
+	}
+	
+	@Override
+	public Invoice updateInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception {
+		LOGGER.debug("entered invoice updateSate:" + invoice);
+		if (invoice == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				int ctr = 1;
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_INVOICE_AS_PAID_STATE_QRY);
+				pstmt.setString(ctr++, invoice.getRefrence_number());
+				pstmt.setString(ctr++, invoice.getInvoice_date());
+				pstmt.setString(ctr++, invoice.getPayment_method());
 				pstmt.setString(ctr++, invoice.getState());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
@@ -244,6 +278,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.getInvoiceLines().add(invoiceLine);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
+							invoice.setRefrence_number(rset.getString("refrence_number"));
+							invoice.setPayment_method(rset.getString("payment_method"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
 							invoice.setUser_id(rset.getString("user_id"));
 							invoice.setCompany_id(rset.getString("company_id"));
@@ -299,47 +335,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.debug("exited get by invoice id:" + invoiceID);
 		}
 		return invoice;
-
-	}
-
-	@Override
-	public InvoiceMail getInvoiceMailDetails(String invoiceID) throws Exception {
-		LOGGER.debug("entered get invoice mail details by invoice id:" + invoiceID);
-		InvoiceMail invoiceMail = new InvoiceMail();
-		PreparedStatement pstmt = null;
-		ResultSet rset = null;
-		Connection connection = null;
-		try {
-			connection = DatabaseUtilities.getReadWriteConnection();
-			if (connection != null) {
-				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICES_MAIL_QRY);
-				pstmt.setString(1, invoiceID);
-				rset = pstmt.executeQuery();
-				if (rset != null && rset.next()) {
-					invoiceMail.setInvoiceNumber(rset.getString("i_number"));
-					invoiceMail.setCustomerName(rset.getString("cust_name"));
-					invoiceMail.setInvocieDate(rset.getString("invoice_date"));
-					invoiceMail.setCompanyName(rset.getString("comp_name"));
-					invoiceMail.setCurrencyCode(rset.getString("i_currency"));
-					invoiceMail.setAmount(rset.getDouble("i_amount"));
-					invoiceMail.setAmount_by_date(rset.getDouble("i_amount_by_date"));
-					invoiceMail.setInvoiceDueDate(rset.getString("i_acceptance_final_date"));
-					invoiceMail.setCustomerEmails(CommonUtils.getJsonArrayFromString(rset.getString("cust_email_ids")));
-					invoiceMail.setInvoiceCreatedAt(rset.getString("i_created_at"));
-					invoiceMail.setCurrencyHtml_symbol(rset.getString("html_symbol"));
-					invoiceMail.setRecepients_mails(CommonUtils.getJsonArrayFromString(rset.getString("recepients_mails")));
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error fetching invoice for invoiceID [ " + invoiceID + " ]", e);
-			throw e;
-		} finally {
-			DatabaseUtilities.closeResultSet(rset);
-			DatabaseUtilities.closeStatement(pstmt);
-			DatabaseUtilities.closeConnection(connection);
-			LOGGER.debug("exited get invoice mail details by invoice id:" + invoiceID);
-		}
-		return invoiceMail;
 
 	}
 
@@ -540,59 +535,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.debug("exited updateStateAsSent lst:" + lst);
 		}
 		return false;
-	}
-
-	@Override
-	public InvoiceReference getInvoiceRelatedDetails(Connection connection, InvoiceReference invoiceReference) throws Exception {
-		if (invoiceReference == null) {
-			return null;
-		}
-		String companyId = invoiceReference.getCompany().getId();
-		String customerId = invoiceReference.getCustomer().getCustomer_id();
-		InvoicePreference invoicePreference = invoiceReference.getInvoicePreference();
-		Company company = invoiceReference.getCompany();
-		Customer customer = invoiceReference.getCustomer();
-		if (StringUtils.isEmpty(companyId) || StringUtils.isEmpty(customerId) || invoicePreference == null || invoiceReference == null || company == null || customer == null) {
-			return invoiceReference;
-		}
-		PreparedStatement pstmt = null;
-		ResultSet rset = null;
-		try {
-			if (connection != null) {
-				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICES_PDF_QRY);
-				pstmt.setString(1, companyId);
-				pstmt.setString(2, customerId);
-				rset = pstmt.executeQuery();
-				if (rset.next()) {
-					invoicePreference.setItems(rset.getString("items"));
-					invoicePreference.setUnits(rset.getString("units"));
-					invoicePreference.setPrice(rset.getString("price"));
-					invoicePreference.setAmount(rset.getString("amount"));
-					invoicePreference.setDefaultTitle(rset.getString("default_title"));
-					invoiceReference.setInvoiceType(rset.getString("template_type"));
-					invoicePreference.setDefaultSubHeading(rset.getString("default_sub_heading"));
-					company.setName(rset.getString("name"));
-					company.setAddress(rset.getString("address"));
-					company.setCity(rset.getString("city"));
-					company.setState(rset.getString("state"));
-					company.setCountry(rset.getString("country"));
-					company.setPhone_number(rset.getString("phone_number"));
-					customer.setCustomer_name(rset.getString("customer_name"));
-					customer.setEmail_ids(CommonUtils.getJsonArrayFromString(rset.getString("email_ids")));
-					invoicePreference.setStandardMemo(rset.getString("standard_memo"));
-					invoicePreference.setDefaultFooter(rset.getString("default_footer"));
-				} else {
-					return null;
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error fetching InvoiceRelatedDetails", e);
-			throw e;
-		} finally {
-			DatabaseUtilities.closeResultSet(rset);
-			DatabaseUtilities.closeStatement(pstmt);
-		}
-		return invoiceReference;
 	}
 
 }

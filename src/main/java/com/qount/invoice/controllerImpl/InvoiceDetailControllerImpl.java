@@ -175,24 +175,24 @@ public class InvoiceDetailControllerImpl {
 		return null;
 	}
 
-	private static JSONObject getSubscriptionPaymentSpringJson(String customer_id, String ends_after, String plan_id, String bill_immediately) {
-		try {
-			if (StringUtils.isEmpty(customer_id) || StringUtils.isEmpty(ends_after)) {
-				throw new WebApplicationException("customer_id  and ends_after cannot be empty for subscription");
-			}
-			JSONObject payloadObj = new JSONObject();
-			payloadObj.put("ends_after", ends_after);
-			payloadObj.put("plan_id", plan_id);
-			payloadObj.put("customer_id", customer_id);
-			if(StringUtils.isNotBlank(bill_immediately)){
-				payloadObj.put("bill_immediately", bill_immediately);
-			}
-			return payloadObj;
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw e;
-		}
-	}
+//	private static JSONObject getSubscriptionPaymentSpringJson(String customer_id, String ends_after, String plan_id, String bill_immediately) {
+//		try {
+//			if (StringUtils.isEmpty(customer_id) || StringUtils.isEmpty(ends_after)) {
+//				throw new WebApplicationException("customer_id  and ends_after cannot be empty for subscription");
+//			}
+//			JSONObject payloadObj = new JSONObject();
+//			payloadObj.put("ends_after", ends_after);
+//			payloadObj.put("plan_id", plan_id);
+//			payloadObj.put("customer_id", customer_id);
+//			if(StringUtils.isNotBlank(bill_immediately)){
+//				payloadObj.put("bill_immediately", bill_immediately);
+//			}
+//			return payloadObj;
+//		} catch (Exception e) {
+//			LOGGER.error(e);
+//			throw e;
+//		}
+//	}
 
 	private static JSONObject getOneTimeChargePaymentSpringJson(String payment_spring_token, double amount) {
 		try {
@@ -211,22 +211,22 @@ public class InvoiceDetailControllerImpl {
 		}
 	}
 
-	private static JSONObject getOneTimeCustomerChargePaymentSpringJson(String customer_id, double amount) {
-		try {
-			if (StringUtils.isEmpty(customer_id)) {
-				throw new WebApplicationException("customer_id cannot be empty for one time charge");
-			}
-			JSONObject payloadObj = new JSONObject();
-			payloadObj.put("customer_id", customer_id);
-			String amountStr = amount + "";
-			amountStr = amountStr.substring(0, amountStr.indexOf("."));
-			payloadObj.put("amount", amountStr);
-			return payloadObj;
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw e;
-		}
-	}
+//	private static JSONObject getOneTimeCustomerChargePaymentSpringJson(String customer_id, double amount) {
+//		try {
+//			if (StringUtils.isEmpty(customer_id)) {
+//				throw new WebApplicationException("customer_id cannot be empty for one time charge");
+//			}
+//			JSONObject payloadObj = new JSONObject();
+//			payloadObj.put("customer_id", customer_id);
+//			String amountStr = amount + "";
+//			amountStr = amountStr.substring(0, amountStr.indexOf("."));
+//			payloadObj.put("amount", amountStr);
+//			return payloadObj;
+//		} catch (Exception e) {
+//			LOGGER.error(e);
+//			throw e;
+//		}
+//	}
 
 	private static long convertDollarToCent(String input) {
 		LOGGER.debug("entered convertDollarToCent input:" + input);

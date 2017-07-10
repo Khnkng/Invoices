@@ -14,9 +14,10 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
+
+
 
 public class ProposalLineDAOImpl implements ProposalLineDAO {
 
@@ -30,11 +31,11 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	public static ProposalLineDAOImpl getProposalLineDAOImpl() {
 		return proposalLineDAOImpl;
 	}
-
+	
 	@Override
-	public List<ProposalLine> getLines(Connection connection, String proposalID) {
+	public List<ProposalLine> getByProposalId(Connection connection, ProposalLine proposalLine) {
 		List<ProposalLine> proposalLines = new ArrayList<>();
-		if (StringUtils.isBlank(proposalID)) {
+		if (proposalLine == null || StringUtils.isBlank(proposalLine.getProposal_id())) {
 			return proposalLines;
 		}
 		PreparedStatement pstmt = null;
@@ -42,28 +43,26 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.GET_LINES_QRY);
-				pstmt.setString(1, proposalID);
+				pstmt.setString(1, proposalLine.getProposal_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
-					ProposalLine proposalLine = new ProposalLine();
 					proposalLine.setId(rset.getString("id"));
 					proposalLine.setProposal_id(rset.getString("proposal_id"));
 					proposalLine.setDescription(rset.getString("description"));
 					proposalLine.setObjectives(rset.getString("objectives"));
 					proposalLine.setAmount(rset.getDouble("amount"));
-					proposalLine.setCurrency(rset.getString("currency"));
 					proposalLine.setLast_updated_at(rset.getString("last_updated_at"));
 					proposalLine.setLast_updated_by(rset.getString("last_updated_by"));
 					proposalLine.setQuantity(rset.getDouble("quantity"));
 					proposalLine.setPrice(rset.getDouble("price"));
 					proposalLine.setNotes(rset.getString("notes"));
 					proposalLine.setItem_id(rset.getString("item_id"));
-					proposalLine.setCoa_id(rset.getString("coa_id"));
+					proposalLine.setTax_id(rset.getString("tax_id"));
 					proposalLines.add(proposalLine);
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error retreving propsal lines with ID = " + proposalID, e);
+			LOGGER.error("Error retreving proposal lines with ID = " + proposalLine.getProposal_id(), e);
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -72,43 +71,46 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	@Override
-	public List<ProposalLine> batchSave(Connection connection, List<ProposalLine> proposalLines) {
-		if (proposalLines.size() == 0) {
+	public List<ProposalLine> save(Connection connection, List<ProposalLine> proposalLines) {
+		LOGGER.debug("entered proposalLine save:" + proposalLines);
+		if (proposalLines == null || proposalLines.size() == 0) {
 			return proposalLines;
 		}
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.INSERT_QRY);
-				Iterator<ProposalLine> ProposalLineItr = proposalLines.iterator();
-				while (ProposalLineItr.hasNext()) {
-					ProposalLine proposalLine = ProposalLineItr.next();
-					pstmt.setString(1, proposalLine.getId());
-					pstmt.setString(2, proposalLine.getProposal_id());
-					pstmt.setString(3, proposalLine.getDescription());
-					pstmt.setString(4, proposalLine.getObjectives());
-					pstmt.setDouble(5, proposalLine.getAmount());
-					pstmt.setString(6, proposalLine.getCurrency());
-					pstmt.setString(7, proposalLine.getLast_updated_by());
-					pstmt.setString(8, proposalLine.getLast_updated_at());
-					pstmt.setDouble(9, proposalLine.getQuantity());
-					pstmt.setDouble(10, proposalLine.getPrice());
-					pstmt.setString(11, proposalLine.getNotes());
-					pstmt.setString(12, proposalLine.getItem_id());
-					pstmt.setString(13, proposalLine.getCoa_id());
+				Iterator<ProposalLine> proposalLineItr = proposalLines.iterator();
+				int ctr = 1;
+				while (proposalLineItr.hasNext()) {
+					ProposalLine proposalLine = proposalLineItr.next();
+					pstmt.setString(ctr++, proposalLine.getId());
+					pstmt.setString(ctr++, proposalLine.getProposal_id());
+					pstmt.setString(ctr++, proposalLine.getDescription());
+					pstmt.setString(ctr++, proposalLine.getObjectives());
+					pstmt.setDouble(ctr++, proposalLine.getAmount());
+					pstmt.setString(ctr++, proposalLine.getLast_updated_by());
+					pstmt.setString(ctr++, proposalLine.getLast_updated_at());
+					pstmt.setDouble(ctr++, proposalLine.getQuantity());
+					pstmt.setDouble(ctr++, proposalLine.getPrice());
+					pstmt.setString(ctr++, proposalLine.getNotes());
+					pstmt.setString(ctr++, proposalLine.getItem_id());
+					pstmt.setString(ctr++, proposalLine.getType());
+					pstmt.setString(ctr++, StringUtils.isBlank(proposalLine.getTax_id())?null:proposalLine.getTax_id());
+					ctr = 1;
 					pstmt.addBatch();
 				}
 				int[] rowCount = pstmt.executeBatch();
-				if (rowCount == null) {
+				if (rowCount != null) {
+					return proposalLines;
+				} else {
 					throw new WebApplicationException("unable to create proposal lines", 500);
 				}
 			}
-		} catch (WebApplicationException e) {
-			LOGGER.error("Error creating proposal lines:" + ",  ", e);
-			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {
+			LOGGER.debug("exited proposalLine save:" + proposalLines);
 			DatabaseUtilities.closeStatement(pstmt);
 		}
 		return proposalLines;
@@ -117,33 +119,32 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	@Override
 	public ProposalLine update(Connection connection, ProposalLine proposalLine) {
 		if (proposalLine == null) {
-			return null;
+			return proposalLine;
 		}
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
-				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.UPADTE_QRY);
-				pstmt.setString(1, proposalLine.getDescription());
-				pstmt.setString(2, proposalLine.getObjectives());
-				pstmt.setDouble(3, proposalLine.getAmount());
-				pstmt.setString(4, proposalLine.getCurrency());
-				pstmt.setString(5, proposalLine.getLast_updated_by());
-				pstmt.setString(6, proposalLine.getLast_updated_at());
-				pstmt.setDouble(7, proposalLine.getQuantity());
-				pstmt.setDouble(8, proposalLine.getPrice());
-				pstmt.setString(9, proposalLine.getNotes());
-				pstmt.setString(10, proposalLine.getItem_id());
-				pstmt.setString(11, proposalLine.getCoa_id());
-				pstmt.setString(12, proposalLine.getId());
-				pstmt.setString(13, proposalLine.getProposal_id());
+				int ctr = 1;
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.UPDATE_QRY);
+				pstmt.setString(ctr++, proposalLine.getProposal_id());
+				pstmt.setString(ctr++, proposalLine.getDescription());
+				pstmt.setString(ctr++, proposalLine.getObjectives());
+				pstmt.setDouble(ctr++, proposalLine.getAmount());
+				pstmt.setString(ctr++, proposalLine.getLast_updated_by());
+				pstmt.setString(ctr++, proposalLine.getLast_updated_at());
+				pstmt.setDouble(ctr++, proposalLine.getQuantity());
+				pstmt.setDouble(ctr++, proposalLine.getPrice());
+				pstmt.setString(ctr++, proposalLine.getNotes());
+				pstmt.setString(ctr++, proposalLine.getItem_id());
+				pstmt.setString(ctr++, proposalLine.getTax_id());
+				pstmt.setString(ctr++, proposalLine.getId());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount > 0) {
+					return proposalLine;
+				} else {
+					throw new WebApplicationException("unable to update proposal lines", 500);
+				}
 			}
-			int rowCount = pstmt.executeUpdate();
-			if (rowCount == 0) {
-				throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
-			}
-		} catch (WebApplicationException e) {
-			LOGGER.error("Error updating proposal:" + proposalLine.getId() + ",  ", e);
-			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
 		} finally {
@@ -153,31 +154,53 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 	}
 
 	@Override
-	public ProposalLine delete(Connection connection,ProposalLine proposalLine) {
-		if (proposalLine == null) {
+	public ProposalLine deleteByProposalId(Connection connection,ProposalLine proposalLine) {
+		LOGGER.debug("entered delete Proposal line By Proposal Id:"+proposalLine);
+		if (proposalLine == null || StringUtils.isBlank(proposalLine.getProposal_id())) {
 			return null;
 		}
 		PreparedStatement pstmt = null;
 		try {
 			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.DELETE_PROPOSAL_BY_ID_QRY);
+				pstmt.setString(1, proposalLine.getProposal_id());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount > 0) {
+					return proposalLine;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited delete Proposal line By Proposal Id:"+proposalLine);
+		}
+		return proposalLine;
+	}
+
+	@Override
+	public ProposalLine deleteProposalLine(ProposalLine proposalLines) {
+		Connection connection = null;
+		if (proposalLines == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.ProposalLine.DELETE_PROPOSAL_LINE_QRY);
-				pstmt.setString(1, proposalLine.getId());
+				pstmt.setString(1, proposalLines.getId());
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of proposal lines deleted:" + rowCount);
-//				if (rowCount == 0) {
-//					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
-//				}
 			}
-		} catch (WebApplicationException e) {
-			LOGGER.error("Error updating proposal:" + proposalLine.getId() + ",  ", e);
-			throw e;
 		} catch (Exception e) {
-			LOGGER.error("Error deleting proposal lines:" + proposalLine.getId() + ",  ", e);
+			LOGGER.error("Error deleting proposal lines:" + proposalLines.getId() + ",  ", e);
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
 		}
-		return proposalLine;
+		return proposalLines;
 	}
 
 }

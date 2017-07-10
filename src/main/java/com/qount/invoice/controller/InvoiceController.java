@@ -88,21 +88,21 @@ public class InvoiceController {
 	@DELETE
 	@Path("/{invoiceID}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Delete invoice", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
+	@ApiOperation(value = "Delete invoice", notes = "Used to delete a invoice.<br>", responseContainer = "java.lang.String")
 	public Invoice deleteInvoiceById(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID) {
 		return InvoiceControllerImpl.deleteInvoiceById(userID, companyID, invoiceID);
 	}
 
 	@POST
 	@Path("/delete")
-	@ApiOperation(value = "Delete invoices", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
+	@ApiOperation(value = "Delete invoices", notes = "Used to delete invoices.<br>", responseContainer = "java.lang.String")
 	public boolean deleteInvoicesById(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, List<String> ids) {
 		return InvoiceControllerImpl.deleteInvoicesById(userID, companyID, ids);
 	}
 
 	@PUT
 	@Path("/sent")
-	@ApiOperation(value = "Delete invoices", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
+	@ApiOperation(value = "update state invoices", notes = "Used to update invocie states.<br>", responseContainer = "java.lang.String")
 	public boolean udpateInvoicesByState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, List<String> ids) {
 		return InvoiceControllerImpl.updateInvoicesAsSent(userID, companyID, ids);
 	}

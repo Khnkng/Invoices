@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.qount.invoice.model.Invoice;
-import com.qount.invoice.model.InvoiceMail;
-import com.qount.invoice.pdf.InvoiceReference;
 
 /**
  * DAO interface for proposalDAOImpl
@@ -27,15 +25,13 @@ public interface InvoiceDAO {
 
 	public Map<String, String> getCount(String userID, String companyID) throws Exception;;
 
-	public InvoiceMail getInvoiceMailDetails(String InvoiceID) throws Exception;;
-
 	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception;;
 
 	public Invoice delete(Invoice invoice) throws Exception;
 
-	public InvoiceReference getInvoiceRelatedDetails(Connection connection, InvoiceReference invoiceReference) throws Exception;
-
 	public boolean deleteLst(String userId, String companyId, String lst) throws Exception;
 
 	public boolean updateStateAsSent(String userId, String companyId, String lst) throws Exception;
+	
+	public Invoice updateInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception;
 }

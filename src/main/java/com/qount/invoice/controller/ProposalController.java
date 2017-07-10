@@ -12,6 +12,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.qount.invoice.controllerImpl.ProposalControllerImpl;
@@ -60,8 +61,8 @@ public class ProposalController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve proposals of company", value = "retieves proposals", responseContainer = "java.lang.String")
-	public List<Proposal> getProposals(@PathParam("userID") String userID,@PathParam("companyID") @NotNull String companyID) {
-		return ProposalControllerImpl.getProposals(userID,companyID);
+	public List<Proposal> getProposals(@PathParam("userID") String userID,@PathParam("companyID") @NotNull String companyID,@QueryParam("state") String state) {
+		return ProposalControllerImpl.getProposals(userID,companyID,state);
 	}
 
 	@Path("/{proposalID}")
@@ -77,9 +78,14 @@ public class ProposalController {
 	@Path("/{proposalID}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Delete proposal", notes = "Used to delete a proposal.<br>", responseContainer = "java.lang.String")
-	public Proposal deleteProposalById(@PathParam("userID") String userID,
-			@PathParam("proposalID") @NotNull String proposalID) {
-		return ProposalControllerImpl.deleteProposalById(proposalID);
+	public Proposal deleteProposalById(@PathParam("userID") String userID,@PathParam("companyID") @NotNull String companyID,@PathParam("proposalID") @NotNull String proposalID) {
+		return ProposalControllerImpl.deleteProposalById(userID,companyID,proposalID);
 	}
 
+	@PUT
+	@Path("/states/{state}")
+	@ApiOperation(value = "update proposal state", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
+	public boolean udpateInvoicesByState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID,@PathParam("state") @NotNull String state, List<String> ids) {
+		return ProposalControllerImpl.updateProposalsState(userID, companyID, ids, state);
+	}
 }
