@@ -31,4 +31,8 @@ public class PaymentService {
 	public List<Payment> getList(String companyId) {
 		return PaymentDAOImpl.getInstance().list(companyId);
 	}
+	
+	public Payment getById(String companyId, String paymentId) {
+		return PaymentDAOImpl.getInstance().getById(paymentId);
+	}
 }

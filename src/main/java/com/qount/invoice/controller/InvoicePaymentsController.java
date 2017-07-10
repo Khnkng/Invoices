@@ -48,5 +48,14 @@ public class InvoicePaymentsController {
 	public List<Payment> list(@PathParam("userID") String userID, @PathParam("companyID") String companyID) {
 		return PaymentService.getInstance().getList(companyID);
 	}
+	
+	@Path("/{paymentID}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@NotNull(message = "Invalid Request")
+	@ApiOperation(value = "Returns list of payments by id", notes = "Used to retreive list of payments against company", responseContainer = "java.lang.String")
+	public Payment getById(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @PathParam("paymentID") String paymentID) {
+		return PaymentService.getInstance().getById(companyID, paymentID);
+	}
 }
  
