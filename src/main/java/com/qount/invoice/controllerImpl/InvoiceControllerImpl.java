@@ -58,9 +58,9 @@ public class InvoiceControllerImpl {
 					if (sendInvoiceEmail(invoiceResult)) {
 						invoice.setState("sent");
 					}
-					if (StringUtils.isEmpty(invoice.getState())) {
-						invoice.setState("draft");
-					}
+				}
+				if (StringUtils.isEmpty(invoice.getState())) {
+					invoice.setState("draft");
 				}
 				if (!invoiceLineResult.isEmpty()) {
 					connection.commit();
@@ -103,6 +103,12 @@ public class InvoiceControllerImpl {
 				if (deletedInvoiceLineResult != null) {
 					List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 					if (invoiceLineResult != null) {
+						if (invoice.isSendMail()) {
+							invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
+							if (sendInvoiceEmail(invoiceResult)) {
+								invoice.setState("sent");
+							}
+						}
 						connection.commit();
 						return InvoiceParser.convertTimeStampToString(invoiceResult);
 					}

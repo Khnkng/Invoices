@@ -135,7 +135,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getTerm());
-				pstmt.setString(ctr++, invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, invoice.getRecepientsMailsArr()==null?null:invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
 				pstmt.setString(ctr++, invoice.getPayment_options());
@@ -404,6 +404,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				while (rset.next()) {
 					Invoice invoice = new Invoice();
 					invoice.setNumber(rset.getString("number"));
+					invoice.setCustomer_id(rset.getString("customer_id"));
 					invoice.setId(rset.getString("id"));
 					invoice.setInvoice_date(rset.getString("invoice_date"));
 					invoice.setPayment_date(rset.getString("payment_date"));
