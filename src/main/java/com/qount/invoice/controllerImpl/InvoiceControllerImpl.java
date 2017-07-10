@@ -56,10 +56,10 @@ public class InvoiceControllerImpl {
 				if (invoice.isSendMail()) {
 					invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
 					if (sendInvoiceEmail(invoiceResult)) {
-						invoice.setState("Email Sent");
+						invoice.setState("sent");
 					}
 					if (StringUtils.isEmpty(invoice.getState())) {
-						invoice.setState("Draft");
+						invoice.setState("draft");
 					}
 				}
 				if (!invoiceLineResult.isEmpty()) {
@@ -165,6 +165,7 @@ public class InvoiceControllerImpl {
 		}
 		if (dbInvoice.getAmount() == invoice.getAmount()) {
 			invoice.setState("paid");
+			return MySQLManager.getInvoiceDAOInstance().updateInvoiceAsPaid(connection, invoice);
 		}
 		if (dbInvoice.getAmount() < invoice.getAmount()) {
 			invoice.setState("partially paid");
@@ -270,12 +271,12 @@ public class InvoiceControllerImpl {
 			emailJson.put("mailBodyContentType", PropertyManager.getProperty("mail.body.content.type"));
 			String template = PropertyManager.getProperty("invocie.mail.template");
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link")+invoice.getId();
-			template = template.replace("${invoiceNumber}", StringUtils.isBlank(invoice.getNumber())?"":invoice.getNumber())
-					.replace("${companyName}", StringUtils.isEmpty(invoice.getCompanyName())?"":invoice.getCompanyName())
-					.replace("${currencySymbol}", StringUtils.isEmpty(Utilities.getCurrencyHtmlSymbol(invoice.getCurrency()))?"":Utilities.getCurrencyHtmlSymbol(invoice.getCurrency()))
-					.replace("${amount}", StringUtils.isEmpty(invoice.getAmount()+"")?"":invoice.getAmount()+"")
-					.replace("${currencyCode}", StringUtils.isEmpty(invoice.getCurrency())?"":invoice.getCurrency())
-					.replace("${invoiceDate}", StringUtils.isEmpty(invoice.getDue_date())?"":invoice.getDue_date())
+			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getPayment_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			String currency = StringUtils.isEmpty(invoice.getCurrency())?"":Utilities.getCurrencySymbol(invoice.getCurrency());
+			template = template.replace("{{invoice number}}", StringUtils.isBlank(invoice.getNumber())?"":invoice.getNumber())
+					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName())?"":invoice.getCompanyName())
+					.replace("{{amount}}", currency+(StringUtils.isEmpty(invoice.getAmount()+"")?"":invoice.getAmount()+""))
+					.replace("{{due date}}", dueDate)
 					.replace("${invoiceLinkUrl}", invoiceLinkUrl);
 			emailJson.put("body", template);
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");

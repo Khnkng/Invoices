@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.qount.invoice.model.ProposalLine;
 
+
+
 /**
  * DAO interface for proposalDAOImpl
  * 
@@ -15,12 +17,14 @@ import com.qount.invoice.model.ProposalLine;
 public interface ProposalLineDAO {
 
 
-	public List<ProposalLine> getLines(Connection connection, String proposalID);
 
-	public List<ProposalLine> batchSave(Connection connection, List<ProposalLine> proposalLines);
+	public List<ProposalLine> getByProposalId(Connection connection, ProposalLine proposalLine);
+
+	public List<ProposalLine> save(Connection connection, List<ProposalLine> proposalLines);
 	
 	public ProposalLine update(Connection connection, ProposalLine proposalLine);
 
-	public ProposalLine delete(Connection connection,ProposalLine proposalLine);
+	public ProposalLine deleteByProposalId(Connection connection,ProposalLine proposalLines);
 
+	public ProposalLine deleteProposalLine(ProposalLine proposalLines);
 }
