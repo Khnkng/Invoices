@@ -81,7 +81,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPayment_options());
 				pstmt.setString(ctr++, invoice.getEmail_state());
 				pstmt.setString(ctr++, invoice.getSend_to());
-				pstmt.setString(ctr++, invoice.getDue_date());
 				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getPayment_method());
 				int rowCount = pstmt.executeUpdate();
@@ -142,7 +141,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPayment_options());
 				pstmt.setString(ctr++, invoice.getEmail_state());
 				pstmt.setString(ctr++, invoice.getSend_to());
-				pstmt.setString(ctr++, invoice.getDue_date());
 				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getPayment_method());
 				pstmt.setString(ctr++, invoice.getId());
@@ -413,7 +411,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
-					invoice.setDue_date(rset.getString("due_date"));
 					invoiceLst.add(invoice);
 				}
 			}
@@ -566,7 +563,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
-					invoice.setDue_date(rset.getString("due_date"));
 					invoiceLst.add(invoice);
 				}
 			}
