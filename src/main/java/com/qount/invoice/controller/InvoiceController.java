@@ -75,6 +75,15 @@ public class InvoiceController {
 	public Response getInvoices(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @QueryParam("state") String state) {
 		return InvoiceControllerImpl.getInvoices(userID, companyID, state);
 	}
+	
+	@Path("/client/{clientID}")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(notes = "Used to retieve invoices belongs to a client", value = "retieves invoices", responseContainer = "java.lang.String")
+	public List<Invoice> getInvoicesByClientId(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("clientID") @NotNull String clientID) {
+		return InvoiceControllerImpl.getInvoicesByClientID(userID, companyID, clientID);
+	}
 
 	@Path("/{invoiceID}")
 	@GET

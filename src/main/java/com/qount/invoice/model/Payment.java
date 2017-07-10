@@ -36,6 +36,8 @@ public class Payment {
 	
 	private List<PaymentLine> paymentLines;
 	
+	private String paymentNote;
+	
 	public String getId() {
 		return id;
 	}
@@ -95,6 +97,12 @@ public class Payment {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+	public String getPaymentNote() {
+		return paymentNote;
+	}
+	public void setPaymentNote(String paymentNote) {
+		this.paymentNote = paymentNote;
 	}	
 
 }

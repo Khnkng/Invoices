@@ -53,6 +53,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					pstmt.setString(ctr++, payment.getMemo());
 					pstmt.setString(ctr++, payment.getCompanyId());
 					pstmt.setString(ctr++, payment.getType());
+					pstmt.setString(ctr++, payment.getPaymentNote());
 					int affectedRows = pstmt.executeUpdate();
 					if (affectedRows == 0) {
 			            throw new SQLException("");
@@ -188,7 +189,7 @@ public class PaymentDAOImpl implements paymentDAO{
 			if (connection != null) {
 				int ctr = 1;
 				try {
-					pstmt = connection.prepareStatement(SqlQuerys.Payments.RETRIEVE_BY_ID_QRY);
+					pstmt = connection.prepareStatement(SqlQuerys.Payments.RETRIEVE_BY_COMPANYID_QRY);
 					pstmt.setString(ctr++, companyId);
 					rset = pstmt.executeQuery();
 					while(rset.next()) {
@@ -201,6 +202,7 @@ public class PaymentDAOImpl implements paymentDAO{
 						payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
 						payment.setMemo(rset.getString("memo"));
 						payment.setType(rset.getString("type"));
+						payment.setPaymentNote(rset.getString("payment_notes"));
 						payment.setPaymentLines(getLines(payment.getId()));
 						payments.add(payment);
 					}
@@ -212,5 +214,38 @@ public class PaymentDAOImpl implements paymentDAO{
 			}	
 		return payments;	
 	}
+
+	@Override
+	public Payment getById(String paymentId) {
+		Connection connection = DatabaseUtilities.getReadWriteConnection();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Payment payment = new Payment();
+		
+			if (connection != null) {
+				int ctr = 1;
+				try {
+					pstmt = connection.prepareStatement(SqlQuerys.Payments.RETRIEVE_BY_PAYMENTID_QRY);
+					pstmt.setString(ctr++, paymentId);
+					rset = pstmt.executeQuery();
+					while(rset.next()) {
+						payment.setId(rset.getString("id"));
+						payment.setReceivedFrom(rset.getString("received_from"));
+						payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
+						payment.setCurrencyCode(rset.getString("currency_code"));
+						payment.setReferenceNo(rset.getString("reference_no"));		
+						payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
+						payment.setMemo(rset.getString("memo"));
+						payment.setType(rset.getString("type"));
+						payment.setPaymentNote(rset.getString("payment_notes"));
+						payment.setPaymentLines(getLines(payment.getId()));
+					}
+				} catch (SQLException e) {
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+				} finally {
+					DatabaseUtilities.closeResources(rset, pstmt, connection);
+				}
+			}	
+		return payment;		}
 
 }

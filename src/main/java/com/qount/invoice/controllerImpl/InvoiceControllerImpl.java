@@ -56,10 +56,10 @@ public class InvoiceControllerImpl {
 				if (invoice.isSendMail()) {
 					invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
 					if (sendInvoiceEmail(invoiceResult)) {
-						invoice.setState("Email Sent");
+						invoice.setState("sent");
 					}
 					if (StringUtils.isEmpty(invoice.getState())) {
-						invoice.setState("Draft");
+						invoice.setState("draft");
 					}
 				}
 				if (!invoiceLineResult.isEmpty()) {
@@ -271,7 +271,7 @@ public class InvoiceControllerImpl {
 			emailJson.put("mailBodyContentType", PropertyManager.getProperty("mail.body.content.type"));
 			String template = PropertyManager.getProperty("invocie.mail.template");
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link")+invoice.getId();
-			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getPayment_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String currency = StringUtils.isEmpty(invoice.getCurrency())?"":Utilities.getCurrencySymbol(invoice.getCurrency());
 			template = template.replace("{{invoice number}}", StringUtils.isBlank(invoice.getNumber())?"":invoice.getNumber())
 					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName())?"":invoice.getCompanyName())
@@ -297,6 +297,21 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited sendInvoiceEmail  invoice: " + invoice);
 		}
 		return false;
+	}
+	
+	public static List<Invoice> getInvoicesByClientID(String userID, String companyID, String clientID) {
+		try {
+			if (StringUtils.isAnyBlank(userID,companyID)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByClientId(userID, companyID, clientID);
+			return invoiceLst;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited get invoices userID:" + userID + " companyID:" + companyID + " clientID:" + clientID);
+		}
 	}
 	
 	public static void main(String[] args) throws Exception {
