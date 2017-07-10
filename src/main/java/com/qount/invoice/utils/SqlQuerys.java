@@ -85,7 +85,7 @@ public class SqlQuerys {
 	}
 
 	public final class Payments {
-		public static final String INSERT_QRY = "INSERT INTO invoice_payments_latest ( `id`,`received_from`,`payment_amount`,`currency_code`,`reference_no`,`payment_date`,`memo`,`company_id`,`type`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		public static final String INSERT_QRY = "INSERT INTO invoice_payments_latest ( `id`,`received_from`,`payment_amount`,`currency_code`,`reference_no`,`payment_date`,`memo`,`company_id`,`type`, `payment_notes`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		public static final String RETRIEVE_BY_ID_QRY = "SELECT * FROM invoice_payments_latest WHERE `company_id` = ?;";
 	}
 

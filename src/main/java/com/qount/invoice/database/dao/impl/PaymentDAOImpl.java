@@ -53,6 +53,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					pstmt.setString(ctr++, payment.getMemo());
 					pstmt.setString(ctr++, payment.getCompanyId());
 					pstmt.setString(ctr++, payment.getType());
+					pstmt.setString(ctr++, payment.getPaymentNote());
 					int affectedRows = pstmt.executeUpdate();
 					if (affectedRows == 0) {
 			            throw new SQLException("");
