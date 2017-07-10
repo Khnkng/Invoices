@@ -595,4 +595,48 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return invoiceReference;
 	}
 
+	@Override
+	public List<Invoice> getInvoiceListByClientId(String userID, String companyID, String clientID) throws Exception {
+		LOGGER.debug("entered getInvoiceList userID:" + userID + " companyID:" + companyID + "clientID:" + clientID);
+		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
+			throw new WebApplicationException("userID or companyID cannot be empty");
+		}
+		List<Invoice> invoiceLst = new ArrayList<>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
+				query += "`user_id`='" + userID + "' AND `company_id`= '" + companyID + "' ";
+				query += "AND `customer_id`= '" + clientID + "' ";
+				
+				pstmt = connection.prepareStatement(query);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					Invoice invoice = new Invoice();
+					invoice.setNumber(rset.getString("number"));
+					invoice.setId(rset.getString("id"));
+					invoice.setInvoice_date(rset.getString("invoice_date"));
+					invoice.setPayment_date(rset.getString("payment_date"));
+					invoice.setAmount(rset.getDouble("amount"));
+					invoice.setCurrency(rset.getString("currency"));
+					invoice.setState(rset.getString("state"));
+					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setDue_date(rset.getString("due_date"));
+					invoiceLst.add(invoice);
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error fetching invoices for user_id [ " + userID + " ]", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited getInvoiceList userID:" + userID + " companyID:" + companyID + "cientID:" + clientID);
+		}
+		return invoiceLst;	}
+
 }

@@ -29,7 +29,9 @@ public interface InvoiceDAO {
 
 	public InvoiceMail getInvoiceMailDetails(String InvoiceID) throws Exception;;
 
-	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception;;
+	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception;
+	
+	public List<Invoice> getInvoiceListByClientId(String userID, String companyID, String clientID) throws Exception;;
 
 	public Invoice delete(Invoice invoice) throws Exception;
 

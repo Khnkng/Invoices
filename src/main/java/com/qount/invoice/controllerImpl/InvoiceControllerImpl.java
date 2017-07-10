@@ -298,6 +298,21 @@ public class InvoiceControllerImpl {
 		return false;
 	}
 	
+	public static List<Invoice> getInvoicesByClientID(String userID, String companyID, String clientID) {
+		try {
+			if (StringUtils.isAnyBlank(userID,companyID)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByClientId(userID, companyID, clientID);
+			return invoiceLst;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited get invoices userID:" + userID + " companyID:" + companyID + " clientID:" + clientID);
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
 		Currencies cur = new Currencies();
 		cur.setCode("");
