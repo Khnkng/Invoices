@@ -10,10 +10,13 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.parser.InvoiceParser;
@@ -21,6 +24,7 @@ import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.ResponseUtil;
+import com.qount.invoice.utils.Utilities;
 
 /**
  * 
@@ -260,17 +264,28 @@ public class InvoiceControllerImpl {
 	private static boolean sendInvoiceEmail(Invoice invoice) throws Exception {
 		try {
 			LOGGER.debug("entered sendInvoiceEmail invoice: " + invoice);
-			if (invoice == null) {
-				return false;
-			}
-			Response emailRespone = InvoiceReportControllerImpl.createPdfAndSendEmail(invoice);
-			if (emailRespone != null && emailRespone.getStatus() == 200) {
-				String resultStr = emailRespone.getEntity().toString();
-				if (StringUtils.isNotEmpty(resultStr)) {
-					if (resultStr.equals("Email sent successfully!")) {
-						return true;
-					}
-				}
+			JSONObject emailJson = new JSONObject();
+			emailJson.put("recipients", invoice.getRecepientsMailsArr());
+			emailJson.put("subject", PropertyManager.getProperty("invoice.subject"));
+			emailJson.put("mailBodyContentType", PropertyManager.getProperty("mail.body.content.type"));
+			String template = PropertyManager.getProperty("invocie.mail.template");
+			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link")+invoice.getId();
+			template = template.replace("${invoiceNumber}", StringUtils.isBlank(invoice.getNumber())?"":invoice.getNumber())
+					.replace("${companyName}", StringUtils.isEmpty(invoice.getCompanyName())?"":invoice.getCompanyName())
+					.replace("${currencySymbol}", StringUtils.isEmpty(Utilities.getCurrencyHtmlSymbol(invoice.getCurrency()))?"":Utilities.getCurrencyHtmlSymbol(invoice.getCurrency()))
+					.replace("${amount}", StringUtils.isEmpty(invoice.getAmount()+"")?"":invoice.getAmount()+"")
+					.replace("${currencyCode}", StringUtils.isEmpty(invoice.getCurrency())?"":invoice.getCurrency())
+					.replace("${invoiceDate}", StringUtils.isEmpty(invoice.getDue_date())?"":invoice.getDue_date())
+					.replace("${invoiceLinkUrl}", invoiceLinkUrl);
+			emailJson.put("body", template);
+			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
+			String portName = PropertyManager.getProperty("half.service.docker.port");
+			String url = Utilities.getLtmUrl(hostName, portName);
+			url = url+ "HalfService/emails";
+//			String url = "https://dev-services.qount.io/HalfService/emails";
+			Object result = HTTPClient.postObject(url,emailJson.toString());
+			if(result!=null && result instanceof java.lang.String && result.equals("true")){
+				return true;
 			}
 		} catch (WebApplicationException e) {
 			throw e;
@@ -281,5 +296,16 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited sendInvoiceEmail  invoice: " + invoice);
 		}
 		return false;
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Currencies cur = new Currencies();
+		cur.setCode("");
+		
+		Invoice invoice = new Invoice();
+		JSONArray recepientsMailsArr = new JSONArray();
+		recepientsMailsArr.put("mateen.khan@qount.io");
+		invoice.setRecepientsMailsArr(recepientsMailsArr);
+		System.out.println(sendInvoiceEmail(invoice));
 	}
 }
