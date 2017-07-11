@@ -3,6 +3,7 @@ package com.qount.invoice.controllerImpl;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,14 +71,14 @@ public class InvoiceDetailControllerImpl {
 			long amountToPayInCents = 0;
 			double amountToPay = Double.parseDouble(inputInvoice.getAmountToPay());
 			String transactionId = null;
-			String state=null;
+			String state = null;
 			Payment payment = new Payment();
 			PaymentLine paymentLine = new PaymentLine();
-			if(amountToPay>invoice.getAmount_due()){
+			if (amountToPay > invoice.getAmount_due()) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
-			}else if(amountToPay==invoice.getAmount_due()){
+			} else if (amountToPay == invoice.getAmount_due()) {
 				state = "paid";
-			}else if(amountToPay<invoice.getAmount_due()){
+			} else if (amountToPay < invoice.getAmount_due()) {
 				state = "partially_paid";
 			}
 			if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
@@ -98,21 +99,28 @@ public class InvoiceDetailControllerImpl {
 				payment.setReceivedFrom(inputInvoice.getCustomer_id());
 				payment.setReferenceNo(transactionId);
 				payment.setType("payment_spring");
+				float convertionValue = getConversionValue(Constants.DEFAULT_INVOICE_CURRENCY, Constants.DEFAULT_INVOICE_CURRENCY);
+				double convertedAmountToPay = convertInvoiceAmount(convertionValue, amountToPay);
+				amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
 			}
-			
-//			if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
-//				invoicePayment.setCurrency_from(Constants.DEFAULT_INVOICE_CURRENCY);
-//				invoicePayment.setCurrency_to(currency);
-//				String formatedDate = Constants.INVOICE_CONVERSION_DATE_FORMAT.format(new Date());
-//				invoicePayment.setConversionDate(formatedDate);
-//				double convertedAmountToPay = convertInvoiceAmount(invoicePayment, invoice.getAmount());
-//				invoicePayment.setCurrency_amount(convertedAmountToPay);
-//				amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
-//			} else {
-//				if(!inputInvoice.getAction().equals(Constants.SUBSCRIPTION_CUSTOMER_CHARGE)){
-//					amountToPayInCents = convertDollarToCent(invoice.getAmountToPay());
-//				}
-//			}
+
+			// if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
+			// invoicePayment.setCurrency_from(Constants.DEFAULT_INVOICE_CURRENCY);
+			// invoicePayment.setCurrency_to(currency);
+			// String formatedDate =
+			// Constants.INVOICE_CONVERSION_DATE_FORMAT.format(new Date());
+			// invoicePayment.setConversionDate(formatedDate);
+			// double convertedAmountToPay =
+			// convertInvoiceAmount(invoicePayment, invoice.getAmount());
+			// invoicePayment.setCurrency_amount(convertedAmountToPay);
+			// amountToPayInCents = convertDollarToCent(convertedAmountToPay
+			// +"");
+			// } else {
+			// if(!inputInvoice.getAction().equals(Constants.SUBSCRIPTION_CUSTOMER_CHARGE)){
+			// amountToPayInCents =
+			// convertDollarToCent(invoice.getAmountToPay());
+			// }
+			// }
 			if (StringUtils.isEmpty(currency)) {
 				throw new WebApplicationException("invoice currency is empty!");
 			}
@@ -125,14 +133,19 @@ public class InvoiceDetailControllerImpl {
 				payloadObj = getOneTimeChargePaymentSpringJson(inputInvoice.getPayment_spring_token(), amountToPayInCents);
 				urlAction = "charge";
 				break;
-//			case "one_time_customer_charge":
-//				payloadObj = getOneTimeCustomerChargePaymentSpringJson(invoice.getPayment_spring_customer_id(), amountToPayInCents);
-//				urlAction = "charge";
-//				break;
+			// case "one_time_customer_charge":
+			// payloadObj =
+			// getOneTimeCustomerChargePaymentSpringJson(invoice.getPayment_spring_customer_id(),
+			// amountToPayInCents);
+			// urlAction = "charge";
+			// break;
 			case Constants.SUBSCRIPTION_CUSTOMER_CHARGE:
-//				payloadObj = getSubscriptionPaymentSpringJson(invoice.getPayment_spring_customer_id(), invoice.getPaymentSpringPlan().getEnds_after(), invoice.getPlan_id(),
-//						invoice.getPaymentSpringPlan().getBill_immediately());
-//				urlAction = "subscription";
+				// payloadObj =
+				// getSubscriptionPaymentSpringJson(invoice.getPayment_spring_customer_id(),
+				// invoice.getPaymentSpringPlan().getEnds_after(),
+				// invoice.getPlan_id(),
+				// invoice.getPaymentSpringPlan().getBill_immediately());
+				// urlAction = "subscription";
 				break;
 			}
 			JSONObject result = invokeChargePaymentSpringApi(companyID, payloadObj, urlAction);
@@ -142,25 +155,30 @@ public class InvoiceDetailControllerImpl {
 			if (result.has("errors")) {
 				throw new WebApplicationException(result.optJSONArray("errors").optJSONObject(0).optString("message"));
 			}
-			
-//			invoicePayment.setId(UUID.randomUUID().toString());
-//			invoicePayment.setInvoice_id(invoiceID);
-//			long amount_settled = result.optLong("amount_settled");
-//			invoicePayment.setAmount(amount_settled);
-//			invoicePayment.setStatus(result.optString("status"));
-//			invoicePayment.setTransaction_date(CommonUtils.getGMTDateTime(new Date()));
-//			invoicePayment.setTransaction_id(result.optString("id"));
-//			connection = DatabaseUtilities.getReadWriteConnection();
-//			InvoicePayment invoicePaymentResult = MySQLManager.getInvoicePaymentDAOInstance().save(connection, invoicePayment);
-//			LOGGER.debug("invoicePaymentResult:" + invoicePaymentResult);
-//			List<InvoicePayment> invoicePaymentLst = MySQLManager.getInvoicePaymentDAOInstance().getByInvoiceId(invoicePayment);
+
+			// invoicePayment.setId(UUID.randomUUID().toString());
+			// invoicePayment.setInvoice_id(invoiceID);
+			// long amount_settled = result.optLong("amount_settled");
+			// invoicePayment.setAmount(amount_settled);
+			// invoicePayment.setStatus(result.optString("status"));
+			// invoicePayment.setTransaction_date(CommonUtils.getGMTDateTime(new
+			// Date()));
+			// invoicePayment.setTransaction_id(result.optString("id"));
+			// connection = DatabaseUtilities.getReadWriteConnection();
+			// InvoicePayment invoicePaymentResult =
+			// MySQLManager.getInvoicePaymentDAOInstance().save(connection,
+			// invoicePayment);
+			// LOGGER.debug("invoicePaymentResult:" + invoicePaymentResult);
+			// List<InvoicePayment> invoicePaymentLst =
+			// MySQLManager.getInvoicePaymentDAOInstance().getByInvoiceId(invoicePayment);
 			long amountPaid = 0;
-//			if (invoicePaymentLst != null && !invoicePaymentLst.isEmpty()) {
-//				Iterator<InvoicePayment> invoicePaymentLstItr = invoicePaymentLst.iterator();
-//				while (invoicePaymentLstItr.hasNext()) {
-//					amountPaid += invoicePaymentLstItr.next().getAmount();
-//				}
-//			}
+			// if (invoicePaymentLst != null && !invoicePaymentLst.isEmpty()) {
+			// Iterator<InvoicePayment> invoicePaymentLstItr =
+			// invoicePaymentLst.iterator();
+			// while (invoicePaymentLstItr.hasNext()) {
+			// amountPaid += invoicePaymentLstItr.next().getAmount();
+			// }
+			// }
 			double amountPaidInDollar = convertCentToDollar(amountPaid);
 			if (amountPaidInDollar == invoice.getAmount()) {
 				invoice.setState("paid");
@@ -178,7 +196,7 @@ public class InvoiceDetailControllerImpl {
 		}
 	}
 
-	private static JSONObject invokeChargePaymentSpringApi(String companyId, JSONObject payloadObj, String urlAction) throws Exception{
+	private static JSONObject invokeChargePaymentSpringApi(String companyId, JSONObject payloadObj, String urlAction) throws Exception {
 		try {
 			LOGGER.debug("entered invokeChargePaymentSpringApi companyId:" + companyId);
 			if (StringUtils.isEmpty(companyId) || payloadObj == null || payloadObj.length() == 0) {
@@ -207,24 +225,28 @@ public class InvoiceDetailControllerImpl {
 		return null;
 	}
 
-//	private static JSONObject getSubscriptionPaymentSpringJson(String customer_id, String ends_after, String plan_id, String bill_immediately) {
-//		try {
-//			if (StringUtils.isEmpty(customer_id) || StringUtils.isEmpty(ends_after)) {
-//				throw new WebApplicationException("customer_id  and ends_after cannot be empty for subscription");
-//			}
-//			JSONObject payloadObj = new JSONObject();
-//			payloadObj.put("ends_after", ends_after);
-//			payloadObj.put("plan_id", plan_id);
-//			payloadObj.put("customer_id", customer_id);
-//			if(StringUtils.isNotBlank(bill_immediately)){
-//				payloadObj.put("bill_immediately", bill_immediately);
-//			}
-//			return payloadObj;
-//		} catch (Exception e) {
-//			LOGGER.error(e);
-//			throw e;
-//		}
-//	}
+	// private static JSONObject getSubscriptionPaymentSpringJson(String
+	// customer_id, String ends_after, String plan_id, String bill_immediately)
+	// {
+	// try {
+	// if (StringUtils.isEmpty(customer_id) || StringUtils.isEmpty(ends_after))
+	// {
+	// throw new WebApplicationException("customer_id and ends_after cannot be
+	// empty for subscription");
+	// }
+	// JSONObject payloadObj = new JSONObject();
+	// payloadObj.put("ends_after", ends_after);
+	// payloadObj.put("plan_id", plan_id);
+	// payloadObj.put("customer_id", customer_id);
+	// if(StringUtils.isNotBlank(bill_immediately)){
+	// payloadObj.put("bill_immediately", bill_immediately);
+	// }
+	// return payloadObj;
+	// } catch (Exception e) {
+	// LOGGER.error(e);
+	// throw e;
+	// }
+	// }
 
 	private static JSONObject getOneTimeChargePaymentSpringJson(String payment_spring_token, double amount) {
 		try {
@@ -243,38 +265,41 @@ public class InvoiceDetailControllerImpl {
 		}
 	}
 
-//	private static JSONObject getOneTimeCustomerChargePaymentSpringJson(String customer_id, double amount) {
-//		try {
-//			if (StringUtils.isEmpty(customer_id)) {
-//				throw new WebApplicationException("customer_id cannot be empty for one time charge");
-//			}
-//			JSONObject payloadObj = new JSONObject();
-//			payloadObj.put("customer_id", customer_id);
-//			String amountStr = amount + "";
-//			amountStr = amountStr.substring(0, amountStr.indexOf("."));
-//			payloadObj.put("amount", amountStr);
-//			return payloadObj;
-//		} catch (Exception e) {
-//			LOGGER.error(e);
-//			throw e;
-//		}
-//	}
+	// private static JSONObject
+	// getOneTimeCustomerChargePaymentSpringJson(String customer_id, double
+	// amount) {
+	// try {
+	// if (StringUtils.isEmpty(customer_id)) {
+	// throw new WebApplicationException("customer_id cannot be empty for one
+	// time charge");
+	// }
+	// JSONObject payloadObj = new JSONObject();
+	// payloadObj.put("customer_id", customer_id);
+	// String amountStr = amount + "";
+	// amountStr = amountStr.substring(0, amountStr.indexOf("."));
+	// payloadObj.put("amount", amountStr);
+	// return payloadObj;
+	// } catch (Exception e) {
+	// LOGGER.error(e);
+	// throw e;
+	// }
+	// }
 
-//	private static long convertDollarToCent(String input) {
-//		LOGGER.debug("entered convertDollarToCent input:" + input);
-//		try {
-//			BigDecimal dollars = new BigDecimal(input);
-//			if (dollars.scale() > 2) {
-//				throw new IllegalArgumentException();
-//			}
-//			long cents = dollars.multiply(new BigDecimal(100)).intValue();
-//			return cents;
-//		} catch (Exception e) {
-//			throw e;
-//		} finally {
-//			LOGGER.debug("exited convertDollarToCent input:" + input);
-//		}
-//	}
+	private static long convertDollarToCent(String input) {
+		LOGGER.debug("entered convertDollarToCent input:" + input);
+		try {
+			BigDecimal dollars = new BigDecimal(input);
+			if (dollars.scale() > 2) {
+				throw new IllegalArgumentException();
+			}
+			long cents = dollars.multiply(new BigDecimal(100)).intValue();
+			return cents;
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			LOGGER.debug("exited convertDollarToCent input:" + input);
+		}
+	}
 
 	private static double convertCentToDollar(long cents) {
 		LOGGER.debug("entered convertCentToDollar input:" + cents);
@@ -292,22 +317,31 @@ public class InvoiceDetailControllerImpl {
 		}
 	}
 
-//	private static double convertInvoiceAmount(InvoicePayment invoicePayment, double amount) throws Exception {
-//		try {
-//			if (!CommonUtils.isValidStrings(invoicePayment.getCurrency_from(), invoicePayment.getCurrency_to())) {
-//				throw new Exception("invalid input invoiceCurrency:" + invoicePayment.getCurrency_from() + " ,companyCurrency:" + invoicePayment.getCurrency_to());
-//			}
-//			if (amount < 0.00d) {
-//				throw new Exception("negative amount");
-//			}
-//			float conversion = Constants.CURRENCY_CONVERTER.convert(invoicePayment.getCurrency_from(), invoicePayment.getCurrency_to(), invoicePayment.getConversionDate());
-//			invoicePayment.setConversion(conversion);
-//			amount = amount * conversion;
-//			amount = Double.valueOf(Constants.INVOICE_CONVERSION_DECIMALFORMAT.format(amount));
-//			return amount;
-//		} catch (Exception e) {
-//			throw e;
-//		}
-//	}
+	private static double convertInvoiceAmount(float conversion, double amount) throws Exception {
+		try {
+			if (amount < 0.00d) {
+				throw new Exception("negative amount");
+			}
+			amount = amount * conversion;
+			amount = Double.valueOf(Constants.INVOICE_CONVERSION_DECIMALFORMAT.format(amount));
+			return amount;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		}
+	}
+
+	private static float getConversionValue(String currency_from, String currency_to) throws Exception {
+		try {
+			if (StringUtils.isAnyBlank(currency_from, currency_to)) {
+				throw new Exception("invalid input currency_from:" + currency_from + " ,currency_to:" + currency_to);
+			}
+			float conversion = Constants.CURRENCY_CONVERTER.convert(currency_from, currency_to, Constants.INVOICE_CONVERSION_DATE_FORMAT.format(new Date()));
+			return conversion;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		}
+	}
 
 }
