@@ -21,5 +21,13 @@ public class DateUtils {
 		}
 		return parsedDate;
 	}
+	
+	public static String getCurrentDate(SimpleDateFormat sdf){
+		return sdf.format(new Date());
+	}
+	
 
+	public static void main(String[] args) {
+		System.out.println(getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT));
+	}
 }

@@ -15,7 +15,7 @@ public class InvoicePayment {
 	private String id;
 	private String invoice_id;
 	private String transaction_id;
-	private long amount;
+	private double amount;
 	private String transaction_date;
 	private String status;
 	private String period_start;
@@ -98,11 +98,11 @@ public class InvoicePayment {
 		this.transaction_id = transaction_id;
 	}
 
-	public long getAmount() {
+	public double getAmount() {
 		return amount;
 	}
 
-	public void setAmount(long amount) {
+	public void setAmount(double amount) {
 		this.amount = amount;
 	}
 

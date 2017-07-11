@@ -209,7 +209,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getInvoice_date());
 				pstmt.setString(ctr++, invoice.getPayment_method());
-				pstmt.setString(ctr++, invoice.getState());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
