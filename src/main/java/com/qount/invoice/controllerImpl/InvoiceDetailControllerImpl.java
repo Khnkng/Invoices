@@ -100,7 +100,7 @@ public class InvoiceDetailControllerImpl {
 			payment.setId(UUID.randomUUID().toString());
 			payment.setPaymentDate(DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT));
 			payment.setReceivedFrom(invoice.getCustomer_id());
-			payment.setType("payment_spring");
+			payment.setType("Credit Card");
 			float convertionValue = getConversionValue(invoice.getCurrency(), Constants.DEFAULT_INVOICE_CURRENCY);
 			double convertedAmountToPay = convertInvoiceAmount(convertionValue, amountToPay);
 			amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
