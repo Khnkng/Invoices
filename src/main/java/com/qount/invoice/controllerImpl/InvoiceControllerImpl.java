@@ -44,6 +44,15 @@ public class InvoiceControllerImpl {
 						Constants.PRECONDITION_FAILED_STR + ":userID and companyID are mandatory", Status.PRECONDITION_FAILED));
 			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
+			if (invoice.isSendMail()) {
+				if (sendInvoiceEmail(invoiceObj)) {
+					invoice.setState("sent");
+				}else{
+					throw new WebApplicationException("error sending email");
+				}
+			}else{
+				invoice.setState("draft");
+			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
@@ -53,15 +62,6 @@ public class InvoiceControllerImpl {
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
-				if (invoice.isSendMail()) {
-					invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
-					if (sendInvoiceEmail(invoiceResult)) {
-						invoice.setState("sent");
-					}
-				}
-				if (StringUtils.isEmpty(invoice.getState())) {
-					invoice.setState("draft");
-				}
 				if (!invoiceLineResult.isEmpty()) {
 					connection.commit();
 				}
