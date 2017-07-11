@@ -1,5 +1,7 @@
 package com.qount.invoice.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class Currencies {
 
 	private String code;
@@ -39,4 +41,13 @@ public class Currencies {
 		this.html_symbol = html_symbol;
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
 }

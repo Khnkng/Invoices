@@ -17,8 +17,6 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.model.ProposalLineTaxes;
-import com.qount.invoice.model.ProposalTaxes;
 import com.qount.invoice.model.UserCompany;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
@@ -34,31 +32,27 @@ public class ProposalParser {
 
 	private static final Logger LOGGER = Logger.getLogger(ProposalParser.class);
 
-	public static Proposal getProposalObj(String userId, Proposal proposal) {
+	public static Proposal getProposalObj(String userId, Proposal proposal,String companyID) {
 		try {
-			if (StringUtils.isEmpty(userId) && proposal == null) {
-				return null;
+			if (proposal == null || StringUtils.isAnyBlank(userId,companyID,proposal.getCurrency())) {
+				throw new WebApplicationException("userId, companyId, currency are mandatory");
 			}
 			UserCompany userCompany = null;
-			userCompany = CommonUtils.getCompany(userId, proposal.getCompany_id());
+			proposal.setCompany_id(companyID);
+			proposal.setIs_recurring(StringUtils.isNotEmpty(proposal.getPlan_id()));
+			userCompany = CommonUtils.getCompany(userId, companyID);
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			Timestamp proposal_date = convertStringToTimeStamp(proposal.getProposal_date(),
-					Constants.TIME_STATMP_TO_BILLS_FORMAT);
-			Timestamp acceptance_date = convertStringToTimeStamp(proposal.getAcceptance_date(),
-					Constants.TIME_STATMP_TO_BILLS_FORMAT);
-			Timestamp acceptance_final_date = convertStringToTimeStamp(proposal.getAcceptance_final_date(),
-					Constants.TIME_STATMP_TO_BILLS_FORMAT);
+			Timestamp proposal_date = convertStringToTimeStamp(proposal.getProposal_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp due_date = convertStringToTimeStamp(proposal.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			proposal.setUser_id(userId);
-			if (proposal.getId() == null) {
+			if (StringUtils.isBlank(proposal.getId())) {
 				proposal.setId(UUID.randomUUID().toString());
 			}
-			proposal.setLast_updated_at(timestamp.toString());
+			proposal.setProposal_date(proposal_date != null ? proposal_date.toString() : null);
+			proposal.setDue_date(due_date != null ? due_date.toString() : null);
+			proposal.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			proposal.setLast_updated_by(userId);
-			proposal.setProposal_date(proposal_date.toString());
-			proposal.setAcceptance_date(acceptance_date.toString());
-			proposal.setAcceptance_final_date(acceptance_final_date.toString());
 			setProposalAmountByDate(proposal, userCompany);
-
 			List<ProposalLine> proposalLines = proposal.getProposalLines();
 			if (proposalLines == null) {
 				proposalLines = new ArrayList<>();
@@ -66,26 +60,18 @@ public class ProposalParser {
 			Iterator<ProposalLine> proposalLineItr = proposalLines.iterator();
 			while (proposalLineItr.hasNext()) {
 				ProposalLine line = proposalLineItr.next();
-				line.setId(UUID.randomUUID().toString());
+				if (StringUtils.isBlank(line.getId())) {
+					line.setId(UUID.randomUUID().toString());
+				}
 				line.setProposal_id(proposal.getId());
 				line.setLast_updated_at(timestamp.toString());
 				line.setLast_updated_by(userId);
 			}
-
-			List<ProposalTaxes> proposalTaxesList = proposal.getProposalTaxes();
-			if (proposalTaxesList == null) {
-				proposalTaxesList = new ArrayList<>();
-				proposal.setProposalTaxes(proposalTaxesList);
-			}
-			Iterator<ProposalTaxes> proposalTaxesListItr = proposalTaxesList.iterator();
-			while (proposalTaxesListItr.hasNext()) {
-				ProposalTaxes proposalTaxes = proposalTaxesListItr.next();
-				proposalTaxes.setProposal_id(proposal.getId());
-			}
-
+			proposal.setCreated_at(timestamp.toString());
+			proposal.setRecepientsMailsArr(CommonUtils.getJsonArrayFromList(proposal.getRecepientsMails()));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			return null;
+			throw new WebApplicationException(e.getLocalizedMessage(), 500);
 		}
 		return proposal;
 	}
@@ -117,14 +103,15 @@ public class ProposalParser {
 
 	}
 
-	public static Proposal getProposalObjToDelete(String user_id, String proposal_id) {
+	public static Proposal getProposalObjToDelete(String userId,String companyId,String proposal_id) {
 		try {
-			if (StringUtils.isEmpty(user_id) && StringUtils.isEmpty(proposal_id)) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+			if (StringUtils.isEmpty(proposal_id)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Proposal proposal = new Proposal();
-			proposal.setUser_id(user_id);
+			proposal.setUser_id(userId);
+			proposal.setCompany_id(companyId);
 			proposal.setId(proposal_id);
 			return proposal;
 		} catch (Exception e) {
@@ -136,8 +123,8 @@ public class ProposalParser {
 	public static ProposalLine getProposalLineObjToDeleteProposalLine(String proposal_id, String proposalLine_id) {
 		try {
 			if (StringUtils.isEmpty(proposal_id) && StringUtils.isEmpty(proposalLine_id)) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			ProposalLine proposalLine = new ProposalLine();
 			proposalLine.setId(proposalLine_id);
@@ -157,20 +144,24 @@ public class ProposalParser {
 		}
 		return null;
 	}
-
-	public static List<ProposalLineTaxes> getProposalLineTaxesList(List<ProposalLine> proposalLinesList) {
-		List<ProposalLineTaxes> restlt = new ArrayList<ProposalLineTaxes>();
-		Iterator<ProposalLine> ProposalLineItr = proposalLinesList.iterator();
-		while (ProposalLineItr.hasNext()) {
-			ProposalLine proposalLine = ProposalLineItr.next();
-			List<ProposalLineTaxes> lineTaxesList = proposalLine.getProposalLineTaxes();
-			Iterator<ProposalLineTaxes> ProposalLineTaxesItr = lineTaxesList.iterator();
-			while (ProposalLineTaxesItr.hasNext()) {
-				ProposalLineTaxes proposalLineTaxes = ProposalLineTaxesItr.next();
-				proposalLineTaxes.setProposal_line_id(proposalLine.getId());
-				restlt.add(proposalLineTaxes);
-			}
+	
+	public static String convertTimeStampToString(String dateStr, SimpleDateFormat from, SimpleDateFormat to) {
+		try {
+			return to.format(from.parse(dateStr)).toString();
+		} catch (Exception e) {
+			LOGGER.error(e);
 		}
-		return restlt;
+		return null;
+	}
+	
+	public static Proposal convertTimeStampToString(Proposal proposal) {
+		try {
+			if (proposal != null) {
+				proposal.setProposal_date(convertTimeStampToString(proposal.getProposal_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return proposal;
 	}
 }

@@ -1,5 +1,9 @@
 package com.qount.invoice.model;
 
+import org.json.JSONArray;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Business object used in CustomerDAOImpl
  * 
@@ -11,7 +15,7 @@ public class Customer {
 	private String user_id;
 	private String company_id;
 	private String customer_id;
-	private String email_id;
+	private JSONArray email_ids;
 	private String customer_name;
 	private String customer_ein;
 	private String customer_address;
@@ -21,6 +25,60 @@ public class Customer {
 	private String customer_zipcode;
 	private String phone_number;
 	private String coa;
+	private String payment_spring_id;
+	private String term;
+	private String card_name;
+	private String fax;
+	private String street_1;
+	private String street_2;
+
+	public String getFax() {
+		return fax;
+	}
+
+	public void setFax(String fax) {
+		this.fax = fax;
+	}
+
+	public String getStreet_1() {
+		return street_1;
+	}
+
+	public void setStreet_1(String street_1) {
+		this.street_1 = street_1;
+	}
+
+	public String getStreet_2() {
+		return street_2;
+	}
+
+	public void setStreet_2(String street_2) {
+		this.street_2 = street_2;
+	}
+
+	public String getCard_name() {
+		return card_name;
+	}
+
+	public void setCard_name(String card_name) {
+		this.card_name = card_name;
+	}
+
+	public String getTerm() {
+		return term;
+	}
+
+	public void setTerm(String term) {
+		this.term = term;
+	}
+
+	public String getPayment_spring_id() {
+		return payment_spring_id;
+	}
+
+	public void setPayment_spring_id(String payment_spring_id) {
+		this.payment_spring_id = payment_spring_id;
+	}
 
 	public String getUser_id() {
 		return user_id;
@@ -46,12 +104,12 @@ public class Customer {
 		this.customer_id = customer_id;
 	}
 
-	public String getEmail_id() {
-		return email_id;
+	public JSONArray getEmail_ids() {
+		return email_ids;
 	}
 
-	public void setEmail_id(String email_id) {
-		this.email_id = email_id;
+	public void setEmail_ids(JSONArray email_ids) {
+		this.email_ids = email_ids;
 	}
 
 	public String getCustomer_name() {
@@ -126,4 +184,13 @@ public class Customer {
 		this.coa = coa;
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
 }

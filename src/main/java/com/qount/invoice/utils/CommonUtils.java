@@ -2,7 +2,9 @@ package com.qount.invoice.utils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -10,7 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,6 +30,18 @@ public class CommonUtils {
 	public static String toCommaSeparatedString(List<String> strings) {
 		Joiner joiner = Joiner.on(",").skipNulls();
 		return joiner.join(strings);
+	}
+
+	public static String toQoutedCommaSeparatedString(List<String> strings) {
+		String result = null;
+		if (strings != null && !strings.isEmpty()) {
+			result = "";
+			for (int i = 0; i < strings.size(); i++) {
+				result += "'" + strings.get(i) + "',";
+			}
+			result = result.substring(0, result.length() - 1);
+		}
+		return result;
 	}
 
 	public static List<String> fromCommaSeparatedString(String string) {
@@ -49,11 +63,44 @@ public class CommonUtils {
 		return result;
 	}
 
+	public static List<String> getListString(String str) {
+		List<String> result = null;
+		try {
+			if (!StringUtils.isBlank(str)) {
+				JSONArray emailArr = getJsonArrayFromString(str);
+				if (isValidJSONArray(emailArr)) {
+					result = new ArrayList<String>();
+					for (int i = 0; i < emailArr.length(); i++) {
+						result.add(emailArr.optString(i));
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return result;
+	}
+
 	public static JSONArray getJsonArrayFromString(String str) {
 		JSONArray result = null;
 		try {
 			if (!StringUtils.isBlank(str)) {
 				result = new JSONArray(str);
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return result;
+	}
+
+	public static JSONArray getJsonArrayFromList(List<String> lst) {
+		JSONArray result = null;
+		try {
+			if (lst != null && !lst.isEmpty()) {
+				result = new JSONArray();
+				for (int i = 0; i < lst.size(); i++) {
+					result.put(lst.get(i));
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
@@ -95,8 +142,7 @@ public class CommonUtils {
 	public static Response constructResponse(String message, int statusHeader) {
 		JSONObject responseJSON = new JSONObject();
 		responseJSON.put(MESSAGE, message);
-		return Response.status(statusHeader).entity(responseJSON.toString()).type(MediaType.APPLICATION_JSON_TYPE)
-				.build();
+		return Response.status(statusHeader).entity(responseJSON.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
 	}
 
 	/**
@@ -106,17 +152,80 @@ public class CommonUtils {
 	 * @return
 	 */
 	public static UserCompany getCompany(String userID, String companyID) {
-		String path = LTMUtils.getHostAddress("half.service.docker.hostname", "half.service.docker.port",
-				"oneapp.base.url");
+		String path = LTMUtils.getHostAddress("half.service.docker.hostname", "half.service.docker.port", "oneapp.base.url");
 		path = path + "HalfService/user/" + userID + "/companies2/" + companyID;
 		System.out.println("path = " + path);
 		LOGGER.debug("path = " + path);
 		String response = JerseyClient.get(path);
 		if (StringUtils.isBlank(response)) {
 			LOGGER.error("invalid company userID [ " + userID + "] companyID [ " + companyID + " ]");
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-					"Invalid Company", Status.PRECONDITION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Invalid Company", Status.PRECONDITION_FAILED));
 		}
 		return Constants.GSON.fromJson(response, UserCompany.class);
+	}
+
+	public static String convertDate(String sourceDate, SimpleDateFormat sourceDateFormat, SimpleDateFormat resultDateFormat) {
+		try {
+			return resultDateFormat.format(sourceDateFormat.parse(sourceDate));
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return null;
+	}
+
+	public static String getGMTDateTime(Date sourceDate) {
+		try {
+			return Constants.DATE_FORMAT_GMT.format(sourceDate);
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return null;
+	}
+
+	public static boolean isValidStrings(String... strings) throws Exception {
+		try {
+			if (strings == null || strings.length == 0) {
+				throw new Exception("empty input");
+			}
+			for (String str : strings) {
+				if (StringUtils.isEmpty(str)) {
+					return false;
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return false;
+	}
+
+	public static boolean isAnyStringValid(String... strings) throws Exception {
+		try {
+			if (strings == null || strings.length == 0) {
+				throw new Exception("empty input");
+			}
+			for (String str : strings) {
+				if (StringUtils.isNotBlank(str)) {
+					return true;
+				}
+			}
+			return false;
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return false;
+	}
+
+	public static void removeKeysIfNull(JSONObject input, String... keys) {
+		try {
+			for (String key : keys) {
+				if (StringUtils.isEmpty(input.optString(key))) {
+					input.remove(key);
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		}
 	}
 }

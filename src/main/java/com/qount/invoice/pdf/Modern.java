@@ -115,7 +115,7 @@ public class Modern {
 			PdfPCell cell_7 = new PdfPCell(paymentDueLabel);
 			cell_7.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_7);
-			
+
 			Currencies currencies = invoice.getCurrencies();
 			String currenciesCode = "";
 			String currenciesJava_symbol = "";
@@ -123,7 +123,7 @@ public class Modern {
 				currenciesCode = StringUtils.isEmpty(currencies.getCode()) ? "" : currencies.getCode();
 				currenciesJava_symbol = StringUtils.isEmpty(currencies.getJava_symbol()) ? "" : currencies.getJava_symbol();
 			}
-			
+
 			Chunk c1 = new Chunk("Amount Due(" + currenciesCode + "):", f);
 			Phrase amoundDueLabel = new Phrase(c1);
 			PdfPCell cellOne = new PdfPCell(amoundDueLabel);
@@ -210,8 +210,8 @@ public class Modern {
 			Iterator<InvoiceLine> invoiceLinesItr = invoice.getInvoiceLines().iterator();
 			while (invoiceLinesItr.hasNext()) {
 				InvoiceLine invoiceLine = invoiceLinesItr.next();
-				
-				String desc = StringUtils.isBlank(invoiceLine.getDescription())?"":invoiceLine.getDescription();
+
+				String desc = StringUtils.isBlank(invoiceLine.getDescription()) ? "" : invoiceLine.getDescription();
 				Chunk c1 = new Chunk(desc, f);
 				Phrase invocieItemsLabel = new Phrase(c1);
 				PdfPCell cellOne = new PdfPCell(invocieItemsLabel);
@@ -328,7 +328,7 @@ public class Modern {
 	}
 
 	private static void createTable(Document document, InvoicePreference invoicePreference, Invoice invoice) {
-		if(invoicePreference == null || invoice == null){
+		if (invoicePreference == null || invoice == null) {
 			return;
 		}
 		PdfPTable table = new PdfPTable(2);
@@ -337,10 +337,10 @@ public class Modern {
 			table.setLockedWidth(true);
 			PdfPCell cell;
 			Font f = Constants.F8;
-			String defaultTitle = StringUtils.isBlank(invoicePreference.getDefaultTitle())?"":invoicePreference.getDefaultTitle();
+			String defaultTitle = StringUtils.isBlank(invoicePreference.getDefaultTitle()) ? "" : invoicePreference.getDefaultTitle();
 			Chunk chunk1 = new Chunk(defaultTitle, f);
 			Font f2 = Constants.F9;
-			String defaultSubHeading = StringUtils.isBlank(invoicePreference.getDefaultSubHeading())?"":invoicePreference.getDefaultSubHeading();
+			String defaultSubHeading = StringUtils.isBlank(invoicePreference.getDefaultSubHeading()) ? "" : invoicePreference.getDefaultSubHeading();
 			Chunk chunk2 = new Chunk(defaultSubHeading, f2);
 			Phrase phrase = new Phrase();
 			phrase.add(chunk1);
@@ -395,14 +395,14 @@ public class Modern {
 		}
 	}
 
-	private static void createCompanyDetails(PdfWriter writer, Document document,  Company company) {
+	private static void createCompanyDetails(PdfWriter writer, Document document, Company company) {
 		try {
 			Font f = Constants.F2;
 			Font f2 = Constants.F1;
 
 			PdfPTable table = new PdfPTable(2);
-			
-			String companyNameStr = StringUtils.isEmpty(company.getName())?"":company.getName();
+
+			String companyNameStr = StringUtils.isEmpty(company.getName()) ? "" : company.getName();
 			Chunk c1 = new Chunk(companyNameStr, f);
 			Phrase companyName = new Phrase(c1);
 			PdfPCell cell_1 = new PdfPCell(companyName);
@@ -417,7 +417,7 @@ public class Modern {
 			cellOne.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellOne);
 
-			String address = StringUtils.isEmpty(company.getAddress())?"":company.getAddress();
+			String address = StringUtils.isEmpty(company.getAddress()) ? "" : company.getAddress();
 			Chunk c2 = new Chunk(address, f2);
 			Phrase comAddress = new Phrase(c2);
 			PdfPCell cell_2 = new PdfPCell(comAddress);
@@ -425,19 +425,19 @@ public class Modern {
 			cell_2.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_2);
 
-			String phone_number = StringUtils.isEmpty(company.getPhone_number())?"":"Phone: "+company.getPhone_number();
-			Chunk c22 = new Chunk( phone_number, f2);
+			String phone_number = StringUtils.isEmpty(company.getPhone_number()) ? "" : "Phone: " + company.getPhone_number();
+			Chunk c22 = new Chunk(phone_number, f2);
 			Phrase phone = new Phrase(c22);
 			PdfPCell cellTwo = new PdfPCell(phone);
 			cellTwo.setBorder(Rectangle.NO_BORDER);
 			cellTwo.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cellTwo);
 
-			String city = StringUtils.isEmpty(company.getCity())?"":company.getCity();
-			String state = StringUtils.isEmpty(company.getState())?"":company.getState();
-			String cityState ="";
-			if(!StringUtils.isEmpty(city)){
-				cityState = city+ ", "+state;
+			String city = StringUtils.isEmpty(company.getCity()) ? "" : company.getCity();
+			String state = StringUtils.isEmpty(company.getState()) ? "" : company.getState();
+			String cityState = "";
+			if (!StringUtils.isEmpty(city)) {
+				cityState = city + ", " + state;
 			}
 			Chunk c3 = new Chunk(cityState, f2);
 			Phrase comCity = new Phrase(c3);
@@ -446,7 +446,7 @@ public class Modern {
 			cell_3.setHorizontalAlignment(Element.ALIGN_LEFT);
 			table.addCell(cell_3);
 
-			String country = StringUtils.isBlank(company.getCountry())?"":company.getCountry();
+			String country = StringUtils.isBlank(company.getCountry()) ? "" : company.getCountry();
 			Chunk c5 = new Chunk(country, f2);
 			Phrase com_country = new Phrase(c5);
 			PdfPCell cell_5 = new PdfPCell(com_country);
@@ -454,7 +454,7 @@ public class Modern {
 			cell_5.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_5);
 
-			String webSiteUrl = PropertyManager.getProperty("site.url", "www.qount.io"); 
+			String webSiteUrl = PropertyManager.getProperty("site.url", "www.qount.io");
 			Chunk c55 = new Chunk(webSiteUrl, f2);
 			Phrase website = new Phrase(c55);
 			PdfPCell cell_55 = new PdfPCell(website);
@@ -498,7 +498,7 @@ public class Modern {
 		try {
 			PdfContentByte cb = writer.getDirectContent();
 			Font f2 = Constants.SUBHEADING_FONT;
-			String defaultFooter = StringUtils.isBlank(invoicePreference.getDefaultFooter())?"":invoicePreference.getDefaultFooter();
+			String defaultFooter = StringUtils.isBlank(invoicePreference.getDefaultFooter()) ? "" : invoicePreference.getDefaultFooter();
 			Chunk c2 = new Chunk(defaultFooter, f2);
 			Phrase p2 = new Phrase(c2);
 			ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p2, (document.right() - document.left()) / 2 + document.leftMargin(), document.bottom() + 120, 0);
@@ -536,7 +536,7 @@ public class Modern {
 			p.setSpacingBefore(-40);
 			document.add(p);
 
-			String name = StringUtils.isBlank(customer.getCustomer_name())?"":customer.getCustomer_name();
+			String name = StringUtils.isBlank(customer.getCustomer_name()) ? "" : customer.getCustomer_name();
 			Font f2 = Constants.F2;
 			Chunk c2 = new Chunk(name, f2);
 			Paragraph p2 = new Paragraph(c2);
@@ -580,7 +580,7 @@ public class Modern {
 			cell_3.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_3);
 
-			String po_number = StringUtils.isBlank(invoice.getPo_number())?"":invoice.getPo_number();
+			String po_number = StringUtils.isBlank(invoice.getNumber()) ? "" : invoice.getNumber();
 			Chunk c4 = new Chunk(po_number, f2);
 			Phrase poNumber = new Phrase(c4);
 			PdfPCell cell_4 = new PdfPCell(poNumber);
@@ -594,7 +594,7 @@ public class Modern {
 			cell_5.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			table.addCell(cell_5);
 
-			String invoice_date = StringUtils.isBlank(invoice.getInvoice_date())?"":invoice.getInvoice_date();
+			String invoice_date = StringUtils.isBlank(invoice.getInvoice_date()) ? "" : invoice.getInvoice_date();
 			Chunk c6 = new Chunk(invoice_date, f2);
 			Phrase invoiceDate = new Phrase(c6);
 			PdfPCell cell_6 = new PdfPCell(invoiceDate);
@@ -608,15 +608,15 @@ public class Modern {
 			cell_7.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_7);
 
-			Chunk c8 = new Chunk(invoice.getAmount_due()+"", f2);
+			Chunk c8 = new Chunk(invoice.getAmount_due() + "", f2);
 			Phrase paymentDue = new Phrase(c8);
 			PdfPCell cell_8 = new PdfPCell(paymentDue);
 			cell_8.setBorder(Rectangle.NO_BORDER);
 			table.addCell(cell_8);
-			
+
 			Currencies currencies = invoice.getCurrencies();
 			String code = "";
-			if(null != currencies){
+			if (null != currencies) {
 				code = currencies.getCode();
 			}
 			Chunk c9 = new Chunk("Amount Due (" + code + "): ", f);

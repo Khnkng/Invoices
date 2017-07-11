@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.qount.invoice.model.Proposal;
 
+
 /**
  * DAO interface for proposalDAOImpl
  * 
@@ -14,14 +15,18 @@ import com.qount.invoice.model.Proposal;
  */
 public interface ProposalDAO {
 
-	public Proposal save(Connection connection, Proposal proposal);
+	public Proposal save(Connection connection, Proposal proposal) throws Exception;;
 
-	public Proposal updateProposal(Connection connection, Proposal proposal);
+	public Proposal update(Connection connection, Proposal proposal) throws Exception;;
 
-	public Proposal get(String proposalID);
+	public Proposal get(String ProposalID) throws Exception;;
 
-	public List<Proposal> getProposalList(String userID);
+	public Proposal delete(Proposal proposal) throws Exception;
 
-	public Proposal delete(Proposal proposal);
+	public boolean deleteLst(String userId, String companyId, String lst) throws Exception;
+
+	public boolean updateState(String userId, String companyId, String lst, String state) throws Exception;
+	
+	public List<Proposal> getProposalList(String userID, String companyID, String state) throws Exception;;
 
 }

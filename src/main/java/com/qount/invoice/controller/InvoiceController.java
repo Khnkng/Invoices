@@ -12,7 +12,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.qount.invoice.controllerImpl.InvoiceControllerImpl;
 import com.qount.invoice.model.Invoice;
@@ -27,19 +29,18 @@ import io.swagger.annotations.ApiOperation;
  *
  */
 @Api(value = "Invoice")
-@Path("/user/{userID}/invoice")
+@Path("/users/{userID}/companies/{companyID}/invoice")
 public class InvoiceController {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
-	@ApiOperation(value = "Create Proposal", notes = "Used to add new proposal"
-			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
-			+ "json = {\"company_id\":\"7e9dc88f-660d-4b6f-88a9-3eaf9006153b\",\"amount\":50000,\"currency\":\"INR\",\"description\":\"testing 1\",\"objectives\":\"testing 1\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"last_updated_by\":\"apurva.khune@qount.io\",\"customer_id\":\"4ab0c48c-5006-4dbe-b0ce-7f0c24ef9bc8\",\"state\":\"unpaid\",\"invoice_date\":\"2017-01-01 11:05:47\",\"acceptance_date\":\"2017-01-03 11:05:47\",\"acceptance_final_date\":\"2017-01-30 11:05:47\",\"notes\":\"notes\",\"discount\":2.3,\"deposit_amount\":1000,\"processing_fees\":10,\"remainder_json\":\"jsno 1\",\"remainder_mail_json\":\"json 2\",\"po_number\":\"po1234\",\"amount_due\":565656,\"recurring_frequency\":\"daily\",\"recurring_frequency_value\":10,\"recurring_start_date\":\"2017-01-02 11:05:47\",\"recurring_end_date\":\"2017-20-02 11:05:47\",\"payment_spring_customer_id\":\"123456\",\"document_id\":\"di1234\",\"is_recurring\":true,\"is_mails_automated\":true,\"is_cc_current_user\":true,\"invoiceLines\":[{\"item_id\":\"07f9ec5e-a808-4962-bd17-9b5957b128c8\",\"description\":\"proposalLine desc\",\"objectives\":\"proposalLine obj\",\"amount\":3000,\"last_updated_by\":\"apurva.khune@qount.io\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"quantity\":45,\"price\":0,\"notes\":\"proposalLine notes\",\"coa_id\":\"04ec2ea5-8f4b-4112-9a37-89a52a6269de\",\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"9.0000\"},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":\"9.0000\"}]},{\"item_id\":\"07f9ec5e-a808-4962-bd17-9b5957b128c8\",\"description\":\"proposalLine desc\",\"objectives\":\"proposalLine obj\",\"amount\":3000,\"currency\":\"INR\",\"last_updated_by\":\"apurva.khune@qount.io\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"quantity\":45,\"price\":0,\"notes\":\"proposalLine notes\",\"coa_id\":\"04ec2ea5-8f4b-4112-9a37-89a52a6269de\",\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"9.0000\"},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":\"9.0000\"}]}],\"invoiceTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"12.8\"}]}"
+	@ApiOperation(value = "Create Invoice", notes = "Used to add new invoice" + "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
+			+ "json = {\"customer_id\":\"4ab0c48c-5006-4dbe-b0ce-7f0c24ef9bc8\",\"recepientsMails\":[\"mateen.khan@qount.io\"],\"number\":\"22222222222\",\"invoice_date\":\"01/25/2017\",\"currency\":\"INR\",\"invoiceLines\":[{\"item_id\":\"07f9ec5e-a808-4962-bd17-9b5957b128c8\",\"description\":\"invoiceLine desc\",\"amount\":3000,\"quantity\":10,\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"9.0000\"},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":\"9.0000\"}],\"price\":300,\"type\":\"task\"},{\"item_id\":\"07f9ec5e-a808-4962-bd17-9b5957b128c8\",\"description\":\"invoiceLine desc\",\"amount\":3000,\"quantity\":10,\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"9.0000\"},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":\"9.0000\"}],\"price\":300,\"type\":\"item\"}],\"notes\":\"notes\",\"term\":\"po1234\",\"payment_options\":\"how can your clients pay you ?\",\"plan_id\":\"b4c25144-bdfb-441a-b92f-392e230c4193\"}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public Invoice createInvoice(@PathParam("userID") String userID, @Valid Invoice invoice) {
-		return InvoiceControllerImpl.createInvoice(userID, invoice);
+	public Invoice createInvoice(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @Valid Invoice invoice) {
+		return InvoiceControllerImpl.createInvoice(userID, companyID, invoice);
 	}
 
 	@Path("/{invoiceID}")
@@ -47,40 +48,72 @@ public class InvoiceController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
-	@ApiOperation(value = "update proposal", notes = "Used to update proposal"
-			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
-			+ "json ={\"company_id\":\"82e6b951-25d9-490c-a8d0-0952a6c53a78\",\"company_name\":\"TestTaxes\",\"amount\":50000,\"currency\":\"INR\",\"description\":\"updated\",\"objectives\":\"updated\",\"last_updated_at\":\"2017-01-17 11:14:35\",\"last_updated_by\":\"apurva.khune@qount.io\",\"customer_id\":\"\",\"customer_name\":\"\",\"customer_email_id\":\"\",\"state\":\"unpaid\",\"invoice_date\":\"2017-02-01 11:05:47\",\"acceptance_date\":\"2017-02-06 11:00:00\",\"acceptance_final_date\":\"2017-02-28 12:00:00\",\"notes\":\"updated notes\",\"item_id\":\"07f9ec5e-a808-4962-bd17-9b5957b128c8\",\"item_name\":\"White Cards\",\"coa_id\":\"04ec2ea5-8f4b-4112-9a37-89a52a6269de\",\"coa_name\":\"Office Expenses\",\"discount\":2.3,\"deposit_amount\":1000,\"processing_fees\":10,\"remainder_json\":\"sample json 1\",\"remainder_mail_json\":\"sample json 2\",\"recurring_frequency\":\"weekly\",\"recurring_frequency_value\":10,\"recurring_start_date\":\"2017-02-07 11:00:00\",\"recurring_end_date\":\"2017-02-28 11:00:00\",\"payment_spring_customer_id\":\"123456\",\"po_number\":\"po1234\",\"document_id\":\"di1234\",\"amount_due\":90000,\"is_recurring\":true,\"is_mails_automated\":true,\"is_cc_current_user\":true,\"invoiceTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"89\"}]}"
+	@ApiOperation(value = "update invoice", notes = "Used to update invoice" + "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
+			+ "json ={\"customer_id\":\"4ab0c48c-5006-4dbe-b0ce-7f0c24ef9bc8\",\"recepientsMails\":[\"mateen.khan@qount.io\"],\"number\":\"22222222222\",\"invoice_date\":\"01/25/2017\",\"currency\":\"INR\",\"invoiceLines\":[{\"item_id\":\"07f9ec5e-a808-4962-bd17-9b5957b128c8\",\"description\":\"invoiceLine desc\",\"amount\":3000,\"quantity\":10,\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"9.0000\"},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":\"9.0000\"}],\"price\":300,\"type\":\"task\"},{\"item_id\":\"07f9ec5e-a808-4962-bd17-9b5957b128c8\",\"description\":\"invoiceLine desc\",\"amount\":3000,\"quantity\":10,\"invoiceLineTaxes\":[{\"tax_id\":\"07b64e12-d4de-47c2-86ac-5f7245a16f7d\",\"tax_rate\":\"9.0000\"},{\"tax_id\":\"207a247a-6bc0-42e3-b3e6-237a69c19b02\",\"tax_rate\":\"9.0000\"}],\"price\":300,\"type\":\"item\"}],\"notes\":\"notes\",\"term\":\"po1234\",\"payment_options\":\"how can your clients pay you ?\",\"plan_id\":\"b4c25144-bdfb-441a-b92f-392e230c4193\"}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public Invoice updateInvoices(@PathParam("userID") String userID, @PathParam("invoiceID") @NotNull String invoiceID,
+	public Invoice updateInvoices(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID,
 			@Valid Invoice invoice) {
-		return InvoiceControllerImpl.updateInvoice(userID, invoiceID, invoice);
+		return InvoiceControllerImpl.updateInvoice(userID, companyID, invoiceID, invoice);
+	}
+
+	@Path("/{invoiceID}/state")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@NotNull(message = "Invalid Request")
+	@ApiOperation(value = "update invoice", notes = "Used to update invoice state" + "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
+			+ "json ={\"state\":\"sent\"}" + "</div>", responseContainer = "java.lang.String")
+	public Invoice updateInvoiceState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID,
+			@Valid Invoice invoice) {
+		return InvoiceControllerImpl.updateInvoiceState(invoiceID, invoice, userID, companyID);
 	}
 
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(notes = "Used to retieve proposals of company", value = "retieves proposals", responseContainer = "java.lang.String")
-	public List<Invoice> getInvoices(@PathParam("userID") @NotNull String userID) {
-		return InvoiceControllerImpl.getInvoices(userID);
+	@ApiOperation(notes = "Used to retieve invoices of company", value = "retieves invoices", responseContainer = "java.lang.String")
+	public Response getInvoices(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @QueryParam("state") String state) {
+		return InvoiceControllerImpl.getInvoices(userID, companyID, state);
+	}
+	
+	@Path("/client/{clientID}")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(notes = "Used to retieve invoices belongs to a client", value = "retieves invoices", responseContainer = "java.lang.String")
+	public List<Invoice> getInvoicesByClientId(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("clientID") @NotNull String clientID) {
+		return InvoiceControllerImpl.getInvoicesByClientID(userID, companyID, clientID);
 	}
 
 	@Path("/{invoiceID}")
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(notes = "Used to retieve proposal of company", value = "retieves proposal", responseContainer = "java.lang.String")
-	public Invoice getProposal(@PathParam("userID") @NotNull String userID,
-			@PathParam("invoiceID") @NotNull String invoiceID) {
-		return InvoiceControllerImpl.getInvoice(userID, invoiceID);
+	@ApiOperation(notes = "Used to retieve invoice of company", value = "retieves invoice", responseContainer = "java.lang.String")
+	public Invoice getProposal(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID) {
+		return InvoiceControllerImpl.getInvoice(invoiceID);
 	}
 
 	@DELETE
 	@Path("/{invoiceID}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Delete expense", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
-	public Invoice deleteInvoiceById(@PathParam("userID") String userID,
-			@PathParam("invoiceID") @NotNull String invoiceID) {
-		return InvoiceControllerImpl.deleteInvoiceById(userID, invoiceID);
+	@ApiOperation(value = "Delete invoice", notes = "Used to delete a invoice.<br>", responseContainer = "java.lang.String")
+	public Invoice deleteInvoiceById(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID) {
+		return InvoiceControllerImpl.deleteInvoiceById(userID, companyID, invoiceID);
+	}
+
+	@POST
+	@Path("/delete")
+	@ApiOperation(value = "Delete invoices", notes = "Used to delete invoices.<br>", responseContainer = "java.lang.String")
+	public boolean deleteInvoicesById(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, List<String> ids) {
+		return InvoiceControllerImpl.deleteInvoicesById(userID, companyID, ids);
+	}
+
+	@PUT
+	@Path("/sent")
+	@ApiOperation(value = "update state invoices", notes = "Used to update invocie states.<br>", responseContainer = "java.lang.String")
+	public boolean udpateInvoicesByState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, List<String> ids) {
+		return InvoiceControllerImpl.updateInvoicesAsSent(userID, companyID, ids);
 	}
 
 }

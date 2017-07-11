@@ -193,7 +193,11 @@
 			<version>${itextpdf-version}</version>
 		</dependency>
 		<!-- itext pdf end -->
-
+			<dependency>
+    <groupId>com.moesif.servlet</groupId>
+    <artifactId>moesif-servlet</artifactId>
+    <version>1.1.0</version>
+</dependency>
 
 	</dependencies>
 	<build>

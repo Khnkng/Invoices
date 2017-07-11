@@ -1,7 +1,6 @@
 package com.qount.invoice.parser;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.ResponseUtil;
@@ -72,27 +70,11 @@ public class ProposalLineParser {
 		return proposalLine;
 	}
 
-	public static List<ProposalLineTaxes> getProposalLineTaxesList(List<ProposalLine> proposalLinesList) {
-		List<ProposalLineTaxes> result = new ArrayList<ProposalLineTaxes>();
-		Iterator<ProposalLine> ProposalLineItr = proposalLinesList.iterator();
-		while (ProposalLineItr.hasNext()) {
-			ProposalLine proposalLine = ProposalLineItr.next();
-			List<ProposalLineTaxes> lineTaxesList = proposalLine.getProposalLineTaxes();
-			Iterator<ProposalLineTaxes> ProposalLineTaxesItr = lineTaxesList.iterator();
-			while (ProposalLineTaxesItr.hasNext()) {
-				ProposalLineTaxes proposalLineTaxes = ProposalLineTaxesItr.next();
-				proposalLineTaxes.setProposal_line_id(proposalLine.getId());
-				result.add(proposalLineTaxes);
-			}
-		}
-		return result;
-	}
-
 	public static ProposalLine getProposalLineObjToDelete(String proposalLineID) {
 		try {
 			if (StringUtils.isEmpty(proposalLineID)) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS,
-						Constants.PRECONDITION_FAILED, Status.PRECONDITION_FAILED));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			ProposalLine proposalLine = new ProposalLine();
 			proposalLine.setId(proposalLineID);

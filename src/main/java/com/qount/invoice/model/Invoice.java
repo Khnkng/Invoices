@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.json.JSONArray;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @XmlRootElement
 public class Invoice {
+	
 	private String id;
 	private String user_id;
 	private String company_id;
@@ -26,33 +29,201 @@ public class Invoice {
 	private String customer_id;
 	private String state;
 	private String invoice_date;
-	private String acceptance_date;
-	private String acceptance_final_date;
 	private String notes;
 	private double discount;
 	private double deposit_amount;
 	private double processing_fees;
-	private String remainder_json;
-	private String remainder_mail_json;
 	private boolean is_recurring;
-	private String recurring_frequency;
-	private double recurring_frequency_value;
-	private String recurring_start_date;
-	private String recurring_end_date;
-	private boolean is_mails_automated;
-	private boolean is_cc_current_user;
-	private String payment_spring_customer_id;
-	private int number;
-	private String po_number;
+	private String number;
 	private String document_id;
 	private List<InvoiceLine> invoiceLines;
-	private List<InvoiceTaxes> invoiceTaxes;
 	private double amount_due;
-	private String payment_date;
+	private String due_date;
 	private double sub_totoal;
 	private double amount_by_date;
 	private Currencies currencies;
+	private String action;
+	private String actionType;
+	private String created_at;
+	private String payment_spring_token;
+	private String ends_after;
+	private String plan_id;
+	private String amountToPay;
+	private double amount_paid;
+	private Customer customer;
+	private String companyName;
+	private String term;
+	private boolean sendMail;
+	private List<String> recepientsMails;
+	private JSONArray recepientsMailsArr;
+	private String payment_options;
+	private String send_to;
+	private String email_state;
+	private String refrence_number;
+	private String payment_method;
+	private Company company;
+	private CustomerContactDetails customerContactDetails;
 	
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
+	public CustomerContactDetails getCustomerContactDetails() {
+		return customerContactDetails;
+	}
+
+	public void setCustomerContactDetails(CustomerContactDetails customerContactDetails) {
+		this.customerContactDetails = customerContactDetails;
+	}
+
+	public String getPayment_method() {
+		return payment_method;
+	}
+
+	public void setPayment_method(String payment_method) {
+		this.payment_method = payment_method;
+	}
+
+	public String getRefrence_number() {
+		return refrence_number;
+	}
+
+	public void setRefrence_number(String refrence_number) {
+		this.refrence_number = refrence_number;
+	}
+
+	public String getEmail_state() {
+		return email_state;
+	}
+
+	public void setEmail_state(String email_state) {
+		this.email_state = email_state;
+	}
+
+	public String getSend_to() {
+		return send_to;
+	}
+
+	public void setSend_to(String send_to) {
+		this.send_to = send_to;
+	}
+
+	public String getPayment_options() {
+		return payment_options;
+	}
+
+	public void setPayment_options(String payment_options) {
+		this.payment_options = payment_options;
+	}
+
+	public List<String> getRecepientsMails() {
+		return recepientsMails;
+	}
+
+	public void setRecepientsMails(List<String> recepientsMails) {
+		this.recepientsMails = recepientsMails;
+	}
+
+	public JSONArray getRecepientsMailsArr() {
+		return recepientsMailsArr;
+	}
+
+	public void setRecepientsMailsArr(JSONArray recepientsMailsArr) {
+		this.recepientsMailsArr = recepientsMailsArr;
+	}
+
+	public boolean isSendMail() {
+		return sendMail;
+	}
+
+	public void setSendMail(boolean sendMail) {
+		this.sendMail = sendMail;
+	}
+
+	public String getTerm() {
+		return term;
+	}
+
+	public void setTerm(String term) {
+		this.term = term;
+	}
+
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+	public double getAmount_paid() {
+		return amount_paid;
+	}
+
+	public void setAmount_paid(double amount_paid) {
+		this.amount_paid = amount_paid;
+	}
+
+	public String getAmountToPay() {
+		return amountToPay;
+	}
+
+	public void setAmountToPay(String amountToPay) {
+		this.amountToPay = amountToPay;
+	}
+
+	public String getPlan_id() {
+		return plan_id;
+	}
+
+	public void setPlan_id(String plan_id) {
+		this.plan_id = plan_id;
+	}
+
+	public String getEnds_after() {
+		return ends_after;
+	}
+
+	public void setEnds_after(String ends_after) {
+		this.ends_after = ends_after;
+	}
+
+	public String getActionType() {
+		return actionType;
+	}
+
+	public void setActionType(String actionType) {
+		this.actionType = actionType;
+	}
+
+	public String getPayment_spring_token() {
+		return payment_spring_token;
+	}
+
+	public void setPayment_spring_token(String payment_spring_token) {
+		this.payment_spring_token = payment_spring_token;
+	}
+
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+
 	public Currencies getCurrencies() {
 		return currencies;
 	}
@@ -69,12 +240,12 @@ public class Invoice {
 		this.customer_id = customer_id;
 	}
 
-	public String getPayment_date() {
-		return payment_date;
+	public String getDue_date() {
+		return due_date;
 	}
 
-	public void setPayment_date(String payment_date) {
-		this.payment_date = payment_date;
+	public void setDue_date(String due_date) {
+		this.due_date = due_date;
 	}
 
 	public double getSub_totoal() {
@@ -181,22 +352,6 @@ public class Invoice {
 		this.state = state;
 	}
 
-	public String getAcceptance_date() {
-		return acceptance_date;
-	}
-
-	public void setAcceptance_date(String acceptance_date) {
-		this.acceptance_date = acceptance_date;
-	}
-
-	public String getAcceptance_final_date() {
-		return acceptance_final_date;
-	}
-
-	public void setAcceptance_final_date(String acceptance_final_date) {
-		this.acceptance_final_date = acceptance_final_date;
-	}
-
 	public String getNotes() {
 		return notes;
 	}
@@ -229,22 +384,6 @@ public class Invoice {
 		this.processing_fees = processing_fees;
 	}
 
-	public String getRemainder_json() {
-		return remainder_json;
-	}
-
-	public void setRemainder_json(String remainder_json) {
-		this.remainder_json = remainder_json;
-	}
-
-	public String getRemainder_mail_json() {
-		return remainder_mail_json;
-	}
-
-	public void setRemainder_mail_json(String remainder_mail_json) {
-		this.remainder_mail_json = remainder_mail_json;
-	}
-
 	public boolean is_recurring() {
 		return is_recurring;
 	}
@@ -253,76 +392,12 @@ public class Invoice {
 		this.is_recurring = is_recurring;
 	}
 
-	public String getRecurring_frequency() {
-		return recurring_frequency;
-	}
-
-	public void setRecurring_frequency(String recurring_frequency) {
-		this.recurring_frequency = recurring_frequency;
-	}
-
-	public double getRecurring_frequency_value() {
-		return recurring_frequency_value;
-	}
-
-	public void setRecurring_frequency_value(double recurring_frequency_value) {
-		this.recurring_frequency_value = recurring_frequency_value;
-	}
-
-	public String getRecurring_start_date() {
-		return recurring_start_date;
-	}
-
-	public void setRecurring_start_date(String recurring_start_date) {
-		this.recurring_start_date = recurring_start_date;
-	}
-
-	public String getRecurring_end_date() {
-		return recurring_end_date;
-	}
-
-	public void setRecurring_end_date(String recurring_end_date) {
-		this.recurring_end_date = recurring_end_date;
-	}
-
-	public boolean is_mails_automated() {
-		return is_mails_automated;
-	}
-
-	public void setIs_mails_automated(boolean is_mails_automated) {
-		this.is_mails_automated = is_mails_automated;
-	}
-
-	public boolean is_cc_current_user() {
-		return is_cc_current_user;
-	}
-
-	public void setIs_cc_current_user(boolean is_cc_current_user) {
-		this.is_cc_current_user = is_cc_current_user;
-	}
-
-	public String getPayment_spring_customer_id() {
-		return payment_spring_customer_id;
-	}
-
-	public void setPayment_spring_customer_id(String payment_spring_customer_id) {
-		this.payment_spring_customer_id = payment_spring_customer_id;
-	}
-
-	public int getNumber() {
+	public String getNumber() {
 		return number;
 	}
 
-	public void setNumber(int number) {
+	public void setNumber(String number) {
 		this.number = number;
-	}
-
-	public String getPo_number() {
-		return po_number;
-	}
-
-	public void setPo_number(String po_number) {
-		this.po_number = po_number;
 	}
 
 	public String getDocument_id() {
@@ -341,20 +416,20 @@ public class Invoice {
 		this.invoiceLines = invoiceLines;
 	}
 
-	public List<InvoiceTaxes> getInvoiceTaxes() {
-		return invoiceTaxes;
-	}
-
-	public void setInvoiceTaxes(List<InvoiceTaxes> invoiceTaxes) {
-		this.invoiceTaxes = invoiceTaxes;
-	}
-
 	public double getAmount_by_date() {
 		return amount_by_date;
 	}
 
 	public void setAmount_by_date(double amount_by_date) {
 		this.amount_by_date = amount_by_date;
+	}
+
+	public String getCreated_at() {
+		return created_at;
+	}
+
+	public void setCreated_at(String created_at) {
+		this.created_at = created_at;
 	}
 
 	@Override
@@ -367,4 +442,8 @@ public class Invoice {
 		return super.toString();
 	}
 
+	public static void main(String[] args) {
+		System.out.println(new Invoice());
+	}
+	
 }

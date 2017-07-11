@@ -1,10 +1,10 @@
 package com.qount.invoice.model;
 
-import java.util.ArrayList;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
@@ -16,7 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 public class InvoiceLine {
 
 	private String id;
+	private Item item;
 	private String item_id;
+	private String item_name;
 	private String invoice_id;
 	private String description;
 	private String objectives;
@@ -26,15 +28,32 @@ public class InvoiceLine {
 	private double quantity;
 	private double price;
 	private String notes;
-	private String coa_id;
-	private ArrayList<InvoiceLineTaxes> invoiceLineTaxes;
+	private Coa coa;
+	private String type;
+	private String tax_id;
 
-	public String getCoa_id() {
-		return coa_id;
+	public String getTax_id() {
+		return tax_id;
 	}
 
-	public void setCoa_id(String coa_id) {
-		this.coa_id = coa_id;
+	public void setTax_id(String tax_id) {
+		this.tax_id = tax_id;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getItem_name() {
+		return item_name;
+	}
+
+	public void setItem_name(String item_name) {
+		this.item_name = item_name;
 	}
 
 	public String getItem_id() {
@@ -43,6 +62,22 @@ public class InvoiceLine {
 
 	public void setItem_id(String item_id) {
 		this.item_id = item_id;
+	}
+
+	public Item getItem() {
+		return item;
+	}
+
+	public void setItem(Item item) {
+		this.item = item;
+	}
+
+	public Coa getCoa() {
+		return coa;
+	}
+
+	public void setCoa(Coa coa) {
+		this.coa = coa;
 	}
 
 	public String getId() {
@@ -125,14 +160,6 @@ public class InvoiceLine {
 		this.notes = notes;
 	}
 
-	public ArrayList<InvoiceLineTaxes> getInvoiceLineTaxes() {
-		return invoiceLineTaxes;
-	}
-
-	public void setInvoiceLineTaxes(ArrayList<InvoiceLineTaxes> invoiceLineTaxes) {
-		this.invoiceLineTaxes = invoiceLineTaxes;
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		try {
@@ -148,4 +175,13 @@ public class InvoiceLine {
 		return super.equals(obj);
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
 }

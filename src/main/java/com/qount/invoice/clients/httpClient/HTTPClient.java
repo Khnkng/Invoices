@@ -17,6 +17,8 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.qount.invoice.utils.CommonUtils;
+
 public class HTTPClient {
 
 	private static final Logger LOGGER = Logger.getLogger(HTTPClient.class);
@@ -29,7 +31,7 @@ public class HTTPClient {
 	 * @param payload
 	 * @return
 	 */
-	public static JSONObject post(String url, String payload) {
+	public static JSONObject post(String url, String payload) throws Exception{
 		JSONObject responseJSON = null;
 		CloseableHttpResponse responseEntity = null;
 		try {
@@ -46,8 +48,47 @@ public class HTTPClient {
 				responseJSON = new JSONObject(response);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("Error calling service", e);
+			throw e;
+		} finally {
+			if (responseEntity != null) {
+				try {
+					responseEntity.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return responseJSON;
+	}
+	
+	/**
+	 * 
+	 * @param url
+	 * @param payload
+	 * @return
+	 */
+	public static Object postObject(String url, String payload) throws Exception{
+		JSONObject responseJSON = null;
+		CloseableHttpResponse responseEntity = null;
+		try {
+			HttpPost post = new HttpPost(url);
+			post.addHeader("Content-Type", "application/json");
+			post.setEntity(new StringEntity(payload));
+			responseEntity = HTTPCLIENT.execute(post);
+			HttpEntity entity = responseEntity.getEntity();
+			StringWriter writer = new StringWriter();
+			IOUtils.copy(entity.getContent(), writer);
+			EntityUtils.consume(entity);
+			String response = writer.toString();
+			if (StringUtils.isNotBlank(response)) {
+				responseJSON = CommonUtils.getJsonFromString(response);
+				if(!CommonUtils.isValidJSON(responseJSON)){
+					return response;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error calling service", e);
+			throw e;
 		} finally {
 			if (responseEntity != null) {
 				try {

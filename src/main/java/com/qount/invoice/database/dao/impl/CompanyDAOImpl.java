@@ -42,7 +42,7 @@ public class CompanyDAOImpl implements CompanyDAO {
 				pstmt = conn.prepareStatement(SqlQuerys.Company.GET_QRY);
 				pstmt.setString(1, company.getId());
 				rset = pstmt.executeQuery();
-				while (rset.next()) {
+				if (rset.next()) {
 					company.setId(rset.getString("id"));
 					company.setName(rset.getString("name"));
 					company.setEin(rset.getString("ein"));

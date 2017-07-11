@@ -7,6 +7,8 @@ package com.qount.invoice.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class UserCompany implements Cloneable {
 
 	private String userID;
@@ -200,4 +202,13 @@ public class UserCompany implements Cloneable {
 		return super.clone();
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
 }

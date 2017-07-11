@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -12,9 +13,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalDAO;
+import com.qount.invoice.model.Coa;
+import com.qount.invoice.model.Currencies;
+import com.qount.invoice.model.Customer;
+import com.qount.invoice.model.Item;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
-import com.qount.invoice.model.ProposalLineTaxes;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
@@ -38,8 +42,8 @@ public class ProposalDAOImpl implements ProposalDAO {
 		return proposalDAOImpl;
 	}
 
-	@Override
-	public Proposal save(Connection connection, Proposal proposal) {
+	public Proposal save(Connection connection, Proposal proposal) throws Exception {
+		LOGGER.debug("entered save(proposal):" + proposal);
 		if (proposal == null) {
 			return null;
 		}
@@ -51,6 +55,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setString(ctr++, proposal.getId());
 				pstmt.setString(ctr++, proposal.getUser_id());
 				pstmt.setString(ctr++, proposal.getCompany_id());
+				pstmt.setString(ctr++, proposal.getCustomer_id());
 				pstmt.setDouble(ctr++, proposal.getAmount());
 				pstmt.setString(ctr++, proposal.getCurrency());
 				pstmt.setString(ctr++, proposal.getDescription());
@@ -59,15 +64,23 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setString(ctr++, proposal.getLast_updated_at());
 				pstmt.setString(ctr++, proposal.getState());
 				pstmt.setString(ctr++, proposal.getProposal_date());
-				pstmt.setString(ctr++, proposal.getAcceptance_date());
-				pstmt.setString(ctr++, proposal.getAcceptance_final_date());
 				pstmt.setString(ctr++, proposal.getNotes());
 				pstmt.setDouble(ctr++, proposal.getDiscount());
 				pstmt.setDouble(ctr++, proposal.getDeposit_amount());
 				pstmt.setDouble(ctr++, proposal.getProcessing_fees());
-				pstmt.setString(ctr++, proposal.getRemainder_json());
-				pstmt.setString(ctr++, proposal.getRemainder_mail_json());
+				pstmt.setString(ctr++, proposal.getNumber());
+				pstmt.setString(ctr++, proposal.getDocument_id());
+				pstmt.setDouble(ctr++, proposal.getSub_totoal());
 				pstmt.setDouble(ctr++, proposal.getAmount_by_date());
+				pstmt.setString(ctr++, proposal.getCreated_at());
+				pstmt.setString(ctr++, proposal.getTerm());
+				pstmt.setLong(ctr++, new Date().getTime());
+				pstmt.setString(ctr++, proposal.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, proposal.getPlan_id());
+				pstmt.setBoolean(ctr++, proposal.is_recurring());
+				pstmt.setString(ctr++, proposal.getEmail_state());
+				pstmt.setString(ctr++, proposal.getSend_to());
+				pstmt.setString(ctr++, proposal.getDue_date());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -77,17 +90,18 @@ public class ProposalDAOImpl implements ProposalDAO {
 			LOGGER.error("Error inserting proposal:" + proposal.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error(e);
-			throw new WebApplicationException(e);
+			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited save(proposal):" + proposal);
 		}
 		return proposal;
 	}
 
 	@Override
-	public Proposal updateProposal(Connection connection, Proposal proposal) {
+	public Proposal update(Connection connection, Proposal proposal) throws Exception {
+		LOGGER.debug("entered proposal update:" + proposal);
 		if (proposal == null) {
 			return null;
 		}
@@ -98,6 +112,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.Proposal.UPDATE_QRY);
 				pstmt.setString(ctr++, proposal.getUser_id());
 				pstmt.setString(ctr++, proposal.getCompany_id());
+				pstmt.setString(ctr++, proposal.getCustomer_id());
 				pstmt.setDouble(ctr++, proposal.getAmount());
 				pstmt.setString(ctr++, proposal.getCurrency());
 				pstmt.setString(ctr++, proposal.getDescription());
@@ -106,15 +121,21 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setString(ctr++, proposal.getLast_updated_at());
 				pstmt.setString(ctr++, proposal.getState());
 				pstmt.setString(ctr++, proposal.getProposal_date());
-				pstmt.setString(ctr++, proposal.getAcceptance_date());
-				pstmt.setString(ctr++, proposal.getAcceptance_final_date());
 				pstmt.setString(ctr++, proposal.getNotes());
 				pstmt.setDouble(ctr++, proposal.getDiscount());
 				pstmt.setDouble(ctr++, proposal.getDeposit_amount());
 				pstmt.setDouble(ctr++, proposal.getProcessing_fees());
-				pstmt.setString(ctr++, proposal.getRemainder_json());
-				pstmt.setString(ctr++, proposal.getRemainder_mail_json());
+				pstmt.setString(ctr++, proposal.getNumber());
+				pstmt.setString(ctr++, proposal.getDocument_id());
+				pstmt.setDouble(ctr++, proposal.getSub_totoal());
 				pstmt.setDouble(ctr++, proposal.getAmount_by_date());
+				pstmt.setString(ctr++, proposal.getTerm());
+				pstmt.setString(ctr++, proposal.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, proposal.getPlan_id());
+				pstmt.setBoolean(ctr++, proposal.is_recurring());
+				pstmt.setString(ctr++, proposal.getEmail_state());
+				pstmt.setString(ctr++, proposal.getSend_to());
+				pstmt.setString(ctr++, proposal.getDue_date());
 				pstmt.setString(ctr++, proposal.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -125,18 +146,20 @@ public class ProposalDAOImpl implements ProposalDAO {
 			LOGGER.error("Error updating proposal:" + proposal.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error(e);
-			throw new WebApplicationException(e);
+			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited proposal update:" + proposal);
 		}
 		return proposal;
 	}
 
 	@Override
-	public Proposal get(String proposalID) {
-		Proposal proposal = new Proposal();
+	public Proposal get(String proposalID) throws Exception {
+		LOGGER.debug("entered get by proposal id:" + proposalID);
+		Proposal proposal = null;
+		Customer customer = null;
 		List<ProposalLine> proposalLines = new ArrayList<ProposalLine>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -144,44 +167,47 @@ public class ProposalDAOImpl implements ProposalDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				proposal.setProposalLines(proposalLines);
 				pstmt = connection.prepareStatement(SqlQuerys.Proposal.GET_QRY);
 				pstmt.setString(1, proposalID);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
+					if (proposal == null) {
+						proposal = new Proposal();
+						customer = new Customer();
+						proposal.setCustomer(customer);
+						proposal.setProposalLines(proposalLines);
+					}
 					ProposalLine proposalLine = new ProposalLine();
-					proposalLine.setId(rset.getString("plid"));
+					proposalLine.setId(rset.getString("il_id"));
 					int proposalLineIndex = proposal.getProposalLines().indexOf(proposalLine);
-					if (proposalLineIndex != -1) {
-						proposalLine = proposal.getProposalLines().get(proposalLineIndex);
-						ProposalLineTaxes proposalLineTax = new ProposalLineTaxes();
-						proposalLineTax.setProposal_line_id(rset.getString("plt_proposal_line_id"));
-						proposalLineTax.setTax_id(rset.getString("plt_tax_id"));
-						proposalLineTax.setTax_rate(rset.getDouble("plt_tax_rate"));
-						proposalLine.getProposalLineTaxes().add(proposalLineTax);
-					} else if (proposalLineIndex == -1) {
-						proposalLine.setProposal_id(rset.getString("proposal_id"));
-						proposalLine.setDescription(rset.getString("pl_description"));
-						proposalLine.setObjectives(rset.getString("pl_objectives"));
-						proposalLine.setAmount(rset.getDouble("pl_amount"));
-						proposalLine.setCurrency(rset.getString("pl_currency"));
-						proposalLine.setLast_updated_at(rset.getString("pl_last_updated_at"));
-						proposalLine.setLast_updated_by(rset.getString("pl_last_updated_by"));
-						proposalLine.setQuantity(rset.getLong("pl_quantity"));
-						proposalLine.setPrice(rset.getDouble("pl_price"));
-						proposalLine.setNotes(rset.getString("pl_notes"));
-						ProposalLineTaxes proposalLineTax = new ProposalLineTaxes();
-						proposalLineTax.setProposal_line_id(rset.getString("plt_proposal_line_id"));
-						proposalLineTax.setTax_id(rset.getString("plt_tax_id"));
-						proposalLineTax.setTax_rate(rset.getDouble("plt_tax_rate"));
-						List<ProposalLineTaxes> proposalLineTaxes = new ArrayList<ProposalLineTaxes>();
-						proposalLineTaxes.add(proposalLineTax);
-						proposalLine.setProposalLineTaxes(proposalLineTaxes);
+					if (proposalLineIndex == -1) {
+						proposalLine.setProposal_id(rset.getString("il_proposal_id"));
+						proposalLine.setDescription(rset.getString("il_description"));
+						Item item = new Item();
+						item.setId(rset.getString("il_item_id"));
+						item.setName(rset.getString("il_item_name"));
+						proposalLine.setItem(item);
+						proposalLine.setItem_id(item.getId());
+						Coa coa = new Coa();
+						coa.setId(rset.getString("il_item_id"));
+						coa.setName(rset.getString("il_coa_name"));
+						proposalLine.setCoa(coa);
+						proposalLine.setObjectives(rset.getString("il_objectives"));
+						proposalLine.setTax_id(rset.getString("il_tax_id"));
+						proposalLine.setAmount(rset.getDouble("il_amount"));
+						proposalLine.setLast_updated_at(rset.getString("il_last_updated_at"));
+						proposalLine.setLast_updated_by(rset.getString("il_last_updated_by"));
+						proposalLine.setQuantity(rset.getLong("il_quantity"));
+						proposalLine.setPrice(rset.getDouble("il_price"));
+						proposalLine.setNotes(rset.getString("il_notes"));
+						proposalLine.setType(rset.getString("il_type"));
 						proposal.getProposalLines().add(proposalLine);
 						if (StringUtils.isBlank(proposal.getId())) {
 							proposal.setId(rset.getString("id"));
+							proposal.setIs_recurring(rset.getBoolean("is_recurring"));
 							proposal.setUser_id(rset.getString("user_id"));
 							proposal.setCompany_id(rset.getString("company_id"));
+							proposal.setCustomer_id(rset.getString("customer_id"));
 							proposal.setAmount(rset.getDouble("amount"));
 							proposal.setCurrency(rset.getString("currency"));
 							proposal.setDescription(rset.getString("description"));
@@ -190,81 +216,96 @@ public class ProposalDAOImpl implements ProposalDAO {
 							proposal.setLast_updated_at(rset.getString("last_updated_at"));
 							proposal.setState(rset.getString("state"));
 							proposal.setProposal_date(rset.getString("proposal_date"));
-							proposal.setAcceptance_date(rset.getString("acceptance_date"));
 							proposal.setNotes(rset.getString("notes"));
-							proposal.setDiscount(rset.getDouble("discount"));
+							proposal.setDiscount(rset.getLong("discount"));
 							proposal.setDeposit_amount(rset.getDouble("deposit_amount"));
 							proposal.setProcessing_fees(rset.getDouble("processing_fees"));
-							proposal.setRemainder_json(rset.getString("remainder_json"));
-							proposal.setRemainder_mail_json(rset.getString("remainder_mail_json"));
+							proposal.setNumber(rset.getString("number"));
+							proposal.setDocument_id(rset.getString("document_id"));
+							proposal.setSub_totoal(rset.getDouble("sub_totoal"));
 							proposal.setAmount_by_date(rset.getDouble("amount_by_date"));
+							proposal.setCreated_at(rset.getString("created_at"));
+							proposal.setTerm(rset.getString("term"));
+							proposal.setRecepientsMails(CommonUtils.getListString(rset.getString("recepients_mails")));
+							proposal.setPlan_id(rset.getString("plan_id"));
+							proposal.setIs_recurring(rset.getBoolean("is_recurring"));
+							proposal.setEmail_state(rset.getString("email_state"));
+							proposal.setSend_to(rset.getString("send_to"));
+							customer.setCustomer_id(rset.getString("customer_id"));
+							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
+							customer.setCustomer_name(rset.getString("customer_name"));
+							customer.setCard_name(rset.getString("card_name"));
+							Currencies currencies_2 = new Currencies();
+							currencies_2.setCode(rset.getString("code"));
+							currencies_2.setName(rset.getString("name"));
+							currencies_2.setHtml_symbol(rset.getString("html_symbol"));
+							currencies_2.setJava_symbol(rset.getString("java_symbol"));
+							proposal.setCurrencies(currencies_2);
 						}
 					}
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error fetching proposal for id [ " + proposalID + " ]", e);
-			return null;
+			LOGGER.error("Error fetching proposal for proposalID [ " + proposalID + " ]", e);
+			throw e;
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
-		}
-		if (StringUtils.isBlank(proposal.getId())) {
-			return null;
+			LOGGER.debug("exited get by proposal id:" + proposalID);
 		}
 		return proposal;
+
 	}
 
 	@Override
-	public List<Proposal> getProposalList(String user_id) {
-		List<Proposal> proposals = new ArrayList<>();
+	public List<Proposal> getProposalList(String userID, String companyID, String state) throws Exception {
+		LOGGER.debug("entered getProposalList userID:" + userID + " companyID:" + companyID + "state:" + state);
+		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
+			throw new WebApplicationException("userID or companyID cannot be empty");
+		}
+		List<Proposal> proposalLst = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Connection connection = null;
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(SqlQuerys.Proposal.GET_PROPOSAL_LIST_QRY);
-				pstmt.setString(1, user_id);
+				String query = SqlQuerys.Proposal.GET_PROPOSAL_LIST_QRY;
+				query += "`user_id`='" + userID + "' AND `company_id`= '" + companyID + "' ";
+				if (!StringUtils.isEmpty(state)) {
+					query += "AND state='" + state + "'";
+				}
+				pstmt = connection.prepareStatement(query);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					Proposal proposal = new Proposal();
+					proposal.setNumber(rset.getString("number"));
 					proposal.setId(rset.getString("id"));
-					proposal.setUser_id(rset.getString("user_id"));
-					proposal.setCompany_id(rset.getString("company_id"));
+					proposal.setProposal_date(rset.getString("proposal_date"));
 					proposal.setAmount(rset.getDouble("amount"));
 					proposal.setCurrency(rset.getString("currency"));
-					proposal.setDescription(rset.getString("description"));
-					proposal.setObjectives(rset.getString("objectives"));
-					proposal.setLast_updated_at(rset.getString("last_updated_at"));
-					proposal.setLast_updated_by(rset.getString("last_updated_by"));
 					proposal.setState(rset.getString("state"));
-					proposal.setProposal_date(rset.getString("proposal_date"));
-					proposal.setAcceptance_date(rset.getString("acceptance_date"));
-					proposal.setAcceptance_final_date(rset.getString("acceptance_final_date"));
-					proposal.setNotes(rset.getString("notes"));
-					proposal.setDiscount(rset.getDouble("discount"));
-					proposal.setDeposit_amount(rset.getDouble("deposit_amount"));
-					proposal.setProcessing_fees(rset.getDouble("processing_fees"));
-					proposal.setRemainder_json(rset.getString("remainder_json"));
-					proposal.setRemainder_mail_json(rset.getString("remainder_mail_json"));
-					proposal.setAmount_by_date(rset.getDouble("amount_by_date"));
-					proposals.add(proposal);
+					proposal.setDue_date(rset.getString("due_date"));
+					proposalLst.add(proposal);
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error fetching proposals for user_id [ " + user_id + " ]", e);
+			LOGGER.error("Error fetching proposals for user_id [ " + userID + " ]", e);
+			throw e;
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited getProposalList userID:" + userID + " companyID:" + companyID + "state:" + state);
 		}
-		return proposals;
+		return proposalLst;
+
 	}
 
 	@Override
-	public Proposal delete(Proposal proposal) {
+	public Proposal delete(Proposal proposal) throws Exception {
+		LOGGER.debug("entered proposal delete:" + proposal);
 		Connection connection = null;
 		if (proposal == null) {
 			return null;
@@ -275,6 +316,8 @@ public class ProposalDAOImpl implements ProposalDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.Proposal.DELETE_QRY);
 				pstmt.setString(1, proposal.getId());
+				pstmt.setString(2, proposal.getUser_id());
+				pstmt.setString(3, proposal.getCompany_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
@@ -286,11 +329,89 @@ public class ProposalDAOImpl implements ProposalDAO {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Error deleting proposal:" + proposal.getId() + ",  ", e);
-			throw new WebApplicationException(e);
+			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited proposal delete:" + proposal);
 		}
 		return proposal;
 	}
+
+	@Override
+	public boolean deleteLst(String userId, String companyId, String lst) throws Exception {
+		LOGGER.debug("entered proposal delete lst:" + lst);
+		Connection connection = null;
+		if (StringUtils.isEmpty(lst)) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Proposal.DELETE_LST_QRY;
+				query += lst + ") AND `user_id` = '" + userId + "' AND `company_id` ='" + companyId + "';";
+				pstmt = connection.prepareStatement(query);
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of proposal deleted:" + rowCount);
+				if (rowCount > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("no record deleted:" + lst + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("Error deleting proposal lst:" + lst + ",  ", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited proposal delete lst:" + lst);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateState(String userId, String companyId, String lst, String state) throws Exception {
+		LOGGER.debug("entered updateStateAsSent lst:" + lst);
+		Connection connection = null;
+		if (StringUtils.isEmpty(lst) || StringUtils.isAnyBlank(companyId, userId, state) ) {
+			return false;
+		}
+		if(!StringUtils.equals(state, "accept") || !StringUtils.equals(state, "deny")){
+			throw new WebApplicationException("state can only be either 'accept' or 'deny'");
+		}
+		PreparedStatement pstmt = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Proposal.UPDATE_AS_SENT_QRY;
+				query += lst + ") AND `user_id` = '" + userId + "' AND `company_id` ='" + companyId + "';";
+				pstmt = connection.prepareStatement(query);
+				pstmt.setString(1, state);
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of proposal updated:" + rowCount);
+				if (rowCount > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("no record updated:" + lst + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("Error updateStateAsSent lst:" + lst + ",  ", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited updateStateAsSent lst:" + lst);
+		}
+		return false;
+	}
+
 }

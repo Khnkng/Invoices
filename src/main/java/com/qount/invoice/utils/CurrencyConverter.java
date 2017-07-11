@@ -52,7 +52,7 @@ public class CurrencyConverter {
 		JSONObject responseJSON = new JSONObject(responseBody);
 		Double result = responseJSON.optDouble("result");
 		value = result.floatValue();
-		coversionRateMappings.put(currencyFrom + currencyTo, value);
+		coversionRateMappings.put(currencyFrom + currencyTo + date, value);
 		return value;
 	}
 
