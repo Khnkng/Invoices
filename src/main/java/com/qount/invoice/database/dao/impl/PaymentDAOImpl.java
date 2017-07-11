@@ -71,16 +71,15 @@ public class PaymentDAOImpl implements paymentDAO{
 					if (affectedRows == 0) {
 			            throw new SQLException("");
 			        } 
-
+					deletePaymentLines(payment.getId());
+					for(PaymentLine paymentLine:payment.getPaymentLines()) {
+						addPaymentLine(connection,paymentLine, payment.getId());
+					}
 				} catch (SQLException e) {
 					System.out.println("exp"+e);
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
 				} finally {
 					DatabaseUtilities.closeResources(null, pstmt, null);
-				}
-				deletePaymentLines(payment.getId());
-				for(PaymentLine paymentLine:payment.getPaymentLines()) {
-					addPaymentLine(paymentLine, payment.getId());
 				}
 			}
 		
