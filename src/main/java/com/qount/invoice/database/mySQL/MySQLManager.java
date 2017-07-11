@@ -16,19 +16,19 @@ import com.qount.invoice.database.dao.CurrencyDAO;
 import com.qount.invoice.database.dao.CustomerDAO;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.InvoiceLineDAO;
-import com.qount.invoice.database.dao.InvoicePaymentDAO;
 import com.qount.invoice.database.dao.InvoicePlanDAO;
 import com.qount.invoice.database.dao.InvoicePreferenceDAO;
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.database.dao.ProposalLineDAO;
+import com.qount.invoice.database.dao.paymentDAO;
 import com.qount.invoice.database.dao.impl.CompanyDAOImpl;
 import com.qount.invoice.database.dao.impl.CurrencyDAOImpl;
 import com.qount.invoice.database.dao.impl.CustomerDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceLineDAOImpl;
-import com.qount.invoice.database.dao.impl.InvoicePaymentDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoicePlanDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoicePreferenceDAOImpl;
+import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -53,7 +53,7 @@ public class MySQLManager {
 
 	private static InvoicePreferenceDAO invoicePreferenceDAO = null;
 
-	private static InvoicePaymentDAO invoicePaymentDAO = null;
+	private static paymentDAO paymentDAO = null;
 
 	private static CurrencyDAO currencyDAO = null;
 
@@ -175,11 +175,11 @@ public class MySQLManager {
 		return invoicePreferenceDAO;
 	}
 
-	public static InvoicePaymentDAO getInvoicePaymentDAOInstance() {
-		if (invoicePaymentDAO == null) {
-			invoicePaymentDAO = InvoicePaymentDAOImpl.getInvoicePaymentDAOImpl();
+	public static paymentDAO getPaymentDAOInstance() {
+		if (paymentDAO == null) {
+			paymentDAO = PaymentDAOImpl.getInstance();
 		}
-		return invoicePaymentDAO;
+		return paymentDAO;
 	}
 
 	public static CurrencyDAO getCurrencyDAOInstance() {

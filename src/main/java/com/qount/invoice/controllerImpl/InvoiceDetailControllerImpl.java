@@ -119,16 +119,16 @@ public class InvoiceDetailControllerImpl {
 			invoicePayment.setTransaction_date(CommonUtils.getGMTDateTime(new Date()));
 			invoicePayment.setTransaction_id(result.optString("id"));
 			connection = DatabaseUtilities.getReadWriteConnection();
-			InvoicePayment invoicePaymentResult = MySQLManager.getInvoicePaymentDAOInstance().save(connection, invoicePayment);
-			LOGGER.debug("invoicePaymentResult:" + invoicePaymentResult);
-			List<InvoicePayment> invoicePaymentLst = MySQLManager.getInvoicePaymentDAOInstance().getByInvoiceId(invoicePayment);
+//			InvoicePayment invoicePaymentResult = MySQLManager.getInvoicePaymentDAOInstance().save(connection, invoicePayment);
+//			LOGGER.debug("invoicePaymentResult:" + invoicePaymentResult);
+//			List<InvoicePayment> invoicePaymentLst = MySQLManager.getInvoicePaymentDAOInstance().getByInvoiceId(invoicePayment);
 			long amountPaid = 0;
-			if (invoicePaymentLst != null && !invoicePaymentLst.isEmpty()) {
-				Iterator<InvoicePayment> invoicePaymentLstItr = invoicePaymentLst.iterator();
-				while (invoicePaymentLstItr.hasNext()) {
-					amountPaid += invoicePaymentLstItr.next().getAmount();
-				}
-			}
+//			if (invoicePaymentLst != null && !invoicePaymentLst.isEmpty()) {
+//				Iterator<InvoicePayment> invoicePaymentLstItr = invoicePaymentLst.iterator();
+//				while (invoicePaymentLstItr.hasNext()) {
+//					amountPaid += invoicePaymentLstItr.next().getAmount();
+//				}
+//			}
 			double amountPaidInDollar = convertCentToDollar(amountPaid);
 			if (amountPaidInDollar == invoice.getAmount()) {
 				invoice.setState("paid");
