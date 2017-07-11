@@ -2,6 +2,9 @@ package com.qount.invoice.controllerImpl;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
@@ -11,10 +14,14 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import com.qount.invoice.clients.httpClient.HTTPClient;
+import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.Payment;
+import com.qount.invoice.model.PaymentLine;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.LTMUtils;
 import com.qount.invoice.utils.ResponseUtil;
 import com.qount.invoice.utils.Utilities;
@@ -61,7 +68,38 @@ public class InvoiceDetailControllerImpl {
 			String companyID = invoice.getCompany_id();
 			String currency = invoice.getCurrencies() != null ? invoice.getCurrencies().getCode() : invoice.getCurrency();
 			long amountToPayInCents = 0;
-//			InvoicePayment invoicePayment = new InvoicePayment();
+			double amountToPay = Double.parseDouble(inputInvoice.getAmountToPay());
+			String transactionId = null;
+			String state=null;
+			Payment payment = new Payment();
+			PaymentLine paymentLine = new PaymentLine();
+			if(amountToPay>invoice.getAmount_due()){
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
+			}else if(amountToPay==invoice.getAmount_due()){
+				state = "paid";
+			}else if(amountToPay<invoice.getAmount_due()){
+				state = "partially_paid";
+			}
+			if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
+				paymentLine.setId(UUID.randomUUID().toString());
+				paymentLine.setInvoiceDate(inputInvoice.getInvoice_date());
+				paymentLine.setInvoiceId(inputInvoice.getId());
+				paymentLine.setPaymentAmount(new BigDecimal(inputInvoice.getAmountToPay()));
+				paymentLine.setState(state);
+				paymentLine.setTerm(inputInvoice.getTerm());
+				List<PaymentLine> payments = new ArrayList<PaymentLine>();
+				payments.add(paymentLine);
+				payment.setPaymentLines(payments);
+				payment.setCompanyId(invoice.getCompany_id());
+				payment.setCurrencyCode(Constants.DEFAULT_INVOICE_CURRENCY);
+				payment.setId(UUID.randomUUID().toString());
+				payment.setPaymentAmount(new BigDecimal(inputInvoice.getAmountToPay()));
+				payment.setPaymentDate(DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT));
+				payment.setReceivedFrom(inputInvoice.getCustomer_id());
+				payment.setReferenceNo(transactionId);
+				payment.setType("payment_spring");
+			}
+			
 //			if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
 //				invoicePayment.setCurrency_from(Constants.DEFAULT_INVOICE_CURRENCY);
 //				invoicePayment.setCurrency_to(currency);

@@ -183,7 +183,7 @@ public class InvoiceControllerImpl {
 			}
 		}
 		if (dbInvoice.getAmount() < invoice.getAmount()) {
-			invoice.setState("partially paid");
+			invoice.setState("partially_paid");
 			return MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
 		}
 		return null;
