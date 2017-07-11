@@ -49,6 +49,7 @@ public class InvoiceParser {
 			invoice.setIs_recurring(StringUtils.isNotEmpty(invoice.getPlan_id()));
 			userCompany = CommonUtils.getCompany(userId, companyID);
 			invoice.setCompanyName(userCompany.getName());
+			
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			Timestamp payment_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
