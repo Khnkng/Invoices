@@ -228,8 +228,8 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID, companyID, state);
-			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
-			JSONObject result = InvoiceParser.createInvoiceLstResult(invoiceLst, badges);
+//			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
+			JSONObject result = InvoiceParser.createInvoiceLstResult(invoiceLst, null);
 			return Response.status(200).entity(result.toString()).build();
 		} catch (Exception e) {
 			LOGGER.error(e);
@@ -367,5 +367,22 @@ public class InvoiceControllerImpl {
 		recepientsMailsArr.put("mateen.khan@qount.io");
 		invoice.setRecepientsMailsArr(recepientsMailsArr);
 		System.out.println(sendInvoiceEmail(invoice));
+	}
+	
+	public static Response getCount(String userID, String companyID) {
+		try {
+			LOGGER.debug("entered get count userID:" + userID + " companyID:" + companyID );
+			if (StringUtils.isAnyBlank(userID, companyID)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
+			JSONObject result = InvoiceParser.createInvoiceLstResult(null, badges);
+			return Response.status(200).entity(result.toString()).build();
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited get count userID:" + userID + " companyID:" + companyID );
+		}
 	}
 }

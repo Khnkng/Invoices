@@ -393,17 +393,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.QOUNT_QRY);
 				pstmt.setString(1, companyID);
-				pstmt.setString(2, userID);
+				pstmt.setString(2, companyID);
 				pstmt.setString(3, companyID);
-				pstmt.setString(4, userID);
-				pstmt.setString(5, companyID);
-				pstmt.setString(6, userID);
 				rset = pstmt.executeQuery();
 				if (rset != null && rset.next()) {
 					result = new HashMap<String, String>();
-					result.put("invoice_paid", rset.getString("invoice_paid"));
-					result.put("invoice_unpaid", rset.getString("invoice_unpaid"));
+					result.put("invoice_count", rset.getString("invoice_count"));
 					result.put("proposal_count", rset.getString("proposal_count"));
+					result.put("payment_count", rset.getString("payment_count"));
 				}
 			}
 		} catch (Exception e) {
