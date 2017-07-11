@@ -43,7 +43,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
 						Constants.PRECONDITION_FAILED_STR + ":userID and companyID are mandatory", Status.PRECONDITION_FAILED));
 			}
-			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID);
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
@@ -85,7 +85,7 @@ public class InvoiceControllerImpl {
 		Connection connection = null;
 		try {
 			invoice.setId(invoiceID);
-			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID);
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, false);
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID,companyID,invoiceID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}

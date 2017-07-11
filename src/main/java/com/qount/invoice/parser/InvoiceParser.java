@@ -39,7 +39,7 @@ import com.qount.invoice.utils.ResponseUtil;
 public class InvoiceParser {
 	private static final Logger LOGGER = Logger.getLogger(InvoiceParser.class);
 
-	public static Invoice getInvoiceObj(String userId, Invoice invoice, String companyID) {
+	public static Invoice getInvoiceObj(String userId, Invoice invoice, String companyID, boolean createFlag) {
 		try {
 			if (invoice == null || StringUtils.isAnyBlank(userId,companyID,invoice.getCurrency())) {
 				throw new WebApplicationException("userId, companyId, currency are mandatory");
@@ -53,7 +53,7 @@ public class InvoiceParser {
 			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			Timestamp payment_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			invoice.setUser_id(userId);
-			if (StringUtils.isBlank(invoice.getId())) {
+			if (createFlag) {
 				invoice.setId(UUID.randomUUID().toString());
 			}
 			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
@@ -70,7 +70,7 @@ public class InvoiceParser {
 			Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 			while (invoiceLineItr.hasNext()) {
 				InvoiceLine line = invoiceLineItr.next();
-				if (StringUtils.isBlank(line.getId())) {
+				if (createFlag) {
 					line.setId(UUID.randomUUID().toString());
 				}
 				line.setInvoice_id(invoice.getId());
