@@ -54,10 +54,7 @@ public class InvoiceDetailController {
 		}else if(action.equals("pay")){
 			Invoice invoice = InvoiceControllerImpl.getInvoice(invoiceID);
 			if(InvoiceDetailControllerImpl.makeInvoicePayment(invoice, invoiceID,inputInvoice)){;
-				Invoice updateInvoice = InvoiceControllerImpl.updateInvoice(invoice.getUser_id(), invoice.getCompany_id(), invoiceID, invoice);
-				if(updateInvoice!=null){
-					return updateInvoice;
-				}
+				return invoice;
 			}
 		}
 		return null;
