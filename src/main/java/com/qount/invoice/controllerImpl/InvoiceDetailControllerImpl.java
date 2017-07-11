@@ -222,21 +222,21 @@ public class InvoiceDetailControllerImpl {
 //		}
 //	}
 
-	private static long convertDollarToCent(String input) {
-		LOGGER.debug("entered convertDollarToCent input:" + input);
-		try {
-			BigDecimal dollars = new BigDecimal(input);
-			if (dollars.scale() > 2) {
-				throw new IllegalArgumentException();
-			}
-			long cents = dollars.multiply(new BigDecimal(100)).intValue();
-			return cents;
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			LOGGER.debug("exited convertDollarToCent input:" + input);
-		}
-	}
+//	private static long convertDollarToCent(String input) {
+//		LOGGER.debug("entered convertDollarToCent input:" + input);
+//		try {
+//			BigDecimal dollars = new BigDecimal(input);
+//			if (dollars.scale() > 2) {
+//				throw new IllegalArgumentException();
+//			}
+//			long cents = dollars.multiply(new BigDecimal(100)).intValue();
+//			return cents;
+//		} catch (Exception e) {
+//			throw e;
+//		} finally {
+//			LOGGER.debug("exited convertDollarToCent input:" + input);
+//		}
+//	}
 
 	private static double convertCentToDollar(long cents) {
 		LOGGER.debug("entered convertCentToDollar input:" + cents);

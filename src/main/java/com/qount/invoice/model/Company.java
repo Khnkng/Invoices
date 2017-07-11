@@ -30,6 +30,24 @@ public class Company {
 	private String modifiedDate;
 	private String owner;
 	private boolean active;
+	private String contact_first_name;
+	private String contact_last_name;
+	
+	public String getContact_first_name() {
+		return contact_first_name;
+	}
+
+	public void setContact_first_name(String contact_first_name) {
+		this.contact_first_name = contact_first_name;
+	}
+
+	public String getContact_last_name() {
+		return contact_last_name;
+	}
+
+	public void setContact_last_name(String contact_last_name) {
+		this.contact_last_name = contact_last_name;
+	}
 
 	public String getId() {
 		return id;

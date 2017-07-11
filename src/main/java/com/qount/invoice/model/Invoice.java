@@ -61,7 +61,25 @@ public class Invoice {
 	private String email_state;
 	private String refrence_number;
 	private String payment_method;
+	private Company company;
+	private CustomerContactDetails customerContactDetails;
 	
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
+	public CustomerContactDetails getCustomerContactDetails() {
+		return customerContactDetails;
+	}
+
+	public void setCustomerContactDetails(CustomerContactDetails customerContactDetails) {
+		this.customerContactDetails = customerContactDetails;
+	}
+
 	public String getPayment_method() {
 		return payment_method;
 	}
