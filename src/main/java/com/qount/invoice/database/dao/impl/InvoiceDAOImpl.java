@@ -322,6 +322,18 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
 							customer.setCustomer_name(rset.getString("customer_name"));
 							customer.setCard_name(rset.getString("card_name"));
+							customer.setCustomer_address(rset.getString("customer_address"));
+							customer.setCustomer_city(rset.getString("customer_city"));
+							customer.setCustomer_country(rset.getString("customer_country"));
+							customer.setCustomer_state(rset.getString("customer_state"));
+							customer.setCustomer_ein(rset.getString("customer_ein"));
+							customer.setCustomer_zipcode(rset.getString("customer_zipcode"));
+							customer.setPhone_number(rset.getString("phone_number"));
+							customer.setCoa(rset.getString("coa"));
+							customer.setTerm(rset.getString("term"));
+							customer.setFax(rset.getString("fax"));
+							customer.setStreet_1(rset.getString("street_1"));
+							customer.setStreet_2(rset.getString("street_2"));
 							Currencies currencies_2 = new Currencies();
 							currencies_2.setCode(rset.getString("code"));
 							currencies_2.setName(rset.getString("name"));

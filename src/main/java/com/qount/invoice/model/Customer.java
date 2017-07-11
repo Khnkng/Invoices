@@ -28,6 +28,33 @@ public class Customer {
 	private String payment_spring_id;
 	private String term;
 	private String card_name;
+	private String fax;
+	private String street_1;
+	private String street_2;
+
+	public String getFax() {
+		return fax;
+	}
+
+	public void setFax(String fax) {
+		this.fax = fax;
+	}
+
+	public String getStreet_1() {
+		return street_1;
+	}
+
+	public void setStreet_1(String street_1) {
+		this.street_1 = street_1;
+	}
+
+	public String getStreet_2() {
+		return street_2;
+	}
+
+	public void setStreet_2(String street_2) {
+		this.street_2 = street_2;
+	}
 
 	public String getCard_name() {
 		return card_name;
