@@ -2,10 +2,6 @@ package com.qount.invoice.controllerImpl;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
@@ -17,8 +13,6 @@ import org.json.JSONObject;
 import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
-import com.qount.invoice.model.InvoicePayment;
-import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.LTMUtils;
@@ -67,20 +61,20 @@ public class InvoiceDetailControllerImpl {
 			String companyID = invoice.getCompany_id();
 			String currency = invoice.getCurrencies() != null ? invoice.getCurrencies().getCode() : invoice.getCurrency();
 			long amountToPayInCents = 0;
-			InvoicePayment invoicePayment = new InvoicePayment();
-			if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
-				invoicePayment.setCurrency_from(Constants.DEFAULT_INVOICE_CURRENCY);
-				invoicePayment.setCurrency_to(currency);
-				String formatedDate = Constants.INVOICE_CONVERSION_DATE_FORMAT.format(new Date());
-				invoicePayment.setConversionDate(formatedDate);
-				double convertedAmountToPay = convertInvoiceAmount(invoicePayment, invoice.getAmount());
-				invoicePayment.setCurrency_amount(convertedAmountToPay);
-				amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
-			} else {
-				if(!inputInvoice.getAction().equals(Constants.SUBSCRIPTION_CUSTOMER_CHARGE)){
-					amountToPayInCents = convertDollarToCent(invoice.getAmountToPay());
-				}
-			}
+//			InvoicePayment invoicePayment = new InvoicePayment();
+//			if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
+//				invoicePayment.setCurrency_from(Constants.DEFAULT_INVOICE_CURRENCY);
+//				invoicePayment.setCurrency_to(currency);
+//				String formatedDate = Constants.INVOICE_CONVERSION_DATE_FORMAT.format(new Date());
+//				invoicePayment.setConversionDate(formatedDate);
+//				double convertedAmountToPay = convertInvoiceAmount(invoicePayment, invoice.getAmount());
+//				invoicePayment.setCurrency_amount(convertedAmountToPay);
+//				amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
+//			} else {
+//				if(!inputInvoice.getAction().equals(Constants.SUBSCRIPTION_CUSTOMER_CHARGE)){
+//					amountToPayInCents = convertDollarToCent(invoice.getAmountToPay());
+//				}
+//			}
 			if (StringUtils.isEmpty(currency)) {
 				throw new WebApplicationException("invoice currency is empty!");
 			}
@@ -111,14 +105,14 @@ public class InvoiceDetailControllerImpl {
 				throw new WebApplicationException(result.optJSONArray("errors").optJSONObject(0).optString("message"));
 			}
 			
-			invoicePayment.setId(UUID.randomUUID().toString());
-			invoicePayment.setInvoice_id(invoiceID);
-			long amount_settled = result.optLong("amount_settled");
-			invoicePayment.setAmount(amount_settled);
-			invoicePayment.setStatus(result.optString("status"));
-			invoicePayment.setTransaction_date(CommonUtils.getGMTDateTime(new Date()));
-			invoicePayment.setTransaction_id(result.optString("id"));
-			connection = DatabaseUtilities.getReadWriteConnection();
+//			invoicePayment.setId(UUID.randomUUID().toString());
+//			invoicePayment.setInvoice_id(invoiceID);
+//			long amount_settled = result.optLong("amount_settled");
+//			invoicePayment.setAmount(amount_settled);
+//			invoicePayment.setStatus(result.optString("status"));
+//			invoicePayment.setTransaction_date(CommonUtils.getGMTDateTime(new Date()));
+//			invoicePayment.setTransaction_id(result.optString("id"));
+//			connection = DatabaseUtilities.getReadWriteConnection();
 //			InvoicePayment invoicePaymentResult = MySQLManager.getInvoicePaymentDAOInstance().save(connection, invoicePayment);
 //			LOGGER.debug("invoicePaymentResult:" + invoicePaymentResult);
 //			List<InvoicePayment> invoicePaymentLst = MySQLManager.getInvoicePaymentDAOInstance().getByInvoiceId(invoicePayment);
@@ -260,22 +254,22 @@ public class InvoiceDetailControllerImpl {
 		}
 	}
 
-	private static double convertInvoiceAmount(InvoicePayment invoicePayment, double amount) throws Exception {
-		try {
-			if (!CommonUtils.isValidStrings(invoicePayment.getCurrency_from(), invoicePayment.getCurrency_to())) {
-				throw new Exception("invalid input invoiceCurrency:" + invoicePayment.getCurrency_from() + " ,companyCurrency:" + invoicePayment.getCurrency_to());
-			}
-			if (amount < 0.00d) {
-				throw new Exception("negative amount");
-			}
-			float conversion = Constants.CURRENCY_CONVERTER.convert(invoicePayment.getCurrency_from(), invoicePayment.getCurrency_to(), invoicePayment.getConversionDate());
-			invoicePayment.setConversion(conversion);
-			amount = amount * conversion;
-			amount = Double.valueOf(Constants.INVOICE_CONVERSION_DECIMALFORMAT.format(amount));
-			return amount;
-		} catch (Exception e) {
-			throw e;
-		}
-	}
+//	private static double convertInvoiceAmount(InvoicePayment invoicePayment, double amount) throws Exception {
+//		try {
+//			if (!CommonUtils.isValidStrings(invoicePayment.getCurrency_from(), invoicePayment.getCurrency_to())) {
+//				throw new Exception("invalid input invoiceCurrency:" + invoicePayment.getCurrency_from() + " ,companyCurrency:" + invoicePayment.getCurrency_to());
+//			}
+//			if (amount < 0.00d) {
+//				throw new Exception("negative amount");
+//			}
+//			float conversion = Constants.CURRENCY_CONVERTER.convert(invoicePayment.getCurrency_from(), invoicePayment.getCurrency_to(), invoicePayment.getConversionDate());
+//			invoicePayment.setConversion(conversion);
+//			amount = amount * conversion;
+//			amount = Double.valueOf(Constants.INVOICE_CONVERSION_DECIMALFORMAT.format(amount));
+//			return amount;
+//		} catch (Exception e) {
+//			throw e;
+//		}
+//	}
 
 }

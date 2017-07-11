@@ -212,6 +212,9 @@ public class PaymentDAOImpl implements paymentDAO{
 	
 	private String getDateStringFromSQLDate(java.sql.Date date, String format) {
 		String dateStr = null;
+		if(date==null){
+			return null;
+		}
 		try {
             if (StringUtils.isNoneBlank(format)) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat(format);
