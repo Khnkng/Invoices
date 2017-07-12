@@ -52,12 +52,12 @@ public class InvoiceControllerImpl {
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					invoice.setState("sent");
+					invoice.setState(Constants.INVOICE_STATE_SENT);
 				} else {
 					throw new WebApplicationException("error sending email");
 				}
 			} else {
-				invoice.setState("draft");
+				invoice.setState(Constants.INVOICE_STATE_DRAFT);
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
@@ -112,7 +112,7 @@ public class InvoiceControllerImpl {
 						if (invoice.isSendMail()) {
 							invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
 							if (sendInvoiceEmail(invoiceResult)) {
-								invoice.setState("sent");
+								invoice.setState(Constants.INVOICE_STATE_SENT);
 							}
 						}
 						connection.commit();
@@ -177,13 +177,13 @@ public class InvoiceControllerImpl {
 			throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 		}
 		if (dbInvoice.getAmount() == invoice.getAmount()) {
-			invoice.setState("paid");
+			invoice.setState(Constants.INVOICE_STATE_PAID);
 			if(markAsPaid(connection, invoice)){
 				return invoice;
 			}
 		}
 		if (dbInvoice.getAmount() < invoice.getAmount()) {
-			invoice.setState("partially_paid");
+			invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
 			return MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
 		}
 		return null;
