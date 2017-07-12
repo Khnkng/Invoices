@@ -76,8 +76,9 @@ public class PaymentDAOImpl implements paymentDAO{
 					deletePaymentLines(payment.getId(), connection);
 					for(PaymentLine paymentLine:payment.getPaymentLines()) {
 						addPaymentLine(connection,paymentLine, payment.getId());
-						if(paymentLine.getAmount() != null && paymentLine.getAmount().doubleValue() > 0)
-						updateInvoicesState(connection, paymentLine, payment);
+						if(paymentLine.getAmount() != null && paymentLine.getAmount().doubleValue() > 0) {							
+							updateInvoicesState(connection, paymentLine, payment);
+						}
 					}
 				} catch (SQLException e) {
 					System.out.println("exp"+e);
