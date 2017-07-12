@@ -87,6 +87,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getSend_to());
 				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getPayment_method());
+				pstmt.setDouble(ctr++, invoice.getTax_amount());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -147,6 +148,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getSend_to());
 				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getPayment_method());
+				pstmt.setDouble(ctr++, invoice.getTax_amount());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -285,6 +287,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.getInvoiceLines().add(invoiceLine);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
+							invoice.setTax_amount(rset.getDouble("tax_amount"));
 							invoice.setRefrence_number(rset.getString("refrence_number"));
 							invoice.setPayment_method(rset.getString("payment_method"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
