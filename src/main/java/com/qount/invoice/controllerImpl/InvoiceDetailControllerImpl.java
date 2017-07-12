@@ -27,7 +27,6 @@ import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.LTMUtils;
 import com.qount.invoice.utils.ResponseUtil;
-import com.qount.invoice.utils.Utilities;
 
 /**
  * 
@@ -37,30 +36,6 @@ import com.qount.invoice.utils.Utilities;
  */
 public class InvoiceDetailControllerImpl {
 	private static final Logger LOGGER = Logger.getLogger(InvoiceDetailControllerImpl.class);
-
-	public static Invoice openInvoice(String invoiceID) {
-		Connection connection = null;
-		try {
-			Utilities.throwPreExceptionForEmptyString(invoiceID);
-			Invoice invoice = MySQLManager.getInvoiceDAOInstance().get(invoiceID);
-			if (invoice == null) {
-				throw new WebApplicationException(
-						ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "unable to find invoice for given invoice id: " + invoiceID, Status.INTERNAL_SERVER_ERROR));
-			}
-			invoice.setState("Opened");
-			connection = DatabaseUtilities.getReadWriteConnection();
-			Invoice updatedInvoice = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
-			if (updatedInvoice == null) {
-				throw new WebApplicationException("unable to update the invoice state");
-			} else {
-				return invoice;
-			}
-		} catch (Exception e) {
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
-		} finally {
-			DatabaseUtilities.closeConnection(connection);
-		}
-	}
 
 	public static boolean makeInvoicePayment(Invoice invoice, String invoiceID, Invoice inputInvoice) {
 		Connection connection = null;
@@ -85,9 +60,9 @@ public class InvoiceDetailControllerImpl {
 			if (amountToPay > invoice.getAmount_due()) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 			} else if (amountToPay == invoice.getAmount_due()) {
-				state = "paid";
+				state = Constants.INVOICE_STATE_PAID;
 			} else if (amountToPay < invoice.getAmount_due()) {
-				state = "partially_paid";
+				state = Constants.INVOICE_STATE_PARTIALLY_PAID;
 			}
 			paymentLine.setId(UUID.randomUUID().toString());
 			paymentLine.setInvoiceDate(invoice.getInvoice_date());
@@ -153,10 +128,10 @@ public class InvoiceDetailControllerImpl {
 			payment.setPaymentLines(payments);
 			invoice.setAmount_paid(amountPaidInDollar);
 			if (amountPaidInDollar == invoice.getAmount()) {
-				invoice.setState("paid");
+				invoice.setState(Constants.INVOICE_STATE_PAID);
 				invoice.setAmount_due(0);
 			} else {
-				invoice.setState("partially paid");
+				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
 				double amount_due = invoice.getAmount() - amountPaidInDollar;
 				invoice.setAmount_due(amount_due);
 			}
