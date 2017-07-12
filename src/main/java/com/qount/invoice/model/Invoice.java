@@ -63,7 +63,16 @@ public class Invoice {
 	private String payment_method;
 	private Company company;
 	private CustomerContactDetails customerContactDetails;
+	private double tax_amount;
 	
+	public double getTax_amount() {
+		return tax_amount;
+	}
+
+	public void setTax_amount(double tax_amount) {
+		this.tax_amount = tax_amount;
+	}
+
 	public Company getCompany() {
 		return company;
 	}
