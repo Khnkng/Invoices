@@ -196,11 +196,11 @@ public class PaymentDAOImpl implements paymentDAO{
 					while(rset.next()) {
 						PaymentLine line = new PaymentLine();
 						line.setInvoiceId(rset.getString("invoice_id"));
-						line.setAmount(new BigDecimal(rset.getDouble("amount")));
+						line.setAmount(new BigDecimal(rset.getString("payment_amount")));
 						line.setInvoiceDate(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
 						line.setTerm(rset.getString("term"));
 						line.setState(rset.getString("state"));
-						line.setPaymentAmount(new BigDecimal(rset.getString("payment_amount")));
+						line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
 						lines.add(line);
 					}
 				} catch (SQLException e) {

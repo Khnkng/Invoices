@@ -20,7 +20,7 @@ public class PaymentLine {
 	
 	private String term;
 	
-	private BigDecimal paymentAmount;
+	private BigDecimal invoiceAmount;
 	
 	private String state;
 	
@@ -60,11 +60,11 @@ public class PaymentLine {
 	public void setTerm(String term) {
 		this.term = term;
 	}
-	public BigDecimal getPaymentAmount() {
-		return paymentAmount;
+	public BigDecimal getInvoiceAmount() {
+		return invoiceAmount;
 	}
-	public void setPaymentAmount(BigDecimal paymentAmount) {
-		this.paymentAmount = paymentAmount;
+	public void setInvoiceAmount(BigDecimal invoiceAmount) {
+		this.invoiceAmount = invoiceAmount;
 	}
-
+	
 }
