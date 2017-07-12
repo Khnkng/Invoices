@@ -123,7 +123,7 @@ public class InvoiceDetailControllerImpl {
 			payment.setReferenceNo(transactionId);
 			double amountPaidInDollar = convertCentToDollar(amount_settled);
 			payment.setPaymentAmount(new BigDecimal(amountPaidInDollar));
-			paymentLine.setPaymentAmount(new BigDecimal(amountPaidInDollar));
+			paymentLine.setAmount(new BigDecimal(amountPaidInDollar));
 			payments.add(paymentLine);
 			payment.setPaymentLines(payments);
 			invoice.setAmount_paid(amountPaidInDollar);
