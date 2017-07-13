@@ -116,4 +116,12 @@ public class InvoiceController {
 		return InvoiceControllerImpl.updateInvoicesAsSent(userID, companyID, ids);
 	}
 
+	@GET
+	@Path("/count")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(notes = "Used to get retrive badges", value = "retieves invoices", responseContainer = "java.lang.String")
+	public Response getCount(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID) {
+		return InvoiceControllerImpl.getCount(userID, companyID);
+	}
 }

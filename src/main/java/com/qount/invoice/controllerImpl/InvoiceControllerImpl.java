@@ -52,12 +52,12 @@ public class InvoiceControllerImpl {
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					invoice.setState("sent");
+					invoice.setState(Constants.INVOICE_STATE_SENT);
 				} else {
 					throw new WebApplicationException("error sending email");
 				}
 			} else {
-				invoice.setState("draft");
+				invoice.setState(Constants.INVOICE_STATE_DRAFT);
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
@@ -112,7 +112,7 @@ public class InvoiceControllerImpl {
 						if (invoice.isSendMail()) {
 							invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
 							if (sendInvoiceEmail(invoiceResult)) {
-								invoice.setState("sent");
+								invoice.setState(Constants.INVOICE_STATE_SENT);
 							}
 						}
 						connection.commit();
@@ -177,13 +177,13 @@ public class InvoiceControllerImpl {
 			throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 		}
 		if (dbInvoice.getAmount() == invoice.getAmount()) {
-			invoice.setState("paid");
+			invoice.setState(Constants.INVOICE_STATE_PAID);
 			if(markAsPaid(connection, invoice)){
 				return invoice;
 			}
 		}
-		if (dbInvoice.getAmount() < invoice.getAmount()) {
-			invoice.setState("partially_paid");
+		if (invoice.getAmount() < dbInvoice.getAmount()) {
+			invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
 			return MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
 		}
 		return null;
@@ -228,8 +228,8 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID, companyID, state);
-			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
-			JSONObject result = InvoiceParser.createInvoiceLstResult(invoiceLst, badges);
+//			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
+			JSONObject result = InvoiceParser.createInvoiceLstResult(invoiceLst, null);
 			return Response.status(200).entity(result.toString()).build();
 		} catch (Exception e) {
 			LOGGER.error(e);
@@ -319,14 +319,15 @@ public class InvoiceControllerImpl {
 			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
 			template = template.replace("{{invoice number}}", StringUtils.isBlank(invoice.getNumber()) ? "" : invoice.getNumber())
 					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName()) ? "" : invoice.getCompanyName())
-					.replace("{{amount}}", currency + (StringUtils.isEmpty(invoice.getAmount() + "") ? "" : invoice.getAmount() + "")).replace("{{due date}}", dueDate)
+					.replace("{{amount}}", currency + (StringUtils.isEmpty(invoice.getAmount() + "") ? "" : invoice.getAmount() + ""))
+					.replace("{{due date}}", StringUtils.isEmpty(dueDate)?"":dueDate)
 					.replace("${invoiceLinkUrl}", invoiceLinkUrl);
 			emailJson.put("body", template);
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url + "HalfService/emails";
-			// String url = "https://dev-services.qount.io/HalfService/emails";
+//			 String url = "https://dev-services.qount.io/HalfService/emails";
 			Object result = HTTPClient.postObject(url, emailJson.toString());
 			if (result != null && result instanceof java.lang.String && result.equals("true")) {
 				return true;
@@ -366,5 +367,22 @@ public class InvoiceControllerImpl {
 		recepientsMailsArr.put("mateen.khan@qount.io");
 		invoice.setRecepientsMailsArr(recepientsMailsArr);
 		System.out.println(sendInvoiceEmail(invoice));
+	}
+	
+	public static Response getCount(String userID, String companyID) {
+		try {
+			LOGGER.debug("entered get count userID:" + userID + " companyID:" + companyID );
+			if (StringUtils.isAnyBlank(userID, companyID)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
+			JSONObject result = InvoiceParser.createInvoiceLstResult(null, badges);
+			return Response.status(200).entity(result.toString()).build();
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited get count userID:" + userID + " companyID:" + companyID );
+		}
 	}
 }

@@ -87,6 +87,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getSend_to());
 				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getPayment_method());
+				pstmt.setDouble(ctr++, invoice.getTax_amount());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -147,6 +148,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getSend_to());
 				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getPayment_method());
+				pstmt.setDouble(ctr++, invoice.getTax_amount());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -285,6 +287,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.getInvoiceLines().add(invoiceLine);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
+							invoice.setTax_amount(rset.getDouble("tax_amount"));
 							invoice.setRefrence_number(rset.getString("refrence_number"));
 							invoice.setPayment_method(rset.getString("payment_method"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
@@ -393,17 +396,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.QOUNT_QRY);
 				pstmt.setString(1, companyID);
-				pstmt.setString(2, userID);
+				pstmt.setString(2, companyID);
 				pstmt.setString(3, companyID);
-				pstmt.setString(4, userID);
-				pstmt.setString(5, companyID);
-				pstmt.setString(6, userID);
 				rset = pstmt.executeQuery();
 				if (rset != null && rset.next()) {
 					result = new HashMap<String, String>();
-					result.put("invoice_paid", rset.getString("invoice_paid"));
-					result.put("invoice_unpaid", rset.getString("invoice_unpaid"));
+					result.put("invoice_count", rset.getString("invoice_count"));
 					result.put("proposal_count", rset.getString("proposal_count"));
+					result.put("payment_count", rset.getString("payment_count"));
 				}
 			}
 		} catch (Exception e) {
@@ -607,7 +607,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
-
+                    invoice.setAmount_paid(rset.getDouble("amount_paid"));
 					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 
 					invoiceLst.add(invoice);

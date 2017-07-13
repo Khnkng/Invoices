@@ -1,12 +1,20 @@
 package com.qount.invoice.service;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
 import com.qount.invoice.model.Payment;
+import com.qount.invoice.utils.Constants;
+import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.ResponseUtil;
 
 public class PaymentService {
 	
@@ -21,11 +29,30 @@ public class PaymentService {
 	}
 
 	public Payment createOrUpdatePayment(Payment payment, String companyId) {
-		payment.setCompanyId(companyId);
-		if(StringUtils.isBlank(payment.getId())) {
-			payment.setId(UUID.randomUUID().toString());
+		Connection connection = DatabaseUtilities.getReadWriteConnection();
+		if (connection == null) {
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 		}
-		return PaymentDAOImpl.getInstance().save(payment);
+		Payment pymt = null;
+		try {
+			connection.setAutoCommit(false);
+			payment.setCompanyId(companyId);
+			if(StringUtils.isBlank(payment.getId())) {
+				payment.setId(UUID.randomUUID().toString());
+			}
+			pymt = PaymentDAOImpl.getInstance().save(payment, connection);
+			connection.commit();
+		} catch (SQLException e) {
+			try {
+				connection.rollback();
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.BAD_REQUEST));
+			} catch (SQLException e1) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e1.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			}
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+		}
+		return pymt;
 	}
 	
 	public List<Payment> getList(String companyId) {
