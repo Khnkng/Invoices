@@ -80,7 +80,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setBoolean(ctr++, proposal.is_recurring());
 				pstmt.setString(ctr++, proposal.getEmail_state());
 				pstmt.setString(ctr++, proposal.getSend_to());
-				pstmt.setString(ctr++, proposal.getDue_date());
+//				pstmt.setString(ctr++, proposal.getDue_date());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -135,7 +135,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setBoolean(ctr++, proposal.is_recurring());
 				pstmt.setString(ctr++, proposal.getEmail_state());
 				pstmt.setString(ctr++, proposal.getSend_to());
-				pstmt.setString(ctr++, proposal.getDue_date());
+//				pstmt.setString(ctr++, proposal.getDue_date());
 				pstmt.setString(ctr++, proposal.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -286,7 +286,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 					proposal.setAmount(rset.getDouble("amount"));
 					proposal.setCurrency(rset.getString("currency"));
 					proposal.setState(rset.getString("state"));
-					proposal.setDue_date(rset.getString("due_date"));
+					proposal.setAmount_by_date(rset.getDouble("amount_by_date"));
 					proposalLst.add(proposal);
 				}
 			}
