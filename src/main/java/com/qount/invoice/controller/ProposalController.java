@@ -14,6 +14,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.qount.invoice.controllerImpl.ProposalControllerImpl;
 import com.qount.invoice.model.Proposal;
@@ -61,7 +62,7 @@ public class ProposalController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve proposals of company", value = "retieves proposals", responseContainer = "java.lang.String")
-	public List<Proposal> getProposals(@PathParam("userID") String userID,@PathParam("companyID") @NotNull String companyID,@QueryParam("state") String state) {
+	public Response getProposals(@PathParam("userID") String userID,@PathParam("companyID") @NotNull String companyID,@QueryParam("state") String state) {
 		return ProposalControllerImpl.getProposals(userID,companyID,state);
 	}
 

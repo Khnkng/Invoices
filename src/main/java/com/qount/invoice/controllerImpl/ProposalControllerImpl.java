@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
@@ -160,14 +161,15 @@ public class ProposalControllerImpl {
 		return null;
 	}
 
-	public static List<Proposal> getProposals(String userID, String companyID, String state) {
+	public static Response getProposals(String userID, String companyID, String state) {
 		try {
 			LOGGER.debug("entered get proposals userID:" + userID + " companyID:" + companyID + " state:" + state);
 			if (StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			List<Proposal> proposalLst = MySQLManager.getProposalDAOInstance().getProposalList(userID, companyID, state);
-			return proposalLst;
+			JSONObject result = ProposalParser.createProposalLstResult(proposalLst, null);
+			return Response.status(200).entity(result.toString()).build();
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));

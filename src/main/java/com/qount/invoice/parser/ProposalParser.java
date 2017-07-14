@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
@@ -42,14 +44,16 @@ public class ProposalParser {
 			proposal.setIs_recurring(StringUtils.isNotEmpty(proposal.getPlan_id()));
 			userCompany = CommonUtils.getCompany(userId, companyID);
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			Timestamp proposal_date = convertStringToTimeStamp(proposal.getProposal_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp due_date = convertStringToTimeStamp(proposal.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp proposal_date = convertStringToTimeStamp(proposal.getProposal_date(), Constants.TIME_STATMP_TO_PROPOSAL_FORMAT);
+			Timestamp estimate_date = convertStringToTimeStamp(proposal.getEstimate_date(), Constants.TIME_STATMP_TO_PROPOSAL_FORMAT);
+			Timestamp due_date = convertStringToTimeStamp(proposal.getDue_date(), Constants.TIME_STATMP_TO_PROPOSAL_FORMAT);
 			proposal.setUser_id(userId);
 			if (StringUtils.isBlank(proposal.getId())) {
 				proposal.setId(UUID.randomUUID().toString());
 			}
 			proposal.setProposal_date(proposal_date != null ? proposal_date.toString() : null);
 			proposal.setDue_date(due_date != null ? due_date.toString() : null);
+			proposal.setEstimate_date(estimate_date != null ? estimate_date.toString() : null);
 			proposal.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			proposal.setLast_updated_by(userId);
 			setProposalAmountByDate(proposal, userCompany);
@@ -163,5 +167,40 @@ public class ProposalParser {
 			LOGGER.error(e);
 		}
 		return proposal;
+	}
+	
+	public static JSONObject createProposalLstResult(List<Proposal> proposalLst, Map<String, String> badges) {
+		JSONObject result = new JSONObject();
+		try {
+			if (proposalLst != null && !proposalLst.isEmpty()) {
+				convertTimeStampToString(proposalLst);
+				result.put("invoices", proposalLst);
+			}
+			if (badges != null && !badges.isEmpty()) {
+				result.put("badges", badges);
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return result;
+	}
+	
+	private static List<Proposal> convertTimeStampToString(List<Proposal> proposalLst) {
+		try {
+			if (proposalLst != null && !proposalLst.isEmpty()) {
+				for (int i = 0; i < proposalLst.size(); i++) {
+					Proposal proposal = proposalLst.get(i);
+					if (proposal != null) {
+						proposal.setProposal_date(
+								convertTimeStampToString(proposal.getProposal_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						proposal.setEstimate_date(
+								convertTimeStampToString(proposal.getEstimate_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return proposalLst;
 	}
 }
