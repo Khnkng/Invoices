@@ -29,6 +29,7 @@ public class Proposal {
 	private String customer_id;
 	private String state;
 	private String proposal_date;
+	private String estimate_date;
 	private String notes;
 	private double discount;
 	private double deposit_amount;
@@ -55,8 +56,15 @@ public class Proposal {
 	private String send_to;
 	private String email_state;
 	private String due_date;
-
 	
+	public String getEstimate_date() {
+		return estimate_date;
+	}
+
+	public void setEstimate_date(String estimate_date) {
+		this.estimate_date = estimate_date;
+	}
+
 	public String getId() {
 		return id;
 	}

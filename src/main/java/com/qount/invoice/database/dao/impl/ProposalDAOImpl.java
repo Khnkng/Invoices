@@ -80,6 +80,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setBoolean(ctr++, proposal.is_recurring());
 				pstmt.setString(ctr++, proposal.getEmail_state());
 				pstmt.setString(ctr++, proposal.getSend_to());
+				pstmt.setString(ctr++, proposal.getEstimate_date());
 //				pstmt.setString(ctr++, proposal.getDue_date());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -135,6 +136,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setBoolean(ctr++, proposal.is_recurring());
 				pstmt.setString(ctr++, proposal.getEmail_state());
 				pstmt.setString(ctr++, proposal.getSend_to());
+				pstmt.setString(ctr++, proposal.getEstimate_date());
 //				pstmt.setString(ctr++, proposal.getDue_date());
 				pstmt.setString(ctr++, proposal.getId());
 				int rowCount = pstmt.executeUpdate();
@@ -204,6 +206,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 						proposal.getProposalLines().add(proposalLine);
 						if (StringUtils.isBlank(proposal.getId())) {
 							proposal.setId(rset.getString("id"));
+							proposal.setEstimate_date(rset.getString("estimate_date"));
 							proposal.setIs_recurring(rset.getBoolean("is_recurring"));
 							proposal.setUser_id(rset.getString("user_id"));
 							proposal.setCompany_id(rset.getString("company_id"));
@@ -280,6 +283,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					Proposal proposal = new Proposal();
+					proposal.setEstimate_date(rset.getString("estimate_date"));
 					proposal.setNumber(rset.getString("number"));
 					proposal.setId(rset.getString("id"));
 					proposal.setProposal_date(rset.getString("proposal_date"));
