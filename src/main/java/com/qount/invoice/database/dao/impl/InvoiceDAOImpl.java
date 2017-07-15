@@ -614,6 +614,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				}
 			}
 		} catch (Exception e) {
+			System.out.println("exception"+e);
 			LOGGER.error("Error fetching invoices for user_id [ " + userID + " ]", e);
 			throw e;
 		} finally {
@@ -626,15 +627,17 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	
 	private String getDateStringFromSQLDate(java.sql.Date date, String format) {
 		String dateStr = null;
-		try {
-            if (StringUtils.isNoneBlank(format)) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-                Date utilDate = new Date(date.getTime());
-                dateStr = dateFormat.format(utilDate);
-            }
-        } catch (Exception e) {
-        	throw new WebApplicationException(CommonUtils.constructResponse("cannot parse date", 400));
-        }
+		if(date != null && format != null) {			
+			try {
+				if (StringUtils.isNoneBlank(format)) {
+					SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+					Date utilDate = new Date(date.getTime());
+					dateStr = dateFormat.format(utilDate);
+				}
+			} catch (Exception e) {
+				//throw new WebApplicationException(CommonUtils.constructResponse("cannot parse date", 400));
+			}
+		}
         return dateStr;
 	}
 
