@@ -119,7 +119,8 @@ public class InvoiceDetailControllerImpl {
 			}else{
 				throw new WebApplicationException("unable to make payment from payment gateway");
 			}
-			payment.setReferenceNo(transactionId);
+			payment.setReferenceNo(invoice.getNumber());
+			payment.setMemo(transactionId);
 			double amountPaidInDollar = convertCentToDollar(amount_settled);
 			payment.setPaymentAmount(new BigDecimal(amountPaidInDollar));
 			paymentLine.setAmount(new BigDecimal(amountPaidInDollar));
