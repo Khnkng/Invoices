@@ -41,23 +41,22 @@ public class ProposalControllerImpl {
 						Constants.PRECONDITION_FAILED_STR + ":userID and companyID are mandatory", Status.PRECONDITION_FAILED));
 			}
 			Proposal proposalObj = ProposalParser.getProposalObj(userID, proposal, companyID);
+			if (proposal.isSendMail()) {
+				if (sendProposalEmail(proposalObj)) {
+					proposal.setState(Constants.INVOICE_STATE_SENT);
+				}
+				if (StringUtils.isEmpty(proposal.getState())) {
+					proposal.setState(Constants.INVOICE_STATE_DRAFT);
+				}
+			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
-			Proposal proposalResult = MySQLManager.getProposalDAOInstance().save(connection, proposal);
+			Proposal proposalResult = MySQLManager.getProposalDAOInstance().save(connection, proposalObj);
 			if (proposalResult != null) {
 				List<ProposalLine> proposalLineResult = MySQLManager.getProposalLineDAOInstance().save(connection, proposalObj.getProposalLines());
-				if (proposal.isSendMail()) {
-					proposalResult.setRecepientsMailsArr(proposal.getRecepientsMailsArr());
-					if (sendProposalEmail(proposalResult)) {
-						proposal.setState("Email Sent");
-					}
-					if (StringUtils.isEmpty(proposal.getState())) {
-						proposal.setState("Draft");
-					}
-				}
 				if (!proposalLineResult.isEmpty()) {
 					connection.commit();
 				}
@@ -84,6 +83,14 @@ public class ProposalControllerImpl {
 			Proposal proposalObj = ProposalParser.getProposalObj(userID, proposal, companyID);
 			if (proposalObj == null || StringUtils.isAnyBlank(userID, companyID, proposalID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			if (proposal.isSendMail()) {
+				if (sendProposalEmail(proposalObj)) {
+					proposal.setState(Constants.INVOICE_STATE_SENT);
+				}
+				if (StringUtils.isEmpty(proposal.getState())) {
+					proposal.setState(Constants.INVOICE_STATE_DRAFT);
+				}
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
