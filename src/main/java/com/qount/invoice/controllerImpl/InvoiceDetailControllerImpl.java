@@ -2,7 +2,6 @@ package com.qount.invoice.controllerImpl;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -135,9 +134,10 @@ public class InvoiceDetailControllerImpl {
 				double amount_due = invoice.getAmount() - amountPaidInDollar;
 				invoice.setAmount_due(amount_due);
 			}
-			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
-			boolean isInvoiceUpdated = MySQLManager.getInvoiceDAOInstance().update(connection, invoice)!=null?true:false;
+//			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+//			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(invoice.getUser_id(), invoice, companyID, false);
+			boolean isInvoiceUpdated = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj)!=null?true:false;
 			if(!isInvoiceUpdated){
 				throw new WebApplicationException("payment done but not saved in qount db");
 				//TODO refund payment
