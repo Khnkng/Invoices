@@ -65,7 +65,16 @@ public class Invoice {
 	private CustomerContactDetails customerContactDetails;
 	private double tax_amount;
 	private String journalID;
+	private String payment_type;//Credit Card || Bank
 	
+	public String getPayment_type() {
+		return payment_type;
+	}
+
+	public void setPayment_type(String payment_type) {
+		this.payment_type = payment_type;
+	}
+
 	public double getTax_amount() {
 		return tax_amount;
 	}
