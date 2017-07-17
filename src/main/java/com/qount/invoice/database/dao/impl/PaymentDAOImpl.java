@@ -106,7 +106,7 @@ public class PaymentDAOImpl implements paymentDAO{
 				invoice.setState("partially_paid");				
 			}
 			invoice.setAmount_paid(paymentLine.getAmount().doubleValue());
-			invoice.setAmount_due(invoice.getAmount() - paymentLine.getAmount().doubleValue());
+			invoice.setAmount_due(invoice.getAmount_due() - paymentLine.getAmount().doubleValue());
 			invoiceDAOImpl.update(connection, invoice);
 		} catch (Exception e) {
 			throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
