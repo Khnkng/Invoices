@@ -38,6 +38,8 @@ public class Payment {
 	
 	private String paymentNote;
 	
+	private String depositedTo;
+	
 	public String getId() {
 		return id;
 	}
@@ -103,6 +105,12 @@ public class Payment {
 	}
 	public void setPaymentNote(String paymentNote) {
 		this.paymentNote = paymentNote;
+	}
+	public String getDepositedTo() {
+		return depositedTo;
+	}
+	public void setDepositedTo(String depositedTo) {
+		this.depositedTo = depositedTo;
 	}	
 
 }

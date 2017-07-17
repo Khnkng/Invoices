@@ -59,6 +59,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					pstmt.setString(ctr++, payment.getCompanyId());
 					pstmt.setString(ctr++, payment.getType());
 					pstmt.setString(ctr++, payment.getPaymentNote());
+					pstmt.setString(ctr++, payment.getDepositedTo());
 					
 					pstmt.setString(ctr++, payment.getReceivedFrom());
 					pstmt.setDouble(ctr++, amt);
@@ -69,6 +70,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					pstmt.setString(ctr++, payment.getCompanyId());
 					pstmt.setString(ctr++, payment.getType());
 					pstmt.setString(ctr++, payment.getPaymentNote());
+					pstmt.setString(ctr++, payment.getDepositedTo());
 					int affectedRows = pstmt.executeUpdate();
 					if (affectedRows == 0) {
 			            throw new SQLException("");
@@ -237,6 +239,7 @@ public class PaymentDAOImpl implements paymentDAO{
 						payment.setMemo(rset.getString("memo"));
 						payment.setType(rset.getString("type"));
 						payment.setPaymentNote(rset.getString("payment_notes"));
+						payment.setDepositedTo(rset.getString("bank_account_id"));
 						payment.setPaymentLines(getLines(payment.getId()));
 						payments.add(payment);
 					}
