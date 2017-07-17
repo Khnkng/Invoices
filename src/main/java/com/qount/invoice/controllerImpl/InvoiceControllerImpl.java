@@ -321,7 +321,8 @@ public class InvoiceControllerImpl {
 					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName()) ? "" : invoice.getCompanyName())
 					.replace("{{amount}}", currency + (StringUtils.isEmpty(invoice.getAmount() + "") ? "" : invoice.getAmount() + ""))
 					.replace("{{due date}}", StringUtils.isEmpty(dueDate)?"":dueDate)
-					.replace("${invoiceLinkUrl}", invoiceLinkUrl);
+					.replace("${invoiceLinkUrl}", invoiceLinkUrl)
+					.replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url"));
 			emailJson.put("body", template);
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
