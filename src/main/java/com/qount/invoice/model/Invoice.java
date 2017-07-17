@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @XmlRootElement
 public class Invoice {
-	
+
 	private String id;
 	private String user_id;
 	private String company_id;
@@ -65,7 +65,7 @@ public class Invoice {
 	private CustomerContactDetails customerContactDetails;
 	private double tax_amount;
 	private String journalID;
-	
+
 	public double getTax_amount() {
 		return tax_amount;
 	}
@@ -450,6 +450,17 @@ public class Invoice {
 		this.journalID = journalID;
 	}
 
+	public String getJournalParametersString() {
+		StringBuilder journalParmBuilder = new StringBuilder();
+		journalParmBuilder.append(this.customer.getJournalParametersString()).append(this.invoice_date).append(this.currency).append(this.number).append(this.amount);
+		if (this.invoiceLines != null) {
+			for (InvoiceLine line : invoiceLines) {
+				journalParmBuilder.append(line.getJournalParametersString());
+			}
+		}
+		return journalParmBuilder.toString();
+	}
+
 	@Override
 	public String toString() {
 		try {
@@ -463,5 +474,5 @@ public class Invoice {
 	public static void main(String[] args) {
 		System.out.println(new Invoice());
 	}
-	
+
 }

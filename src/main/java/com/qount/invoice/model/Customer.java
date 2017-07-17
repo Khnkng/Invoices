@@ -183,6 +183,10 @@ public class Customer {
 	public void setCoa(String coa) {
 		this.coa = coa;
 	}
+	
+	public String getJournalParametersString(){
+		return this.customer_id;
+	}
 
 	@Override
 	public String toString() {

@@ -159,6 +159,15 @@ public class InvoiceLine {
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
+	
+	public String getJournalParametersString(){
+		StringBuilder journalParmBuilder = new StringBuilder();
+		journalParmBuilder.append(this.amount + this.price + this.quantity + this.tax_id);
+		if(this.item != null){
+			journalParmBuilder.append(this.item.getJournalParametersString());
+		}
+		return journalParmBuilder.toString();
+	}
 
 	@Override
 	public boolean equals(Object obj) {
