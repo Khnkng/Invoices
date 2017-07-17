@@ -126,13 +126,13 @@ public class InvoiceDetailControllerImpl {
 			paymentLine.setAmount(new BigDecimal(amountPaidInDollar));
 			payments.add(paymentLine);
 			payment.setPaymentLines(payments);
-			invoice.setAmount_paid(amountPaidInDollar);
+			invoice.setAmount_paid(invoice.getAmount_paid()+amountPaidInDollar);
 			if (amountPaidInDollar == invoice.getAmount()) {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				invoice.setAmount_due(0);
 			} else {
 				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
-				double amount_due = invoice.getAmount() - amountPaidInDollar;
+				double amount_due = invoice.getAmount() - invoice.getAmount_paid();
 				invoice.setAmount_due(amount_due);
 			}
 //			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);

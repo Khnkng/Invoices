@@ -71,6 +71,7 @@ public class InvoiceControllerImpl {
 				if (!invoiceLineResult.isEmpty()) {
 					connection.commit();
 				}
+				CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 				return InvoiceParser.convertTimeStampToString(invoiceObj);
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
@@ -321,7 +322,8 @@ public class InvoiceControllerImpl {
 					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName()) ? "" : invoice.getCompanyName())
 					.replace("{{amount}}", currency + (StringUtils.isEmpty(invoice.getAmount() + "") ? "" : invoice.getAmount() + ""))
 					.replace("{{due date}}", StringUtils.isEmpty(dueDate)?"":dueDate)
-					.replace("${invoiceLinkUrl}", invoiceLinkUrl);
+					.replace("${invoiceLinkUrl}", invoiceLinkUrl)
+					.replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url"));
 			emailJson.put("body", template);
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
