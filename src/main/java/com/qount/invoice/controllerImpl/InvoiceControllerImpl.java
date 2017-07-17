@@ -71,6 +71,7 @@ public class InvoiceControllerImpl {
 				if (!invoiceLineResult.isEmpty()) {
 					connection.commit();
 				}
+				CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 				return InvoiceParser.convertTimeStampToString(invoiceObj);
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));

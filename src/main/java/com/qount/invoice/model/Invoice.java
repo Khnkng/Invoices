@@ -64,6 +64,7 @@ public class Invoice {
 	private Company company;
 	private CustomerContactDetails customerContactDetails;
 	private double tax_amount;
+	private String journalID;
 	
 	public double getTax_amount() {
 		return tax_amount;
@@ -439,6 +440,14 @@ public class Invoice {
 
 	public void setCreated_at(String created_at) {
 		this.created_at = created_at;
+	}
+
+	public String getJournalID() {
+		return journalID;
+	}
+
+	public void setJournalID(String journalID) {
+		this.journalID = journalID;
 	}
 
 	@Override

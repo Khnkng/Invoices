@@ -228,4 +228,23 @@ public class CommonUtils {
 			throw e;
 		}
 	}
+	
+	public static JSONObject createJournal(String payload, String userID, String companyID) {
+		JSONObject responseJSON = null;
+		try {
+			String path = LTMUtils.getHostAddress("qounting.service.docker.hostname", "qounting.service.docker.port", "oneapp.service.url");
+			path = path + "Qounting/users/" + userID + "/companies/" + companyID + "/journals";
+			LOGGER.debug("path = " + path);
+			LOGGER.debug("payload = " + payload);
+			String responseString = JerseyClient.post(path, payload);
+			LOGGER.debug("responseString = " + responseString);
+			if (StringUtils.isNotBlank(responseString)) {
+				responseJSON = new JSONObject(responseString);
+				LOGGER.debug(responseJSON);
+			}	
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return responseJSON;
+	}
 }
