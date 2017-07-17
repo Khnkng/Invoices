@@ -184,10 +184,6 @@ public class Customer {
 		this.coa = coa;
 	}
 	
-	public String getJournalParametersString(){
-		return this.customer_id;
-	}
-
 	@Override
 	public String toString() {
 		try {

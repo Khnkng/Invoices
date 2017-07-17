@@ -32,10 +32,6 @@ public class Item {
 		this.name = name;
 	}
 
-	public String getJournalParametersString() {
-		return id;
-	}
-
 	@Override
 	public String toString() {
 		try {

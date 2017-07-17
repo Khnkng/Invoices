@@ -88,12 +88,12 @@ public class InvoiceControllerImpl {
 	public static Invoice updateInvoice(String userID, String companyID, String invoiceID, Invoice invoice) {
 		LOGGER.debug("entered updateInvoice userid:" + userID + " companyID:" + companyID + " invoiceID:" + invoiceID + ": invoice" + invoice);
 		Connection connection = null;
-		boolean journalNotNecessary = true;
+		boolean isJERequired = false;
 		try {
 			if(invoice != null){
 				invoice.setId(invoiceID);
 				Invoice dbInvoice = getInvoice(invoiceID);
-				journalNotNecessary = invoice.getJournalParametersString().equals(dbInvoice.getJournalParametersString());
+				isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
 			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, false);
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
@@ -121,7 +121,7 @@ public class InvoiceControllerImpl {
 							}
 						}
 						connection.commit();
-						if (journalNotNecessary) {
+						if (isJERequired) {
 							CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 						}
 						return InvoiceParser.convertTimeStampToString(invoiceResult);
@@ -388,6 +388,6 @@ public class InvoiceControllerImpl {
 		Invoice invoice = new ObjectMapper().readValue(invoiceString, Invoice.class);
 		Invoice newInvoice = new ObjectMapper().readValue(invoiceString, Invoice.class);
 		newInvoice.getInvoiceLines().get(0).setPrice(21);
-		System.out.println(invoice.getJournalParametersString().equals(newInvoice.getJournalParametersString()));
+		System.out.println(invoice.prepareJSParemeters().equals(newInvoice.prepareJSParemeters()));
 	}
 }

@@ -160,12 +160,9 @@ public class InvoiceLine {
 		this.notes = notes;
 	}
 	
-	public String getJournalParametersString(){
+	public String prepareJSParemeters(){
 		StringBuilder journalParmBuilder = new StringBuilder();
-		journalParmBuilder.append(this.amount + this.price + this.quantity + this.tax_id);
-		if(this.item != null){
-			journalParmBuilder.append(this.item.getJournalParametersString());
-		}
+		journalParmBuilder.append(this.amount + this.price + this.quantity + this.tax_id + this.item_id);
 		return journalParmBuilder.toString();
 	}
 

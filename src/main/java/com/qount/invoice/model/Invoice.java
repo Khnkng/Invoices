@@ -450,12 +450,12 @@ public class Invoice {
 		this.journalID = journalID;
 	}
 
-	public String getJournalParametersString() {
+	public String prepareJSParemeters() {
 		StringBuilder journalParmBuilder = new StringBuilder();
-		journalParmBuilder.append(this.customer.getJournalParametersString()).append(this.invoice_date).append(this.currency).append(this.number).append(this.amount);
+		journalParmBuilder.append(this.customer_id).append(this.invoice_date).append(this.currency).append(this.number).append(this.amount);
 		if (this.invoiceLines != null) {
 			for (InvoiceLine line : invoiceLines) {
-				journalParmBuilder.append(line.getJournalParametersString());
+				journalParmBuilder.append(line.prepareJSParemeters());
 			}
 		}
 		return journalParmBuilder.toString();
