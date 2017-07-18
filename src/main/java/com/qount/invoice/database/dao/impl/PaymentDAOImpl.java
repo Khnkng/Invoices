@@ -95,12 +95,14 @@ public class PaymentDAOImpl implements paymentDAO{
 	
 	private void updateInvoicesState(Connection connection, PaymentLine paymentLine, Payment payment) {
 		InvoiceDAOImpl invoiceDAOImpl = InvoiceDAOImpl.getInvoiceDAOImpl();
-		List<PaymentLine> lines = getLines(payment.getId());
 		PaymentLine lineFromDb = null;
-		for(PaymentLine line: lines) {
-			if(line.getInvoiceId().equals(paymentLine.getInvoiceId())) {
-				lineFromDb = line;
-				break;
+		if(payment.getId() != null) {			
+			List<PaymentLine> lines = getLines(payment.getId());
+			for(PaymentLine line: lines) {
+				if(line.getInvoiceId().equals(paymentLine.getInvoiceId())) {
+					lineFromDb = line;
+					break;
+				}
 			}
 		}
 		try {
@@ -117,7 +119,11 @@ public class PaymentDAOImpl implements paymentDAO{
 				amountPaid = paymentLine.getAmount().doubleValue();
 			} else {
 				invoice.setState("partially_paid");	
-				amountPaid = paymentLine.getAmount().doubleValue() - lineFromDb.getAmount().doubleValue();
+				if(lineFromDb != null) {					
+					amountPaid = paymentLine.getAmount().doubleValue() - lineFromDb.getAmount().doubleValue();
+				} else {
+					amountPaid = paymentLine.getAmount().doubleValue();
+				}
 			}
 			invoice.setAmount_paid(amountPaid);
 			invoice.setAmount_due(invoice.getAmount_due() - amountPaid);
