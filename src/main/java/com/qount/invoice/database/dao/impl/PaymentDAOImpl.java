@@ -95,8 +95,17 @@ public class PaymentDAOImpl implements paymentDAO{
 	
 	private void updateInvoicesState(Connection connection, PaymentLine paymentLine, Payment payment) {
 		InvoiceDAOImpl invoiceDAOImpl = InvoiceDAOImpl.getInvoiceDAOImpl();
+		List<PaymentLine> lines = getLines(payment.getId());
+		PaymentLine lineFromDb = null;
+		for(PaymentLine line: lines) {
+			if(line.getInvoiceId().equals(paymentLine.getInvoiceId())) {
+				lineFromDb = line;
+				break;
+			}
+		}
 		try {
 			Invoice invoice = invoiceDAOImpl.get(paymentLine.getInvoiceId());
+			double amountPaid = 0;
 			if(invoice.getState() != null && invoice.getState().equals("paid")) {
 				return;
 			}
@@ -105,11 +114,13 @@ public class PaymentDAOImpl implements paymentDAO{
 			}
 			if (invoice.getAmount() == paymentLine.getAmount().doubleValue()) {
 				invoice.setState("paid");
+				amountPaid = paymentLine.getAmount().doubleValue();
 			} else {
-				invoice.setState("partially_paid");				
+				invoice.setState("partially_paid");	
+				amountPaid = paymentLine.getAmount().doubleValue() - lineFromDb.getAmount().doubleValue();
 			}
-			invoice.setAmount_paid(paymentLine.getAmount().doubleValue());
-			invoice.setAmount_due(invoice.getAmount_due() - paymentLine.getAmount().doubleValue());
+			invoice.setAmount_paid(amountPaid);
+			invoice.setAmount_due(invoice.getAmount_due() - amountPaid);
 			invoiceDAOImpl.update(connection, invoice);
 		} catch (Exception e) {
 			throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
