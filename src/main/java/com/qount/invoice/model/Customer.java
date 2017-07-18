@@ -183,7 +183,7 @@ public class Customer {
 	public void setCoa(String coa) {
 		this.coa = coa;
 	}
-
+	
 	@Override
 	public String toString() {
 		try {
