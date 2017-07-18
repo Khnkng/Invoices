@@ -97,6 +97,9 @@ public class PaymentDAOImpl implements paymentDAO{
 		InvoiceDAOImpl invoiceDAOImpl = InvoiceDAOImpl.getInvoiceDAOImpl();
 		try {
 			Invoice invoice = invoiceDAOImpl.get(paymentLine.getInvoiceId());
+			if(invoice.getState() != null && invoice.getState().equals("paid")) {
+				return;
+			}
 			if (paymentLine.getAmount().doubleValue() > invoice.getAmount()) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 			}
