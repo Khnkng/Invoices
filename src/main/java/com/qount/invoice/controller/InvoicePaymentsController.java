@@ -29,7 +29,7 @@ public class InvoicePaymentsController {
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Create a payment", notes = "Used to create new payment", responseContainer = "java.lang.String")
 	public Payment createPayment(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @Valid Payment payment) {
-		return PaymentService.getInstance().createOrUpdatePayment(payment, companyID);
+		return PaymentService.getInstance().createOrUpdatePayment(payment, companyID, userID);
 	}
 	
 	@PUT
@@ -38,7 +38,7 @@ public class InvoicePaymentsController {
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Create a payment", notes = "Used to create new payment", responseContainer = "java.lang.String")
 	public Payment updatePayment(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @Valid Payment payment) {
-		return PaymentService.getInstance().createOrUpdatePayment(payment, companyID);
+		return PaymentService.getInstance().createOrUpdatePayment(payment, companyID, userID);
 	}
 	
 	@GET
