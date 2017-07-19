@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
+import com.qount.invoice.model.BoxValues;
 import com.qount.invoice.model.Coa;
 import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Currencies;
@@ -79,7 +80,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getTerm());
 				pstmt.setLong(ctr++, new Date().getTime());
-				pstmt.setString(ctr++, invoice.getRecepientsMailsArr()==null?null:invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
 				pstmt.setString(ctr++, invoice.getPayment_options());
@@ -140,7 +141,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getTerm());
-				pstmt.setString(ctr++, invoice.getRecepientsMailsArr()==null?null:invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
 				pstmt.setString(ctr++, invoice.getPayment_options());
@@ -198,7 +199,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 	}
-	
+
 	@Override
 	public Invoice updateInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception {
 		LOGGER.debug("entered invoice updateSate:" + invoice);
@@ -517,13 +518,13 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.DELETE_LST_QRY;
-				query +=lst+") AND `user_id` = '"+userId+"' AND `company_id` ='"+companyId+"';";
+				query += lst + ") AND `user_id` = '" + userId + "' AND `company_id` ='" + companyId + "';";
 				pstmt = connection.prepareStatement(query);
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of invoice deleted:" + rowCount);
 				if (rowCount > 0) {
 					return true;
-				}else{
+				} else {
 					return false;
 				}
 			}
@@ -545,7 +546,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public boolean updateStateAsSent(String userId, String companyId, String lst) throws Exception {
 		LOGGER.debug("entered updateStateAsSent lst:" + lst);
 		Connection connection = null;
-		if (StringUtils.isEmpty(lst) || StringUtils.isAnyBlank(companyId,userId)) {
+		if (StringUtils.isEmpty(lst) || StringUtils.isAnyBlank(companyId, userId)) {
 			return false;
 		}
 		PreparedStatement pstmt = null;
@@ -553,13 +554,13 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.UPDATE_AS_SENT_QRY;
-				query +=lst+") AND `user_id` = '"+userId+"' AND `company_id` ='"+companyId+"';";
+				query += lst + ") AND `user_id` = '" + userId + "' AND `company_id` ='" + companyId + "';";
 				pstmt = connection.prepareStatement(query);
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of invoice updated:" + rowCount);
 				if (rowCount > 0) {
 					return true;
-				}else{
+				} else {
 					return false;
 				}
 			}
@@ -593,7 +594,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
 				query += "`user_id`='" + userID + "' AND `company_id`= '" + companyID + "' ";
 				query += "AND `customer_id`= '" + clientID + "' ";
-				
+
 				pstmt = connection.prepareStatement(query);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -607,14 +608,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
-                    invoice.setAmount_paid(rset.getDouble("amount_paid"));
+					invoice.setAmount_paid(rset.getDouble("amount_paid"));
 					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 
 					invoiceLst.add(invoice);
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("exception"+e);
+			System.out.println("exception" + e);
 			LOGGER.error("Error fetching invoices for user_id [ " + userID + " ]", e);
 			throw e;
 		} finally {
@@ -623,11 +624,12 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited getInvoiceList userID:" + userID + " companyID:" + companyID + "cientID:" + clientID);
 		}
-		return invoiceLst;	}
-	
+		return invoiceLst;
+	}
+
 	private String getDateStringFromSQLDate(java.sql.Date date, String format) {
 		String dateStr = null;
-		if(date != null && format != null) {			
+		if (date != null && format != null) {
 			try {
 				if (StringUtils.isNoneBlank(format)) {
 					SimpleDateFormat dateFormat = new SimpleDateFormat(format);
@@ -635,10 +637,39 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					dateStr = dateFormat.format(utilDate);
 				}
 			} catch (Exception e) {
-				//throw new WebApplicationException(CommonUtils.constructResponse("cannot parse date", 400));
+				// throw new
+				// WebApplicationException(CommonUtils.constructResponse("cannot
+				// parse date", 400));
 			}
 		}
-        return dateStr;
+		return dateStr;
+	}
+
+	public BoxValues getBoxValues(String companyID) throws Exception {
+		LOGGER.debug("Fetching Box for company [ " + companyID + " ]");
+		BoxValues box = null;
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		try {
+			if (StringUtils.isNotBlank(companyID)) {
+				connection = DatabaseUtilities.getReadConnection();
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_BOX_VALUES);
+				pstmt.setString(1, companyID);
+				rset = pstmt.executeQuery();
+				if (rset.next()) {
+					box = new BoxValues();
+					box.setAvgOutstandingAmount(rset.getDouble("avg_outstanding"));
+					box.setAvgReceivableDays(rset.getDouble("avg_rec_date"));
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error fetching box values", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResources(rset, pstmt, connection);
+		}
+		return box;
 	}
 
 }
