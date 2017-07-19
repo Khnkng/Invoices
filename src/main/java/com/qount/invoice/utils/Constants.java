@@ -81,4 +81,6 @@ public class Constants {
 	public static final String INVOICE_STATE_DRAFT = "draft";
 	public static final String INVOICE_STATE_PAID = "paid";
 	public static final String INVOICE_STATE_PARTIALLY_PAID = "partially_paid";
+	public static final String INVOICE_CREDIT_CARD = "Credit Card";
+	public static final String INVOICE_BANK_ACCOUNT = "Bank Account";
 }

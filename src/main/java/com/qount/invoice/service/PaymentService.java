@@ -46,12 +46,9 @@ public class PaymentService {
 			connection.commit();
 			CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), userID, companyId);
 		} catch (SQLException e) {
-			try {
-				connection.rollback();
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.BAD_REQUEST));
-			} catch (SQLException e1) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e1.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
-			}
+				//connection.rollback();
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.BAD_REQUEST));
+			
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}

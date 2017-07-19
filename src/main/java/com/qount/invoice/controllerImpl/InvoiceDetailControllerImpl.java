@@ -46,6 +46,11 @@ public class InvoiceDetailControllerImpl {
 			if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
 				throw new WebApplicationException("non USD currency payment not supported yet");
 			}
+			String payment_type = inputInvoice.getPayment_type();
+			if(StringUtils.isBlank(payment_type) || (!StringUtils.equals(payment_type, Constants.INVOICE_CREDIT_CARD)
+					& !StringUtils.equals(payment_type, Constants.INVOICE_BANK_ACCOUNT))){
+				throw new WebApplicationException("only bank and credit card payments methods supported");
+			}
 			JSONObject payloadObj = null;
 			String urlAction = "charge";
 			invoice.setAmountToPay(inputInvoice.getAmountToPay());
@@ -74,7 +79,7 @@ public class InvoiceDetailControllerImpl {
 			payment.setId(UUID.randomUUID().toString());
 			payment.setPaymentDate(DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT));
 			payment.setReceivedFrom(invoice.getCustomer_id());
-			payment.setType("Credit Card");
+			payment.setType(payment_type);
 			float convertionValue = getConversionValue(invoice.getCurrency(), Constants.DEFAULT_INVOICE_CURRENCY);
 			double convertedAmountToPay = convertInvoiceAmount(convertionValue, amountToPay);
 			amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
