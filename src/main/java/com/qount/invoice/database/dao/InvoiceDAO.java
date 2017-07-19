@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-import com.qount.invoice.model.BoxValues;
+import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Invoice;
 
 /**
@@ -38,5 +38,5 @@ public interface InvoiceDAO {
 	
 	public Invoice updateInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception;
 	
-	public BoxValues getBoxValues(String companyID)  throws Exception;
+	public InvoiceMetrics getInvoiceMetrics(String companyID)  throws Exception;
 }

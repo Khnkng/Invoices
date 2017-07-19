@@ -1,8 +1,10 @@
 package com.qount.invoice.database.dao.impl;
 
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
-import com.qount.invoice.model.BoxValues;
 import com.qount.invoice.model.Coa;
 import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Currencies;
@@ -24,6 +25,7 @@ import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.CustomerContactDetails;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
+import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Item;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
@@ -656,12 +658,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return dateStr;
 	}
 
-	public BoxValues getBoxValues(String companyID) throws Exception {
+	public InvoiceMetrics getInvoiceMetrics(String companyID) throws Exception {
 		LOGGER.debug("Fetching Box for company [ " + companyID + " ]");
-		BoxValues box = null;
+		InvoiceMetrics box = null;
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Connection connection = null;
+		DecimalFormat df = new DecimalFormat("#.00"); 
+		df.setRoundingMode(RoundingMode.CEILING);
 		try {
 			if (StringUtils.isNotBlank(companyID)) {
 				connection = DatabaseUtilities.getReadConnection();
@@ -669,9 +673,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(1, companyID);
 				rset = pstmt.executeQuery();
 				if (rset.next()) {
-					box = new BoxValues();
-					box.setAvgOutstandingAmount(rset.getDouble("avg_outstanding"));
-					box.setAvgReceivableDays(rset.getDouble("avg_rec_date"));
+					box = new InvoiceMetrics();
+					box.setAvgOutstandingAmount(Double.parseDouble(df.format(rset.getDouble("avg_outstanding"))));
+					box.setAvgReceivableDays(Double.parseDouble(df.format(rset.getDouble("avg_rec_date"))));
+					box.setInvoiceCount(Double.parseDouble(df.format(rset.getDouble("invoice_count"))));
+					box.setTotalReceivableAmount(Double.parseDouble(df.format(rset.getDouble("total_due"))));
 				}
 			}
 		} catch (Exception e) {

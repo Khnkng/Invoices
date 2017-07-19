@@ -21,7 +21,7 @@ import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
-import com.qount.invoice.model.BoxValues;
+import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.Payment;
@@ -385,16 +385,16 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static Response getBoxValues(String userID, String companyID) {
+	public static Response getInvoiceMetrics(String userID, String companyID) {
 		try {
 			LOGGER.debug("entered get box values userID:" + userID + " companyID:" + companyID);
 			if (StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			InvoiceDAO invoiceDAO = InvoiceDAOImpl.getInvoiceDAOImpl();
-			BoxValues boxValues = invoiceDAO.getBoxValues(companyID);
-			if (boxValues != null) {
-				return Response.status(200).entity(boxValues).build();
+			InvoiceMetrics invoiceMetrics = invoiceDAO.getInvoiceMetrics(companyID);
+			if (invoiceMetrics != null) {
+				return Response.status(200).entity(invoiceMetrics).build();
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
