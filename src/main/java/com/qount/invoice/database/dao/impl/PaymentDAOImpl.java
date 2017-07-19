@@ -310,6 +310,7 @@ public class PaymentDAOImpl implements paymentDAO{
 						payment.setMemo(rset.getString("memo"));
 						payment.setType(rset.getString("type"));
 						payment.setPaymentNote(rset.getString("payment_notes"));
+						payment.setDepositedTo(rset.getString("bank_account_id"));
 						payment.setPaymentLines(getLines(payment.getId()));
 					}
 				} catch (SQLException e) {
