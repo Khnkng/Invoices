@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
+import com.qount.invoice.model.BoxValues;
 import com.qount.invoice.model.Invoice;
 
 /**
@@ -36,4 +37,6 @@ public interface InvoiceDAO {
 	public boolean updateStateAsSent(String userId, String companyId, String lst) throws Exception;
 	
 	public Invoice updateInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception;
+	
+	public BoxValues getBoxValues(String companyID)  throws Exception;
 }

@@ -124,4 +124,13 @@ public class InvoiceController {
 	public Response getCount(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID) {
 		return InvoiceControllerImpl.getCount(userID, companyID);
 	}
+	
+	@GET
+	@Path("/box")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(notes = "Used to get box", value = "retieves box in invoice", responseContainer = "java.lang.String")
+	public Response getBox(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID) {
+		return InvoiceControllerImpl.getBoxValues(userID, companyID);
+	}
 }
