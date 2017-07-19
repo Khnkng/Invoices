@@ -454,6 +454,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setJournalID(rset.getString("journal_id"));
 					invoiceLst.add(invoice);
 				}
 			}
