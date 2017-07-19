@@ -479,6 +479,14 @@ public class Invoice {
 		}
 		return super.toString();
 	}
+	@Override
+    public boolean equals(Object obj) {
+        if (obj != null) {
+            Invoice invoice = (Invoice) obj;
+            return invoice.getId().equalsIgnoreCase(this.id);
+        }
+        return false;
+    }
 
 	public static void main(String[] args) {
 		System.out.println(new Invoice());

@@ -445,6 +445,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					Invoice invoice = new Invoice();
+					invoice.setId(rset.getString("id"));
+					int index = invoiceLst.indexOf(invoice);
+					if (index == -1) {
 					invoice.setNumber(rset.getString("number"));
 					invoice.setCustomer_id(rset.getString("customer_id"));
 					invoice.setId(rset.getString("id"));
@@ -454,8 +457,15 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
-					invoice.setJournalID(rset.getString("journal_id"));
 					invoiceLst.add(invoice);
+					}
+					else{
+						invoice = invoiceLst.get(index);
+					}
+					String journalID = rset.getString("journal_id");
+					if(StringUtils.isNoneBlank(journalID)&& rset.getBoolean("isActive")){
+						invoice.setJournalID(journalID);
+					}
 				}
 			}
 		} catch (Exception e) {
