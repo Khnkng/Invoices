@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -91,6 +92,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getPayment_method());
 				pstmt.setDouble(ctr++, invoice.getTax_amount());
+				//below value only comes when proposal is accepted to invoice
+				pstmt.setString(ctr++, invoice.getProposal_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
@@ -695,4 +698,80 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return invoiceMetrics;
 	}
 
+@Override
+	public List<Invoice> saveInvoice(Connection connection, List<Invoice> invoiceList) throws Exception {
+		LOGGER.debug("entered saveInvoice:" + invoiceList);
+		if (invoiceList == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				Iterator<Invoice> invoiceItr = invoiceList.iterator();
+				int ctr = 1;
+				while (invoiceItr.hasNext()) {
+					Invoice invoice = invoiceItr.next();
+					pstmt.setString(ctr++, invoice.getId());
+					pstmt.setString(ctr++, invoice.getUser_id());
+					pstmt.setString(ctr++, invoice.getCompany_id());
+					pstmt.setString(ctr++, invoice.getCustomer_id());
+					pstmt.setDouble(ctr++, invoice.getAmount());
+					pstmt.setString(ctr++, invoice.getCurrency());
+					pstmt.setString(ctr++, invoice.getDescription());
+					pstmt.setString(ctr++, invoice.getObjectives());
+					pstmt.setString(ctr++, invoice.getLast_updated_by());
+					pstmt.setString(ctr++, invoice.getLast_updated_at());
+					pstmt.setString(ctr++, invoice.getState());
+					pstmt.setString(ctr++, invoice.getInvoice_date());
+					pstmt.setString(ctr++, invoice.getNotes());
+					pstmt.setDouble(ctr++, invoice.getDiscount());
+					pstmt.setDouble(ctr++, invoice.getDeposit_amount());
+					pstmt.setDouble(ctr++, invoice.getProcessing_fees());
+					pstmt.setString(ctr++, invoice.getNumber());
+					pstmt.setString(ctr++, invoice.getDocument_id());
+					pstmt.setDouble(ctr++, invoice.getAmount_due());
+					pstmt.setString(ctr++, invoice.getDue_date());
+					pstmt.setDouble(ctr++, invoice.getSub_totoal());
+					pstmt.setDouble(ctr++, invoice.getAmount_by_date());
+					pstmt.setString(ctr++, invoice.getCreated_at());
+					pstmt.setDouble(ctr++, invoice.getAmount_paid());
+					pstmt.setString(ctr++, invoice.getTerm());
+					pstmt.setLong(ctr++, new Date().getTime());
+					pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null
+							: invoice.getRecepientsMailsArr().toString());
+					pstmt.setString(ctr++, invoice.getPlan_id());
+					pstmt.setBoolean(ctr++, invoice.is_recurring());
+					pstmt.setString(ctr++, invoice.getPayment_options());
+					pstmt.setString(ctr++, invoice.getEmail_state());
+					pstmt.setString(ctr++, invoice.getSend_to());
+					pstmt.setString(ctr++, invoice.getRefrence_number());
+					pstmt.setString(ctr++, invoice.getPayment_method());
+					pstmt.setDouble(ctr++, invoice.getTax_amount());
+					if(invoice.getProposal_id() != null) {
+						pstmt.setString(ctr++, invoice.getProposal_id());
+					}
+					ctr = 1;
+					pstmt.addBatch();
+				}
+				int[] rowCount = pstmt.executeBatch();
+				if (rowCount != null) {
+					return invoiceList;
+				} else {
+					throw new WebApplicationException("unable to save invoice", 500);
+				}
+				
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error inserting invoice:" + e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited saveInvoice:" + invoiceList);
+		}
+		return invoiceList;
+	}
 }

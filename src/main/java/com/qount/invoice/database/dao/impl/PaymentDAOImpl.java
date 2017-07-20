@@ -266,6 +266,8 @@ public class PaymentDAOImpl implements paymentDAO{
 					while(rset.next()) {
 						Payment payment = new Payment();
 						payment.setId(rset.getString("id"));
+						int index = payments.indexOf(payment);
+						if(index == -1){
 						payment.setReceivedFrom(rset.getString("received_from"));
 						payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
 						payment.setCurrencyCode(rset.getString("currency_code"));
@@ -277,6 +279,14 @@ public class PaymentDAOImpl implements paymentDAO{
 						payment.setDepositedTo(rset.getString("bank_account_id"));
 						payment.setPaymentLines(getLines(payment.getId()));
 						payments.add(payment);
+						}
+						else{
+							payment = payments.get(index);
+						}
+						String journalID =rset.getString("journal_id");
+						if(StringUtils.isNotBlank(journalID)&& rset.getBoolean("isActive")){
+							payment.setJournalID(journalID);
+						}
 					}
 				} catch (SQLException e) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));

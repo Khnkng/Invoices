@@ -66,7 +66,15 @@ public class Invoice {
 	private double tax_amount;
 	private String journalID;
 	private String payment_type;//Credit Card || Bank
+	private String proposal_id;
 	
+	public String getProposal_id() {
+		return proposal_id;
+	}
+
+	public void setProposal_id(String proposal_id) {
+		this.proposal_id = proposal_id;
+	}
 	public String getPayment_type() {
 		return payment_type;
 	}

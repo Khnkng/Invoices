@@ -1,12 +1,15 @@
 package com.qount.invoice.controllerImpl;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -14,6 +17,8 @@ import org.json.JSONObject;
 import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.parser.ProposalParser;
@@ -41,12 +46,12 @@ public class ProposalControllerImpl {
 						Constants.PRECONDITION_FAILED_STR + ":userID and companyID are mandatory", Status.PRECONDITION_FAILED));
 			}
 			Proposal proposalObj = ProposalParser.getProposalObj(userID, proposal, companyID);
+			if (StringUtils.isEmpty(proposal.getState())) {
+				proposal.setState(Constants.INVOICE_STATE_DRAFT);
+			}
 			if (proposal.isSendMail()) {
 				if (sendProposalEmail(proposalObj)) {
 					proposal.setState(Constants.INVOICE_STATE_SENT);
-				}
-				if (StringUtils.isEmpty(proposal.getState())) {
-					proposal.setState(Constants.INVOICE_STATE_DRAFT);
 				}
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
@@ -236,25 +241,6 @@ public class ProposalControllerImpl {
 		}
 	}
 
-	public static boolean updateProposalsState(String userID, String companyID, List<String> ids, String state) {
-		try {
-			LOGGER.debug("entered updateProposalsAsSent userID: " + userID + " companyID:" + companyID + " ids:" + ids + " state:" + state);
-			if (StringUtils.isAnyBlank(userID, companyID, state) || ids == null || ids.isEmpty()) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
-			}
-			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(ids);
-			if (!StringUtils.equals(state, "accept") || !StringUtils.equals(state, "deny")) {
-				throw new WebApplicationException("state can only be either 'accept' or 'deny'");
-			}
-			return MySQLManager.getProposalDAOInstance().updateState(userID, companyID, commaSeparatedLst, state);
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
-		} finally {
-			LOGGER.debug("exited updateProposalsAsSent userID: " + userID + " companyID:" + companyID + " ids:" + ids);
-		}
-	}
-
 	private static boolean sendProposalEmail(Proposal proposal) throws Exception {
 		try {
 			LOGGER.debug("entered sendProposalEmail proposal: " + proposal);
@@ -292,4 +278,136 @@ public class ProposalControllerImpl {
 		return false;
 	}
 
+	public static boolean updateProposalState1(String userID, String companyID, String state,
+			List<String> proposalIdList) {
+		LOGGER.debug("request for ProposalControllerImpl.updateProposalState1 userID [" + userID + "] companyID ["
+				+ companyID + " ] proposalIdList [" + proposalIdList + " ] state [" + state + " ]");
+		if (StringUtils.isAnyBlank(state)) {
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					Constants.PRECONDITION_FAILED_STR + ":state is mandatory", Status.PRECONDITION_FAILED));
+		}
+		try {
+			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(proposalIdList);
+			switch (state) {
+			case "accept":
+				return acceptProposal(userID, companyID, state, proposalIdList);
+			case "deny":
+				return denyProposal(userID, companyID, state, commaSeparatedLst);
+			case "convertToInvoice":
+				return delete(userID, companyID, state, commaSeparatedLst);
+			default:
+				break;
+			}
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
+
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		}
+	}
+
+	private static boolean acceptProposal(String userID, String companyID, String state, List<String> proposalIdList) {
+		if (StringUtils.isAnyBlank(userID, companyID) || proposalIdList == null || proposalIdList.isEmpty()) {
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					Constants.PRECONDITION_FAILED_STR + ":userID and companyID and proposalIdList are mandatory",
+					Status.PRECONDITION_FAILED));
+		}
+		Connection connection = null;
+		try {
+			List<Proposal> proposalList = new ArrayList<Proposal>();
+			List<Invoice> invoiceList = new ArrayList<Invoice>();
+			List<InvoiceLine> invoiceLineList = new ArrayList<InvoiceLine>();
+			for (int i = 0; i < proposalIdList.size(); i++) {
+				String proposalId = proposalIdList.get(i);
+				Proposal proposal = MySQLManager.getProposalDAOInstance().get(proposalId);
+				if (null != proposal) {
+					Invoice invoice = new Invoice();
+					BeanUtils.copyProperties(invoice, proposal);
+					String invoiceId = UUID.randomUUID().toString();
+					invoice.setId(invoiceId);
+					proposal.setInvoice_id(invoiceId);
+					invoice.setProposal_id(proposal.getId());
+					// proposalList.add(proposal);
+					// invoiceList.add(invoice);
+
+					List<ProposalLine> proposalLineList = proposal.getProposalLines();
+					for (int j = 0; j < proposalLineList.size(); j++) {
+						InvoiceLine invoiceLine = new InvoiceLine();
+						BeanUtils.copyProperties(invoiceLine, proposalLineList.get(j));
+						String invoiceLineId = UUID.randomUUID().toString();
+						invoiceLine.setId(invoiceLineId);
+						invoiceLineList.add(invoiceLine);
+					}
+					invoice.setInvoiceLines(invoiceLineList);
+					proposalList.add(proposal);
+					invoiceList.add(invoice);
+				}
+			}
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection == null) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						"Database Error", Status.INTERNAL_SERVER_ERROR));
+			}
+			connection.setAutoCommit(false);
+			List<Proposal> resultProposalList = MySQLManager.getProposalDAOInstance().updateProposal(connection,
+					proposalList);
+			if (resultProposalList.isEmpty()) {
+				List<Invoice> resultInvoiceList = MySQLManager.getInvoiceDAOInstance().saveInvoice(connection,
+						invoiceList);
+				if (resultInvoiceList.isEmpty()) {
+					List<InvoiceLine> resultInvoiceLineList = MySQLManager.getInvoiceLineDAOInstance().save(connection,
+							invoiceLineList);
+					if (resultInvoiceLineList.isEmpty()) {
+						connection.commit();
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited acceptProposal(String userID:" + userID + ",companyID:" + companyID + ", state:"
+					+ state + ", proposalIdList:" + proposalIdList);
+		}
+		return false;
+	}
+
+	private static boolean denyProposal(String userID, String companyID, String state, String proposalIdList) {
+		if (StringUtils.isAnyBlank(userID, companyID, proposalIdList)) {
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					Constants.PRECONDITION_FAILED_STR + ":userID and companyID and proposalIdList are mandatory",
+					Status.PRECONDITION_FAILED));
+		}
+		try {
+			return MySQLManager.getProposalDAOInstance().denyProposal(userID, companyID, proposalIdList);
+
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		}
+	}
+
+	private static boolean delete(String userID, String companyID, String state, String proposalIdList) {
+		if (StringUtils.isAnyBlank(userID, companyID, proposalIdList)) {
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					Constants.PRECONDITION_FAILED_STR + ":userID and companyID and proposalIdList are mandatory",
+					Status.PRECONDITION_FAILED));
+		}
+		try {
+			return MySQLManager.getProposalDAOInstance().deleteLst(userID, companyID, proposalIdList);
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+		} finally {
+			LOGGER.debug("exited deleteProposalsById userID: " + userID + " companyID:" + companyID + " proposalIdList:"
+					+ proposalIdList);
+		}
+	}
 }

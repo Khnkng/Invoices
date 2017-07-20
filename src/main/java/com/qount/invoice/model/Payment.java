@@ -40,6 +40,8 @@ public class Payment {
 	
 	private String depositedTo;
 	
+	private String journalID;
+	
 	public String getId() {
 		return id;
 	}
@@ -111,6 +113,20 @@ public class Payment {
 	}
 	public void setDepositedTo(String depositedTo) {
 		this.depositedTo = depositedTo;
+	}
+	public String getJournalID() {
+		return journalID;
+	}
+	public void setJournalID(String journalID) {
+		this.journalID = journalID;
 	}	
 
+	@Override
+    public boolean equals(Object obj) {
+        if (obj != null) {
+            Payment payment = (Payment) obj;
+            return payment.getId().equalsIgnoreCase(this.id);
+        }
+        return false;
+    }
 }
