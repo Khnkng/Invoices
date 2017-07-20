@@ -84,9 +84,13 @@ public class ProposalController {
 	}
 
 	@PUT
-	@Path("/states/{state}")
-	@ApiOperation(value = "update proposal state", notes = "Used to delete a expense code.<br>", responseContainer = "java.lang.String")
-	public boolean udpateInvoicesByState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID,@PathParam("state") @NotNull String state, List<String> ids) {
-		return ProposalControllerImpl.updateProposalsState(userID, companyID, ids, state);
+	@Path("/state/{state}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "update proposal state", notes = "Used to update proposal state.<br>", responseContainer = "java.lang.String")
+	public boolean acceptProposal(@PathParam("userID") String userID,
+			@PathParam("companyID") @NotNull String companyID, @PathParam("state") @NotNull String state,
+			List<String> proposalIdList) {
+		return ProposalControllerImpl.updateProposalState1(userID, companyID, state,proposalIdList);
 	}
 }

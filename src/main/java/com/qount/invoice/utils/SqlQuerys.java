@@ -3,7 +3,7 @@ package com.qount.invoice.utils;
 public class SqlQuerys {
 
 	public final class Invoice {
-		public static final String INSERT_QRY = "INSERT INTO invoice ( `id`, `user_id`, `company_id`, `customer_id`, `amount`, `currency`, `description`, `objectives`, `last_updated_by`, `last_updated_at`, `state`, `invoice_date`, `notes`, `discount`, `deposit_amount`, `processing_fees`, `number`, `document_id`, `amount_due`, `due_date`, `sub_totoal`, `amount_by_date`, `created_at`, `amount_paid`, `term`, `created_at_millis`, `recepients_mails`, `plan_id`, `is_recurring`, `payment_options`, `email_state`, `send_to`,`refrence_number`,`payment_method`,`tax_amount` ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		public static final String INSERT_QRY = "INSERT INTO invoice ( `id`, `user_id`, `company_id`, `customer_id`, `amount`, `currency`, `description`, `objectives`, `last_updated_by`, `last_updated_at`, `state`, `invoice_date`, `notes`, `discount`, `deposit_amount`, `processing_fees`, `number`, `document_id`, `amount_due`, `due_date`, `sub_totoal`, `amount_by_date`, `created_at`, `amount_paid`, `term`, `created_at_millis`, `recepients_mails`, `plan_id`, `is_recurring`, `payment_options`, `email_state`, `send_to`,`refrence_number`,`payment_method`,`tax_amount`,`proposal_id` ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		public static final String UPDATE_QRY = "UPDATE invoice SET `user_id` = ?, `company_id` = ?, `customer_id` = ?, `amount` = ?, `currency` = ?, `description` = ?, `objectives` = ?, `last_updated_by` = ?, `last_updated_at` = ?, `state` = ?, `invoice_date` = ?, `notes` = ?, `discount` = ?, `deposit_amount` = ?, `processing_fees` = ?, `number` = ?, `document_id` = ?, `amount_due` = ?, `due_date` = ?, `sub_totoal` = ?, `amount_by_date` = ?, `amount_paid` = ?, `term` = ?, `recepients_mails` = ?, `plan_id` = ?, `is_recurring` = ?, `payment_options` = ?, `email_state` = ?, `send_to` = ?, `refrence_number` = ?, `payment_method` = ?, `tax_amount` = ? WHERE `id` = ?;";
 		public final static String DELETE_QRY = "DELETE FROM invoice WHERE `id`=? AND `user_id` =? AND `company_id` =?;";
 		public final static String DELETE_LST_QRY = "DELETE FROM invoice WHERE `id` IN (";
@@ -50,6 +50,9 @@ public class SqlQuerys {
 		public final static String GET_PROPOSAL_LIST_QRY = "SELECT `estimate_date`, `number`,`id`,`proposal_date`,`amount`,`currency`,`state`,`amount_by_date` FROM proposal WHERE ";
 		public final static String DELETE_LST_QRY = "DELETE FROM proposal WHERE `id` IN (";
 		public final static String UPDATE_AS_SENT_QRY = "UPDATE proposal SET state=? WHERE id IN(";
+		public final static String GET_PROPOSAL_QRY = "SELECT * FROM proposal WHERE id IN(";
+		public final static String DENY_PROPSOAL = "UPDATE proposal SET state=? WHERE id IN(";
+		public final static String UPDATE_STATE = "UPDATE proposal SET `state` = ?, `invoice_id` = ? WHERE `id` = ?;";
 	}
 
 	public final class ProposalLine {
