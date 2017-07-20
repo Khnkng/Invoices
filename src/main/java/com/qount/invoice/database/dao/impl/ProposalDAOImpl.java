@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -20,6 +21,7 @@ import com.qount.invoice.model.Item;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
 import com.qount.invoice.utils.CommonUtils;
+import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
 
@@ -75,7 +77,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setString(ctr++, proposal.getCreated_at());
 				pstmt.setString(ctr++, proposal.getTerm());
 				pstmt.setLong(ctr++, new Date().getTime());
-				pstmt.setString(ctr++, proposal.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, proposal.getRecepientsMailsArr()!=null?proposal.getRecepientsMailsArr().toString():null);
 				pstmt.setString(ctr++, proposal.getPlan_id());
 				pstmt.setBoolean(ctr++, proposal.is_recurring());
 				pstmt.setString(ctr++, proposal.getEmail_state());
@@ -131,7 +133,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 				pstmt.setDouble(ctr++, proposal.getSub_totoal());
 				pstmt.setDouble(ctr++, proposal.getAmount_by_date());
 				pstmt.setString(ctr++, proposal.getTerm());
-				pstmt.setString(ctr++, proposal.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++, proposal.getRecepientsMailsArr()!=null?proposal.getRecepientsMailsArr().toString():null);
 				pstmt.setString(ctr++, proposal.getPlan_id());
 				pstmt.setBoolean(ctr++, proposal.is_recurring());
 				pstmt.setString(ctr++, proposal.getEmail_state());
@@ -416,6 +418,84 @@ public class ProposalDAOImpl implements ProposalDAO {
 			LOGGER.debug("exited updateStateAsSent lst:" + lst);
 		}
 		return false;
+	}
+
+
+	@Override
+	public boolean denyProposal(String userID, String companyID, String proposalList) throws Exception {
+		LOGGER.debug("entered denyProposal lst:" + proposalList);
+		Connection connection = null;
+		if (StringUtils.isEmpty(proposalList) || StringUtils.isAnyBlank(companyID, userID)) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Proposal.DENY_PROPSOAL;
+				query += proposalList + ") AND `user_id` = '" + userID + "' AND `company_id` ='" + companyID + "';";
+				pstmt = connection.prepareStatement(query);
+				pstmt.setString(1, Constants.PROPOSAL_STATE_DENY);
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("no of proposal updated:" + rowCount);
+				if (rowCount > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("no record updated:" + proposalList + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("Error update State As denied lst:" + proposalList + ",  ", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited denyProposal proposalList:" + proposalList);
+		}
+		return false;
+	}
+
+	@Override
+	public List<Proposal> updateProposal(Connection connection, List<Proposal> proposalList) throws Exception {
+		LOGGER.debug("entered updateProposal:" + proposalList);
+		if (proposalList == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Proposal.UPDATE_STATE);
+				Iterator<Proposal> proposalItr = proposalList.iterator();
+				int ctr = 1;
+				while (proposalItr.hasNext()) {
+					Proposal proposal = proposalItr.next();
+					pstmt.setString(ctr++, proposal.getState());
+					pstmt.setString(ctr++, proposal.getInvoice_id());
+					pstmt.setString(ctr++, proposal.getId());
+					ctr = 1;
+					pstmt.addBatch();
+				}
+				int[] rowCount = pstmt.executeBatch();
+				if (rowCount != null) {
+					return proposalList;
+				} else {
+					throw new WebApplicationException("unable to update proposal", 500);
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error updating proposal:" +  e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited updateProposal:" + proposalList);
+		}
+		return proposalList;
 	}
 
 }

@@ -39,4 +39,6 @@ public interface InvoiceDAO {
 	public Invoice updateInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception;
 	
 	public InvoiceMetrics getInvoiceMetrics(String companyID)  throws Exception;
+	
+		public List<Invoice> saveInvoice(Connection connection, List<Invoice> invoice) throws Exception;;
 }
