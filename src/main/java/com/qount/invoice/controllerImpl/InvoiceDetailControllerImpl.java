@@ -2,7 +2,6 @@ package com.qount.invoice.controllerImpl;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +46,11 @@ public class InvoiceDetailControllerImpl {
 			if (!currency.equals(Constants.DEFAULT_INVOICE_CURRENCY)) {
 				throw new WebApplicationException("non USD currency payment not supported yet");
 			}
+			String payment_type = inputInvoice.getPayment_type();
+			if(StringUtils.isBlank(payment_type) || (!StringUtils.equals(payment_type, Constants.INVOICE_CREDIT_CARD)
+					& !StringUtils.equals(payment_type, Constants.INVOICE_BANK_ACCOUNT))){
+				throw new WebApplicationException("only bank and credit card payments methods supported");
+			}
 			JSONObject payloadObj = null;
 			String urlAction = "charge";
 			invoice.setAmountToPay(inputInvoice.getAmountToPay());
@@ -75,7 +79,7 @@ public class InvoiceDetailControllerImpl {
 			payment.setId(UUID.randomUUID().toString());
 			payment.setPaymentDate(DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT));
 			payment.setReceivedFrom(invoice.getCustomer_id());
-			payment.setType("Credit Card");
+			payment.setType(payment_type);
 			float convertionValue = getConversionValue(invoice.getCurrency(), Constants.DEFAULT_INVOICE_CURRENCY);
 			double convertedAmountToPay = convertInvoiceAmount(convertionValue, amountToPay);
 			amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
@@ -120,24 +124,26 @@ public class InvoiceDetailControllerImpl {
 			}else{
 				throw new WebApplicationException("unable to make payment from payment gateway");
 			}
-			payment.setReferenceNo(transactionId);
+			payment.setReferenceNo(invoice.getNumber());
+			payment.setMemo(transactionId);
 			double amountPaidInDollar = convertCentToDollar(amount_settled);
 			payment.setPaymentAmount(new BigDecimal(amountPaidInDollar));
 			paymentLine.setAmount(new BigDecimal(amountPaidInDollar));
 			payments.add(paymentLine);
 			payment.setPaymentLines(payments);
-			invoice.setAmount_paid(amountPaidInDollar);
+			invoice.setAmount_paid(invoice.getAmount_paid()+amountPaidInDollar);
 			if (amountPaidInDollar == invoice.getAmount()) {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				invoice.setAmount_due(0);
 			} else {
 				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
-				double amount_due = invoice.getAmount() - amountPaidInDollar;
+				double amount_due = invoice.getAmount() - invoice.getAmount_paid();
 				invoice.setAmount_due(amount_due);
 			}
-			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
-			boolean isInvoiceUpdated = MySQLManager.getInvoiceDAOInstance().update(connection, invoice)!=null?true:false;
+//			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+//			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(invoice.getUser_id(), invoice, companyID, false);
+			boolean isInvoiceUpdated = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj)!=null?true:false;
 			if(!isInvoiceUpdated){
 				throw new WebApplicationException("payment done but not saved in qount db");
 				//TODO refund payment

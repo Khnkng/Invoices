@@ -9,9 +9,11 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
 import com.qount.invoice.model.Payment;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.ResponseUtil;
@@ -28,7 +30,7 @@ public class PaymentService {
 		return instance;
 	}
 
-	public Payment createOrUpdatePayment(Payment payment, String companyId) {
+	public Payment createOrUpdatePayment(Payment payment, String companyId, String userID) {
 		Connection connection = DatabaseUtilities.getReadWriteConnection();
 		if (connection == null) {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
@@ -42,13 +44,11 @@ public class PaymentService {
 			}
 			pymt = PaymentDAOImpl.getInstance().save(payment, connection);
 			connection.commit();
+			CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), userID, companyId);
 		} catch (SQLException e) {
-			try {
-				connection.rollback();
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.BAD_REQUEST));
-			} catch (SQLException e1) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e1.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
-			}
+				//connection.rollback();
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.BAD_REQUEST));
+			
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 		}

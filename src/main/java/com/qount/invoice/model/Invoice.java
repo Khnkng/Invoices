@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @XmlRootElement
 public class Invoice {
-	
+
 	private String id;
 	private String user_id;
 	private String company_id;
@@ -64,7 +64,25 @@ public class Invoice {
 	private Company company;
 	private CustomerContactDetails customerContactDetails;
 	private double tax_amount;
+	private String journalID;
+	private String payment_type;//Credit Card || Bank
+	private String proposal_id;
 	
+	public String getProposal_id() {
+		return proposal_id;
+	}
+
+	public void setProposal_id(String proposal_id) {
+		this.proposal_id = proposal_id;
+	}
+	public String getPayment_type() {
+		return payment_type;
+	}
+
+	public void setPayment_type(String payment_type) {
+		this.payment_type = payment_type;
+	}
+
 	public double getTax_amount() {
 		return tax_amount;
 	}
@@ -441,6 +459,25 @@ public class Invoice {
 		this.created_at = created_at;
 	}
 
+	public String getJournalID() {
+		return journalID;
+	}
+
+	public void setJournalID(String journalID) {
+		this.journalID = journalID;
+	}
+
+	public String prepareJSParemeters() {
+		StringBuilder journalParmBuilder = new StringBuilder();
+		journalParmBuilder.append(this.customer_id).append(this.invoice_date).append(this.currency).append(this.number).append(this.amount);
+		if (this.invoiceLines != null) {
+			for (InvoiceLine line : invoiceLines) {
+				journalParmBuilder.append(line.prepareJSParemeters());
+			}
+		}
+		return journalParmBuilder.toString();
+	}
+
 	@Override
 	public String toString() {
 		try {
@@ -450,9 +487,17 @@ public class Invoice {
 		}
 		return super.toString();
 	}
+	@Override
+    public boolean equals(Object obj) {
+        if (obj != null) {
+            Invoice invoice = (Invoice) obj;
+            return invoice.getId().equalsIgnoreCase(this.id);
+        }
+        return false;
+    }
 
 	public static void main(String[] args) {
 		System.out.println(new Invoice());
 	}
-	
+
 }

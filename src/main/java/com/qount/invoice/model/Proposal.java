@@ -29,6 +29,7 @@ public class Proposal {
 	private String customer_id;
 	private String state;
 	private String proposal_date;
+	private String estimate_date;
 	private String notes;
 	private double discount;
 	private double deposit_amount;
@@ -54,9 +55,51 @@ public class Proposal {
 	private JSONArray recepientsMailsArr;
 	private String send_to;
 	private String email_state;
-	private String due_date;
-
+	private String invoice_id;
+	private double tax_amount;
+	private CustomerContactDetails customerContactDetails;
+	private Company company;
 	
+	public CustomerContactDetails getCustomerContactDetails() {
+		return customerContactDetails;
+	}
+
+	public void setCustomerContactDetails(CustomerContactDetails customerContactDetails) {
+		this.customerContactDetails = customerContactDetails;
+	}
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
+	public double getTax_amount() {
+		return tax_amount;
+	}
+
+	public void setTax_amount(double tax_amount) {
+		this.tax_amount = tax_amount;
+	}
+
+	public String getInvoice_id() {
+		return invoice_id;
+	}
+
+	public void setInvoice_id(String invoice_id) {
+		this.invoice_id = invoice_id;
+	}
+
+	public String getEstimate_date() {
+		return estimate_date;
+	}
+
+	public void setEstimate_date(String estimate_date) {
+		this.estimate_date = estimate_date;
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -353,13 +396,6 @@ public class Proposal {
 		this.email_state = email_state;
 	}
 
-	public String getDue_date() {
-		return due_date;
-	}
-
-	public void setDue_date(String due_date) {
-		this.due_date = due_date;
-	}
 
 	@Override
 	public String toString() {

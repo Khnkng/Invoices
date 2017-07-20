@@ -32,9 +32,11 @@ public class Constants {
 	public static final String SWAGGER_API_PACKAGE = "com.qount.invoice.controller";
 	public static final String BILLS_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
 	public static final String INVOICE_UI_DATE_FORMAT = "MM/dd/yy";
+	public static final String PROPOSAL_UI_DATE_FORMAT = "MM/dd/yy";
 	public static final String INVOICE_MAIL_DATE_FORMAT = "MMM dd, yyyy";
 	public static final SimpleDateFormat TIME_STATMP_TO_BILLS_FORMAT = new SimpleDateFormat(BILLS_DATE_FORMAT);
 	public static final SimpleDateFormat TIME_STATMP_TO_INVOICE_FORMAT = new SimpleDateFormat(INVOICE_UI_DATE_FORMAT);
+	public static final SimpleDateFormat TIME_STATMP_TO_PROPOSAL_FORMAT = new SimpleDateFormat(PROPOSAL_UI_DATE_FORMAT);
 	public static final SimpleDateFormat DATE_TO_INVOICE_FORMAT = new SimpleDateFormat(Constants.INVOICE_UI_DATE_FORMAT);
 	public static final SimpleDateFormat TIME_STATMP_TO_INVOICE_MAIL_FORMAT = new SimpleDateFormat(INVOICE_MAIL_DATE_FORMAT);
 	public static final String FONT1 = "PlayfairDisplay-Regular.ttf";
@@ -79,4 +81,10 @@ public class Constants {
 	public static final String INVOICE_STATE_DRAFT = "draft";
 	public static final String INVOICE_STATE_PAID = "paid";
 	public static final String INVOICE_STATE_PARTIALLY_PAID = "partially_paid";
+	public static final String INVOICE_CREDIT_CARD = "Credit Card";
+	public static final String INVOICE_BANK_ACCOUNT = "Bank Account";
+	public static final String PROPOSAL_STATE_DENY = "deny";
+	public static final String PROPOSAL_STATE_ACCEPT = "accept";
+	public static final String PROPOSAL_STATE_DELETE = "delete";
+	public static final String PROPOSAL_STATE_CONVERT_TO_INVOICE = "convert_to_invoice";
 }

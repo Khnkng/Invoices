@@ -29,4 +29,7 @@ public interface ProposalDAO {
 	
 	public List<Proposal> getProposalList(String userID, String companyID, String state) throws Exception;;
 
+	public boolean denyProposal(String userID, String companyID, String proposalList) throws Exception;
+	
+	public List<Proposal> updateProposal(Connection connection,List<Proposal> proposalList) throws Exception;
 }
