@@ -85,4 +85,6 @@ public class Constants {
 	public static final String INVOICE_BANK_ACCOUNT = "Bank Account";
 	public static final String PROPOSAL_STATE_DENY = "deny";
 	public static final String PROPOSAL_STATE_ACCEPT = "accept";
+	public static final String PROPOSAL_STATE_DELETE = "delete";
+	public static final String PROPOSAL_STATE_CONVERT_TO_INVOICE = "convert_to_invoice";
 }
