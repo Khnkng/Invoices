@@ -742,9 +742,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					pstmt.setString(ctr++, invoice.getRefrence_number());
 					pstmt.setString(ctr++, invoice.getPayment_method());
 					pstmt.setDouble(ctr++, invoice.getTax_amount());
-					if(invoice.getProposal_id() != null) {
-						pstmt.setString(ctr++, invoice.getProposal_id());
-					}
+					pstmt.setString(ctr++, invoice.getProposal_id());
 					ctr = 1;
 					pstmt.addBatch();
 				}

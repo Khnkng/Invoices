@@ -86,8 +86,7 @@ public class ProposalController {
 	@PUT
 	@Path("/state/{state}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "update proposal state", notes = "Used to update proposal state.<br>", responseContainer = "java.lang.String")
+	@ApiOperation(value = "update proposal state", notes = "Used to update proposal state(accept,deny,delete).<br>", responseContainer = "java.lang.String")
 	public boolean acceptProposal(@PathParam("userID") String userID,
 			@PathParam("companyID") @NotNull String companyID, @PathParam("state") @NotNull String state,
 			List<String> proposalIdList) {
