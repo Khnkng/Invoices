@@ -256,7 +256,7 @@ public class ProposalControllerImpl {
 							StringUtils.isEmpty(Utilities.getCurrencyHtmlSymbol(proposal.getCurrency())) ? "" : Utilities.getCurrencyHtmlSymbol(proposal.getCurrency()))
 					.replace("${amount}", StringUtils.isEmpty(proposal.getAmount() + "") ? "" : proposal.getAmount() + "")
 					.replace("${currencyCode}", StringUtils.isEmpty(proposal.getCurrency()) ? "" : proposal.getCurrency())
-					.replace("${proposalDate}", StringUtils.isEmpty(proposal.getDue_date()) ? "" : proposal.getDue_date()).replace("${proposalLinkUrl}", proposalLinkUrl);
+					.replace("${proposalLinkUrl}", proposalLinkUrl);
 			emailJson.put("body", template);
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
@@ -293,7 +293,7 @@ public class ProposalControllerImpl {
 				return acceptProposal(userID, companyID, state, proposalIdList);
 			case "deny":
 				return denyProposal(userID, companyID, state, commaSeparatedLst);
-			case "convertToInvoice":
+			case "delete":
 				return delete(userID, companyID, state, commaSeparatedLst);
 			default:
 				break;
@@ -328,6 +328,7 @@ public class ProposalControllerImpl {
 					String invoiceId = UUID.randomUUID().toString();
 					invoice.setId(invoiceId);
 					proposal.setInvoice_id(invoiceId);
+					proposal.setState(Constants.PROPOSAL_STATE_ACCEPT);
 					invoice.setProposal_id(proposal.getId());
 					// proposalList.add(proposal);
 					// invoiceList.add(invoice);
@@ -353,13 +354,13 @@ public class ProposalControllerImpl {
 			connection.setAutoCommit(false);
 			List<Proposal> resultProposalList = MySQLManager.getProposalDAOInstance().updateProposal(connection,
 					proposalList);
-			if (resultProposalList.isEmpty()) {
+			if (resultProposalList!=null && !resultProposalList.isEmpty()) {
 				List<Invoice> resultInvoiceList = MySQLManager.getInvoiceDAOInstance().saveInvoice(connection,
 						invoiceList);
-				if (resultInvoiceList.isEmpty()) {
+				if (resultInvoiceList!=null && !resultInvoiceList.isEmpty()) {
 					List<InvoiceLine> resultInvoiceLineList = MySQLManager.getInvoiceLineDAOInstance().save(connection,
 							invoiceLineList);
-					if (resultInvoiceLineList.isEmpty()) {
+					if (resultInvoiceLineList!=null && !resultInvoiceLineList.isEmpty()) {
 						connection.commit();
 					}
 				}

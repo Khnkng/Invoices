@@ -15,8 +15,10 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.model.Coa;
+import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
+import com.qount.invoice.model.CustomerContactDetails;
 import com.qount.invoice.model.Item;
 import com.qount.invoice.model.Proposal;
 import com.qount.invoice.model.ProposalLine;
@@ -159,11 +161,12 @@ public class ProposalDAOImpl implements ProposalDAO {
 		return proposal;
 	}
 
-	@Override
 	public Proposal get(String proposalID) throws Exception {
 		LOGGER.debug("entered get by proposal id:" + proposalID);
 		Proposal proposal = null;
 		Customer customer = null;
+		CustomerContactDetails customerContactDetails = null;
+		Company company = null;
 		List<ProposalLine> proposalLines = new ArrayList<ProposalLine>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -178,8 +181,12 @@ public class ProposalDAOImpl implements ProposalDAO {
 					if (proposal == null) {
 						proposal = new Proposal();
 						customer = new Customer();
+						customerContactDetails = new CustomerContactDetails();
+						company = new Company();
 						proposal.setCustomer(customer);
 						proposal.setProposalLines(proposalLines);
+						proposal.setCustomerContactDetails(customerContactDetails);
+						proposal.setCompany(company);
 					}
 					ProposalLine proposalLine = new ProposalLine();
 					proposalLine.setId(rset.getString("il_id"));
@@ -208,7 +215,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 						proposal.getProposalLines().add(proposalLine);
 						if (StringUtils.isBlank(proposal.getId())) {
 							proposal.setId(rset.getString("id"));
-							proposal.setEstimate_date(rset.getString("estimate_date"));
+							proposal.setTax_amount(rset.getDouble("tax_amount"));
 							proposal.setIs_recurring(rset.getBoolean("is_recurring"));
 							proposal.setUser_id(rset.getString("user_id"));
 							proposal.setCompany_id(rset.getString("company_id"));
@@ -240,11 +247,44 @@ public class ProposalDAOImpl implements ProposalDAO {
 							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
 							customer.setCustomer_name(rset.getString("customer_name"));
 							customer.setCard_name(rset.getString("card_name"));
+							customer.setCustomer_address(rset.getString("customer_address"));
+							customer.setCustomer_city(rset.getString("customer_city"));
+							customer.setCustomer_country(rset.getString("customer_country"));
+							customer.setCustomer_state(rset.getString("customer_state"));
+							customer.setCustomer_ein(rset.getString("customer_ein"));
+							customer.setCustomer_zipcode(rset.getString("customer_zipcode"));
+							customer.setPhone_number(rset.getString("phone_number"));
+							customer.setCoa(rset.getString("coa"));
+							customer.setTerm(rset.getString("term"));
+							customer.setFax(rset.getString("fax"));
+							customer.setStreet_1(rset.getString("street_1"));
+							customer.setStreet_2(rset.getString("street_2"));
 							Currencies currencies_2 = new Currencies();
 							currencies_2.setCode(rset.getString("code"));
 							currencies_2.setName(rset.getString("name"));
 							currencies_2.setHtml_symbol(rset.getString("html_symbol"));
 							currencies_2.setJava_symbol(rset.getString("java_symbol"));
+							customerContactDetails.setId(rset.getString("ccd_id"));
+							customerContactDetails.setCustomer_id(rset.getString("ccd_customer_id"));
+							customerContactDetails.setFirst_name(rset.getString("ccd_first_name"));
+							customerContactDetails.setLast_name(rset.getString("ccd_last_name"));
+							customerContactDetails.setMobile(rset.getString("ccd_mobile"));
+							customerContactDetails.setEmail(rset.getString("ccd_email"));
+							customerContactDetails.setOther(rset.getString("ccd_other"));
+							company.setActive(rset.getBoolean("com_active"));
+							company.setId(rset.getString("com_id"));
+							company.setName(rset.getString("com_name"));
+							company.setAddress(rset.getString("com_address"));
+							company.setCity(rset.getString("com_city"));
+							company.setContact_first_name(rset.getString("com_contact_first_name"));
+							company.setContact_last_name(rset.getString("com_contact_last_name"));
+							company.setCurrency(rset.getString("com_currency"));
+							company.setEin(rset.getString("com_ein"));
+							company.setEmail(rset.getString("com_email"));
+							company.setCountry(rset.getString("com_country"));
+							company.setPhone_number(rset.getString("com_phone_number"));
+							company.setState(rset.getString("com_state"));
+							company.setZipcode(rset.getString("com_zipcode"));
 							proposal.setCurrencies(currencies_2);
 						}
 					}

@@ -46,13 +46,11 @@ public class ProposalParser {
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			Timestamp proposal_date = convertStringToTimeStamp(proposal.getProposal_date(), Constants.TIME_STATMP_TO_PROPOSAL_FORMAT);
 			Timestamp estimate_date = convertStringToTimeStamp(proposal.getEstimate_date(), Constants.TIME_STATMP_TO_PROPOSAL_FORMAT);
-			Timestamp due_date = convertStringToTimeStamp(proposal.getDue_date(), Constants.TIME_STATMP_TO_PROPOSAL_FORMAT);
 			proposal.setUser_id(userId);
 			if (StringUtils.isBlank(proposal.getId())) {
 				proposal.setId(UUID.randomUUID().toString());
 			}
 			proposal.setProposal_date(proposal_date != null ? proposal_date.toString() : null);
-			proposal.setDue_date(due_date != null ? due_date.toString() : null);
 			proposal.setEstimate_date(estimate_date != null ? estimate_date.toString() : null);
 			proposal.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			proposal.setLast_updated_by(userId);
