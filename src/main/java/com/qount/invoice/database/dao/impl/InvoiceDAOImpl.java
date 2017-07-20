@@ -660,7 +660,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 	public InvoiceMetrics getInvoiceMetrics(String companyID) throws Exception {
 		LOGGER.debug("Fetching Box for company [ " + companyID + " ]");
-		InvoiceMetrics box = null;
+		InvoiceMetrics invoiceMetrics = null;
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Connection connection = null;
@@ -671,13 +671,19 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				connection = DatabaseUtilities.getReadConnection();
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_BOX_VALUES);
 				pstmt.setString(1, companyID);
+				pstmt.setString(2, companyID);
+				pstmt.setString(3, companyID);
 				rset = pstmt.executeQuery();
 				if (rset.next()) {
-					box = new InvoiceMetrics();
-					box.setAvgOutstandingAmount(Double.parseDouble(df.format(rset.getDouble("avg_outstanding"))));
-					box.setAvgReceivableDays(Double.parseDouble(df.format(rset.getDouble("avg_rec_date"))));
-					box.setInvoiceCount(Double.parseDouble(df.format(rset.getDouble("invoice_count"))));
-					box.setTotalReceivableAmount(Double.parseDouble(df.format(rset.getDouble("total_due"))));
+					invoiceMetrics = new InvoiceMetrics();
+					invoiceMetrics.setAvgOutstandingAmount(df.format(rset.getDouble("avg_outstanding")));
+					invoiceMetrics.setAvgReceivableDays(df.format(rset.getDouble("avg_rec_date")));
+					invoiceMetrics.setInvoiceCount(df.format(rset.getDouble("invoice_count")));
+					invoiceMetrics.setTotalReceivableAmount(df.format(rset.getDouble("total_due")));
+					invoiceMetrics.setTotalPastDueAmount(df.format(rset.getDouble("total_past_due")));
+					invoiceMetrics.setSentInvoices("0.00");
+					invoiceMetrics.setOpenedInvoices("0.00");
+					invoiceMetrics.setTotalReceivedLast30Days(df.format(rset.getDouble("received_amount")));
 				}
 			}
 		} catch (Exception e) {
@@ -686,7 +692,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		} finally {
 			DatabaseUtilities.closeResources(rset, pstmt, connection);
 		}
-		return box;
+		return invoiceMetrics;
 	}
 
 }
