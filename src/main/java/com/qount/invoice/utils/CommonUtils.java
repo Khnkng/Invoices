@@ -231,7 +231,7 @@ public class CommonUtils {
 
 	public static JSONObject createJournal(String payload, String userID, String companyID) {
 		JSONObject responseJSON = null;
-		JSONObject queJSON = new JSONObject(responseJSON);
+		JSONObject queJSON = new JSONObject(payload).put("companyID", companyID).put("userID", userID);
 		try {
 			String path = LTMUtils.getHostAddress("qounting.service.docker.hostname", "qounting.service.docker.port", "oneapp.service.url");
 			path = path + "Qounting/users/" + userID + "/companies/" + companyID + "/journals";
@@ -246,7 +246,6 @@ public class CommonUtils {
 			if(Constants.FAILURE_STATUS_STR.equalsIgnoreCase(responseJSON.optString("status"))){
 				throw new Exception(queJSON.toString());
 			}
-			LOGGER.debug(responseJSON);
 		} catch (Exception e) {
 			LOGGER.error(e);
 			RedisUtils.writeToQue(queJSON.toString());
