@@ -234,7 +234,7 @@ public class CommonUtils {
 		JSONObject queJSON = new JSONObject(payload).put("companyID", companyID).put("userID", userID);
 		try {
 			String path = LTMUtils.getHostAddress("qounting.service.docker.hostname", "qounting.service.docker.port", "oneapp.service.url");
-			path = path + "Qounting/users/" + userID + "/companies/" + companyID ;
+			path = path + "Qounting/users/" + userID + "/companies/" + companyID + "/journals";
 			LOGGER.debug("path = " + path);
 			LOGGER.debug("payload = " + payload);
 			String responseString = JerseyClient.post(path, payload);
