@@ -285,4 +285,5 @@ public class InvoiceParser {
 		paymentSpringPlan.setName("yearly");
 		System.out.println(getJsonForPaymentSpringPlan(paymentSpringPlan));
 	}
+	
 }
