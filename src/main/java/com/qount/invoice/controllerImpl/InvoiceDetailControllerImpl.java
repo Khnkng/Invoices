@@ -107,7 +107,7 @@ public class InvoiceDetailControllerImpl {
 //				payloadObj = getOneTimeChargePaymentSpringJson(inputInvoice.getPayment_spring_token(), amountToPayInCents);
 //				break;
 			case "one_time_customer_charge":
-				payloadObj = getOneTimeCustomerChargePaymentSpringJson(payment_spring_id, amountToPayInCents);
+				payloadObj = getOneTimeCustomerChargePaymentSpringJson(payment_spring_id, amountToPayInCents,payment_type);
 				break;
 			case Constants.SUBSCRIPTION_CUSTOMER_CHARGE:
 				// payloadObj =
@@ -242,7 +242,7 @@ public class InvoiceDetailControllerImpl {
 //		}
 //	}
 
-	private static JSONObject getOneTimeCustomerChargePaymentSpringJson(String customer_id, Object amount) {
+	private static JSONObject getOneTimeCustomerChargePaymentSpringJson(String customer_id, Object amount, String payment_type) {
 		try {
 			if (StringUtils.isEmpty(customer_id)) {
 				throw new WebApplicationException("customer_id cannot be empty for one time charge");
@@ -250,6 +250,9 @@ public class InvoiceDetailControllerImpl {
 			JSONObject payloadObj = new JSONObject();
 			payloadObj.put("customer_id", customer_id);
 			payloadObj.put("amount", amount);
+			if(StringUtils.isNotBlank(payment_type) && payment_type.equals(Constants.INVOICE_BANK_ACCOUNT)){
+				payloadObj.put("charge_bank_account",true);
+			}
 			return payloadObj;
 		} catch (Exception e) {
 			LOGGER.error(e);
