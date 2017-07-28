@@ -47,7 +47,7 @@ public class InvoiceDetailControllerImpl {
 				throw new WebApplicationException("company not registered with payment module");
 			}
 			String payment_spring_id = invoice.getCustomer()!=null?invoice.getCustomer().getPayment_spring_id():null;
-			boolean isPaymentSpringCustomerExists = StringUtils.isEmpty(getPaymentSpringCustomer(payment_spring_id, invoice.getCompany_id()))?true:false;
+			boolean isPaymentSpringCustomerExists = StringUtils.isEmpty(getPaymentSpringCustomer(payment_spring_id, invoice.getCompany_id()))?false:true;
 			String currency = invoice.getCurrencies() != null ? invoice.getCurrencies().getCode() : invoice.getCurrency();
 			if (StringUtils.isEmpty(currency)) {
 				throw new WebApplicationException("invoice currency is empty!");
@@ -92,9 +92,6 @@ public class InvoiceDetailControllerImpl {
 			float convertionValue = getConversionValue(invoice.getCurrency(), Constants.DEFAULT_INVOICE_CURRENCY);
 			double convertedAmountToPay = convertInvoiceAmount(convertionValue, amountToPay);
 			amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
-			if(StringUtils.isBlank(payment_spring_id)){
-				throw new WebApplicationException("this invoice user is not registered in payment");
-			}
 			switch (inputInvoice.getAction()) {
 			case "one_time_charge":
 				if (StringUtils.isBlank(inputInvoice.getPayment_spring_token())) {
@@ -105,14 +102,11 @@ public class InvoiceDetailControllerImpl {
 				if(isPaymentSpringCustomerExists){
 					updatePaymentSpringCustomer(payment_spring_id, token, invoice.getCompany_id());
 				}else{
-					createPaymentSpringCustomer(token, invoice.getCompany_id());
+					payment_spring_id = createPaymentSpringCustomer(token, invoice.getCompany_id());
 				}
 //				payloadObj = getOneTimeChargePaymentSpringJson(inputInvoice.getPayment_spring_token(), amountToPayInCents);
 //				break;
 			case "one_time_customer_charge":
-				if(StringUtils.isBlank(payment_spring_id)){
-					throw new WebApplicationException("unable to find customer for invoice");
-				}
 				payloadObj = getOneTimeCustomerChargePaymentSpringJson(payment_spring_id, amountToPayInCents);
 				break;
 			case Constants.SUBSCRIPTION_CUSTOMER_CHARGE:
@@ -358,7 +352,7 @@ public class InvoiceDetailControllerImpl {
 		return null;
 	}
 	
-	private static String createPaymentSpringCustomer(String token, String companyId) {
+	private static String createPaymentSpringCustomer(String token, String companyId) throws Exception {
 		try {
 			LOGGER.debug("entered createPaymentSpringCustomer: token:" + token+ " companyId:" + companyId);
 			if (StringUtils.isAnyBlank(companyId,token)) {
@@ -372,7 +366,7 @@ public class InvoiceDetailControllerImpl {
 			path = path.replace("{comapnyID}", companyId);
 			JSONObject paymentSpringObject = new JSONObject();
 			paymentSpringObject.put("token", token);
-			JSONObject result = HTTPClient.put(path, paymentSpringObject.toString());
+			JSONObject result = HTTPClient.post(path, paymentSpringObject.toString());
 			if (CommonUtils.isValidJSON(result)) {
 				JSONArray errors = result.optJSONArray("errors");
 				if(CommonUtils.isValidJSONArray(errors)){
@@ -405,7 +399,7 @@ public class InvoiceDetailControllerImpl {
 			if (StringUtils.isEmpty(path)) {
 				throw new WebApplicationException("internal server error unable to url for payment server ");
 			}
-//			String path = "http://paymentspring-dev.7f026d40.svc.dockerapp.io:85/";
+//			path = "http://paymentspring-dev.7f026d40.svc.dockerapp.io:85/";
 			path = path + "PaymentSpring/companies/" + companyId + "/customers/" + payment_spring_id;
 			path = path.replace("{comapnyID}", companyId);
 			System.out.println(path);
