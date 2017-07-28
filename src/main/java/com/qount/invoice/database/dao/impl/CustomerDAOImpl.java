@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.CustomerDAO;
@@ -266,5 +267,39 @@ public class CustomerDAOImpl implements CustomerDAO {
 			System.out.println((System.currentTimeMillis() - startTime));
 		}
 		return customerList;
+	}
+	
+	@Override
+	public boolean updatePaymentSpring(String paymentSpringId,String customerId) {
+		if (StringUtils.isAnyBlank(paymentSpringId,customerId)) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		long startTime = System.currentTimeMillis();
+		try {
+			conn = DatabaseUtilities.getReadWriteConnection();
+			if (conn != null) {
+				pstmt = conn.prepareStatement(SqlQuerys.Customer.UPDATE_PAYMENT_SPRING_QRY);
+				pstmt.setString(1, paymentSpringId);
+				pstmt.setString(2, customerId);
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount == 0) {
+					throw new WebApplicationException();
+				}else if(rowCount>0){
+					return true;
+				}
+				LOGGER.debug("no of item code updated:" + rowCount);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error updating customer", e);
+			throw new WebApplicationException(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(conn);
+			LOGGER.debug("execution time of CustomerDAOImpl.updatePaymentSpring = " + (System.currentTimeMillis() - startTime) + " in mili seconds  ");
+			System.out.println((System.currentTimeMillis() - startTime));
+		}
+		return false;
 	}
 }

@@ -114,6 +114,7 @@ public class SqlQuerys {
 		public static final String DELETE_QRY = "DELETE FROM  company_customers WHERE `user_id`=? AND company_id = ? AND customer_id=?;";
 		public static final String RETRIEVE_BY_ID_QRY = "SELECT `user_id`,`company_id`,`customer_id`,`customer_address`,`customer_city`,`customer_country`,`customer_ein`,`customer_state`,`customer_name`,`customer_zipcode`,`email_ids`,`phone_number`, `coa`, `term` FROM  company_customers WHERE `customer_id`= ? ";
 		public static final String RETRIEVE_LIST_BY_ID_QRY = "SELECT `user_id`,`company_id`,`customer_id`,`customer_address`,`customer_city`,`customer_country`,`customer_ein`,`customer_state`,`customer_name`,`customer_zipcode`,`email_ids`,`phone_number`,`coa`, `term` FROM  company_customers WHERE `user_id`= ? AND `company_id` = ?;";
+		public static final String UPDATE_PAYMENT_SPRING_QRY = "UPDATE  company_customers SET `payment_spring_id` = ? WHERE `customer_id`= ? ;";
 	}
 
 	public final class InvoicePlan {

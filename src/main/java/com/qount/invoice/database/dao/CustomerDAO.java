@@ -25,4 +25,5 @@ public interface CustomerDAO {
 
 	List<Customer> retrieveAll(Customer Customer);
 
+	boolean updatePaymentSpring(String paymentSpringId,String customerId);
 }

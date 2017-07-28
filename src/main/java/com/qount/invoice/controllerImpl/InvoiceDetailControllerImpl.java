@@ -47,6 +47,7 @@ public class InvoiceDetailControllerImpl {
 				throw new WebApplicationException("company not registered with payment module");
 			}
 			String payment_spring_id = invoice.getCustomer()!=null?invoice.getCustomer().getPayment_spring_id():null;
+			String customerId = invoice.getCustomer()!=null?invoice.getCustomer().getCustomer_id():null;
 			boolean isPaymentSpringCustomerExists = StringUtils.isEmpty(getPaymentSpringCustomer(payment_spring_id, invoice.getCompany_id()))?false:true;
 			String currency = invoice.getCurrencies() != null ? invoice.getCurrencies().getCode() : invoice.getCurrency();
 			if (StringUtils.isEmpty(currency)) {
@@ -103,6 +104,10 @@ public class InvoiceDetailControllerImpl {
 					updatePaymentSpringCustomer(payment_spring_id, token, invoice.getCompany_id());
 				}else{
 					payment_spring_id = createPaymentSpringCustomer(token, invoice.getCompany_id());
+					boolean updateCustomer = MySQLManager.getCustomerDAOInstance().updatePaymentSpring(payment_spring_id, customerId);
+					if(!updateCustomer){
+						throw new WebApplicationException("error updating customer with payment id");
+					}
 				}
 //				payloadObj = getOneTimeChargePaymentSpringJson(inputInvoice.getPayment_spring_token(), amountToPayInCents);
 //				break;
