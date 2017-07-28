@@ -17,4 +17,10 @@ public interface CompanyDAO {
 
 	Company update(Connection conn, Company company);
 
+	/**
+	 * 
+	 * @param conn
+	 * @return
+	 */
+	boolean isCompanyRegisteredWithPaymentSpring(Connection conn,String companyId);
 }
