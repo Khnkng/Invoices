@@ -198,5 +198,39 @@ public class HTTPClient {
 		}
 		return responseJSON;
 	}
+	
+	/**
+	 * 
+	 * @param get
+	 * @return
+	 */
+	public static JSONObject get(String url) {
+		JSONObject responseJSON = null;
+		CloseableHttpResponse responseEntity = null;
+		try {
+			HttpGet get = new HttpGet(url);
+			responseEntity = HTTPCLIENT.execute(get);
+			HttpEntity entity = responseEntity.getEntity();
+			StringWriter writer = new StringWriter();
+			IOUtils.copy(entity.getContent(), writer);
+			EntityUtils.consume(entity);
+			String response = writer.toString();
+			if (StringUtils.isNotBlank(response)) {
+				responseJSON = new JSONObject(response);
+				responseJSON.put("statusCode", responseEntity.getStatusLine().getStatusCode());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("Error calling service", e);
+		} finally {
+			if (responseEntity != null) {
+				try {
+					responseEntity.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return responseJSON;
+	}
 
 }

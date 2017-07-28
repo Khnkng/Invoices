@@ -80,6 +80,7 @@ public class SqlQuerys {
 		public static final String DELETE_QRY = "DELETE FROM company WHERE  WHERE `id` = ?;";
 		public static final String GET_QRY = "SELECT `id`, `name`, `ein`, `type`, `phone_number`, `address`, `city`, `state`, `country`, `zipcode`, `currency`, `email`, `payment_info`, `createdBy`, `modifiedBy`, `createdDate`, `modifiedDate`, `owner`, `active` from `company` WHERE `id` = ?;";
 		public static final String GET_ALL_QRY = "SELECT * FROM company;";
+		public static final String GET_PAYMMENT_SPRING_COMPANY_DETAILS = "SELECT * FROM `payment_spring_company` WHERE company_id=?";
 
 	}
 

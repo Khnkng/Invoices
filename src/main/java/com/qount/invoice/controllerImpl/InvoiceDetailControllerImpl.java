@@ -41,6 +41,13 @@ public class InvoiceDetailControllerImpl {
 	public static boolean makeInvoicePayment(Invoice invoice, String invoiceID, Invoice inputInvoice) {
 		Connection connection = null;
 		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, invoice.getCompany_id());
+			if(!isCompanyRegistered){
+				throw new WebApplicationException("company not registered with payment module");
+			}
+			String payment_spring_id = invoice.getCustomer()!=null?invoice.getCustomer().getPayment_spring_id():null;
+			boolean isPaymentSpringCustomerExists = StringUtils.isEmpty(getPaymentSpringCustomer(payment_spring_id, invoice.getCompany_id()))?true:false;
 			String currency = invoice.getCurrencies() != null ? invoice.getCurrencies().getCode() : invoice.getCurrency();
 			if (StringUtils.isEmpty(currency)) {
 				throw new WebApplicationException("invoice currency is empty!");
@@ -85,7 +92,6 @@ public class InvoiceDetailControllerImpl {
 			float convertionValue = getConversionValue(invoice.getCurrency(), Constants.DEFAULT_INVOICE_CURRENCY);
 			double convertedAmountToPay = convertInvoiceAmount(convertionValue, amountToPay);
 			amountToPayInCents = convertDollarToCent(convertedAmountToPay + "");
-			String payment_spring_id = invoice.getCustomer()!=null?invoice.getCustomer().getPayment_spring_id():null;
 			if(StringUtils.isBlank(payment_spring_id)){
 				throw new WebApplicationException("this invoice user is not registered in payment");
 			}
@@ -96,7 +102,11 @@ public class InvoiceDetailControllerImpl {
 							ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "payment token is mandatory for one time invoice payment", Status.INTERNAL_SERVER_ERROR));
 				}
 				String token = inputInvoice.getPayment_spring_token();
-				updatePaymentSpringCustomer(payment_spring_id, token, invoice.getCompany_id());
+				if(isPaymentSpringCustomerExists){
+					updatePaymentSpringCustomer(payment_spring_id, token, invoice.getCompany_id());
+				}else{
+					createPaymentSpringCustomer(token, invoice.getCompany_id());
+				}
 //				payloadObj = getOneTimeChargePaymentSpringJson(inputInvoice.getPayment_spring_token(), amountToPayInCents);
 //				break;
 			case "one_time_customer_charge":
@@ -125,7 +135,6 @@ public class InvoiceDetailControllerImpl {
 //			String status = result.optString("status");
 			transactionId = result.optString("id");
 			if(StringUtils.isNotBlank(transactionId)){
-				connection = DatabaseUtilities.getReadWriteConnection();
 				connection.setAutoCommit(false);
 			}else{
 				throw new WebApplicationException("unable to make payment from payment gateway");
@@ -348,4 +357,83 @@ public class InvoiceDetailControllerImpl {
 		}
 		return null;
 	}
+	
+	private static String createPaymentSpringCustomer(String token, String companyId) {
+		try {
+			LOGGER.debug("entered createPaymentSpringCustomer: token:" + token+ " companyId:" + companyId);
+			if (StringUtils.isAnyBlank(companyId,token)) {
+				throw new WebApplicationException("companyId,token cannot be empty to create customer payment details");
+			}
+			String path = LTMUtils.getHostAddress("payment.spring.docker.hostname", "payment.spring.docker.port", "oneapp.base.url");
+			if (StringUtils.isEmpty(path)) {
+				throw new WebApplicationException("internal server error unable to url for payment server ");
+			}
+			path = path + "PaymentSpring/companies/" + companyId + "/customers";
+			path = path.replace("{comapnyID}", companyId);
+			JSONObject paymentSpringObject = new JSONObject();
+			paymentSpringObject.put("token", token);
+			JSONObject result = HTTPClient.put(path, paymentSpringObject.toString());
+			if (CommonUtils.isValidJSON(result)) {
+				JSONArray errors = result.optJSONArray("errors");
+				if(CommonUtils.isValidJSONArray(errors)){
+					throw new WebApplicationException(errors.optJSONObject(0).optString("message"));
+				}
+				String payment_customer_id = result.optString("id");
+				if (!StringUtils.isEmpty(payment_customer_id)) {
+					return payment_customer_id;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw e;
+		} finally {
+			LOGGER.debug("entered createPaymentSpringCustomer: token:" + token+ " companyId:" + companyId);
+		}
+		return null;
+	}
+	
+	private static String getPaymentSpringCustomer(String payment_spring_id,String companyId) {
+		try {
+			LOGGER.debug("entered getPaymentSpringCustomer: payment_spring_id" + payment_spring_id + " companyId:" + companyId);
+			if(StringUtils.isBlank(payment_spring_id)){
+				return null;
+			}
+			if (StringUtils.isBlank(companyId)) {
+				throw new WebApplicationException("companyId cannot be empty to get payment customer details");
+			}
+			String path = LTMUtils.getHostAddress("payment.spring.docker.hostname", "payment.spring.docker.port", "oneapp.base.url");
+			if (StringUtils.isEmpty(path)) {
+				throw new WebApplicationException("internal server error unable to url for payment server ");
+			}
+//			String path = "http://paymentspring-dev.7f026d40.svc.dockerapp.io:85/";
+			path = path + "PaymentSpring/companies/" + companyId + "/customers/" + payment_spring_id;
+			path = path.replace("{comapnyID}", companyId);
+			System.out.println(path);
+			JSONObject result = HTTPClient.get(path);
+			System.out.println(result);
+			if (CommonUtils.isValidJSON(result)) {
+				JSONArray errors = result.optJSONArray("errors");
+				if(CommonUtils.isValidJSONArray(errors)){
+					throw new WebApplicationException(errors.optJSONObject(0).optString("message"));
+				}
+				String payment_customer_id = result.optString("id");
+				if (!StringUtils.isEmpty(payment_customer_id)) {
+					return payment_customer_id;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		} finally {
+			LOGGER.debug("entered getPaymentSpringCustomer: payment_spring_id" + payment_spring_id + " companyId:" + companyId);
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) {
+		String payment_spring_id = "9864d1";
+		String companyId = "495a05f7-4b01-421d-9f64-16d73618a38d";
+		System.out.println(getPaymentSpringCustomer(payment_spring_id, companyId));
+	}
+	
+	
 }

@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.CompanyDAO;
@@ -246,5 +247,29 @@ public class CompanyDAOImpl implements CompanyDAO {
 		return company;
 	}
 
+	@Override
+	public boolean isCompanyRegisteredWithPaymentSpring(Connection connection, String companyId) {
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		long startTime = System.currentTimeMillis();
+		try {
+			if (connection != null && StringUtils.isNotBlank(companyId)) {
+				pstmt = connection.prepareStatement(SqlQuerys.Company.GET_PAYMMENT_SPRING_COMPANY_DETAILS);
+				pstmt.setString(1, companyId);
+				rset = pstmt.executeQuery();
+				if (rset.next()) {
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error fetching payment spirng company details [ " + companyId + "]", e);
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("execution time of CompaniesDAOImpl.isCompanyRegisteredWithPaymentSpring = " + (System.currentTimeMillis() - startTime) + " in mili seconds companyId: "
+					+ companyId);
+		}
+		return false;
+	}
 
 }
