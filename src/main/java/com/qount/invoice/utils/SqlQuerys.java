@@ -80,6 +80,7 @@ public class SqlQuerys {
 		public static final String DELETE_QRY = "DELETE FROM company WHERE  WHERE `id` = ?;";
 		public static final String GET_QRY = "SELECT `id`, `name`, `ein`, `type`, `phone_number`, `address`, `city`, `state`, `country`, `zipcode`, `currency`, `email`, `payment_info`, `createdBy`, `modifiedBy`, `createdDate`, `modifiedDate`, `owner`, `active` from `company` WHERE `id` = ?;";
 		public static final String GET_ALL_QRY = "SELECT * FROM company;";
+		public static final String GET_PAYMMENT_SPRING_COMPANY_DETAILS = "SELECT * FROM `payment_spring_company` WHERE company_id=?";
 
 	}
 
@@ -113,6 +114,7 @@ public class SqlQuerys {
 		public static final String DELETE_QRY = "DELETE FROM  company_customers WHERE `user_id`=? AND company_id = ? AND customer_id=?;";
 		public static final String RETRIEVE_BY_ID_QRY = "SELECT `user_id`,`company_id`,`customer_id`,`customer_address`,`customer_city`,`customer_country`,`customer_ein`,`customer_state`,`customer_name`,`customer_zipcode`,`email_ids`,`phone_number`, `coa`, `term` FROM  company_customers WHERE `customer_id`= ? ";
 		public static final String RETRIEVE_LIST_BY_ID_QRY = "SELECT `user_id`,`company_id`,`customer_id`,`customer_address`,`customer_city`,`customer_country`,`customer_ein`,`customer_state`,`customer_name`,`customer_zipcode`,`email_ids`,`phone_number`,`coa`, `term` FROM  company_customers WHERE `user_id`= ? AND `company_id` = ?;";
+		public static final String UPDATE_PAYMENT_SPRING_QRY = "UPDATE  company_customers SET `payment_spring_id` = ? WHERE `customer_id`= ? ;";
 	}
 
 	public final class InvoicePlan {
