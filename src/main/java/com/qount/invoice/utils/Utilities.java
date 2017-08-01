@@ -35,7 +35,7 @@ public class Utilities {
 			}
 			return path;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}
@@ -86,7 +86,7 @@ public class Utilities {
 		try {
 			return dateToFormat.format(dateFromFormat.parse(dateFrom));
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}

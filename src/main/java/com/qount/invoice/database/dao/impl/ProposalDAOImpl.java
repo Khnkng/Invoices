@@ -95,7 +95,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 			LOGGER.error("Error inserting proposal:" + proposal.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -152,7 +152,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 			LOGGER.error("Error updating proposal:" + proposal.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -529,7 +529,7 @@ public class ProposalDAOImpl implements ProposalDAO {
 			LOGGER.error("Error updating proposal:" +  e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);

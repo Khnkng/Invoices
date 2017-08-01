@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.database.dao.InvoicePlanDAO;
 import com.qount.invoice.model.DaysMap;
 import com.qount.invoice.model.InvoicePlan;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
 import com.qount.invoice.utils.Utilities;
@@ -70,7 +71,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 			LOGGER.error("Error retrieving InvoicePlan:" + InvoicePlan.getId() + ",  ", e);
 			throw e;
 		}catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
@@ -109,7 +110,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 			LOGGER.error("Error retrieving all InvoicePlan"+  e);
 			throw e;
 		}catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
@@ -138,7 +139,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 			LOGGER.error("Error deleting InvoicePlan:" + InvoicePlan.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -181,7 +182,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 			LOGGER.error("Error inserting InvoicePlan:" + InvoicePlan.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -222,7 +223,7 @@ public class InvoicePlanDAOImpl implements InvoicePlanDAO {
 			LOGGER.error("Error updating InvoicePlan:" + InvoicePlan.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);

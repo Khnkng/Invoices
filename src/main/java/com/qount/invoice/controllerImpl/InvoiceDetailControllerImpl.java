@@ -201,7 +201,7 @@ public class InvoiceDetailControllerImpl {
 				return responseJson;
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			LOGGER.debug("exited invokeChargePaymentSpringApi companyId:" + companyId);
@@ -227,7 +227,7 @@ public class InvoiceDetailControllerImpl {
 	// }
 	// return payloadObj;
 	// } catch (Exception e) {
-	// LOGGER.error(e);
+	// LOGGER.error(CommonUtils.getErrorStackTrace(e));
 	// throw e;
 	// }
 	// }
@@ -242,7 +242,7 @@ public class InvoiceDetailControllerImpl {
 //			payloadObj.put("amount", amount);
 //			return payloadObj;
 //		} catch (Exception e) {
-//			LOGGER.error(e);
+//			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 //			throw e;
 //		}
 //	}
@@ -260,7 +260,7 @@ public class InvoiceDetailControllerImpl {
 			}
 			return payloadObj;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -306,7 +306,7 @@ public class InvoiceDetailControllerImpl {
 			amount = Double.valueOf(Constants.INVOICE_CONVERSION_DECIMALFORMAT.format(amount));
 			return amount;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -319,7 +319,7 @@ public class InvoiceDetailControllerImpl {
 			float conversion = Constants.CURRENCY_CONVERTER.convert(currency_from, currency_to, Constants.INVOICE_CONVERSION_DATE_FORMAT.format(new Date()));
 			return conversion;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -352,7 +352,7 @@ public class InvoiceDetailControllerImpl {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			LOGGER.debug("entered createPaymentSpringCustomer: payment_spring_id" + payment_spring_id + " token:" + token+ " companyId:" + companyId);
@@ -386,7 +386,7 @@ public class InvoiceDetailControllerImpl {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			LOGGER.debug("entered createPaymentSpringCustomer: token:" + token+ " companyId:" + companyId);
@@ -424,7 +424,7 @@ public class InvoiceDetailControllerImpl {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
 			LOGGER.debug("entered getPaymentSpringCustomer: payment_spring_id" + payment_spring_id + " companyId:" + companyId);
 		}

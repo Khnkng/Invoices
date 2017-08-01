@@ -46,7 +46,7 @@ public class InvoicePlanParser {
 			CommonUtils.removeKeysIfNull(result, "bill_immediately", "ends_after", "day");
 			return result;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			LOGGER.debug("exited getJsonForPaymentSpringPlan :" + invoicePlan);
