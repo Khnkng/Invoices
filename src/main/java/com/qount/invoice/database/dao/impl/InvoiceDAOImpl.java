@@ -439,7 +439,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
-				query += "`user_id`='" + userID + "' AND `company_id`= '" + companyID + "' ";
+				query += "  `company_id`= '" + companyID + "' ";
 				if (!StringUtils.isEmpty(state)) {
 					if (!state.equals("paid")) {
 						query += "AND (state !='paid' OR state IS NULL );";
