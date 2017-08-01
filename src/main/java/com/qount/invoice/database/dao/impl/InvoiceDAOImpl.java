@@ -439,7 +439,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
-				query += "`user_id`='" + userID + "' AND `company_id`= '" + companyID + "' ";
+				query += "  `company_id`= '" + companyID + "' ";
 				if (!StringUtils.isEmpty(state)) {
 					if (!state.equals("paid")) {
 						query += "AND (state !='paid' OR state IS NULL );";
@@ -500,8 +500,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.DELETE_QRY);
 				pstmt.setString(1, invoice.getId());
-				pstmt.setString(2, invoice.getUser_id());
-				pstmt.setString(3, invoice.getCompany_id());
+				pstmt.setString(2, invoice.getCompany_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
@@ -534,7 +533,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.DELETE_LST_QRY;
-				query += lst + ") AND `user_id` = '" + userId + "' AND `company_id` ='" + companyId + "';";
+				query += lst + ")   AND `company_id` ='" + companyId + "';";
 				pstmt = connection.prepareStatement(query);
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of invoice deleted:" + rowCount);
@@ -570,7 +569,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.UPDATE_AS_SENT_QRY;
-				query += lst + ") AND `user_id` = '" + userId + "' AND `company_id` ='" + companyId + "';";
+				query += lst + ")   AND `company_id` ='" + companyId + "';";
 				pstmt = connection.prepareStatement(query);
 				int rowCount = pstmt.executeUpdate();
 				LOGGER.debug("no of invoice updated:" + rowCount);
@@ -608,7 +607,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
-				query += "`user_id`='" + userID + "' AND `company_id`= '" + companyID + "' ";
+				query += " `company_id`= '" + companyID + "' ";
 				query += "AND `customer_id`= '" + clientID + "' ";
 
 				pstmt = connection.prepareStatement(query);
