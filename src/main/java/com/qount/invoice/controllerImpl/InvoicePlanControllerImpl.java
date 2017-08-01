@@ -15,6 +15,7 @@ import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.InvoicePlan;
 import com.qount.invoice.parser.InvoicePlanParser;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.PaymentSpringUtilities;
@@ -54,7 +55,7 @@ public class InvoicePlanControllerImpl {
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -83,7 +84,7 @@ public class InvoicePlanControllerImpl {
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -104,7 +105,7 @@ public class InvoicePlanControllerImpl {
 			invoicePlan.setCompany_id(comapnyId);
 			return MySQLManager.getInvoicePlanDAOInstance().getAll(connection,invoicePlan);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			DatabaseUtilities.closeConnection(connection);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
@@ -124,7 +125,7 @@ public class InvoicePlanControllerImpl {
 			connection = DatabaseUtilities.getReadConnection();
 			return MySQLManager.getInvoicePlanDAOInstance().get(connection, invoicePlan);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -145,7 +146,7 @@ public class InvoicePlanControllerImpl {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			return MySQLManager.getInvoicePlanDAOInstance().delete(connection, invoicePlan);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -165,7 +166,7 @@ public class InvoicePlanControllerImpl {
 			}
 			return planId;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			LOGGER.debug("exited createPaymentSpringPlan  paymentSpringPlan: " + invoicePlan +" companyID:"+companyID );

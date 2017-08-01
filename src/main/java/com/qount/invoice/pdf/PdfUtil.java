@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import org.apache.log4j.Logger;
 
 import com.itextpdf.text.Document;
+import com.qount.invoice.utils.CommonUtils;
 
 /**
  * 
@@ -22,7 +23,7 @@ public class PdfUtil {
 				fout.close();
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 
@@ -32,7 +33,7 @@ public class PdfUtil {
 				document.close();
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 
@@ -47,12 +48,12 @@ public class PdfUtil {
 							file.delete();
 						}
 					} catch (InterruptedException e) {
-						LOGGER.error(e);
+						LOGGER.error(CommonUtils.getErrorStackTrace(e));
 					}
 				}
 			}.start();
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 

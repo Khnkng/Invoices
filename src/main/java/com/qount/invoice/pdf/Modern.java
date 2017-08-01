@@ -31,6 +31,7 @@ import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 
 public class Modern {
@@ -66,7 +67,7 @@ public class Modern {
 			addImage(document, imgSrc);
 			createCompanyDetails(pw, document, company);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return document;
 	}
@@ -91,7 +92,7 @@ public class Modern {
 			document.add(p2);
 			document.add(p);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 
@@ -145,7 +146,7 @@ public class Modern {
 			document.add(table);
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 
@@ -195,7 +196,7 @@ public class Modern {
 			document.add(table);
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 
@@ -251,7 +252,7 @@ public class Modern {
 			table.setWidthPercentage(100);
 			document.add(table);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 
@@ -301,7 +302,7 @@ public class Modern {
 			document.add(table);
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 
@@ -391,7 +392,7 @@ public class Modern {
 			document.add(img);
 		} catch (Exception e) {
 
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 
@@ -486,7 +487,7 @@ public class Modern {
 			ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p2, (document.right() - document.left()) / 2 + document.leftMargin(), document.bottom() + 100, 0);
 			// document.add(p2);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 
 		}
 	}
@@ -503,7 +504,7 @@ public class Modern {
 			Phrase p2 = new Phrase(c2);
 			ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p2, (document.right() - document.left()) / 2 + document.leftMargin(), document.bottom() + 120, 0);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 
 		}
 	}
@@ -517,7 +518,7 @@ public class Modern {
 			p2.setSpacingAfter(-1);
 			document.add(p2);
 		} catch (DocumentException e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 
 		}
 	}
@@ -545,7 +546,7 @@ public class Modern {
 			p2.setIndentationLeft(10);
 			document.add(p2);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 
 		}
 	}
@@ -632,7 +633,7 @@ public class Modern {
 			document.add(table);
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 
 		}
 	}

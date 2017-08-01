@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoicePreferenceDAO;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.SqlQuerys;
 
 /**
@@ -71,7 +72,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		}
 		LOGGER.debug("exited save:" + invoicePreference);
@@ -98,7 +99,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		}
 		LOGGER.debug("exited delete:" + invoicePreference);
@@ -146,7 +147,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		LOGGER.debug("exited getInvoiceByCompanyId:" + invoicePreference);
 		return result;
@@ -191,7 +192,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		}
 		LOGGER.debug("exited update:" + invoicePreference);

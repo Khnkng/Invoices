@@ -5,6 +5,8 @@ import java.io.InputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.qount.invoice.utils.CommonUtils;
+
 /**
  * 
  */
@@ -34,7 +36,7 @@ public class PropertiesLoader {
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("error loading project.properties file");
-			logger.error(e);
+			logger.error(CommonUtils.getErrorStackTrace(e));
 			// System.exit(0);
 		}
 		return result;
@@ -63,7 +65,7 @@ public class PropertiesLoader {
 			PropertyManager.getPropertyManager().getProperties().load(inputStream);
 		} catch (Exception e) {
 			logger.error("stopping build, exception while environment variable SERVER_INSTANCE_MODE");
-			logger.error(e);
+			logger.error(CommonUtils.getErrorStackTrace(e));
 			// System.exit(2);
 		}
 	}

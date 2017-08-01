@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.model.ProposalLine;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
 
@@ -108,7 +109,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
 			LOGGER.debug("exited proposalLine save:" + proposalLines);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -146,7 +147,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
@@ -170,7 +171,7 @@ public class ProposalLineDAOImpl implements ProposalLineDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			LOGGER.debug("exited delete Proposal line By Proposal Id:"+proposalLine);

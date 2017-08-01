@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.CompanyDAO;
 import com.qount.invoice.model.Company;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
 import com.qount.invoice.utils.Utilities;
@@ -69,7 +70,7 @@ public class CompanyDAOImpl implements CompanyDAO {
 			LOGGER.error("Error retrieving company:" + company.getId() + ",  ", e);
 			throw e;
 		}catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
@@ -118,7 +119,7 @@ public class CompanyDAOImpl implements CompanyDAO {
 			LOGGER.error("Error retrieving all company"+  e);
 			throw e;
 		}catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
@@ -147,7 +148,7 @@ public class CompanyDAOImpl implements CompanyDAO {
 			LOGGER.error("Error deleting company:" + company.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -193,7 +194,7 @@ public class CompanyDAOImpl implements CompanyDAO {
 			LOGGER.error("Error inserting company:" + company.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -238,7 +239,7 @@ public class CompanyDAOImpl implements CompanyDAO {
 			LOGGER.error("Error updating company:" + company.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);

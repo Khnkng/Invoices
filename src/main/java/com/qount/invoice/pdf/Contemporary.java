@@ -29,6 +29,7 @@ import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.Utilities;
 
@@ -69,7 +70,7 @@ public class Contemporary {
 			createFooter(pw, document, invoicePreference);
 			return document;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -86,7 +87,7 @@ public class Contemporary {
 			img.setAbsolutePosition(20, absoluteY);
 			document.add(img);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
 
@@ -103,7 +104,7 @@ public class Contemporary {
 			p.setIndentationRight(10);
 			document.add(p);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -166,7 +167,7 @@ public class Contemporary {
 			table.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			document.add(table);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -177,7 +178,7 @@ public class Contemporary {
 			p2.setSpacingBefore(-10);
 			document.add(p2);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -196,7 +197,7 @@ public class Contemporary {
 			p2.setAlignment(Element.ALIGN_RIGHT);
 			document.add(p2);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -209,7 +210,7 @@ public class Contemporary {
 			p2.setSpacingAfter(10);
 			document.add(p2);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -246,7 +247,7 @@ public class Contemporary {
 			// p3.setIndentationLeft(10);
 			// document.add(p3);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -344,7 +345,7 @@ public class Contemporary {
 			document.add(table);
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -400,7 +401,7 @@ public class Contemporary {
 			document.add(table);
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -460,7 +461,7 @@ public class Contemporary {
 			table.setWidthPercentage(100);
 			document.add(table);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -513,7 +514,7 @@ public class Contemporary {
 			document.add(table);
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -567,7 +568,7 @@ public class Contemporary {
 			document.add(table);
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -593,7 +594,7 @@ public class Contemporary {
 			document.add(p2);
 			document.add(p);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -609,7 +610,7 @@ public class Contemporary {
 			Phrase p2 = new Phrase(c2);
 			ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p2, (document.right() - document.left()) / 2 + document.leftMargin(), document.bottom() - 10, 0);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}

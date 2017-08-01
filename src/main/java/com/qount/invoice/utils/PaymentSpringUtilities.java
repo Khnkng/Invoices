@@ -50,7 +50,7 @@ public class PaymentSpringUtilities {
 				return responseJson;
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			LOGGER.debug("exited invokePaymentSpringApi companyId:" + companyId + " payloadObj:" + payloadObj + " urlAction:" + urlAction);

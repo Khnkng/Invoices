@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.ResponseUtil;
@@ -41,7 +42,7 @@ public class InvoicePreferenceControllerImpl {
 				return result;
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -66,7 +67,7 @@ public class InvoicePreferenceControllerImpl {
 				return result;
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -87,7 +88,7 @@ public class InvoicePreferenceControllerImpl {
 			invoicePreference.setCompanyId(companyId);
 			return MySQLManager.getInvoicePreferenceDAOInstance().getInvoiceByCompanyId(connection, invoicePreference);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -113,7 +114,7 @@ public class InvoicePreferenceControllerImpl {
 				return result;
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
