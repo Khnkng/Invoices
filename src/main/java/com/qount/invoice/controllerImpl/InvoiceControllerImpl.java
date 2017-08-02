@@ -99,7 +99,11 @@ public class InvoiceControllerImpl {
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
 				Invoice dbInvoice = getInvoice(invoiceID);
-				isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
+				if(Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()){
+					isJERequired = true;
+				} else {
+					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
+				}
 			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, false);
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
