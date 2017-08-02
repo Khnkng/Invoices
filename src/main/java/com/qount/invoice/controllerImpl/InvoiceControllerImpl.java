@@ -327,7 +327,9 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("entered sendInvoiceEmail invoice: " + invoice);
 			JSONObject emailJson = new JSONObject();
 			emailJson.put("recipients", invoice.getRecepientsMailsArr());
-			emailJson.put("subject", PropertyManager.getProperty("invoice.subject"));
+			String subject = PropertyManager.getProperty("invoice.subject");
+			subject += invoice.getCompanyName();
+			emailJson.put("subject", subject);
 			emailJson.put("mailBodyContentType", PropertyManager.getProperty("mail.body.content.type"));
 			String template = PropertyManager.getProperty("invocie.mail.template");
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
