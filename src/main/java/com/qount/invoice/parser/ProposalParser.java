@@ -142,7 +142,7 @@ public class ProposalParser {
 		try {
 			return new Timestamp(sdf.parse(dateStr).getTime());
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}
@@ -151,7 +151,7 @@ public class ProposalParser {
 		try {
 			return to.format(from.parse(dateStr)).toString();
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}
@@ -163,7 +163,7 @@ public class ProposalParser {
 				proposal.setEstimate_date(convertTimeStampToString(proposal.getEstimate_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return proposal;
 	}
@@ -179,7 +179,7 @@ public class ProposalParser {
 				result.put("badges", badges);
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return result;
 	}
@@ -198,7 +198,7 @@ public class ProposalParser {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return proposalLst;
 	}

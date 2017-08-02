@@ -103,7 +103,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.error("Error inserting invoice:" + invoice.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -165,7 +165,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.error("Error updating invoice:" + invoice.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -196,7 +196,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.error("Error updating invoice state:" + invoice.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -229,7 +229,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.error("Error updating invoice state:" + invoice.getId() + ",  ", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
@@ -763,7 +763,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.error("Error inserting invoice:" + e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);

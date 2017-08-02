@@ -31,6 +31,7 @@ import com.qount.invoice.database.dao.impl.InvoicePreferenceDAOImpl;
 import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 
 public class MySQLManager {
@@ -92,7 +93,7 @@ public class MySQLManager {
 				System.out.println("connection creation success");
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
 			DatabaseUtilities.closeConnection(conn);
 		}

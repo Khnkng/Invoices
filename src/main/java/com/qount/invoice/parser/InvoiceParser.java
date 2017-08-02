@@ -91,7 +91,7 @@ public class InvoiceParser {
 		try {
 			return new Timestamp(sdf.parse(dateStr).getTime());
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}
@@ -100,7 +100,7 @@ public class InvoiceParser {
 		try {
 			return to.format(from.parse(dateStr)).toString();
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}
@@ -112,7 +112,7 @@ public class InvoiceParser {
 				invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return invoice;
 	}
@@ -131,7 +131,7 @@ public class InvoiceParser {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return invoiceLst;
 	}
@@ -213,7 +213,7 @@ public class InvoiceParser {
 			invoiceReference.setInvoice(invoice);
 			return invoiceReference;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}
@@ -229,7 +229,7 @@ public class InvoiceParser {
 				result.put("badges", badges);
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return result;
 	}
@@ -254,7 +254,7 @@ public class InvoiceParser {
 			invoiceMail.setInvoiceNumber(invoice.getNumber());
 			return invoiceMail;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}
@@ -270,7 +270,7 @@ public class InvoiceParser {
 			CommonUtils.removeKeysIfNull(result, "bill_immediately", "ends_after", "day");
 			return result;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			LOGGER.debug("exited getJsonForPaymentSpringPlan :" + paymentSpringPlan);

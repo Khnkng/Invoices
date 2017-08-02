@@ -71,7 +71,7 @@ public class ProposalControllerImpl {
 		} catch (WebApplicationException e) {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -117,7 +117,7 @@ public class ProposalControllerImpl {
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -150,7 +150,7 @@ public class ProposalControllerImpl {
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -183,7 +183,7 @@ public class ProposalControllerImpl {
 			JSONObject result = ProposalParser.createProposalLstResult(proposalLst, null);
 			return Response.status(200).entity(result.toString()).build();
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			LOGGER.debug("exited get proposals userID:" + userID + " companyID:" + companyID + " state:" + state);
@@ -200,7 +200,7 @@ public class ProposalControllerImpl {
 			LOGGER.debug("getProposal result:" + result);
 			return result;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			LOGGER.debug("exited getProposal invocieId:" + proposalID);
@@ -218,7 +218,7 @@ public class ProposalControllerImpl {
 			Proposal proposalObj = MySQLManager.getProposalDAOInstance().delete(proposal);
 			return ProposalParser.convertTimeStampToString(proposalObj);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			LOGGER.debug("exited deleteProposalById userID: " + userID + " companyID: " + companyID + " proposalID" + proposalID);
@@ -234,7 +234,7 @@ public class ProposalControllerImpl {
 			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(ids);
 			return MySQLManager.getProposalDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			LOGGER.debug("exited deleteProposalsById userID: " + userID + " companyID:" + companyID + " ids:" + ids);
@@ -269,7 +269,7 @@ public class ProposalControllerImpl {
 		} catch (WebApplicationException e) {
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
 			LOGGER.debug("exited sendProposalEmail  proposal: " + proposal);
@@ -298,7 +298,7 @@ public class ProposalControllerImpl {
 			}
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
@@ -354,7 +354,7 @@ public class ProposalControllerImpl {
 			}
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
@@ -372,7 +372,7 @@ public class ProposalControllerImpl {
 			return MySQLManager.getProposalDAOInstance().denyProposal(userID, companyID, proposalIdList);
 
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
@@ -385,7 +385,7 @@ public class ProposalControllerImpl {
 		try {
 			return MySQLManager.getProposalDAOInstance().deleteLst(userID, companyID, proposalIdList);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			LOGGER.debug("exited deleteProposalsById userID: " + userID + " companyID:" + companyID + " proposalIdList:" + proposalIdList);

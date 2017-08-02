@@ -16,6 +16,7 @@ import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.utils.CommonUtils;
 
 /**
  * 
@@ -53,7 +54,7 @@ public class PdfGenerator {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 //			e.printStackTrace();
 		}finally {
 			PdfUtil.closeDocumentStream(document);

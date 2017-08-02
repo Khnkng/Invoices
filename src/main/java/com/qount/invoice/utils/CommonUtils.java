@@ -58,7 +58,7 @@ public class CommonUtils {
 				result = new JSONObject(str);
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return result;
 	}
@@ -76,7 +76,7 @@ public class CommonUtils {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return result;
 	}
@@ -88,7 +88,7 @@ public class CommonUtils {
 				result = new JSONArray(str);
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return result;
 	}
@@ -103,7 +103,7 @@ public class CommonUtils {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return result;
 	}
@@ -168,7 +168,7 @@ public class CommonUtils {
 		try {
 			return resultDateFormat.format(sourceDateFormat.parse(sourceDate));
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}
@@ -177,7 +177,7 @@ public class CommonUtils {
 		try {
 			return Constants.DATE_FORMAT_GMT.format(sourceDate);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
 	}
@@ -194,7 +194,7 @@ public class CommonUtils {
 			}
 			return true;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return false;
 	}
@@ -211,7 +211,7 @@ public class CommonUtils {
 			}
 			return false;
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return false;
 	}
@@ -224,7 +224,7 @@ public class CommonUtils {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
@@ -247,7 +247,7 @@ public class CommonUtils {
 				throw new Exception(queJSON.toString());
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			RedisUtils.writeToQue(queJSON.toString());
 		}
 		return responseJSON;

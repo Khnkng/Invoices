@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceLineDAO;
 import com.qount.invoice.model.InvoiceLine;
+import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
 
@@ -112,7 +113,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
 			LOGGER.debug("exited invoiceLine save:" + invoiceLines);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -150,7 +151,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
@@ -174,7 +175,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			LOGGER.debug("exited delete Invoice line By Invoice Id:"+invoiceLine);
