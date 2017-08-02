@@ -72,6 +72,8 @@ public class InvoiceControllerImpl {
 				if (!invoiceLineResult.isEmpty()) {
 					connection.commit();
 				}
+				// journal should not be created for draft state invoice.
+				if(invoice.isSendMail())
 				CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 				return InvoiceParser.convertTimeStampToString(invoiceObj);
 			}
@@ -93,7 +95,8 @@ public class InvoiceControllerImpl {
 		Connection connection = null;
 		boolean isJERequired = false;
 		try {
-			if (invoice != null) {
+//			journal should not be created for draft state invoice.
+			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
 				Invoice dbInvoice = getInvoice(invoiceID);
 				isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
