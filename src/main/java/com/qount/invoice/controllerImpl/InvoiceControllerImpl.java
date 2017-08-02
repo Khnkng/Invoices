@@ -102,13 +102,20 @@ public class InvoiceControllerImpl {
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
-
+			if (invoice.isSendMail()) {
+				if (sendInvoiceEmail(invoiceObj)) {
+					invoice.setState(Constants.INVOICE_STATE_SENT);
+				} else {
+					throw new WebApplicationException("error sending email");
+				}
+			} else {
+				invoice.setState(Constants.INVOICE_STATE_DRAFT);
+			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
 			connection.setAutoCommit(false);
-			// recurring if invoice has plan id
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				InvoiceLine invoiceLine = new InvoiceLine();
@@ -117,12 +124,6 @@ public class InvoiceControllerImpl {
 				if (deletedInvoiceLineResult != null) {
 					List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 					if (invoiceLineResult != null) {
-						if (invoice.isSendMail()) {
-							invoiceResult.setRecepientsMailsArr(invoice.getRecepientsMailsArr());
-							if (sendInvoiceEmail(invoiceResult)) {
-								invoice.setState(Constants.INVOICE_STATE_SENT);
-							}
-						}
 						connection.commit();
 						if (isJERequired) {
 							CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
@@ -323,7 +324,9 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("entered sendInvoiceEmail invoice: " + invoice);
 			JSONObject emailJson = new JSONObject();
 			emailJson.put("recipients", invoice.getRecepientsMailsArr());
-			emailJson.put("subject", PropertyManager.getProperty("invoice.subject"));
+			String subject = PropertyManager.getProperty("invoice.subject");
+			subject += invoice.getCompanyName();
+			emailJson.put("subject", subject);
 			emailJson.put("mailBodyContentType", PropertyManager.getProperty("mail.body.content.type"));
 			String template = PropertyManager.getProperty("invocie.mail.template");
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
