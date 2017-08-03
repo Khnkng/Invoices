@@ -71,9 +71,7 @@ public class InvoiceParser {
 			Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 			while (invoiceLineItr.hasNext()) {
 				InvoiceLine line = invoiceLineItr.next();
-				if (createFlag) {
-					line.setId(UUID.randomUUID().toString());
-				}
+				line.setId(UUID.randomUUID().toString());
 				line.setInvoice_id(invoice.getId());
 				line.setLast_updated_at(timestamp.toString());
 				line.setLast_updated_by(userId);
