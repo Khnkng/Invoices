@@ -39,7 +39,7 @@ public class Invoice {
 	private List<InvoiceLine> invoiceLines;
 	private double amount_due;
 	private String due_date;
-	private double sub_totoal;
+	private double sub_total;
 	private double amount_by_date;
 	private Currencies currencies;
 	private String action;
@@ -275,12 +275,12 @@ public class Invoice {
 		this.due_date = due_date;
 	}
 
-	public double getSub_totoal() {
-		return sub_totoal;
+	public double getSub_total() {
+		return sub_total;
 	}
 
-	public void setSub_totoal(double sub_totoal) {
-		this.sub_totoal = sub_totoal;
+	public void setSub_total(double sub_totoal) {
+		this.sub_total = sub_totoal;
 	}
 
 	public String getInvoice_date() {
