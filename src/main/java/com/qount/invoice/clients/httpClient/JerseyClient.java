@@ -48,5 +48,21 @@ public class JerseyClient {
 		}
 		return response;
 	}
+	
+	public static String delete(String url) {
+		LOGGER.debug("Deleting resource [ " + url + " ]");
+		String response = null;
+		try {
+			Response responseEntity = CLIENT.target(url).request().accept(MediaType.APPLICATION_JSON).delete();
+			int status = responseEntity.getStatus();
+			if (status != 200) {
+				return response;
+			}
+			response = responseEntity.readEntity(String.class);
+		} catch (Exception e) {
+			LOGGER.error("Error calling target URL [ " + url + " ]", e);
+		}
+		return response;
+	}
 
 }

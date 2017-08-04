@@ -233,7 +233,7 @@ public class CommonUtils {
 		JSONObject responseJSON = null;
 		JSONObject queJSON = new JSONObject(payload).put("companyID", companyID).put("userID", userID);
 		try {
-			String path = LTMUtils.getHostAddress("qounting.service.docker.hostname", "qounting.service.docker.port", "oneapp.service.url");
+			String path = LTMUtils.getHostAddress("qounting.service.docker.hostname", "qounting.service.docker.port", "oneapp.base.url");
 			path = path + "Qounting/users/" + userID + "/companies/" + companyID + "/journals";
 			LOGGER.debug("path = " + path);
 			LOGGER.debug("payload = " + payload);
@@ -252,4 +252,18 @@ public class CommonUtils {
 		}
 		return responseJSON;
 	}
+	
+	public static void deleteJournal(String userID, String companyID, String source) {
+		try {
+		        String path = LTMUtils.getHostAddress("journal.service.docker.hostname", "journal.service.docker.port", "oneapp.base.url");
+				path = path + "Journal/users/" + userID + "/companies/" + companyID + "/sources/" + source;
+				LOGGER.debug("journal deletion path = [ " + path + " ]");
+				String responseString = JerseyClient.delete(path);
+				LOGGER.debug("Journal deletion status [ " + responseString + " ]");
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+		}
+	       }
+	
 }
+

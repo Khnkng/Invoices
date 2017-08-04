@@ -285,6 +285,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Invoice invoiceObj = MySQLManager.getInvoiceDAOInstance().delete(invoice);
+			CommonUtils.deleteJournal(userID, companyID, invoiceID+ "@" + "invoice");
 			return InvoiceParser.convertTimeStampToString(invoiceObj);
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
