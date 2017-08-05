@@ -302,6 +302,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(ids);
+			CommonUtils.deleteJournalsAsync(userID, companyID, ids);
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
