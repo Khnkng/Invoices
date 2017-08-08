@@ -77,7 +77,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getDocument_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
 				pstmt.setString(ctr++, invoice.getDue_date());
-				pstmt.setDouble(ctr++, invoice.getSub_totoal());
+				pstmt.setDouble(ctr++, invoice.getSub_total());
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setString(ctr++, invoice.getCreated_at());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
@@ -142,7 +142,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getDocument_id());
 				pstmt.setDouble(ctr++, invoice.getAmount_due());
 				pstmt.setString(ctr++, invoice.getDue_date());
-				pstmt.setDouble(ctr++, invoice.getSub_totoal());
+				pstmt.setDouble(ctr++, invoice.getSub_total());
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getTerm());
@@ -316,7 +316,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setDocument_id(rset.getString("document_id"));
 							invoice.setAmount_due(rset.getDouble("amount_due"));
 							invoice.setDue_date(rset.getString("due_date"));
-							invoice.setSub_totoal(rset.getDouble("sub_totoal"));
+							invoice.setSub_total(rset.getDouble("sub_totoal"));
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 							invoice.setCreated_at(rset.getString("created_at"));
 							invoice.setAmount_paid(rset.getDouble("amount_paid"));
@@ -731,7 +731,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					pstmt.setString(ctr++, invoice.getDocument_id());
 					pstmt.setDouble(ctr++, invoice.getAmount_due());
 					pstmt.setString(ctr++, invoice.getDue_date());
-					pstmt.setDouble(ctr++, invoice.getSub_totoal());
+					pstmt.setDouble(ctr++, invoice.getSub_total());
 					pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 					pstmt.setString(ctr++, invoice.getCreated_at());
 					pstmt.setDouble(ctr++, invoice.getAmount_paid());
