@@ -69,7 +69,7 @@ public class InvoiceController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve invoices of company", value = "retieves invoices", responseContainer = "java.lang.String")
-	public Response getInvoices(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @QueryParam("state") String state) {
+	public List<Invoice> getInvoices(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @QueryParam("state") String state) {
 		return InvoiceControllerImpl.getInvoices(userID, companyID, state);
 	}
 
