@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -250,7 +251,7 @@ public class InvoiceControllerImpl {
 			// Map<String, String> badges =
 			// MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
 			JSONObject result = InvoiceParser.createInvoiceLstResult(invoiceLst, null);
-			return Response.status(200).entity(result.toString()).build();
+			return Response.status(200).entity(result.toString()).type(MediaType.APPLICATION_JSON).build();
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));

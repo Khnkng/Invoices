@@ -281,7 +281,11 @@ public class InvoiceParser {
 		paymentSpringPlan.setDay("1");
 		paymentSpringPlan.setFrequency("yearly");
 		paymentSpringPlan.setName("yearly");
-		System.out.println(getJsonForPaymentSpringPlan(paymentSpringPlan));
+		List<PaymentSpringPlan> list = new ArrayList<>();
+		list.add(paymentSpringPlan);
+		JSONObject result = new JSONObject();
+		result.put("invoices", list);
+		System.out.println(result);
 	}
 	
 }
