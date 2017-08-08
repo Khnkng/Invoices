@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -22,9 +21,9 @@ import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
-import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
+import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
 import com.qount.invoice.parser.InvoiceParser;
@@ -74,8 +73,8 @@ public class InvoiceControllerImpl {
 					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
-				if(invoice.isSendMail())
-				CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
+				if (invoice.isSendMail())
+					CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 				return InvoiceParser.convertTimeStampToString(invoiceObj);
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
@@ -96,11 +95,11 @@ public class InvoiceControllerImpl {
 		Connection connection = null;
 		boolean isJERequired = false;
 		try {
-//			journal should not be created for draft state invoice.
+			// journal should not be created for draft state invoice.
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
 				Invoice dbInvoice = getInvoice(invoiceID);
-				if(Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()){
+				if (Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()) {
 					isJERequired = true;
 				} else {
 					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
@@ -241,23 +240,27 @@ public class InvoiceControllerImpl {
 		return false;
 	}
 
-	public static Response getInvoices(String userID, String companyID, String state) {
+	public static List<Invoice> getInvoices(String userID, String companyID, String state) {
+		List<Invoice> invoiceLst = null;
 		try {
 			LOGGER.debug("entered get invoices userID:" + userID + " companyID:" + companyID + " state:" + state);
 			if (StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
-			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID, companyID, state);
+			invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID, companyID, state);
 			// Map<String, String> badges =
 			// MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
-			JSONObject result = InvoiceParser.createInvoiceLstResult(invoiceLst, null);
-			return Response.status(200).entity(result.toString()).type(MediaType.APPLICATION_JSON).build();
+			InvoiceParser.formatInvoices(invoiceLst);
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			LOGGER.debug("exited get invoices userID:" + userID + " companyID:" + companyID + " state:" + state);
 		}
+		if (invoiceLst == null) {
+			invoiceLst = new ArrayList<>();
+		}
+		return invoiceLst;
 	}
 
 	public static Invoice getInvoice(String invoiceID) {
@@ -286,7 +289,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Invoice invoiceObj = MySQLManager.getInvoiceDAOInstance().delete(invoice);
-			CommonUtils.deleteJournal(userID, companyID, invoiceID+ "@" + "invoice");
+			CommonUtils.deleteJournal(userID, companyID, invoiceID + "@" + "invoice");
 			return InvoiceParser.convertTimeStampToString(invoiceObj);
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -350,7 +353,7 @@ public class InvoiceControllerImpl {
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url + "HalfService/emails";
-//			 String url = "https://dev-services.qount.io/HalfService/emails";
+			// String url = "https://dev-services.qount.io/HalfService/emails";
 			Object result = HTTPClient.postObject(url, emailJson.toString());
 			if (result != null && result instanceof java.lang.String && result.equals("true")) {
 				return true;
@@ -388,7 +391,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
-			JSONObject result = InvoiceParser.createInvoiceLstResult(null, badges);
+			JSONObject result = InvoiceParser.formatBadges(badges);
 			return Response.status(200).entity(result.toString()).build();
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
