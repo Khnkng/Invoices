@@ -286,7 +286,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLine.setAmount(rset.getDouble("il_amount"));
 						invoiceLine.setLast_updated_at(rset.getString("il_last_updated_at"));
 						invoiceLine.setLast_updated_by(rset.getString("il_last_updated_by"));
-						invoiceLine.setQuantity(rset.getLong("il_quantity"));
+						invoiceLine.setQuantity(rset.getDouble("il_quantity"));
 						invoiceLine.setPrice(rset.getDouble("il_price"));
 						invoiceLine.setNotes(rset.getString("il_notes"));
 						invoiceLine.setType(rset.getString("il_type"));
