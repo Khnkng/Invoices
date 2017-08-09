@@ -67,6 +67,7 @@ public class Invoice {
 	private String journalID;
 	private String payment_type;//Credit Card || Bank
 	private String proposal_id;
+	private String customer_name;
 	
 	public String getProposal_id() {
 		return proposal_id;
@@ -498,6 +499,14 @@ public class Invoice {
 
 	public static void main(String[] args) {
 		System.out.println(new Invoice());
+	}
+
+	public String getCustomer_name() {
+		return customer_name;
+	}
+
+	public void setCustomer_name(String customer_name) {
+		this.customer_name = customer_name;
 	}
 
 }
