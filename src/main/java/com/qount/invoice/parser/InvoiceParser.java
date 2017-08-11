@@ -41,7 +41,7 @@ public class InvoiceParser {
 
 	public static Invoice getInvoiceObj(String userId, Invoice invoice, String companyID, boolean createFlag) {
 		try {
-			if (invoice == null || StringUtils.isAnyBlank(userId,companyID,invoice.getCurrency())) {
+			if (invoice == null || StringUtils.isAnyBlank(userId, companyID, invoice.getCurrency())) {
 				throw new WebApplicationException("userId, companyId, currency are mandatory");
 			}
 			UserCompany userCompany = null;
@@ -49,7 +49,7 @@ public class InvoiceParser {
 			invoice.setIs_recurring(StringUtils.isNotEmpty(invoice.getPlan_id()));
 			userCompany = CommonUtils.getCompany(userId, companyID);
 			invoice.setCompanyName(userCompany.getName());
-			
+
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			Timestamp payment_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
@@ -121,10 +121,8 @@ public class InvoiceParser {
 				for (int i = 0; i < invoiceLst.size(); i++) {
 					Invoice invoice = invoiceLst.get(i);
 					if (invoice != null) {
-						invoice.setInvoice_date(
-								convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setDue_date(
-								convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 					}
 				}
 			}
@@ -136,7 +134,7 @@ public class InvoiceParser {
 
 	public static Invoice getInvoiceObjToDelete(String user_id, String companyID, String invoice_id) {
 		try {
-			if (StringUtils.isAnyBlank(user_id,invoice_id)) {
+			if (StringUtils.isAnyBlank(user_id, invoice_id)) {
 				return null;
 			}
 			Invoice invoice = new Invoice();
@@ -216,13 +214,19 @@ public class InvoiceParser {
 		return null;
 	}
 
-	public static JSONObject createInvoiceLstResult(List<Invoice> invoiceLst, Map<String, String> badges) {
-		JSONObject result = new JSONObject();
+	public static void formatInvoices(List<Invoice> invoiceLst) {
 		try {
 			if (invoiceLst != null && !invoiceLst.isEmpty()) {
 				convertTimeStampToString(invoiceLst);
-				result.put("invoices", invoiceLst);
 			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+		}
+	}
+
+	public static JSONObject formatBadges(Map<String, String> badges) {
+		JSONObject result = new JSONObject();
+		try {
 			if (badges != null && !badges.isEmpty()) {
 				result.put("badges", badges);
 			}
@@ -281,7 +285,11 @@ public class InvoiceParser {
 		paymentSpringPlan.setDay("1");
 		paymentSpringPlan.setFrequency("yearly");
 		paymentSpringPlan.setName("yearly");
-		System.out.println(getJsonForPaymentSpringPlan(paymentSpringPlan));
+		List<PaymentSpringPlan> list = new ArrayList<>();
+		list.add(paymentSpringPlan);
+		JSONObject result = new JSONObject();
+		result.put("invoices", list);
+		System.out.println(result);
 	}
-	
+
 }

@@ -286,7 +286,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLine.setAmount(rset.getDouble("il_amount"));
 						invoiceLine.setLast_updated_at(rset.getString("il_last_updated_at"));
 						invoiceLine.setLast_updated_by(rset.getString("il_last_updated_by"));
-						invoiceLine.setQuantity(rset.getLong("il_quantity"));
+						invoiceLine.setQuantity(rset.getDouble("il_quantity"));
 						invoiceLine.setPrice(rset.getDouble("il_price"));
 						invoiceLine.setNotes(rset.getString("il_notes"));
 						invoiceLine.setType(rset.getString("il_type"));
@@ -439,7 +439,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
-				query += "  `company_id`= '" + companyID + "' ";
+				query += "  invoice.`company_id`= '" + companyID + "' ";
 				if (!StringUtils.isEmpty(state)) {
 					if (!state.equals("paid")) {
 						query += "AND (state !='paid' OR state IS NULL );";
@@ -463,6 +463,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice .setCustomer_name(rset.getString("customer_name"));
 					invoiceLst.add(invoice);
 					}
 					else{
