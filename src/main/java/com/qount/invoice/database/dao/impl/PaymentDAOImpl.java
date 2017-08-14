@@ -14,6 +14,7 @@ import java.util.UUID;
 import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.paymentDAO;
@@ -28,6 +29,7 @@ import com.qount.invoice.utils.SqlQuerys;
 public class PaymentDAOImpl implements paymentDAO{
 	
 	public static PaymentDAOImpl instance = new PaymentDAOImpl();
+	private static final Logger LOGGER = Logger.getLogger(PaymentDAOImpl.class);
 	
 	public static PaymentDAOImpl getInstance() {
 		return instance;
@@ -40,10 +42,10 @@ public class PaymentDAOImpl implements paymentDAO{
 	@Override
 	public Payment save(Payment payment, Connection connection) {
 		PreparedStatement pstmt = null;
-		
 			if (connection != null) {
 				int ctr = 1;
 				try {
+					LOGGER.debug("entered invoice payment save:"+payment);
 					List<PaymentLine> lines = getLines(payment.getId(), connection);
 					pstmt = connection.prepareStatement(SqlQuerys.Payments.INSERT_QRY);
 					pstmt.setString(ctr++, payment.getId());
@@ -88,6 +90,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
 				} finally {
 					DatabaseUtilities.closeResources(null, pstmt, null);
+					LOGGER.debug("exited invoice payment save:"+payment);
 				}
 			}
 		

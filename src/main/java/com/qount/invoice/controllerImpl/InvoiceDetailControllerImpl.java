@@ -41,6 +41,7 @@ public class InvoiceDetailControllerImpl {
 	public static boolean makeInvoicePayment(Invoice invoice, String invoiceID, Invoice inputInvoice) {
 		Connection connection = null;
 		try {
+			LOGGER.debug("entered makeInvoicePayment dbInvoice:"+invoice+ "uiInvoice"+inputInvoice);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, invoice.getCompany_id());
 			if(!isCompanyRegistered){
@@ -124,6 +125,7 @@ public class InvoiceDetailControllerImpl {
 				break;
 			}
 			JSONObject result = invokeChargePaymentSpringApi(companyID, payloadObj, urlAction);
+			LOGGER.debug("payment spring payment result:"+result);
 			if (result == null || result.length() == 0) {
 				throw new WebApplicationException("server error while making one time invoice payment");
 			}
@@ -177,12 +179,13 @@ public class InvoiceDetailControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited makeInvoicePayment dbInvoice:"+invoice+ "uiInvoice"+inputInvoice);
 		}
 	}
 
 	private static JSONObject invokeChargePaymentSpringApi(String companyId, JSONObject payloadObj, String urlAction) throws Exception {
 		try {
-			LOGGER.debug("entered invokeChargePaymentSpringApi companyId:" + companyId);
+			LOGGER.debug("entered invokeChargePaymentSpringApi companyId:" + companyId + " payloadObj :"+payloadObj+" urlAction :"+urlAction);
 			if (StringUtils.isEmpty(companyId) || payloadObj == null || payloadObj.length() == 0) {
 				throw new WebApplicationException("company id and payload object cannot be empty companyID:" + companyId + " payloadObj: " + payloadObj);
 			}
@@ -197,6 +200,7 @@ public class InvoiceDetailControllerImpl {
 			System.out.println(payloadObj);
 			System.out.println("*******************************************");
 			JSONObject responseJson = HTTPClient.post(path, payloadObj.toString());
+			LOGGER.debug("result invokeChargePaymentSpringApi path:" + path + " payloadObj :"+ payloadObj+" responseJson:"+responseJson);
 			if (responseJson != null && responseJson.length() != 0) {
 				return responseJson;
 			}
@@ -204,7 +208,7 @@ public class InvoiceDetailControllerImpl {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("exited invokeChargePaymentSpringApi companyId:" + companyId);
+			LOGGER.debug("exited invokeChargePaymentSpringApi companyId:" + companyId+ " payloadObj :"+payloadObj+" urlAction :"+urlAction);
 		}
 		return null;
 	}
@@ -249,6 +253,7 @@ public class InvoiceDetailControllerImpl {
 
 	private static JSONObject getOneTimeCustomerChargePaymentSpringJson(String customer_id, Object amount, String payment_type) {
 		try {
+			LOGGER.debug("entered getOneTimeCustomerChargePaymentSpringJson(customer_id:"+customer_id+", amount"+amount+", payment_type:"+payment_type);
 			if (StringUtils.isEmpty(customer_id)) {
 				throw new WebApplicationException("customer_id cannot be empty for one time charge");
 			}
@@ -258,6 +263,7 @@ public class InvoiceDetailControllerImpl {
 			if(StringUtils.isNotBlank(payment_type) && payment_type.equals(Constants.INVOICE_BANK_ACCOUNT)){
 				payloadObj.put("charge_bank_account",true);
 			}
+			LOGGER.debug("exited getOneTimeCustomerChargePaymentSpringJson(customer_id:"+customer_id+", amount"+amount+", payment_type:"+payment_type);
 			return payloadObj;
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -327,7 +333,7 @@ public class InvoiceDetailControllerImpl {
 	
 	private static String updatePaymentSpringCustomer(String payment_spring_id, String token, String companyId) {
 		try {
-			LOGGER.debug("entered createPaymentSpringCustomer: payment_spring_id" + payment_spring_id + " token:" + token+ " companyId:" + companyId);
+			LOGGER.debug("entered updatePaymentSpringCustomer: payment_spring_id" + payment_spring_id + " token:" + token+ " companyId:" + companyId);
 			if (StringUtils.isAnyBlank(companyId,payment_spring_id,token)) {
 				throw new WebApplicationException("companyId,payment_spring_id,token cannot be empty to update customer payment details");
 			}
@@ -355,7 +361,7 @@ public class InvoiceDetailControllerImpl {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("entered createPaymentSpringCustomer: payment_spring_id" + payment_spring_id + " token:" + token+ " companyId:" + companyId);
+			LOGGER.debug("exited updatePaymentSpringCustomer: payment_spring_id" + payment_spring_id + " token:" + token+ " companyId:" + companyId);
 		}
 		return null;
 	}
@@ -389,7 +395,7 @@ public class InvoiceDetailControllerImpl {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("entered createPaymentSpringCustomer: token:" + token+ " companyId:" + companyId);
+			LOGGER.debug("exited createPaymentSpringCustomer: token:" + token+ " companyId:" + companyId);
 		}
 		return null;
 	}
@@ -426,7 +432,7 @@ public class InvoiceDetailControllerImpl {
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
-			LOGGER.debug("entered getPaymentSpringCustomer: payment_spring_id" + payment_spring_id + " companyId:" + companyId);
+			LOGGER.debug("exited getPaymentSpringCustomer: payment_spring_id" + payment_spring_id + " companyId:" + companyId);
 		}
 		return null;
 	}
