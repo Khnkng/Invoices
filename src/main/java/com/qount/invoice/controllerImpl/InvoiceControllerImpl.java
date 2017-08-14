@@ -2,6 +2,7 @@ package com.qount.invoice.controllerImpl;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -220,6 +221,8 @@ public class InvoiceControllerImpl {
 			payment.setReceivedFrom(invoice.getCustomer_id());
 			payment.setReferenceNo(invoice.getRefrence_number());
 			payment.setType(invoice.getPayment_method());
+			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
 			PaymentLine line = new PaymentLine();
 			line.setId(UUID.randomUUID().toString());
 			line.setInvoiceId(invoice.getId());
