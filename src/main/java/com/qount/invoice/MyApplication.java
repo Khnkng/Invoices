@@ -21,9 +21,10 @@ import org.glassfish.jersey.server.validation.internal.InjectingConstraintValida
 public class MyApplication extends ResourceConfig {
 
     public MyApplication() {
-        packages("io.swagger.jaxrs.listing","com.qount.invoice.controller");
+        packages("io.swagger.jaxrs.listing","com.qount.invoice");
         // Validation.
         register(ValidationConfigurationContextResolver.class);
+        register(CustomLoggingFilter.class);
         // Providers - JSON.
         register(MoxyJsonFeature.class);
         registerClasses(io.swagger.jaxrs.listing.ApiListingResource.class, io.swagger.jaxrs.listing.SwaggerSerializers.class);
