@@ -246,7 +246,6 @@ public class InvoiceControllerImpl {
 	public static List<Invoice> getInvoices(String userID, String companyID, String state) {
 		List<Invoice> invoiceLst = null;
 		try {
-			System.out.println("\n\n\nTESTING CONSOLE APPENDER \n\n");
 			LOGGER.debug("entered get invoices userID:" + userID + " companyID:" + companyID + " state:" + state);
 			if (StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
