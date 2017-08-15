@@ -48,7 +48,7 @@ public class Invoice {
 	private String payment_spring_token;
 	private String ends_after;
 	private String plan_id;
-	private String amountToPay;
+	private double amountToPay;
 	private double amount_paid;
 	private Customer customer;
 	private String companyName;
@@ -204,11 +204,11 @@ public class Invoice {
 		this.amount_paid = amount_paid;
 	}
 
-	public String getAmountToPay() {
+	public double getAmountToPay() {
 		return amountToPay;
 	}
 
-	public void setAmountToPay(String amountToPay) {
+	public void setAmountToPay(double amountToPay) {
 		this.amountToPay = amountToPay;
 	}
 

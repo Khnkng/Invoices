@@ -51,6 +51,10 @@ public class InvoiceControllerImpl {
 			if (invoice == null || StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR + ":userID and companyID are mandatory", Status.PRECONDITION_FAILED));
 			}
+			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, companyID);
+			if(!isCompanyRegistered){
+				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
+			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
@@ -100,6 +104,9 @@ public class InvoiceControllerImpl {
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
 				Invoice dbInvoice = getInvoice(invoiceID);
+				if(!dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)){
+					throw new WebApplicationException("invoice.non.draft.update.msg", 412);
+				}
 				if (Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()) {
 					isJERequired = true;
 				} else {
@@ -172,7 +179,6 @@ public class InvoiceControllerImpl {
 			default:
 				break;
 			}
-
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -184,6 +190,10 @@ public class InvoiceControllerImpl {
 	}
 
 	private static Invoice markInvoiceAsSent(Connection connection, Invoice invoice) throws Exception {
+		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
+		if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT)){
+			throw new WebApplicationException("invoice.sent.msg", 412);
+		}
 		Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
 		if (invoiceResult != null) {
 			return invoice;
@@ -193,6 +203,9 @@ public class InvoiceControllerImpl {
 
 	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception {
 		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
+		if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)){
+			throw new WebApplicationException("invoice.paid.msg", 412);
+		}
 		if (invoice.getAmount() > dbInvoice.getAmount()) {
 			throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 		}
@@ -204,7 +217,7 @@ public class InvoiceControllerImpl {
 		}
 		if (invoice.getAmount() < dbInvoice.getAmount()) {
 			invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
-			return MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
+			return MySQLManager.getInvoiceDAOInstance().markAsPaid(connection, invoice);
 		}
 		return null;
 	}
@@ -273,6 +286,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Invoice result = InvoiceParser.convertTimeStampToString(MySQLManager.getInvoiceDAOInstance().get(invoiceID));
+			InvoiceParser.convertAmountToTwoDecimal(result);
 			LOGGER.debug("getInvoice result:" + result);
 			return result;
 		} catch (Exception e) {
@@ -378,6 +392,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByClientId(userID, companyID, clientID);
+			InvoiceParser.convertAmountToTwoDecimal(invoiceLst);
 			return invoiceLst;
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
