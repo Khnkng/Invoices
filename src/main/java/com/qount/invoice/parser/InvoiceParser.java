@@ -96,6 +96,7 @@ public class InvoiceParser {
 
 	public static String convertTimeStampToString(String dateStr, SimpleDateFormat from, SimpleDateFormat to) {
 		try {
+			if(StringUtils.isNotBlank(dateStr))
 			return to.format(from.parse(dateStr)).toString();
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
