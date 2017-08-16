@@ -30,6 +30,7 @@ import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.ResponseUtil;
 import com.qount.invoice.utils.Utilities;
 
@@ -230,7 +231,8 @@ public class InvoiceControllerImpl {
 			payment.setCurrencyCode(invoice.getCurrency());
 			payment.setId(UUID.randomUUID().toString());
 			payment.setPaymentAmount(new BigDecimal(invoice.getAmount()));
-			payment.setPaymentDate(invoice.getPayment_date());
+			payment.setPaymentDate(invoice.getPayment_date()==null?DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT):invoice.getPayment_date());
+			
 			payment.setReceivedFrom(invoice.getCustomer_id());
 			payment.setReferenceNo(invoice.getReference_number());
 			payment.setBankAccountID(invoice.getBank_account_id());
