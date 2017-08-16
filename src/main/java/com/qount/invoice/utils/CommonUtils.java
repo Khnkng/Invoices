@@ -247,10 +247,36 @@ public class CommonUtils {
 				throw new Exception(queJSON.toString());
 			}
 		} catch (Exception e) {
-			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			LOGGER.error("Error creating invoice journal", e);
 			RedisUtils.writeToQue(queJSON.toString());
 		}
 		return responseJSON;
+	}
+
+	public static void createJournalAsync(String payload, String userID, String companyID) {
+		Runnable task2 = () -> {
+			JSONObject responseJSON = null;
+			JSONObject queJSON = new JSONObject(payload).put("companyID", companyID).put("userID", userID);
+			try {
+				String path = LTMUtils.getHostAddress("qounting.service.docker.hostname", "qounting.service.docker.port", "oneapp.base.url");
+				path = path + "Qounting/users/" + userID + "/companies/" + companyID + "/journals";
+				LOGGER.debug("path = " + path);
+				LOGGER.debug("payload = " + payload);
+				String responseString = JerseyClient.post(path, payload);
+				LOGGER.debug("responseString = " + responseString);
+				if (StringUtils.isBlank(responseString)) {
+					throw new Exception(queJSON.toString());
+				}
+				responseJSON = new JSONObject(responseString);
+				if (Constants.FAILURE_STATUS_STR.equalsIgnoreCase(responseJSON.optString("status"))) {
+					throw new Exception(queJSON.toString());
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error creating invoice journal", e);
+				RedisUtils.writeToQue(queJSON.toString());
+			}
+		};
+		new Thread(task2).start();
 	}
 
 	public static void deleteJournal(String userID, String companyID, String source) {
