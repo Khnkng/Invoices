@@ -59,7 +59,6 @@ public class Invoice {
 	private String payment_options;
 	private String send_to;
 	private String email_state;
-	private String refrence_number;
 	private String payment_method;
 	private Company company;
 	private CustomerContactDetails customerContactDetails;
@@ -68,6 +67,9 @@ public class Invoice {
 	private String payment_type;//Credit Card || Bank
 	private String proposal_id;
 	private String customer_name;
+	private String reference_number;
+	private String payment_date;
+	private String bank_account_id;
 	
 	public String getProposal_id() {
 		return proposal_id;
@@ -114,14 +116,6 @@ public class Invoice {
 
 	public void setPayment_method(String payment_method) {
 		this.payment_method = payment_method;
-	}
-
-	public String getRefrence_number() {
-		return refrence_number;
-	}
-
-	public void setRefrence_number(String refrence_number) {
-		this.refrence_number = refrence_number;
 	}
 
 	public String getEmail_state() {
@@ -507,6 +501,30 @@ public class Invoice {
 
 	public void setCustomer_name(String customer_name) {
 		this.customer_name = customer_name;
+	}
+
+	public String getReference_number() {
+		return reference_number;
+	}
+
+	public void setReference_number(String reference_number) {
+		this.reference_number = reference_number;
+	}
+
+	public String getPayment_date() {
+		return payment_date;
+	}
+
+	public void setPayment_date(String payment_date) {
+		this.payment_date = payment_date;
+	}
+
+	public String getBank_account_id() {
+		return bank_account_id;
+	}
+
+	public void setBank_account_id(String bank_account_id) {
+		this.bank_account_id = bank_account_id;
 	}
 
 }
