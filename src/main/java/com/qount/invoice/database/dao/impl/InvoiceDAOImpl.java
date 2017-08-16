@@ -89,7 +89,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPayment_options());
 				pstmt.setString(ctr++, invoice.getEmail_state());
 				pstmt.setString(ctr++, invoice.getSend_to());
-				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getPayment_method());
 				pstmt.setDouble(ctr++, invoice.getTax_amount());
 				//below value only comes when proposal is accepted to invoice
@@ -152,7 +151,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getPayment_options());
 				pstmt.setString(ctr++, invoice.getEmail_state());
 				pstmt.setString(ctr++, invoice.getSend_to());
-				pstmt.setString(ctr++, invoice.getRefrence_number());
 				pstmt.setString(ctr++, invoice.getPayment_method());
 				pstmt.setDouble(ctr++, invoice.getTax_amount());
 				pstmt.setString(ctr++, invoice.getId());
@@ -216,7 +214,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.MARK_AS_PAID_QRY);
-				pstmt.setString(ctr++, invoice.getRefrence_number());
+				pstmt.setString(ctr++, invoice.getReference_number());
 				pstmt.setString(ctr++, invoice.getState());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
@@ -248,9 +246,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_INVOICE_AS_PAID_STATE_QRY);
-				pstmt.setString(ctr++, invoice.getRefrence_number());
-				pstmt.setString(ctr++, invoice.getInvoice_date());
-				pstmt.setString(ctr++, invoice.getPayment_method());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -326,7 +321,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
 							invoice.setTax_amount(rset.getDouble("tax_amount"));
-							invoice.setRefrence_number(rset.getString("refrence_number"));
 							invoice.setPayment_method(rset.getString("payment_method"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
 							invoice.setUser_id(rset.getString("user_id"));
@@ -777,7 +771,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					pstmt.setString(ctr++, invoice.getPayment_options());
 					pstmt.setString(ctr++, invoice.getEmail_state());
 					pstmt.setString(ctr++, invoice.getSend_to());
-					pstmt.setString(ctr++, invoice.getRefrence_number());
 					pstmt.setString(ctr++, invoice.getPayment_method());
 					pstmt.setDouble(ctr++, invoice.getTax_amount());
 					pstmt.setString(ctr++, invoice.getProposal_id());
