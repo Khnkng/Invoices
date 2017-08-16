@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.InvoiceDAO;
@@ -49,11 +48,12 @@ public class InvoiceControllerImpl {
 		Connection connection = null;
 		try {
 			if (invoice == null || StringUtils.isAnyBlank(userID, companyID)) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR + ":userID and companyID are mandatory", Status.PRECONDITION_FAILED));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						Constants.PRECONDITION_FAILED_STR + ":userID and companyID are mandatory", Status.PRECONDITION_FAILED));
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, companyID);
-			if(!isCompanyRegistered){
+			if (!isCompanyRegistered) {
 				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
 			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
@@ -104,7 +104,7 @@ public class InvoiceControllerImpl {
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
 				Invoice dbInvoice = getInvoice(invoiceID);
-				if(!dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)){
+				if (!dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
 					throw new WebApplicationException("invoice.non.draft.update.msg", 412);
 				}
 				if (Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()) {
@@ -191,7 +191,8 @@ public class InvoiceControllerImpl {
 
 	private static Invoice markInvoiceAsSent(Connection connection, Invoice invoice) throws Exception {
 		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
-		if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT)){
+		if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)
+				|| dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
 			throw new WebApplicationException("invoice.sent.msg", 412);
 		}
 		Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
@@ -203,7 +204,7 @@ public class InvoiceControllerImpl {
 
 	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception {
 		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
-		if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)){
+		if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 			throw new WebApplicationException("invoice.paid.msg", 412);
 		}
 		if (invoice.getAmount() > dbInvoice.getAmount()) {
@@ -246,7 +247,8 @@ public class InvoiceControllerImpl {
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection) != null) {
 				if (MySQLManager.getInvoiceDAOInstance().updateInvoiceAsPaid(connection, invoice) != null) {
 					connection.commit();
-					CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(), invoice.getCompany_id());
+					CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
+							invoice.getCompany_id());
 					return true;
 				}
 			}
@@ -369,15 +371,17 @@ public class InvoiceControllerImpl {
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
 			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
-			template = template.replace("{{invoice number}}", StringUtils.isBlank(invoice.getNumber()) ? "" : invoice.getNumber()).replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName()) ? "" : invoice.getCompanyName())
-					.replace("{{amount}}", currency + (StringUtils.isEmpty(invoice.getAmount() + "") ? "" : invoice.getAmount() + "")).replace("{{due date}}", StringUtils.isEmpty(dueDate) ? "" : dueDate).replace("${invoiceLinkUrl}", invoiceLinkUrl)
+			String amount = getTwoDecimalNumberAsString(invoice.getAmount());
+			template = template.replace("{{invoice number}}", StringUtils.isBlank(invoice.getNumber()) ? "" : invoice.getNumber())
+					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName()) ? "" : invoice.getCompanyName()).replace("{{amount}}", currency + amount)
+					.replace("{{due date}}", StringUtils.isEmpty(dueDate) ? "" : dueDate).replace("${invoiceLinkUrl}", invoiceLinkUrl)
 					.replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url"));
 			emailJson.put("body", template);
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
-			String url = Utilities.getLtmUrl(hostName, portName);
-			url = url + "HalfService/emails";
-//			 String url = "https://dev-services.qount.io/HalfService/emails";
+			 String url = Utilities.getLtmUrl(hostName, portName);
+			 url = url + "HalfService/emails";
+//			String url = "https://dev-services.qount.io/HalfService/emails";
 			Object result = HTTPClient.postObject(url, emailJson.toString());
 			if (result != null && result instanceof java.lang.String && result.equals("true")) {
 				return true;
@@ -391,6 +395,27 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited sendInvoiceEmail  invoice: " + invoice);
 		}
 		return false;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(getTwoDecimalNumberAsString(21.1222));
+	}	
+	
+	private static String getTwoDecimalNumberAsString(double value) {
+		try {
+			String result = value + "";
+			if (result.indexOf(".") != -1) {
+				String resultSubStr = result.substring(result.indexOf(".") + 1, result.length());
+				if (resultSubStr.length() < 2) {
+					result += "0";
+				}
+				return result;
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}
+		return null;
 	}
 
 	public static List<Invoice> getInvoicesByClientID(String userID, String companyID, String clientID) {
@@ -446,11 +471,4 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		String invoiceString = "{\"amount\":40.8,\"amount_by_date\":40.8,\"amount_due\":40.8,\"amount_paid\":0.0,\"company\":{\"active\":true,\"contact_first_name\":\"Uday\",\"contact_last_name\":\"K\",\"currency\":\"USD\",\"ein\":\"qdwm3Zlnsn8vtmxSPoVvzg==\",\"email\":\"\",\"id\":\"fa0b8c60-4347-4fb1-9982-4ebba798b108\",\"name\":\"Advanced Pain Solutions\"},\"company_id\":\"fa0b8c60-4347-4fb1-9982-4ebba798b108\",\"created_at\":\"2017-07-17 15:35:02\",\"currencies\":{\"code\":\"USD\",\"html_symbol\":\"$\",\"name\":\"US Dollar\"},\"currency\":\"USD\",\"customer\":{\"coa\":\"bcb6afab-1bb0-11e7-88d4-12a272e624d5\",\"customer_address\":\"123,Main Street\",\"customer_city\":\"New york \",\"customer_country\":\"United States\",\"customer_ein\":\"OOaoDu/uUgLx80OJmuXKTQ==\",\"customer_id\":\"1f638eac-e60f-468c-be2a-19389108b493\",\"customer_name\":\"ABC Inc\",\"customer_state\":\"New Jersey \",\"customer_zipcode\":\"07001\",\"phone_number\":\"9908990825\",\"street_1\":\"123,Main Street\",\"term\":\"net30\"},\"customerContactDetails\":{\"customer_id\":\"1f638eac-e60f-468c-be2a-19389108b493\",\"email\":\"seshu.vellanki@qount.io\",\"first_name\":\"Seshu\",\"id\":\"c1a15184-dee2-4c10-93ec-71fcd392069d\",\"last_name\":\"Vellanki\",\"mobile\":\"9908990856\"},\"customer_id\":\"1f638eac-e60f-468c-be2a-19389108b493\",\"deposit_amount\":0.0,\"discount\":0.0,\"due_date\":\"08/16/17\",\"id\":\"97db4048-afeb-4642-9862-5e12887538b9\",\"invoiceLines\":[{\"amount\":40.0,\"coa\":{\"id\":\"3cb637ba-52f0-4220-b9ac-292657fbb79e\"},\"description\":\"3.5mm jack 1 meter wire\",\"id\":\"41639232-6fbb-4083-93e5-fc100256218d\",\"invoice_id\":\"97db4048-afeb-4642-9862-5e12887538b9\",\"item\":{\"id\":\"3cb637ba-52f0-4220-b9ac-292657fbb79e\",\"name\":\"head phone\"},\"item_id\":\"3cb637ba-52f0-4220-b9ac-292657fbb79e\",\"last_updated_at\":\"2017-07-17 15:35:02\",\"last_updated_by\":\"uday.koorella@qount.io\",\"price\":20.0,\"quantity\":2.0,\"tax_id\":\"a6d35695-cd71-45b4-9567-bf2744772e63\",\"type\":\"item\"}],\"invoice_date\":\"07/17/17\",\"last_updated_at\":\"2017-07-17 15:35:02\",\"last_updated_by\":\"uday.koorella@qount.io\",\"notes\":\"\",\"number\":\"VO7302\",\"payment_options\":\"\",\"processing_fees\":0.0,\"recepientsMails\":[\"seshu.vellanki@qount.io\",\"sriuday@gmail.com\"],\"sendMail\":false,\"send_to\":\"c1a15184-dee2-4c10-93ec-71fcd392069d\",\"state\":\"sent\",\"sub_totoal\":0.0,\"tax_amount\":0.0,\"term\":\"net30\",\"user_id\":\"uday.koorella@qount.io\"}";
-		Invoice invoice = new ObjectMapper().readValue(invoiceString, Invoice.class);
-		Invoice newInvoice = new ObjectMapper().readValue(invoiceString, Invoice.class);
-		newInvoice.getInvoiceLines().get(0).setPrice(21);
-		System.out.println(invoice.prepareJSParemeters().equals(newInvoice.prepareJSParemeters()));
-	}
 }
