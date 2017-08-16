@@ -31,7 +31,6 @@ import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
-import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.ResponseUtil;
 import com.qount.invoice.utils.Utilities;
 
@@ -217,9 +216,10 @@ public class InvoiceControllerImpl {
 			payment.setCurrencyCode(invoice.getCurrency());
 			payment.setId(UUID.randomUUID().toString());
 			payment.setPaymentAmount(new BigDecimal(invoice.getAmount()));
-			payment.setPaymentDate(DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT));
+			payment.setPaymentDate(invoice.getPayment_date());
 			payment.setReceivedFrom(invoice.getCustomer_id());
-			payment.setReferenceNo(invoice.getRefrence_number());
+			payment.setReferenceNo(invoice.getReference_number());
+			payment.setBankAccountID(invoice.getBank_account_id());
 			payment.setType(invoice.getPayment_method());
 			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
@@ -335,7 +335,7 @@ public class InvoiceControllerImpl {
 			}
 			return isSent;
 		} catch (Exception e) {
-			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			LOGGER.error("Error marking invoice as sent",e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		} finally {
 			LOGGER.debug("exited updateInvoicesAsSent userID: " + userID + " companyID:" + companyID + " ids:" + ids);
