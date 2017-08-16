@@ -51,6 +51,7 @@ public class InvoiceControllerImpl {
 			if (invoice == null || StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR + ":userID and companyID are mandatory", Status.PRECONDITION_FAILED));
 			}
+			connection = DatabaseUtilities.getReadWriteConnection();
 			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, companyID);
 			if(!isCompanyRegistered){
 				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
@@ -65,7 +66,6 @@ public class InvoiceControllerImpl {
 			} else {
 				invoice.setState(Constants.INVOICE_STATE_DRAFT);
 			}
-			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
@@ -377,7 +377,7 @@ public class InvoiceControllerImpl {
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url + "HalfService/emails";
-			// String url = "https://dev-services.qount.io/HalfService/emails";
+//			 String url = "https://dev-services.qount.io/HalfService/emails";
 			Object result = HTTPClient.postObject(url, emailJson.toString());
 			if (result != null && result instanceof java.lang.String && result.equals("true")) {
 				return true;
