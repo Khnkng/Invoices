@@ -100,12 +100,12 @@ public class InvoiceControllerImpl {
 		boolean isJERequired = false;
 		try {
 			// journal should not be created for draft state invoice.
+			Invoice dbInvoice = getInvoice(invoiceID);
+			if (!dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.non.draft.update.msg"), 412);
+			}
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
-				Invoice dbInvoice = getInvoice(invoiceID);
-				if (!dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
-					throw new WebApplicationException("invoice.non.draft.update.msg", 412);
-				}
 				if (Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()) {
 					isJERequired = true;
 				} else {
@@ -192,7 +192,7 @@ public class InvoiceControllerImpl {
 		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
 		if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)
 				|| dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
-			throw new WebApplicationException("invoice.sent.msg", 412);
+			throw new WebApplicationException(PropertyManager.getProperty("invoice.sent.msg"), 412);
 		}
 		Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
 		if (invoiceResult != null) {
@@ -204,7 +204,7 @@ public class InvoiceControllerImpl {
 	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception {
 		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
 		if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
-			throw new WebApplicationException("invoice.paid.msg", 412);
+			throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.msg"), 412);
 		}
 		if (invoice.getAmount() > dbInvoice.getAmount()) {
 			throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
