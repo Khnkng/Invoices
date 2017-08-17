@@ -170,6 +170,7 @@ public class InvoiceDetailControllerImpl {
 			}
 			if(paymentCaptured){
 				connection.commit();
+				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(), invoice.getCompany_id());
 				return true;
 			}else{
 				throw new WebApplicationException("payment done but not saved in qount db");
