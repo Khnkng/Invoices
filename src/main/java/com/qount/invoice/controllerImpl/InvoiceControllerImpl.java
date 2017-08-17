@@ -107,9 +107,9 @@ public class InvoiceControllerImpl {
 		try {
 			// journal should not be created for draft state invoice.
 			Invoice dbInvoice = getInvoice(invoiceID);
-			if (!dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.non.draft.update.msg"), 412);
-			}
+//			if (!dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
+//				throw new WebApplicationException(PropertyManager.getProperty("invoice.non.draft.update.msg"), 412);
+//			}
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
 				if (Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()) {
