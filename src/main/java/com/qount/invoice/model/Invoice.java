@@ -21,6 +21,7 @@ public class Invoice {
 	private String user_id;
 	private String company_id;
 	private double amount;
+	private double sub_total;
 	private String currency;
 	private String description;
 	private String objectives;
@@ -39,7 +40,6 @@ public class Invoice {
 	private List<InvoiceLine> invoiceLines;
 	private double amount_due;
 	private String due_date;
-	private double sub_total;
 	private double amount_by_date;
 	private Currencies currencies;
 	private String action;
@@ -48,7 +48,7 @@ public class Invoice {
 	private String payment_spring_token;
 	private String ends_after;
 	private String plan_id;
-	private String amountToPay;
+	private double amountToPay;
 	private double amount_paid;
 	private Customer customer;
 	private String companyName;
@@ -71,6 +71,15 @@ public class Invoice {
 	private String payment_date;
 	private String bank_account_id;
 	
+	
+	public double getSub_total() {
+		return sub_total;
+	}
+
+	public void setSub_total(double sub_total) {
+		this.sub_total = sub_total;
+	}
+
 	public String getProposal_id() {
 		return proposal_id;
 	}
@@ -198,11 +207,11 @@ public class Invoice {
 		this.amount_paid = amount_paid;
 	}
 
-	public String getAmountToPay() {
+	public double getAmountToPay() {
 		return amountToPay;
 	}
 
-	public void setAmountToPay(String amountToPay) {
+	public void setAmountToPay(double amountToPay) {
 		this.amountToPay = amountToPay;
 	}
 
@@ -268,14 +277,6 @@ public class Invoice {
 
 	public void setDue_date(String due_date) {
 		this.due_date = due_date;
-	}
-
-	public double getSub_total() {
-		return sub_total;
-	}
-
-	public void setSub_total(double sub_totoal) {
-		this.sub_total = sub_totoal;
 	}
 
 	public String getInvoice_date() {

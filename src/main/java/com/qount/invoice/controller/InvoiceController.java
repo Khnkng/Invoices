@@ -61,7 +61,7 @@ public class InvoiceController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "update invoice", notes = "Used to update invoice state" + "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>" + "json ={\"state\":\"sent\"}" + "</div>", responseContainer = "java.lang.String")
-	public Invoice updateInvoiceState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID, @Valid Invoice invoice) {
+	public Invoice updateInvoiceState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID, @Valid Invoice invoice){
 		return InvoiceControllerImpl.updateInvoiceState(invoiceID, invoice, userID, companyID);
 	}
 
@@ -87,7 +87,7 @@ public class InvoiceController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to retieve invoice of company", value = "retieves invoice", responseContainer = "java.lang.String")
-	public Invoice getProposal(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID) {
+	public Invoice getInvoice(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID) {
 		return InvoiceControllerImpl.getInvoice(invoiceID);
 	}
 
@@ -110,6 +110,7 @@ public class InvoiceController {
 	@Path("/sent")
 	@ApiOperation(value = "update state invoices", notes = "Used to update invocie states.<br>", responseContainer = "java.lang.String")
 	public boolean udpateInvoicesByState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, List<String> ids) {
+		//TODO before updating invoices as sent check its state 
 		return InvoiceControllerImpl.updateInvoicesAsSent(userID, companyID, ids);
 	}
 

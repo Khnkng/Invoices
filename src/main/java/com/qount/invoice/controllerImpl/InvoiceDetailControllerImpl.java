@@ -45,7 +45,7 @@ public class InvoiceDetailControllerImpl {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, invoice.getCompany_id());
 			if(!isCompanyRegistered){
-				throw new WebApplicationException("company not registered with payment module");
+				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
 			}
 			String payment_spring_id = invoice.getCustomer()!=null?invoice.getCustomer().getPayment_spring_id():null;
 			String customerId = invoice.getCustomer()!=null?invoice.getCustomer().getCustomer_id():null;
@@ -67,7 +67,7 @@ public class InvoiceDetailControllerImpl {
 			invoice.setAmountToPay(inputInvoice.getAmountToPay());
 			String companyID = invoice.getCompany_id();
 			long amountToPayInCents = 0;
-			double amountToPay = Double.parseDouble(inputInvoice.getAmountToPay());
+			double amountToPay = inputInvoice.getAmountToPay();
 			String transactionId = null;
 			String state = null;
 			Payment payment = new Payment();
