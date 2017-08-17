@@ -154,13 +154,13 @@ public class InvoiceParser {
 						invoice.setAmount_paid(InvoiceParser.getTwoDecimalValue(invoice.getAmount_paid()));
 						invoice.setAmountToPay(InvoiceParser.getTwoDecimalValue(invoice.getAmountToPay()));
 						invoice.setProcessing_fees(InvoiceParser.getTwoDecimalValue(invoice.getProcessing_fees()));
-						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getProcessing_fees()));
+						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getSub_total()));
 						invoice.setTax_amount(InvoiceParser.getTwoDecimalValue(invoice.getTax_amount()));
 						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines()!=null?invoice.getInvoiceLines().iterator():null;
 						if(invoiceLineIterator!=null){
 							while(invoiceLineIterator.hasNext()){
 								InvoiceLine invoiceLine = invoiceLineIterator.next();
-								invoiceLine.setAmount(getTwoDecimalValue(invoice.getAmount()));
+								invoiceLine.setAmount(getTwoDecimalValue(invoiceLine.getAmount()));
 								invoiceLine.setPrice(getTwoDecimalValue(invoiceLine.getPrice()));
 								invoiceLine.setQuantity(getFourDecimalValue(invoiceLine.getQuantity()));
 							}
