@@ -317,7 +317,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Invoice result = InvoiceParser.convertTimeStampToString(MySQLManager.getInvoiceDAOInstance().get(invoiceID));
-			InvoiceParser.convertAmountToTwoDecimal(result);
+			InvoiceParser.convertAmountToDecimal(result);
 			LOGGER.debug("getInvoice result:" + result);
 			return result;
 		} catch (WebApplicationException e) {
@@ -480,7 +480,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByClientId(userID, companyID, clientID);
-			InvoiceParser.convertAmountToTwoDecimal(invoiceLst);
+			InvoiceParser.convertAmountToDecimal(invoiceLst);
 			return invoiceLst;
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));

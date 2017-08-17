@@ -77,11 +77,11 @@ public class InvoiceParser {
 				line.setLast_updated_by(userId);
 				line.setAmount(getTwoDecimalValue(line.getAmount()));
 				line.setPrice(getTwoDecimalValue(line.getPrice()));
-				line.setQuantity(getTwoDecimalValue(line.getQuantity()));
+				line.setQuantity(getFourDecimalValue(line.getQuantity()));
 			}
 			invoice.setCreated_at(timestamp.toString());
 			invoice.setRecepientsMailsArr(CommonUtils.getJsonArrayFromList(invoice.getRecepientsMails()));
-			convertAmountToTwoDecimal(invoice);
+			convertAmountToDecimal(invoice);
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e.getLocalizedMessage(), 500);
@@ -142,7 +142,7 @@ public class InvoiceParser {
 	 * @param invoiceLst
 	 * @return
 	 */
-	public static void convertAmountToTwoDecimal(List<Invoice> invoiceLst) {
+	public static void convertAmountToDecimal(List<Invoice> invoiceLst) {
 		try {
 			if (invoiceLst != null && !invoiceLst.isEmpty()) {
 				for (int i = 0; i < invoiceLst.size(); i++) {
@@ -162,7 +162,7 @@ public class InvoiceParser {
 								InvoiceLine invoiceLine = invoiceLineIterator.next();
 								invoiceLine.setAmount(getTwoDecimalValue(invoice.getAmount()));
 								invoiceLine.setPrice(getTwoDecimalValue(invoiceLine.getPrice()));
-								invoiceLine.setQuantity(getTwoDecimalValue(invoiceLine.getQuantity()));
+								invoiceLine.setQuantity(getFourDecimalValue(invoiceLine.getQuantity()));
 							}
 						}
 					}
@@ -177,7 +177,7 @@ public class InvoiceParser {
 	 * method used to convert invoice amount fields to two decimals
 	 * @param invoice
 	 */
-	public static void convertAmountToTwoDecimal(Invoice invoice) {
+	public static void convertAmountToDecimal(Invoice invoice) {
 		try {
 			if (invoice != null) {
 				invoice.setAmount(getTwoDecimalValue(invoice.getAmount()));
@@ -194,7 +194,7 @@ public class InvoiceParser {
 						InvoiceLine invoiceLine = invoiceLineIterator.next();
 						invoiceLine.setAmount(getTwoDecimalValue(invoice.getAmount()));
 						invoiceLine.setPrice(getTwoDecimalValue(invoiceLine.getPrice()));
-						invoiceLine.setQuantity(getTwoDecimalValue(invoiceLine.getQuantity()));
+						invoiceLine.setQuantity(getFourDecimalValue(invoiceLine.getQuantity()));
 					}
 				}
 			}
@@ -289,7 +289,7 @@ public class InvoiceParser {
 		try {
 			if (invoiceLst != null && !invoiceLst.isEmpty()) {
 				convertTimeStampToString(invoiceLst);
-				convertAmountToTwoDecimal(invoiceLst);
+				convertAmountToDecimal(invoiceLst);
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -352,7 +352,7 @@ public class InvoiceParser {
 	}
 
 	public static void main(String[] args) throws Exception {
-		double d = getFourDecimalValue(0.0001d);
+		double d = getFourDecimalValue(2.23409d);
 		System.out.println(d);
 	}
 
