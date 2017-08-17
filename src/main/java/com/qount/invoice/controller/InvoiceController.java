@@ -61,7 +61,7 @@ public class InvoiceController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "update invoice", notes = "Used to update invoice state" + "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>" + "json ={\"state\":\"sent\"}" + "</div>", responseContainer = "java.lang.String")
-	public Invoice updateInvoiceState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID, @Valid Invoice invoice) {
+	public Invoice updateInvoiceState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceID") @NotNull String invoiceID, @Valid Invoice invoice){
 		return InvoiceControllerImpl.updateInvoiceState(invoiceID, invoice, userID, companyID);
 	}
 
