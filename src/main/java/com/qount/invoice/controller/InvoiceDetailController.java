@@ -53,6 +53,10 @@ public class InvoiceDetailController {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 		}else if(action.equals("pay")){
 			Invoice invoice = InvoiceControllerImpl.getInvoice(invoiceID);
+			if(invoice != null){
+				// included for the journal creation when payment is made
+				invoice.setUser_id("system");
+			}
 			if(InvoiceDetailControllerImpl.makeInvoicePayment(invoice, invoiceID,inputInvoice)){;
 				return invoice;
 			}
