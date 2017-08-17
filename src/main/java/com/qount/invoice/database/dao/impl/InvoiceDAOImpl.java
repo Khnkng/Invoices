@@ -202,6 +202,38 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 	}
+	
+	@Override
+	public Invoice markAsPaid(Connection connection, Invoice invoice) throws Exception {
+		LOGGER.debug("entered invoice markAsPaid:" + invoice);
+		if (invoice == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				int ctr = 1;
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.MARK_AS_PAID_QRY);
+				pstmt.setString(ctr++, invoice.getReference_number());
+				pstmt.setString(ctr++, invoice.getState());
+				pstmt.setString(ctr++, invoice.getId());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount == 0) {
+					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error updating invoice markAsPaid:" + invoice.getId() + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited invoice markAsPaid:" + invoice);
+		}
+		return invoice;
+	}
 
 	@Override
 	public Invoice updateInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception {
