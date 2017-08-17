@@ -84,7 +84,12 @@ public class InvoiceControllerImpl {
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
 		} catch (WebApplicationException e) {
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -148,6 +153,13 @@ public class InvoiceControllerImpl {
 				}
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -180,6 +192,13 @@ public class InvoiceControllerImpl {
 				break;
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -272,6 +291,13 @@ public class InvoiceControllerImpl {
 			// Map<String, String> badges =
 			// MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
 			InvoiceParser.formatInvoices(invoiceLst);
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -294,6 +320,13 @@ public class InvoiceControllerImpl {
 			InvoiceParser.convertAmountToTwoDecimal(result);
 			LOGGER.debug("getInvoice result:" + result);
 			return result;
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -313,6 +346,13 @@ public class InvoiceControllerImpl {
 			Invoice invoiceObj = MySQLManager.getInvoiceDAOInstance().delete(invoice);
 			CommonUtils.deleteJournal(userID, companyID, invoiceID + "@" + "invoice");
 			return InvoiceParser.convertTimeStampToString(invoiceObj);
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -330,6 +370,13 @@ public class InvoiceControllerImpl {
 			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(ids);
 			CommonUtils.deleteJournalsAsync(userID, companyID, ids);
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -352,6 +399,13 @@ public class InvoiceControllerImpl {
 				}
 			}
 			return isSent;
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error marking invoice as sent", e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -428,6 +482,13 @@ public class InvoiceControllerImpl {
 			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByClientId(userID, companyID, clientID);
 			InvoiceParser.convertAmountToTwoDecimal(invoiceLst);
 			return invoiceLst;
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -445,6 +506,13 @@ public class InvoiceControllerImpl {
 			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
 			JSONObject result = InvoiceParser.formatBadges(badges);
 			return Response.status(200).entity(result.toString()).build();
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
@@ -465,6 +533,13 @@ public class InvoiceControllerImpl {
 				return Response.status(200).entity(invoiceMetrics).build();
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if(e.getResponse().getStatus()==412){
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			}else{
+				throw e;
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
