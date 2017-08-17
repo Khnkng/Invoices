@@ -110,7 +110,6 @@ public class InvoiceController {
 	@Path("/sent")
 	@ApiOperation(value = "update state invoices", notes = "Used to update invocie states.<br>", responseContainer = "java.lang.String")
 	public boolean udpateInvoicesByState(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, List<String> ids) {
-		//TODO before updating invoices as sent check its state 
 		return InvoiceControllerImpl.updateInvoicesAsSent(userID, companyID, ids);
 	}
 

@@ -203,7 +203,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 	}
-	
+
 	@Override
 	public Invoice markAsPaid(Connection connection, Invoice invoice) throws Exception {
 		LOGGER.debug("entered invoice markAsPaid:" + invoice);
@@ -450,6 +450,71 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return result;
 
+	}
+
+	@Override
+	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId) throws Exception {
+		LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId);
+		if (StringUtils.isAnyBlank(invoiceNumber, companyId)) {
+			throw new WebApplicationException("invoiceNumber or companyID cannot be empty", 412);
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICE_BY_NUMBER);
+				pstmt.setString(1, invoiceNumber);
+				pstmt.setString(2, companyId);
+				rset = pstmt.executeQuery();
+				if (rset != null && rset.next()) {
+					int count = rset.getInt("count");
+					if (count > 0) {
+						return true;
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error executing invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId, e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId, String id) throws Exception {
+		LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id);
+		if (StringUtils.isAnyBlank(invoiceNumber, companyId, id)) {
+			throw new WebApplicationException("invoiceNumber or companyID od invoiceId cannot be empty", 412);
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICE_BY_NUMBER_AND_ID);
+				pstmt.setString(1, invoiceNumber);
+				pstmt.setString(2, companyId);
+				pstmt.setString(3, id);
+				rset = pstmt.executeQuery();
+				if (rset != null && rset.next()) {
+					int count = rset.getInt("count");
+					if (count > 0) {
+						return true;
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error executing invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id, e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id);
+		}
+		return false;
 	}
 
 	@Override

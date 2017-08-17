@@ -52,6 +52,11 @@ public class InvoiceControllerImpl {
 						Constants.PRECONDITION_FAILED_STR + ":userID and companyID are mandatory", Status.PRECONDITION_FAILED));
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
+			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(), companyID);
+			LOGGER.debug("invoiceExists:"+invoiceExists);
+			if(invoiceExists){
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"),412);
+			}
 			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, companyID);
 			if (!isCompanyRegistered) {
 				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
@@ -110,6 +115,12 @@ public class InvoiceControllerImpl {
 //			if (!dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
 //				throw new WebApplicationException(PropertyManager.getProperty("invoice.non.draft.update.msg"), 412);
 //			}
+			connection = DatabaseUtilities.getReadWriteConnection();
+			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(), companyID, invoiceID);
+			LOGGER.debug("invoiceExists:"+invoiceExists);
+			if(invoiceExists){
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"),412);
+			}
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
 				if (Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()) {
@@ -119,6 +130,7 @@ public class InvoiceControllerImpl {
 				}
 			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, false);
+			invoiceObj.setId(invoiceID);
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
@@ -131,7 +143,6 @@ public class InvoiceControllerImpl {
 			} else {
 				invoice.setState(Constants.INVOICE_STATE_DRAFT);
 			}
-			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
 			}
