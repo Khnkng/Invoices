@@ -97,7 +97,7 @@ public class SqlQuerys {
 
 	public final class Payments {
 		public static final String INSERT_QRY = "INSERT INTO invoice_payments ( `id`,`received_from`,`payment_amount`,`currency_code`,`reference_no`,`payment_date`,`memo`,`company_id`,`type`, `payment_notes`, `bank_account_id`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `received_from` = ?, `payment_amount` = ?, `currency_code` = ?, `reference_no` = ?, `payment_date` = ?, `memo` = ?, `company_id` = ?,`type` = ?,`payment_notes` = ?, `bank_account_id` = ?";
-		public static final String RETRIEVE_BY_COMPANYID_QRY = "SELECT invoice_payments.*,journals.`id` AS journal_id,journals.`isActive` FROM invoice_payments LEFT JOIN journals ON `invoice_payments`.id = journals.`sourceID` WHERE `company_id`= ?;";
+		public static final String RETRIEVE_BY_COMPANYID_QRY = "SELECT invoice_payments.*,journals.`id` AS journal_id,journals.`isActive`,company_customers.`customer_name` FROM invoice_payments LEFT JOIN journals ON `invoice_payments`.id = journals.`sourceID` LEFT JOIN company_customers ON company_customers.`customer_id`= invoice_payments.`received_from` WHERE invoice_payments.`company_id`= ?";
 		public static final String RETRIEVE_BY_PAYMENTID_QRY = "SELECT * FROM invoice_payments WHERE `id` = ?;";
 	}
 
