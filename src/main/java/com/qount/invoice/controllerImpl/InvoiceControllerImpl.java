@@ -254,7 +254,7 @@ public class InvoiceControllerImpl {
 			
 			payment.setReceivedFrom(invoice.getCustomer_id());
 			payment.setReferenceNo(invoice.getReference_number());
-			payment.setBankAccountID(invoice.getBank_account_id());
+			payment.setDepositedTo(invoice.getBank_account_id());
 			payment.setType(invoice.getPayment_method());
 			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
