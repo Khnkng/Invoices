@@ -43,6 +43,8 @@ public class Payment {
 	private String journalID;
 	
 	
+	private String customerName;
+	
 	public String getId() {
 		return id;
 	}
@@ -130,4 +132,10 @@ public class Payment {
         }
         return false;
     }
+	public String getCustomerName() {
+		return customerName;
+	}
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
 }

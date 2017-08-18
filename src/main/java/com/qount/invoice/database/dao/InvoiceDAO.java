@@ -16,7 +16,11 @@ import com.qount.invoice.model.Invoice;
  */
 public interface InvoiceDAO {
 
-	public Invoice save(Connection connection, Invoice invoice) throws Exception;;
+	public Invoice save(Connection connection, Invoice invoice) throws Exception;
+	
+	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId) throws Exception;
+	
+	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId, String id) throws Exception;
 
 	public Invoice update(Connection connection, Invoice invoice) throws Exception;;
 

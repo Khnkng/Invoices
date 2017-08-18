@@ -12,6 +12,8 @@ public class SqlQuerys {
 		public final static String QOUNT_QRY = "SELECT ( SELECT  COUNT(id) FROM invoice WHERE company_id=?) AS invoice_count,( SELECT COUNT(id) FROM `proposal` WHERE company_id=?) AS proposal_count,( SELECT COUNT(id) FROM `invoice_payments` WHERE company_id=? ) AS payment_count FROM DUAL";
 		public final static String UPDATE_STATE_QRY = "UPDATE invoice SET state=? WHERE id=?;";
 		public final static String MARK_AS_PAID_QRY = "UPDATE invoice SET refrence_number=?,state=? WHERE id=?;";
+		public final static String GET_INVOICE_BY_NUMBER = "SELECT count(id) as count FROM invoice WHERE number=? AND company_id=?;";
+		public final static String GET_INVOICE_BY_NUMBER_AND_ID = "SELECT count(id) as count FROM invoice WHERE number=? AND company_id=? AND id!=?;";
 //		public final static String UPDATE_INVOICE_AS_PAID_STATE_QRY = "UPDATE invoice SET refrence_number=?,invoice_date=?,payment_method=?,state='paid' WHERE id=?;";
 		public final static String UPDATE_INVOICE_AS_PAID_STATE_QRY = "UPDATE invoice SET state='paid' WHERE id=?;";
 		public final static String UPDATE_AS_SENT_QRY = "UPDATE invoice SET state='sent' WHERE id IN(";
@@ -95,7 +97,7 @@ public class SqlQuerys {
 
 	public final class Payments {
 		public static final String INSERT_QRY = "INSERT INTO invoice_payments ( `id`,`received_from`,`payment_amount`,`currency_code`,`reference_no`,`payment_date`,`memo`,`company_id`,`type`, `payment_notes`, `bank_account_id`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `received_from` = ?, `payment_amount` = ?, `currency_code` = ?, `reference_no` = ?, `payment_date` = ?, `memo` = ?, `company_id` = ?,`type` = ?,`payment_notes` = ?, `bank_account_id` = ?";
-		public static final String RETRIEVE_BY_COMPANYID_QRY = "SELECT invoice_payments.*,journals.`id` AS journal_id,journals.`isActive` FROM invoice_payments LEFT JOIN journals ON `invoice_payments`.id = journals.`sourceID` WHERE `company_id`= ?;";
+		public static final String RETRIEVE_BY_COMPANYID_QRY = "SELECT invoice_payments.*,journals.`id` AS journal_id,journals.`isActive`,company_customers.`customer_name` FROM invoice_payments LEFT JOIN journals ON `invoice_payments`.id = journals.`sourceID` LEFT JOIN company_customers ON company_customers.`customer_id`= invoice_payments.`received_from` WHERE invoice_payments.`company_id`= ?";
 		public static final String RETRIEVE_BY_PAYMENTID_QRY = "SELECT * FROM invoice_payments WHERE `id` = ?;";
 	}
 
