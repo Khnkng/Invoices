@@ -42,7 +42,6 @@ public class Payment {
 	
 	private String journalID;
 	
-	private String bankAccountID;
 	
 	private String customerName;
 	
@@ -125,12 +124,6 @@ public class Payment {
 		this.journalID = journalID;
 	}	
 
-	public String getBankAccountID() {
-		return bankAccountID;
-	}
-	public void setBankAccountID(String bankAccountID) {
-		this.bankAccountID = bankAccountID;
-	}
 	@Override
     public boolean equals(Object obj) {
         if (obj != null) {
