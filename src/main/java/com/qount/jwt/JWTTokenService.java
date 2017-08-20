@@ -64,7 +64,7 @@ public class JWTTokenService {
 	}
 
 	public static void main(String[] args) {
-		String companyID = "1554374d-bd75-4ba1-aeb9-970ae84bd690";
+		String companyID = "eca4dfd5-c6f6-411a-a3a1-fa5a134e43cd";
 		JWTTokenService jwtTokenService = new JWTTokenService();
 		String token = jwtTokenService.generate(companyID);
 		System.out.println(token);
