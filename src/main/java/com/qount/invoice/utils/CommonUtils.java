@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -21,6 +22,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.qount.invoice.clients.httpClient.JerseyClient;
 import com.qount.invoice.model.UserCompany;
+import com.qount.jwt.JWTTokenService;
 
 public class CommonUtils {
 	private static final Logger LOGGER = Logger.getLogger(CommonUtils.class);
@@ -238,6 +240,32 @@ public class CommonUtils {
 			LOGGER.debug("path = " + path);
 			LOGGER.debug("payload = " + payload);
 			String responseString = JerseyClient.post(path, payload);
+			LOGGER.debug("responseString = " + responseString);
+			if (StringUtils.isBlank(responseString)) {
+				throw new Exception(queJSON.toString());
+			}
+			responseJSON = new JSONObject(responseString);
+			if (Constants.FAILURE_STATUS_STR.equalsIgnoreCase(responseJSON.optString("status"))) {
+				throw new Exception(queJSON.toString());
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error creating invoice journal", e);
+			RedisUtils.writeToQue(queJSON.toString());
+		}
+		return responseJSON;
+	}
+	
+	public static JSONObject createJournal(String payload, String companyID) {
+		JSONObject responseJSON = null;
+		JSONObject queJSON = new JSONObject(payload).put("companyID", companyID);
+		try {
+			String path = LTMUtils.getHostAddress("qounting.service.docker.hostname", "qounting.service.docker.port", "oneapp.base.url");
+			path = path + "Qounting/companies/" + companyID + "/journals";
+			LOGGER.debug("path = " + path);
+			LOGGER.debug("payload = " + payload);
+			String token = new JWTTokenService().generate(companyID);
+			Response responseEntity = ClientBuilder.newClient().target(path).request().header("token", token).accept(MediaType.APPLICATION_JSON).get();
+			String responseString = responseEntity.readEntity(String.class);
 			LOGGER.debug("responseString = " + responseString);
 			if (StringUtils.isBlank(responseString)) {
 				throw new Exception(queJSON.toString());
