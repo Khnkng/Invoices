@@ -864,11 +864,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 	public static void main(String[] args) throws Exception {
 		Connection connection = DatabaseUtilities.getReadConnection();
-		ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM `invoice` WHERE `company_id` = 'a525bf7f-3017-40dd-9f1a-86e4386dfcb4'");
+		ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM `invoice_payments` WHERE `company_id` = 'a525bf7f-3017-40dd-9f1a-86e4386dfcb4'");
 		while (resultSet.next()) {
-			String invoiceID = resultSet.getString("id");
-			System.out.println("id = " + invoiceID);
-			JSONObject res = CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoiceID).toString(), "yoda@qount.io", "a525bf7f-3017-40dd-9f1a-86e4386dfcb4");
+			String paymentID = resultSet.getString("id");
+			System.out.println("id = " + paymentID);
+			JSONObject res = CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", paymentID).toString(), "yoda@qount.io", "a525bf7f-3017-40dd-9f1a-86e4386dfcb4");
 			System.out.println(res);
 		}
 	}

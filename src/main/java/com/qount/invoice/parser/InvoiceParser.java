@@ -47,7 +47,7 @@ public class InvoiceParser {
 			UserCompany userCompany = null;
 			invoice.setCompany_id(companyID);
 			invoice.setIs_recurring(StringUtils.isNotEmpty(invoice.getPlan_id()));
-			userCompany = CommonUtils.getCompany(userId, companyID);
+			userCompany = CommonUtils.getCompany(companyID);
 			invoice.setCompanyName(userCompany.getName());
 
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
