@@ -12,7 +12,7 @@ public class SqlQuerys {
 		public final static String GET_INVOICES_LIST_BY_ID_QRY = " SELECT `customer_id`,`number`,`id`,`invoice_date`,`due_date`,`amount`,`currency`,`state`,`amount_by_date`,`amount_due`,`amount_paid` FROM invoice WHERE  id in(";
 		public final static String QOUNT_QRY = "SELECT ( SELECT  COUNT(id) FROM invoice WHERE company_id=?) AS invoice_count,( SELECT COUNT(id) FROM `proposal` WHERE company_id=?) AS proposal_count,( SELECT COUNT(id) FROM `invoice_payments` WHERE company_id=? ) AS payment_count FROM DUAL";
 		public final static String UPDATE_STATE_QRY = "UPDATE invoice SET state=? WHERE id=?;";
-		public final static String MARK_AS_PAID_QRY = "UPDATE invoice SET refrence_number=?,state=? WHERE id=?;";
+		public final static String MARK_AS_PAID_QRY = "UPDATE invoice SET amount_paid=?,amount_due=?,refrence_number=?,state=? WHERE id=?;";
 		public final static String GET_INVOICE_BY_NUMBER = "SELECT count(id) as count FROM invoice WHERE number=? AND company_id=?;";
 		public final static String GET_INVOICE_BY_NUMBER_AND_ID = "SELECT count(id) as count FROM invoice WHERE number=? AND company_id=? AND id!=?;";
 //		public final static String UPDATE_INVOICE_AS_PAID_STATE_QRY = "UPDATE invoice SET refrence_number=?,invoice_date=?,payment_method=?,state='paid' WHERE id=?;";
