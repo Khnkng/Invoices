@@ -46,5 +46,7 @@ public interface InvoiceDAO {
 	
 	public List<Invoice> saveInvoice(Connection connection, List<Invoice> invoice) throws Exception;;
 	
-	public Invoice markAsPaid(Connection connection, Invoice invoice) throws Exception;;
+	public Invoice markAsPaid(Connection connection, Invoice invoice) throws Exception;
+	
+	public List<Invoice> getInvoices(String invoiceIds) throws Exception;;
 }
