@@ -29,6 +29,20 @@ public class ResponseUtil {
 	
 	/**
 	 * 
+	 * @param status
+	 * @param message
+	 * @param statusHeader
+	 * @return
+	 */
+	public static Response constructResponse(String status, String message, int statusHeader) {
+		JSONObject responseJSON = new JSONObject();
+		responseJSON.put(STATUS, status);
+		responseJSON.put(MESSAGE, message);
+		return Response.status(statusHeader).entity(responseJSON.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public static String getSuccessEntity(){

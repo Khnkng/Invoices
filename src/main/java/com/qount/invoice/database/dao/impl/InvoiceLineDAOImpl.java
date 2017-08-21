@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.database.dao.InvoiceLineDAO;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.utils.CommonUtils;
+import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
 
@@ -109,7 +110,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				if (rowCount != null) {
 					return invoiceLines;
 				} else {
-					throw new WebApplicationException("unable to create invoice lines", 500);
+					throw new WebApplicationException("unable to create invoice lines", Constants.DATABASE_ERROR_STATUS);
 				}
 			}
 		} catch (Exception e) {
@@ -147,7 +148,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				if (rowCount > 0) {
 					return invoiceLine;
 				} else {
-					throw new WebApplicationException("unable to update invoice lines", 500);
+					throw new WebApplicationException("unable to update invoice lines", Constants.DATABASE_ERROR_STATUS);
 				}
 			}
 		} catch (Exception e) {
@@ -200,7 +201,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error deleting invoice lines:" + invoiceLines.getId() + ",  ", e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e,Constants.INVALID_INPUT_STATUS);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
