@@ -196,9 +196,6 @@ public class InvoiceControllerImpl {
 			if (dbInvoice == null || StringUtils.isBlank(dbInvoice.getId())) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.not.found"), 412);
 			}
-			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
-			}
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
@@ -206,6 +203,9 @@ public class InvoiceControllerImpl {
 			invoice.setCompany_id(companyID);
 			switch (invoice.getState()) {
 			case "sent":
+				if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+					throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
+				}
 				return markInvoiceAsSent(connection, invoice);
 			case "paid":
 				return markInvoiceAsPaid(connection, invoice);
@@ -254,20 +254,22 @@ public class InvoiceControllerImpl {
 		try {
 			LOGGER.debug("entered markInvoiceAsPaid invoice:"+invoice);
 			Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
-			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.msg"), 412);
 			}
-			if (invoice.getAmount() > dbInvoice.getAmount()) {
+			if (invoice.getAmount() > dbInvoice.getAmount_due()) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 			}
-			if (dbInvoice.getAmount() == invoice.getAmount()) {
+			if (invoice.getAmount() == dbInvoice.getAmount_due()) {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				if (markAsPaid(connection, invoice)) {
 					return invoice;
 				}
 			}
-			if (invoice.getAmount() < dbInvoice.getAmount()) {
+			if (invoice.getAmount() < dbInvoice.getAmount_due()) {
 				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
+				invoice.setAmount_paid(dbInvoice.getAmount_paid()+invoice.getAmount());
+				invoice.setAmount_due(dbInvoice.getAmount()-invoice.getAmount_paid());
 				return MySQLManager.getInvoiceDAOInstance().markAsPaid(connection, invoice);
 			}
 		} catch (Exception e) {
