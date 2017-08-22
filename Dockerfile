@@ -1,15 +1,13 @@
 # Pull base image.
-FROM inspectit/tomcat:latest
-MAINTAINER mahendra <mahendra.velladandi@qount.io>
+FROM qount/java8-tomcat8:2.0
+MAINTAINER mahendra <mahendra.velladandi@bighalf.io>
 
 WORKDIR /code
 
-COPY /target/Invoices.war /usr/local/tomcat/tomcat/webapps/
-
-ENV JAVA_OPTS="-Dinspectit.repository=cmr.998d23e0.svc.dockerapp.io:9070 -Dinspectit.agent.name=invoices-services-dev-agent"
+COPY /target/Invoices.war /opt/tomcat/webapps/
 
 EXPOSE 8080
 
-VOLUME "/usr/local/tomcat/logs"
+VOLUME "/opt/tomcat/logs"
 
-CMD ["catalina.sh", "run"]
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
