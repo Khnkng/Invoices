@@ -309,7 +309,7 @@ public class InvoiceControllerImpl {
 				updateInvoice = MySQLManager.getInvoiceDAOInstance().updateInvoiceAsPaid(connection, invoice) != null;
 			} else if (partiallyPaid) {
 				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
-				updateInvoice = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice) != null;
+				updateInvoice = MySQLManager.getInvoiceDAOInstance().markAsPaid(connection, invoice) != null;
 			}
 			if (updateInvoice) {
 				connection.commit();
