@@ -208,7 +208,7 @@ public class InvoiceControllerImpl {
 				}
 				return markInvoiceAsSent(connection, invoice);
 			case "paid":
-				return markInvoiceAsPaid(connection, invoice);
+				return markInvoiceAsPaid(connection, invoice, dbInvoice);
 			default:
 				break;
 			}
@@ -250,26 +250,20 @@ public class InvoiceControllerImpl {
 		return null;
 	}
 
-	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception {
+	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice,Invoice dbInvoice) throws Exception {
 		try {
 			LOGGER.debug("entered markInvoiceAsPaid invoice:" + invoice);
-			Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
+			if(dbInvoice == null){
+				throw new WebApplicationException(PropertyManager.getProperty("invoice not found"), 404);
+			}
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.msg"), 412);
 			}
 			if (invoice.getAmount() > dbInvoice.getAmount_due()) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 			}
-			if (invoice.getAmount() == dbInvoice.getAmount_due()) {
-				invoice.setState(Constants.INVOICE_STATE_PAID);
-				if (markAsPaid(connection, invoice, false, dbInvoice)) {
-					return invoice;
-				}
-			}
-			if (invoice.getAmount() < dbInvoice.getAmount_due()) {
-				if (markAsPaid(connection, invoice, true, dbInvoice)) {
-					return invoice;
-				}
+			if (markAsPaid(connection, invoice, dbInvoice)) {
+				return invoice;
 			}
 		} catch (Exception e) {
 			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
@@ -280,7 +274,7 @@ public class InvoiceControllerImpl {
 		return null;
 	}
 
-	private static boolean markAsPaid(Connection connection, Invoice invoice, boolean partiallyPaid, Invoice dbInvoice) throws Exception {
+	private static boolean markAsPaid(Connection connection, Invoice invoice, Invoice dbInvoice) throws Exception {
 		try {
 			LOGGER.debug("entered markAsPaid invoice:" + invoice);
 			connection.setAutoCommit(false);
@@ -304,24 +298,12 @@ public class InvoiceControllerImpl {
 			List<PaymentLine> payments = new ArrayList<PaymentLine>();
 			payments.add(line);
 			payment.setPaymentLines(payments);
-			boolean updateInvoice = false;
-			if (!partiallyPaid) {
-				invoice.setAmount_paid(dbInvoice.getAmount_paid() + invoice.getAmount());
-				invoice.setAmount_due(dbInvoice.getAmount() - invoice.getAmount_paid());
-				updateInvoice = MySQLManager.getInvoiceDAOInstance().updateInvoiceAsPaid(connection, invoice) != null;
-			} else if (partiallyPaid) {
-				invoice.setAmount_paid(dbInvoice.getAmount_paid() + invoice.getAmount());
-				invoice.setAmount_due(dbInvoice.getAmount() - invoice.getAmount_paid());
-				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
-				updateInvoice = MySQLManager.getInvoiceDAOInstance().markAsPaid(connection, invoice) != null;
-			}
-			if (updateInvoice) {
-				if (MySQLManager.getPaymentDAOInstance().save(payment, connection) != null) {
-					connection.commit();
-					CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
-							invoice.getCompany_id());
-					return true;
-				}
+			invoice.setAmount_due(dbInvoice.getAmount()-(dbInvoice.getAmount_paid()+invoice.getAmount()));
+			if (MySQLManager.getPaymentDAOInstance().save(payment, connection) != null) {
+				connection.commit();
+				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
+						invoice.getCompany_id());
+				return true;
 			}
 		} catch (Exception e) {
 			LOGGER.error("error in markAsPaid invoice:" + invoice, e);

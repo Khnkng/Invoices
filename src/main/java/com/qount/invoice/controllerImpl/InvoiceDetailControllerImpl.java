@@ -21,7 +21,6 @@ import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
-import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -98,7 +97,7 @@ public class InvoiceDetailControllerImpl {
 			case "one_time_charge":
 				if (StringUtils.isBlank(inputInvoice.getPayment_spring_token())) {
 					throw new WebApplicationException(
-							ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "payment token is mandatory for one time invoice payment", Status.INTERNAL_SERVER_ERROR));
+							ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "payment token is mandatory for one time invoice payment", Status.EXPECTATION_FAILED));
 				}
 				String token = inputInvoice.getPayment_spring_token();
 				if(isPaymentSpringCustomerExists){
@@ -158,12 +157,12 @@ public class InvoiceDetailControllerImpl {
 			}
 //			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 //			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
-			Invoice invoiceObj = InvoiceParser.getInvoiceObj(invoice.getUser_id(), invoice, companyID, false);
-			boolean isInvoiceUpdated = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj)!=null?true:false;
-			if(!isInvoiceUpdated){
-				throw new WebApplicationException("payment done but not saved in qount db");
-				//TODO refund payment
-			}
+//			Invoice invoiceObj = InvoiceParser.getInvoiceObj(invoice.getUser_id(), invoice, companyID, false);
+//			boolean isInvoiceUpdated = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj)!=null?true:false;
+//			if(!isInvoiceUpdated){
+//				throw new WebApplicationException("payment done but not saved in qount db");
+//				//TODO refund payment
+//			}
 			boolean paymentCaptured =false;
 			if(MySQLManager.getPaymentDAOInstance().save(payment, connection)!=null){
 				paymentCaptured =true;
@@ -177,12 +176,11 @@ public class InvoiceDetailControllerImpl {
 				LOGGER.fatal("invoiceID:"+invoiceID);
 				LOGGER.fatal("transactionId:"+transactionId);
 				LOGGER.fatal("payment:"+payment);
-				LOGGER.fatal("invoice:"+invoiceObj);
 				throw new WebApplicationException("payment done but not saved in qount db");
 				//TODO refund payment
 			}
 		} catch (Exception e) {
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited makeInvoicePayment dbInvoice:"+invoice+ "uiInvoice"+inputInvoice);
