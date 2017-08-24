@@ -262,12 +262,12 @@ public class InvoiceControllerImpl {
 			}
 			if (invoice.getAmount() == dbInvoice.getAmount_due()) {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
-				if (markAsPaid(connection, invoice, false)) {
+				if (markAsPaid(connection, invoice, false, dbInvoice)) {
 					return invoice;
 				}
 			}
 			if (invoice.getAmount() < dbInvoice.getAmount_due()) {
-				if (markAsPaid(connection, invoice, true)) {
+				if (markAsPaid(connection, invoice, true, dbInvoice)) {
 					return invoice;
 				}
 			}
@@ -280,7 +280,7 @@ public class InvoiceControllerImpl {
 		return null;
 	}
 
-	private static boolean markAsPaid(Connection connection, Invoice invoice, boolean partiallyPaid) throws Exception {
+	private static boolean markAsPaid(Connection connection, Invoice invoice, boolean partiallyPaid, Invoice dbInvoice) throws Exception {
 		try {
 			LOGGER.debug("entered markAsPaid invoice:" + invoice);
 			connection.setAutoCommit(false);
@@ -306,16 +306,22 @@ public class InvoiceControllerImpl {
 			payment.setPaymentLines(payments);
 			boolean updateInvoice = false;
 			if (!partiallyPaid) {
+				invoice.setAmount_paid(dbInvoice.getAmount_paid() + invoice.getAmount());
+				invoice.setAmount_due(dbInvoice.getAmount() - invoice.getAmount_paid());
 				updateInvoice = MySQLManager.getInvoiceDAOInstance().updateInvoiceAsPaid(connection, invoice) != null;
 			} else if (partiallyPaid) {
+				invoice.setAmount_paid(dbInvoice.getAmount_paid() + invoice.getAmount());
+				invoice.setAmount_due(dbInvoice.getAmount() - invoice.getAmount_paid());
 				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
 				updateInvoice = MySQLManager.getInvoiceDAOInstance().markAsPaid(connection, invoice) != null;
 			}
 			if (updateInvoice) {
-				connection.commit();
-				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
-						invoice.getCompany_id());
-				return true;
+				if (MySQLManager.getPaymentDAOInstance().save(payment, connection) != null) {
+					connection.commit();
+					CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
+							invoice.getCompany_id());
+					return true;
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.error("error in markAsPaid invoice:" + invoice, e);

@@ -249,6 +249,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_INVOICE_AS_PAID_STATE_QRY);
+				pstmt.setDouble(ctr++, invoice.getAmount_paid());
+				pstmt.setDouble(ctr++, invoice.getAmount_due());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
