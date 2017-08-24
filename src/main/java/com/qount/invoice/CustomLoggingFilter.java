@@ -31,9 +31,9 @@ public class CustomLoggingFilter implements ContainerRequestFilter, ContainerRes
         //execution time
         MDC.put("start-time", String.valueOf(System.currentTimeMillis()));
 
-        log.debug("Entering in Resource : /{} "+ requestContext.getUriInfo().getPath());
-        log.debug("Method Name : {} "+ resourceInfo.getResourceMethod().getName());
-        log.debug("Class : {} "+ resourceInfo.getResourceClass().getCanonicalName());
+        log.debug("\n\n\n\n\n\n\nEntering in Resource : /{} "+ requestContext.getUriInfo().getPath());
+        log.debug("\n\n\nMethod Name : {} "+ resourceInfo.getResourceMethod().getName());
+        log.debug("\n\n\nClass : {} "+ resourceInfo.getResourceClass().getCanonicalName());
         logQueryParameters(requestContext);
         logMethodAnnotations();
         logRequestHeader(requestContext);
@@ -50,7 +50,7 @@ public class CustomLoggingFilter implements ContainerRequestFilter, ContainerRes
         sb.append(" - Path: ").append(requestContext.getUriInfo().getPath());
         sb.append(" - Header: ").append(requestContext.getHeaders());
         sb.append(" - Entity: ").append(entity);
-        log.debug("HTTP REQUEST : " + sb.toString());
+        log.debug("\n\n\nHTTP REQUEST : " + sb.toString());
     }
 
 	private void logQueryParameters(ContainerRequestContext requestContext) {
@@ -62,14 +62,14 @@ public class CustomLoggingFilter implements ContainerRequestFilter, ContainerRes
             if(null != obj && obj.size() > 0) {
                 value = obj.get(0);
             }
-            log.debug("Query Parameter Name: {}, Value :{}" +  name+"," +value);
+            log.debug("\n\nQuery Parameter Name: {}, Value :{}" +  name+"," +value);
         }
     }
 
     private void logMethodAnnotations() {
         Annotation[] annotations = resourceInfo.getResourceMethod().getDeclaredAnnotations();
         if (annotations != null && annotations.length > 0) {
-            log.debug("----Start Annotations of resource ----");
+            log.debug("\n\n\n----Start Annotations of resource ----");
             for (Annotation annotation : annotations) {
                 log.debug(annotation.toString());
             }
@@ -79,7 +79,7 @@ public class CustomLoggingFilter implements ContainerRequestFilter, ContainerRes
 
     private void logRequestHeader(ContainerRequestContext requestContext) {
         Iterator<String> iterator;
-        log.debug("----Start Header Section of request ----");
+        log.debug("\n\n\n----Start Header Section of request ----");
         log.debug("Method Type : {}"+ requestContext.getMethod());
         iterator = requestContext.getHeaders().keySet().iterator();
         while (iterator.hasNext()) {
@@ -115,9 +115,9 @@ public class CustomLoggingFilter implements ContainerRequestFilter, ContainerRes
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
     	StringBuilder sb = new StringBuilder();
-        sb.append("Header: ").append(responseContext.getHeaders());
-        sb.append(" - Entity: ").append(responseContext.getEntity());
-        log.debug("HTTP RESPONSE : " + sb.toString());
+        sb.append("\n\nHeader: ").append(responseContext.getHeaders());
+        sb.append("\n\n - Entity: ").append(responseContext.getEntity());
+        log.debug("\n\n\n\n\nHTTP RESPONSE : " + sb.toString());
     	
     	String stTime = (String)MDC.get("start-time");
         if(null == stTime || stTime.length() == 0) {

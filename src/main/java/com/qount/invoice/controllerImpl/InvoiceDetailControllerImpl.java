@@ -173,6 +173,11 @@ public class InvoiceDetailControllerImpl {
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getCompany_id());
 				return true;
 			}else{
+				LOGGER.fatal("payment done but not saved in qount db");
+				LOGGER.fatal("invoiceID:"+invoiceID);
+				LOGGER.fatal("transactionId:"+transactionId);
+				LOGGER.fatal("payment:"+payment);
+				LOGGER.fatal("invoice:"+invoiceObj);
 				throw new WebApplicationException("payment done but not saved in qount db");
 				//TODO refund payment
 			}

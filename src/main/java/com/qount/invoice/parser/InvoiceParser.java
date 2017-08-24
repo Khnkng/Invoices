@@ -100,8 +100,8 @@ public class InvoiceParser {
 
 	public static String convertTimeStampToString(String dateStr, SimpleDateFormat from, SimpleDateFormat to) {
 		try {
-			if(StringUtils.isNotBlank(dateStr))
-			return to.format(from.parse(dateStr)).toString();
+			if (StringUtils.isNotBlank(dateStr))
+				return to.format(from.parse(dateStr)).toString();
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
@@ -126,7 +126,8 @@ public class InvoiceParser {
 				for (int i = 0; i < invoiceLst.size(); i++) {
 					Invoice invoice = invoiceLst.get(i);
 					if (invoice != null) {
-						invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setInvoice_date(
+								convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 					}
 				}
@@ -136,9 +137,10 @@ public class InvoiceParser {
 		}
 		return invoiceLst;
 	}
-	
+
 	/**
 	 * method used to convert invoice amount fields to two decimals
+	 * 
 	 * @param invoiceLst
 	 * @return
 	 */
@@ -156,9 +158,9 @@ public class InvoiceParser {
 						invoice.setProcessing_fees(InvoiceParser.getTwoDecimalValue(invoice.getProcessing_fees()));
 						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getSub_total()));
 						invoice.setTax_amount(InvoiceParser.getTwoDecimalValue(invoice.getTax_amount()));
-						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines()!=null?invoice.getInvoiceLines().iterator():null;
-						if(invoiceLineIterator!=null){
-							while(invoiceLineIterator.hasNext()){
+						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
+						if (invoiceLineIterator != null) {
+							while (invoiceLineIterator.hasNext()) {
 								InvoiceLine invoiceLine = invoiceLineIterator.next();
 								invoiceLine.setAmount(getTwoDecimalValue(invoiceLine.getAmount()));
 								invoiceLine.setPrice(getTwoDecimalValue(invoiceLine.getPrice()));
@@ -172,9 +174,10 @@ public class InvoiceParser {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
-	
+
 	/**
 	 * method used to convert invoice amount fields to two decimals
+	 * 
 	 * @param invoice
 	 */
 	public static void convertAmountToDecimal(Invoice invoice) {
@@ -188,9 +191,9 @@ public class InvoiceParser {
 				invoice.setProcessing_fees(getTwoDecimalValue(invoice.getProcessing_fees()));
 				invoice.setSub_total(getTwoDecimalValue(invoice.getSub_total()));
 				invoice.setTax_amount(getTwoDecimalValue(invoice.getTax_amount()));
-				Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines()!=null?invoice.getInvoiceLines().iterator():null;
-				if(invoiceLineIterator!=null){
-					while(invoiceLineIterator.hasNext()){
+				Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
+				if (invoiceLineIterator != null) {
+					while (invoiceLineIterator.hasNext()) {
 						InvoiceLine invoiceLine = invoiceLineIterator.next();
 						invoiceLine.setAmount(getTwoDecimalValue(invoiceLine.getAmount()));
 						invoiceLine.setPrice(getTwoDecimalValue(invoiceLine.getPrice()));
@@ -351,26 +354,45 @@ public class InvoiceParser {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		double d = getFourDecimalValue(2.23409d);
-		System.out.println(d);
+	public static double getTwoDecimalValue(double amount) {
+		try {
+			return Double.valueOf(new DecimalFormat("#.##").format(amount));
+		} catch (Exception e) {
+			LOGGER.error("error in Invoice parser getTwoDecimalValue amount:" + amount, e);
+		}
+		return 0.00d;
 	}
 
-	public static double getTwoDecimalValue(double amount){
-		try{
-			return Double.valueOf(new DecimalFormat("#.##").format(amount));
-		}catch(Exception e){
-			LOGGER.error("error in Invoice parser getTwoDecimalValue amount:"+amount,e);
+	public static double getFourDecimalValue(double amount) {
+		try {
+			return Double.valueOf(new DecimalFormat("#.####").format(amount));
+		} catch (Exception e) {
+			LOGGER.error("error in Invoice parser getFourDecimalValue amount:" + amount, e);
 		}
 		return 0.00d;
 	}
-	
-	public static double getFourDecimalValue(double amount){
-		try{
-			return Double.valueOf(new DecimalFormat("#.####").format(amount));
-		}catch(Exception e){
-			LOGGER.error("error in Invoice parser getFourDecimalValue amount:"+amount,e);
+
+	public static boolean isPaidStateInvoicePresent(List<Invoice> invoices) {
+		LOGGER.debug("entered isPaidStateInvoicePresent invoices:" + invoices);
+		try {
+			if (invoices != null && invoices.size() > 0) {
+				Iterator<Invoice> invoicesItr = invoices.iterator();
+				while (invoicesItr.hasNext()) {
+					Invoice invoice = invoicesItr.next();
+					String state = invoice != null && StringUtils.isNotBlank(invoice.getState()) ? invoice.getState() : null;
+					if (StringUtils.isNotBlank(state)) {
+						if (state.equals(Constants.INVOICE_STATE_PAID) || state.equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+		} catch (Exception e) {
+			LOGGER.error("error in Invoice parser isPaidStateInvoicePresent invoices:" + invoices, e);
+		} finally {
+			LOGGER.debug("exited isPaidStateInvoicePresent invoices:" + invoices);
 		}
-		return 0.00d;
+		return true;
 	}
 }

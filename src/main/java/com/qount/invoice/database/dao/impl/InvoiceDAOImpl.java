@@ -96,7 +96,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getProposal_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted",Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -157,7 +157,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -188,7 +188,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -215,12 +215,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.MARK_AS_PAID_QRY);
+				pstmt.setDouble(ctr++, invoice.getAmount_paid());
+				pstmt.setDouble(ctr++, invoice.getAmount_due());
 				pstmt.setString(ctr++, invoice.getReference_number());
 				pstmt.setString(ctr++, invoice.getState());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -247,10 +249,12 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_INVOICE_AS_PAID_STATE_QRY);
+				pstmt.setDouble(ctr++, invoice.getAmount_paid());
+				pstmt.setDouble(ctr++, invoice.getAmount_due());
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -418,7 +422,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public Map<String, String> getCount(String userID, String companyID) throws Exception {
 		LOGGER.debug("entered get count of invoice: userID" + userID + " companyID" + companyID);
 		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
-			throw new WebApplicationException("userID or companyID cannot be empty");
+			throw new WebApplicationException("userID or companyID cannot be empty",Constants.INVALID_INPUT_STATUS);
 		}
 		Map<String, String> result = null;
 		PreparedStatement pstmt = null;
@@ -456,7 +460,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId) throws Exception {
 		LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId);
 		if (StringUtils.isAnyBlank(invoiceNumber, companyId)) {
-			throw new WebApplicationException("invoiceNumber or companyID cannot be empty", 412);
+			throw new WebApplicationException("invoiceNumber or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -488,7 +492,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId, String id) throws Exception {
 		LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id);
 		if (StringUtils.isAnyBlank(invoiceNumber, companyId, id)) {
-			throw new WebApplicationException("invoiceNumber or companyID od invoiceId cannot be empty", 412);
+			throw new WebApplicationException("invoiceNumber or companyID od invoiceId cannot be empty", Constants.INVALID_INPUT_STATUS);
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -521,7 +525,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception {
 		LOGGER.debug("entered getInvoiceList userID:" + userID + " companyID:" + companyID + "state:" + state);
 		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
-			throw new WebApplicationException("userID or companyID cannot be empty");
+			throw new WebApplicationException("userID or companyID cannot be empty",Constants.INVALID_INPUT_STATUS);
 		}
 		List<Invoice> invoiceLst = new ArrayList<>();
 		PreparedStatement pstmt = null;
@@ -595,7 +599,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(2, invoice.getCompany_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", Constants.DATABASE_ERROR_STATUS));
 				}
 				LOGGER.debug("no of invoice deleted:" + rowCount);
 			}
@@ -689,7 +693,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public List<Invoice> getInvoiceListByClientId(String userID, String companyID, String clientID) throws Exception {
 		LOGGER.debug("entered getInvoiceList userID:" + userID + " companyID:" + companyID + "clientID:" + clientID);
 		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
-			throw new WebApplicationException("userID or companyID cannot be empty");
+			throw new WebApplicationException("userID or companyID cannot be empty",Constants.INVALID_INPUT_STATUS);
 		}
 		List<Invoice> invoiceLst = new ArrayList<>();
 		PreparedStatement pstmt = null;
@@ -845,7 +849,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				if (rowCount != null) {
 					return invoiceList;
 				} else {
-					throw new WebApplicationException("unable to save invoice", 500);
+					throw new WebApplicationException("unable to save invoice", Constants.DATABASE_ERROR_STATUS);
 				}
 
 			}
@@ -860,6 +864,56 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.debug("exited saveInvoice:" + invoiceList);
 		}
 		return invoiceList;
+	}
+	
+	@Override
+	public List<Invoice> getInvoices(String invoiceIds) throws Exception {
+		LOGGER.debug("entered getInvoices invoiceIds:" + invoiceIds );
+		if (StringUtils.isBlank(invoiceIds)) {
+			throw new WebApplicationException("invoiceIds cannot be empty", Constants.INVALID_INPUT_STATUS);
+		}
+		List<Invoice> invoiceLst = new ArrayList<>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		try {
+			connection = DatabaseUtilities.getReadConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_BY_ID_QRY;
+				query+=invoiceIds+")";
+				pstmt = connection.prepareStatement(query);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					Invoice invoice = new Invoice();
+					invoice.setId(rset.getString("id"));
+					int index = invoiceLst.indexOf(invoice);
+					if (index == -1) {
+						invoice.setNumber(rset.getString("number"));
+						invoice.setCustomer_id(rset.getString("customer_id"));
+						invoice.setId(rset.getString("id"));
+						invoice.setInvoice_date(rset.getString("invoice_date"));
+						invoice.setDue_date(rset.getString("due_date"));
+						invoice.setAmount(rset.getDouble("amount"));
+						invoice.setCurrency(rset.getString("currency"));
+						invoice.setState(rset.getString("state"));
+						invoice.setAmount_due(rset.getDouble("amount_due"));
+						invoiceLst.add(invoice);
+					} else {
+						invoice = invoiceLst.get(index);
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error fetching invoices for invoiceIds [ " + invoiceIds + " ]", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited getInvoiceList invoiceIds:" + invoiceIds);
+		}
+		return invoiceLst;
+
 	}
 
 	public static void main(String[] args) throws Exception {
