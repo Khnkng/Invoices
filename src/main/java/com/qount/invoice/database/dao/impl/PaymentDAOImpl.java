@@ -87,7 +87,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					}
 				} catch (SQLException e) {
 					System.out.println("exp"+e);
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(null, pstmt, null);
 					LOGGER.debug("exited invoice payment save:"+payment);
@@ -112,28 +112,28 @@ public class PaymentDAOImpl implements paymentDAO{
 		try {
 			Invoice invoice = invoiceDAOImpl.get(paymentLine.getInvoiceId());
 			double amountPaid = 0;
-			if(invoice.getState() != null && invoice.getState().equals("paid")) {
+			if(invoice.getState() != null && invoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				return;
 			}
-			if (paymentLine.getAmount().doubleValue() > invoice.getAmount()) {
+			if (paymentLine.getAmount().doubleValue() > invoice.getAmount_due()) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 			}
-			if (invoice.getAmount() == paymentLine.getAmount().doubleValue()) {
-				invoice.setState("paid");
+			if (invoice.getAmount_due() == paymentLine.getAmount().doubleValue()) {
+				invoice.setState(Constants.INVOICE_STATE_PAID);
 				amountPaid = paymentLine.getAmount().doubleValue();
 			} else {
-				invoice.setState("partially_paid");	
+				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
 				if(lineFromDb != null) {					
 					amountPaid = paymentLine.getAmount().doubleValue() - lineFromDb.getAmount().doubleValue();
 				} else {
 					amountPaid = paymentLine.getAmount().doubleValue();
 				}
 			}
-			invoice.setAmount_paid(amountPaid);
+			invoice.setAmount_paid(invoice.getAmount_paid() + amountPaid);
 			invoice.setAmount_due(invoice.getAmount_due() - amountPaid);
 			invoiceDAOImpl.update(connection, invoice);
 		} catch (Exception e) {
-			throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+			throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
 		} 
 	}
 	
@@ -147,7 +147,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					pstmt.executeUpdate();
 
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("unable to delete payment lines", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("unable to delete payment lines", Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(null, pstmt, null);
 				}
@@ -174,7 +174,7 @@ public class PaymentDAOImpl implements paymentDAO{
 			        }
 
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(null, pstmt, null);
 				}
@@ -245,7 +245,7 @@ public class PaymentDAOImpl implements paymentDAO{
 						lines.add(line);
 					}
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(rset, pstmt, null);
 				}
@@ -293,7 +293,7 @@ public class PaymentDAOImpl implements paymentDAO{
 						}
 					}
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(rset, pstmt, connection);
 				}
@@ -328,7 +328,7 @@ public class PaymentDAOImpl implements paymentDAO{
 						payment.setPaymentLines(getLines(payment.getId()));
 					}
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", 500));
+					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(rset, pstmt, connection);
 				}
