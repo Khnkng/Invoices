@@ -57,10 +57,10 @@ public class InvoiceControllerImpl {
 			if (invoiceExists) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
-			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, companyID);
-			if (!isCompanyRegistered) {
-				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
-			}
+//			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, companyID);
+//			if (!isCompanyRegistered) {
+//				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
+//			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
