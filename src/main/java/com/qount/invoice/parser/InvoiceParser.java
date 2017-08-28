@@ -62,7 +62,9 @@ public class InvoiceParser {
 			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
 			invoice.setAmount_due(invoice.getAmount());
-			invoice.setAmount_paid(0.00d);
+			if(createFlag){
+				invoice.setAmount_paid(0.00d);
+			}
 			setInvoiceAmountByDate(invoice, userCompany);
 			List<InvoiceLine> invoiceLines = invoice.getInvoiceLines();
 			if (invoiceLines == null) {
