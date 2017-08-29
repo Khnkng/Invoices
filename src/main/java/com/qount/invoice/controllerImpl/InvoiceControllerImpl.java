@@ -53,14 +53,14 @@ public class InvoiceControllerImpl {
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(), companyID);
-			LOGGER.debug("invoiceExists:"+invoiceExists);
-			if(invoiceExists){
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"),412);
+			LOGGER.debug("invoiceExists:" + invoiceExists);
+			if (invoiceExists) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
-			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, companyID);
-			if (!isCompanyRegistered) {
-				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
-			}
+//			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, companyID);
+//			if (!isCompanyRegistered) {
+//				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
+//			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
@@ -72,7 +72,7 @@ public class InvoiceControllerImpl {
 				invoice.setState(Constants.INVOICE_STATE_DRAFT);
 			}
 			if (connection == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
 			connection.setAutoCommit(false);
 			// recurring if invoice has plan id
@@ -87,17 +87,17 @@ public class InvoiceControllerImpl {
 					CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 				return InvoiceParser.convertTimeStampToString(invoiceObj);
 			}
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.EXPECTATION_FAILED));
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited createInvoice(String userID:" + userID + ",companyID:" + companyID + " Invoice invoice)" + invoice);
@@ -112,14 +112,17 @@ public class InvoiceControllerImpl {
 		try {
 			// journal should not be created for draft state invoice.
 			Invoice dbInvoice = getInvoice(invoiceID);
-//			if (!dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
-//				throw new WebApplicationException(PropertyManager.getProperty("invoice.non.draft.update.msg"), 412);
-//			}
+			if (dbInvoice == null || StringUtils.isBlank(dbInvoice.getId())) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.not.found"), 412);
+			}
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
+			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(), companyID, invoiceID);
-			LOGGER.debug("invoiceExists:"+invoiceExists);
-			if(invoiceExists){
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"),412);
+			LOGGER.debug("invoiceExists:" + invoiceExists);
+			if (invoiceExists) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
@@ -144,7 +147,7 @@ public class InvoiceControllerImpl {
 				invoice.setState(Constants.INVOICE_STATE_DRAFT);
 			}
 			if (connection == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
 			connection.setAutoCommit(false);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
@@ -163,17 +166,17 @@ public class InvoiceControllerImpl {
 					}
 				}
 			}
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.EXPECTATION_FAILED));
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited updateInvoice userid:" + userID + " companyID:" + companyID + " invoiceID:" + invoiceID + ": invoice" + invoice);
@@ -189,30 +192,37 @@ public class InvoiceControllerImpl {
 			}
 			invoice.setId(invoiceID);
 			connection = DatabaseUtilities.getReadWriteConnection();
+			Invoice dbInvoice = getInvoice(invoiceID);
+			if (dbInvoice == null || StringUtils.isBlank(dbInvoice.getId())) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.not.found"), 412);
+			}
 			if (connection == null) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
 			invoice.setUser_id(userID);
 			invoice.setCompany_id(companyID);
 			switch (invoice.getState()) {
 			case "sent":
+				if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+					throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
+				}
 				return markInvoiceAsSent(connection, invoice);
 			case "paid":
-				return markInvoiceAsPaid(connection, invoice);
+				return markInvoiceAsPaid(connection, invoice, dbInvoice);
 			default:
 				break;
 			}
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.EXPECTATION_FAILED));
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited updateInvoiceState invoiceID:" + invoiceID + ": invoice" + invoice);
@@ -220,49 +230,61 @@ public class InvoiceControllerImpl {
 	}
 
 	private static Invoice markInvoiceAsSent(Connection connection, Invoice invoice) throws Exception {
-		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
-		if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)
-				|| dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
-			throw new WebApplicationException(PropertyManager.getProperty("invoice.sent.msg"), 412);
-		}
-		Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
-		if (invoiceResult != null) {
-			return invoice;
-		}
-		return null;
-	}
-
-	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice) throws Exception {
-		Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
-		if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
-			throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.msg"), 412);
-		}
-		if (invoice.getAmount() > dbInvoice.getAmount()) {
-			throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
-		}
-		if (dbInvoice.getAmount() == invoice.getAmount()) {
-			invoice.setState(Constants.INVOICE_STATE_PAID);
-			if (markAsPaid(connection, invoice)) {
+		LOGGER.debug("entered markInvoiceAsSent invoice:" + invoice);
+		try {
+			Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoice.getId());
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)
+					|| dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.sent.msg"), 412);
+			}
+			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
+			if (invoiceResult != null) {
 				return invoice;
 			}
-		}
-		if (invoice.getAmount() < dbInvoice.getAmount()) {
-			invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
-			return MySQLManager.getInvoiceDAOInstance().markAsPaid(connection, invoice);
+		} catch (Exception e) {
+			LOGGER.error("error in markInvoiceAsSent invoice:" + invoice, e);
+			throw e;
+		} finally {
+			LOGGER.debug("exited markInvoiceAsSent invoice:" + invoice);
 		}
 		return null;
 	}
 
-	private static boolean markAsPaid(Connection connection, Invoice invoice) throws Exception {
+	private static Invoice markInvoiceAsPaid(Connection connection, Invoice invoice,Invoice dbInvoice) throws Exception {
 		try {
+			LOGGER.debug("entered markInvoiceAsPaid invoice:" + invoice);
+			if(dbInvoice == null){
+				throw new WebApplicationException(PropertyManager.getProperty("invoice not found"), 404);
+			}
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.msg"), 412);
+			}
+			if (invoice.getAmount() > dbInvoice.getAmount_due()) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
+			}
+			if (markAsPaid(connection, invoice, dbInvoice)) {
+				return invoice;
+			}
+		} catch (Exception e) {
+			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
+			throw e;
+		} finally {
+			LOGGER.debug("exited markInvoiceAsPaid invoice:" + invoice);
+		}
+		return null;
+	}
+
+	private static boolean markAsPaid(Connection connection, Invoice invoice, Invoice dbInvoice) throws Exception {
+		try {
+			LOGGER.debug("entered markAsPaid invoice:" + invoice);
 			connection.setAutoCommit(false);
 			Payment payment = new Payment();
 			payment.setCompanyId(invoice.getCompany_id());
 			payment.setCurrencyCode(invoice.getCurrency());
 			payment.setId(UUID.randomUUID().toString());
 			payment.setPaymentAmount(new BigDecimal(invoice.getAmount()));
-			payment.setPaymentDate(invoice.getPayment_date()==null?DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT):invoice.getPayment_date());
-			
+			payment.setPaymentDate(invoice.getPayment_date() == null ? DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT) : invoice.getPayment_date());
+
 			payment.setReceivedFrom(invoice.getCustomer_id());
 			payment.setReferenceNo(invoice.getReference_number());
 			payment.setDepositedTo(invoice.getBank_account_id());
@@ -276,17 +298,18 @@ public class InvoiceControllerImpl {
 			List<PaymentLine> payments = new ArrayList<PaymentLine>();
 			payments.add(line);
 			payment.setPaymentLines(payments);
+			invoice.setAmount_due(dbInvoice.getAmount()-(dbInvoice.getAmount_paid()+invoice.getAmount()));
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection) != null) {
-				if (MySQLManager.getInvoiceDAOInstance().updateInvoiceAsPaid(connection, invoice) != null) {
-					connection.commit();
-					CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
-							invoice.getCompany_id());
-					return true;
-				}
+				connection.commit();
+				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
+						invoice.getCompany_id());
+				return true;
 			}
 		} catch (Exception e) {
-			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			LOGGER.error("error in markAsPaid invoice:" + invoice, e);
 			throw e;
+		} finally {
+			LOGGER.debug("exited markAsPaid invoice:" + invoice);
 		}
 		return false;
 	}
@@ -304,14 +327,14 @@ public class InvoiceControllerImpl {
 			InvoiceParser.formatInvoices(invoiceLst);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited get invoices userID:" + userID + " companyID:" + companyID + " state:" + state);
 		}
@@ -333,14 +356,14 @@ public class InvoiceControllerImpl {
 			return result;
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited getInvoice invocieId:" + invoiceID);
 		}
@@ -359,14 +382,14 @@ public class InvoiceControllerImpl {
 			return InvoiceParser.convertTimeStampToString(invoiceObj);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited deleteInvoiceById userID: " + userID + " companyID: " + companyID + " invoiceID" + invoiceID);
 		}
@@ -383,14 +406,14 @@ public class InvoiceControllerImpl {
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited deleteInvoicesById userID: " + userID + " companyID:" + companyID + " ids:" + ids);
 		}
@@ -403,6 +426,13 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(ids);
+			List<Invoice> invoices = MySQLManager.getInvoiceDAOInstance().getInvoices(commaSeparatedLst);
+			if (invoices == null || invoices.size() == 0) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoices.not.found"), 412);
+			}
+			if (InvoiceParser.isPaidStateInvoicePresent(invoices)) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.sent.error.msg"), 412);
+			}
 			boolean isSent = MySQLManager.getInvoiceDAOInstance().updateStateAsSent(userID, companyID, commaSeparatedLst);
 			if (isSent) {
 				for (String invoiceID : ids) {
@@ -412,14 +442,14 @@ public class InvoiceControllerImpl {
 			return isSent;
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error marking invoice as sent", e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited updateInvoicesAsSent userID: " + userID + " companyID:" + companyID + " ids:" + ids);
 		}
@@ -448,12 +478,13 @@ public class InvoiceControllerImpl {
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url + "HalfService/emails";
-//			url = "https://dev-services.qount.io/HalfService/emails";
+			// url = "https://dev-services.qount.io/HalfService/emails";
 			Object result = HTTPClient.postObject(url, emailJson.toString());
 			if (result != null && result instanceof java.lang.String && result.equals("true")) {
 				return true;
 			}
 		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -495,14 +526,14 @@ public class InvoiceControllerImpl {
 			return invoiceLst;
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited get invoices userID:" + userID + " companyID:" + companyID + " clientID:" + clientID);
 		}
@@ -519,14 +550,14 @@ public class InvoiceControllerImpl {
 			return Response.status(200).entity(result.toString()).build();
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited get count userID:" + userID + " companyID:" + companyID);
 		}
@@ -543,17 +574,17 @@ public class InvoiceControllerImpl {
 			if (invoiceMetrics != null) {
 				return Response.status(200).entity(invoiceMetrics).build();
 			}
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.EXPECTATION_FAILED));
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			if(e.getResponse().getStatus()==412){
+			if (e.getResponse().getStatus() == 412) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
-			}else{
-				throw e;
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited get box values userID:" + userID + " companyID:" + companyID);
 		}

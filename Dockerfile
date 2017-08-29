@@ -1,6 +1,6 @@
 # Pull base image.
 FROM qount/java8-tomcat8:2.0
-MAINTAINER mahendra <mahendra.velladandi@qount.io>
+MAINTAINER mahendra <mahendra.velladandi@bighalf.io>
 
 WORKDIR /code
 
