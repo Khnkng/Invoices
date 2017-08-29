@@ -18,7 +18,7 @@ public class SqlQuerys {
 //		public final static String UPDATE_INVOICE_AS_PAID_STATE_QRY = "UPDATE invoice SET refrence_number=?,invoice_date=?,payment_method=?,state='paid' WHERE id=?;";
 		public final static String UPDATE_INVOICE_AS_PAID_STATE_QRY = "UPDATE invoice SET state='paid',amount_paid=?,amount_due=? WHERE id=?;";
 		public final static String UPDATE_AS_SENT_QRY = "UPDATE invoice SET state='sent' WHERE id IN(";
-		public final static String GET_BOX_VALUES = "SELECT AVG(DATEDIFF(`due_date`, NOW())) AS avg_rec_date, AVG(amount_due) AS avg_outstanding, COUNT(*) AS invoice_count, SUM(amount_due) AS total_due, (SELECT SUM(`amount_due`) FROM `invoice` WHERE `state` != 'paid' AND `due_date` < NOW() AND `company_id` = ?) AS total_past_due, (SELECT SUM(`payment_amount`) FROM `invoice_payments` WHERE `payment_date` BETWEEN CURDATE() - INTERVAL 30 DAY AND CURDATE() AND `company_id` = ?) AS received_amount FROM `invoice` WHERE `state` NOT IN ('paid') AND `company_id` = ?";
+		public final static String GET_BOX_VALUES = "SELECT AVG(DATEDIFF(`due_date`, NOW())) AS avg_rec_date, AVG(amount_due) AS avg_outstanding, COUNT(*) AS invoice_count, SUM(amount_due) AS total_due, (SELECT SUM(`amount_due`) FROM `invoice` WHERE `state` NOT IN ('paid', 'draft') AND `due_date` < NOW() AND `company_id` = ?) AS total_past_due, (SELECT SUM(`payment_amount`) FROM `invoice_payments` WHERE `payment_date` BETWEEN CURDATE() - INTERVAL 30 DAY AND CURDATE() AND `company_id` = ?) AS received_amount FROM `invoice` WHERE `state` NOT IN ('paid', 'draft') AND `company_id` = ?";
 	}
 
 	public final class InvoiceLine {
