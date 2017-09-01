@@ -241,6 +241,9 @@ public class InvoiceControllerImpl {
 			if (invoiceResult != null) {
 				return invoice;
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;			
 		} catch (Exception e) {
 			LOGGER.error("error in markInvoiceAsSent invoice:" + invoice, e);
 			throw e;
@@ -262,9 +265,15 @@ public class InvoiceControllerImpl {
 			if (invoice.getAmount() > dbInvoice.getAmount_due()) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 			}
+			if(dbInvoice.getState().equals(Constants.INVOICE_STATE_DRAFT)){
+				throw new WebApplicationException(PropertyManager.getProperty("draft.invoice.paid.validation"),412);
+			}
 			if (markAsPaid(connection, invoice, dbInvoice)) {
 				return invoice;
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
+			throw e;			
 		} catch (Exception e) {
 			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
 			throw e;
@@ -305,6 +314,9 @@ public class InvoiceControllerImpl {
 						invoice.getCompany_id());
 				return true;
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
+			throw e;			
 		} catch (Exception e) {
 			LOGGER.error("error in markAsPaid invoice:" + invoice, e);
 			throw e;
@@ -485,7 +497,7 @@ public class InvoiceControllerImpl {
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw e;
+			throw e;			
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;

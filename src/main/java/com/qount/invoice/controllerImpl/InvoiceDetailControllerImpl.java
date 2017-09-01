@@ -42,10 +42,15 @@ public class InvoiceDetailControllerImpl {
 		try {
 			LOGGER.debug("entered makeInvoicePayment dbInvoice:"+invoice+ "uiInvoice"+inputInvoice);
 			connection = DatabaseUtilities.getReadWriteConnection();
+			String dbInvoiceState = invoice.getState();
+			if(dbInvoiceState.equals(Constants.INVOICE_STATE_DRAFT)){
+				throw new WebApplicationException(PropertyManager.getProperty("draft.invoice.paid.validation"),412);
+			}
 			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, invoice.getCompany_id());
 			if(!isCompanyRegistered){
 				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"),412);
 			}
+			String emailToSend = invoice.getCustomerContactDetails()!=null?invoice.getCustomerContactDetails().getEmail():PropertyManager.getProperty("invoice.default.mail.address");
 			String payment_spring_id = invoice.getCustomer()!=null?invoice.getCustomer().getPayment_spring_id():null;
 			String customerId = invoice.getCustomer()!=null?invoice.getCustomer().getCustomer_id():null;
 			boolean isPaymentSpringCustomerExists = StringUtils.isEmpty(getPaymentSpringCustomer(payment_spring_id, invoice.getCompany_id()))?false:true;
@@ -123,6 +128,9 @@ public class InvoiceDetailControllerImpl {
 				// urlAction = "subscription";
 				break;
 			}
+			if(payloadObj!=null){
+				payloadObj.put("email_address", emailToSend);
+			}
 			JSONObject result = invokeChargePaymentSpringApi(companyID, payloadObj, urlAction);
 			LOGGER.debug("payment spring payment result:"+result);
 			if (result == null || result.length() == 0) {
@@ -179,6 +187,9 @@ public class InvoiceDetailControllerImpl {
 				throw new WebApplicationException("payment done but not saved in qount db");
 				//TODO refund payment
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.EXPECTATION_FAILED));
 		} finally {
@@ -208,6 +219,9 @@ public class InvoiceDetailControllerImpl {
 			if (responseJson != null && responseJson.length() != 0) {
 				return responseJson;
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
@@ -269,6 +283,9 @@ public class InvoiceDetailControllerImpl {
 			}
 			LOGGER.debug("exited getOneTimeCustomerChargePaymentSpringJson(customer_id:"+customer_id+", amount"+amount+", payment_type:"+payment_type);
 			return payloadObj;
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
@@ -328,6 +345,9 @@ public class InvoiceDetailControllerImpl {
 			}
 			float conversion = Constants.CURRENCY_CONVERTER.convert(currency_from, currency_to, Constants.INVOICE_CONVERSION_DATE_FORMAT.format(new Date()));
 			return conversion;
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
@@ -361,6 +381,9 @@ public class InvoiceDetailControllerImpl {
 					return payment_customer_id;
 				}
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
@@ -395,6 +418,9 @@ public class InvoiceDetailControllerImpl {
 					return payment_customer_id;
 				}
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
@@ -433,6 +459,9 @@ public class InvoiceDetailControllerImpl {
 					return payment_customer_id;
 				}
 			}
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
