@@ -91,4 +91,5 @@ public class Constants {
 	
 	public static final int DATABASE_ERROR_STATUS = 422;
 	public static final int INVALID_INPUT_STATUS = 412;
+	public static final int EXPECTATION_FAILED = 412;
 }
