@@ -243,7 +243,7 @@ public class InvoiceControllerImpl {
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));			
+			throw e;			
 		} catch (Exception e) {
 			LOGGER.error("error in markInvoiceAsSent invoice:" + invoice, e);
 			throw e;
@@ -273,7 +273,7 @@ public class InvoiceControllerImpl {
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));			
+			throw e;			
 		} catch (Exception e) {
 			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
 			throw e;
@@ -316,7 +316,7 @@ public class InvoiceControllerImpl {
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));			
+			throw e;			
 		} catch (Exception e) {
 			LOGGER.error("error in markAsPaid invoice:" + invoice, e);
 			throw e;
@@ -497,7 +497,7 @@ public class InvoiceControllerImpl {
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));			
+			throw e;			
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
