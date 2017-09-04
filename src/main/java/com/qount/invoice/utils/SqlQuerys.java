@@ -28,6 +28,12 @@ public class SqlQuerys {
 		public final static String DELETE_INVOICE_LINE_QRY = "DELETE FROM `invoice_lines` WHERE `id` = ?";
 		public final static String DELETE_INVOICE_BY_ID_QRY = "DELETE FROM `invoice_lines` WHERE `invoice_id` = ?";
 	}
+	
+	public final class InvoiceLineDimension {
+		public static final String INSERT = "INSERT INTO invoice_line_dimensions (invoice_line_id, dimensionName, dimensionValue, companyID) VALUES(?,?,?,?)  ON DUPLICATE KEY UPDATE dimensionName = ?, dimensionValue = ?";
+		public static final String DELETE = "DELETE FROM invoice_line_dimensions WHERE invoice_line_id = ?";
+		public static final String DELETE_LIST = "DELETE FROM invoice_line_dimensions WHERE invoice_line_id IN ";
+	}
 
 	public final class InvoiceLineTaxes {
 		public final static String INSERT_QRY = "INSERT INTO invoice_line_taxes (`invoice_line_id`,`tax_id`,`tax_rate`) VALUES (?,?,?);";

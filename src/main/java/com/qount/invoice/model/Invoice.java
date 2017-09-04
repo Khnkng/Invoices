@@ -1,5 +1,6 @@
 package com.qount.invoice.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -432,6 +433,9 @@ public class Invoice {
 	}
 
 	public List<InvoiceLine> getInvoiceLines() {
+		if (invoiceLines == null) {
+			invoiceLines = new ArrayList<>();
+		}
 		return invoiceLines;
 	}
 

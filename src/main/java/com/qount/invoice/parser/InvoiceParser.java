@@ -3,7 +3,6 @@ package com.qount.invoice.parser;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -67,9 +66,6 @@ public class InvoiceParser {
 			}
 			setInvoiceAmountByDate(invoice, userCompany);
 			List<InvoiceLine> invoiceLines = invoice.getInvoiceLines();
-			if (invoiceLines == null) {
-				invoiceLines = new ArrayList<>();
-			}
 			Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 			while (invoiceLineItr.hasNext()) {
 				InvoiceLine line = invoiceLineItr.next();
