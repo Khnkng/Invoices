@@ -374,7 +374,7 @@ public class InvoiceControllerImpl {
 			payments.add(line);
 			payment.setPaymentLines(payments);
 			invoice.setAmount_due(dbInvoice.getAmount() - (dbInvoice.getAmount_paid() + invoice.getAmount()));
-			if (MySQLManager.getPaymentDAOInstance().save(payment, connection) != null) {
+			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
 				connection.commit();
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
 						invoice.getCompany_id());
