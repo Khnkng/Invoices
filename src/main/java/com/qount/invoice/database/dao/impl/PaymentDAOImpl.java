@@ -131,6 +131,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					}
 				}
 				invoice.setAmount_paid(invoice.getAmount_paid() + amountPaid);
+				invoice.setAmount_due(invoice.getAmount_due() - amountPaid);
 			}else if(checkInvoiceAmountFlag){
 				if (paymentLine.getAmount().doubleValue() > invoice.getAmount()) {
 					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
@@ -140,17 +141,17 @@ public class PaymentDAOImpl implements paymentDAO{
 					amountPaid = paymentLine.getAmount().doubleValue();
 				} else {
 					invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
-					if(lineFromDb != null) {					
-						amountPaid = paymentLine.getAmount().doubleValue() - lineFromDb.getAmount().doubleValue();
-					} else {
-						amountPaid = paymentLine.getAmount().doubleValue();
-					}
+//					if(lineFromDb != null) {					
+//						amountPaid = paymentLine.getAmount().doubleValue() - lineFromDb.getAmount().doubleValue();
+//					} else {
+//					}
+					amountPaid = paymentLine.getAmount().doubleValue();
 				}
 				invoice.setAmount_paid(amountPaid);
+				invoice.setAmount_due(invoice.getAmount() - amountPaid);
 			}else{
 				throw new WebApplicationException("unable to perform invoice amount validation", Constants.EXPECTATION_FAILED);
 			}
-			invoice.setAmount_due(invoice.getAmount_due() - amountPaid);
 			invoiceDAOImpl.update(connection, invoice);
 		} catch (Exception e) {
 			throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
