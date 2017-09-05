@@ -73,8 +73,25 @@ public class Invoice {
 	private String reference_number;
 	private String payment_date;
 	private String bank_account_id;
+	private String remainder_job_id;
+	private String remainder_name;
 	
-	
+	public String getRemainder_name() {
+		return remainder_name;
+	}
+
+	public void setRemainder_name(String remainder_name) {
+		this.remainder_name = remainder_name;
+	}
+
+	public String getRemainder_job_id() {
+		return remainder_job_id;
+	}
+
+	public void setRemainder_job_id(String remainder_job_id) {
+		this.remainder_job_id = remainder_job_id;
+	}
+
 	public double getSub_total() {
 		return sub_total;
 	}
@@ -534,4 +551,5 @@ public class Invoice {
 		this.bank_account_id = bank_account_id;
 	}
 
+	
 }

@@ -95,6 +95,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getTax_amount());
 				// below value only comes when proposal is accepted to invoice
 				pstmt.setString(ctr++, invoice.getProposal_id());
+				pstmt.setString(ctr++, invoice.getRemainder_job_id());
+				pstmt.setString(ctr++, invoice.getRemainder_name());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted",Constants.DATABASE_ERROR_STATUS));
@@ -335,6 +337,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.getInvoiceLines().add(invoiceLine);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
+							invoice.setRemainder_name(rset.getString("remainder_name"));
 							invoice.setTax_amount(rset.getDouble("tax_amount"));
 							invoice.setPayment_method(rset.getString("payment_method"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
