@@ -172,7 +172,7 @@ public class InvoiceDetailControllerImpl {
 //				//TODO refund payment
 //			}
 			boolean paymentCaptured =false;
-			if(MySQLManager.getPaymentDAOInstance().save(payment, connection)!=null){
+			if(MySQLManager.getPaymentDAOInstance().save(payment, connection, false)!=null){
 				paymentCaptured =true;
 			}
 			if(paymentCaptured){

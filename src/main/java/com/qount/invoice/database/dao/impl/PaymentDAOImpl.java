@@ -40,7 +40,7 @@ public class PaymentDAOImpl implements paymentDAO{
 	}
 	
 	@Override
-	public Payment save(Payment payment, Connection connection) {
+	public Payment save(Payment payment, Connection connection, boolean checkInvoiceAmountFlag) {
 		PreparedStatement pstmt = null;
 			if (connection != null) {
 				int ctr = 1;
@@ -82,7 +82,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					for(PaymentLine paymentLine:payment.getPaymentLines()) {
 						addPaymentLine(connection,paymentLine, payment.getId());
 						if(paymentLine.getAmount() != null && paymentLine.getAmount().doubleValue() > 0) {							
-							updateInvoicesState(connection, paymentLine, payment, lines);
+							updateInvoicesState(connection, paymentLine, payment, lines,checkInvoiceAmountFlag);
 						}
 					}
 				} catch (SQLException e) {
@@ -97,7 +97,7 @@ public class PaymentDAOImpl implements paymentDAO{
 		return payment;
 	}
 	
-	private void updateInvoicesState(Connection connection, PaymentLine paymentLine, Payment payment, List<PaymentLine> lines) {
+	private void updateInvoicesState(Connection connection, PaymentLine paymentLine, Payment payment, List<PaymentLine> lines, boolean checkInvoiceAmountFlag) {
 		InvoiceDAOImpl invoiceDAOImpl = InvoiceDAOImpl.getInvoiceDAOImpl();
 		PaymentLine lineFromDb = null;
 		if(payment.getId() != null) {			
@@ -115,25 +115,45 @@ public class PaymentDAOImpl implements paymentDAO{
 			if(invoice.getState() != null && invoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				return;
 			}
-			if (paymentLine.getAmount().doubleValue() > invoice.getAmount_due()) {
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
-			}
-			if (invoice.getAmount_due() == paymentLine.getAmount().doubleValue()) {
-				invoice.setState(Constants.INVOICE_STATE_PAID);
-				amountPaid = paymentLine.getAmount().doubleValue();
-			} else {
-				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
-				if(lineFromDb != null) {					
-					amountPaid = paymentLine.getAmount().doubleValue() - lineFromDb.getAmount().doubleValue();
-				} else {
-					amountPaid = paymentLine.getAmount().doubleValue();
+			if(!checkInvoiceAmountFlag){
+				if (paymentLine.getAmount().doubleValue() > invoice.getAmount_due()) {
+					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 				}
+				if (invoice.getAmount_due() == paymentLine.getAmount().doubleValue()) {
+					invoice.setState(Constants.INVOICE_STATE_PAID);
+					amountPaid = paymentLine.getAmount().doubleValue();
+				} else {
+					invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
+					if(lineFromDb != null) {					
+						amountPaid = paymentLine.getAmount().doubleValue() - lineFromDb.getAmount().doubleValue();
+					} else {
+						amountPaid = paymentLine.getAmount().doubleValue();
+					}
+				}
+				invoice.setAmount_paid(invoice.getAmount_paid() + amountPaid);
+			}else if(checkInvoiceAmountFlag){
+				if (paymentLine.getAmount().doubleValue() > invoice.getAmount()) {
+					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
+				}
+				if (invoice.getAmount() == paymentLine.getAmount().doubleValue()) {
+					invoice.setState(Constants.INVOICE_STATE_PAID);
+					amountPaid = paymentLine.getAmount().doubleValue();
+				} else {
+					invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
+					if(lineFromDb != null) {					
+						amountPaid = paymentLine.getAmount().doubleValue() - lineFromDb.getAmount().doubleValue();
+					} else {
+						amountPaid = paymentLine.getAmount().doubleValue();
+					}
+				}
+				invoice.setAmount_paid(amountPaid);
+			}else{
+				throw new WebApplicationException("unable to perform invoice amount validation", Constants.EXPECTATION_FAILED);
 			}
-			invoice.setAmount_paid(invoice.getAmount_paid() + amountPaid);
 			invoice.setAmount_due(invoice.getAmount_due() - amountPaid);
 			invoiceDAOImpl.update(connection, invoice);
 		} catch (Exception e) {
-			throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
+			throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 		} 
 	}
 	
@@ -147,7 +167,7 @@ public class PaymentDAOImpl implements paymentDAO{
 					pstmt.executeUpdate();
 
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("unable to delete payment lines", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(null, pstmt, null);
 				}
@@ -174,7 +194,7 @@ public class PaymentDAOImpl implements paymentDAO{
 			        }
 
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(null, pstmt, null);
 				}
@@ -190,7 +210,7 @@ public class PaymentDAOImpl implements paymentDAO{
                 parsedDate = new java.sql.Date(utilDate.getTime());
             }
         } catch (Exception e) {
-        	throw new WebApplicationException(CommonUtils.constructResponse("cannot parse date", 400));
+        	throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), 400));
         }
         return parsedDate;
     }
@@ -207,7 +227,7 @@ public class PaymentDAOImpl implements paymentDAO{
                 dateStr = dateFormat.format(utilDate);
             }
         } catch (Exception e) {
-        	throw new WebApplicationException(CommonUtils.constructResponse("cannot parse date", 400));
+        	throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), 400));
         }
         return dateStr;
 	}
@@ -245,7 +265,7 @@ public class PaymentDAOImpl implements paymentDAO{
 						lines.add(line);
 					}
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(rset, pstmt, null);
 				}
@@ -293,7 +313,7 @@ public class PaymentDAOImpl implements paymentDAO{
 						}
 					}
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(rset, pstmt, connection);
 				}
@@ -335,6 +355,7 @@ public class PaymentDAOImpl implements paymentDAO{
 		}
 	} catch (Exception e) {
 		LOGGER.error("error while retrieving unmapped payments",e);
+		throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 	}
 	   finally {
 			DatabaseUtilities.closeResources(rset, pstmt, connection);
@@ -370,7 +391,7 @@ public class PaymentDAOImpl implements paymentDAO{
 						payment.setPaymentLines(getLines(payment.getId()));
 					}
 				} catch (SQLException e) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 				} finally {
 					DatabaseUtilities.closeResources(rset, pstmt, connection);
 				}
