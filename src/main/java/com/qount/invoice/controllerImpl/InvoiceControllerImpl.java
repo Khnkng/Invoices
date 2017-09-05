@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -63,7 +65,12 @@ public class InvoiceControllerImpl {
 //				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
 //			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
-			if (invoice.isSendMail()) {
+			String jobId = null;
+			if(StringUtils.isNotBlank(invoice.getRemainder_name())){
+				jobId = getJobId(invoice);
+				invoice.setRemainder_job_id(jobId);
+			}
+			if (invoice.isSendMail() && StringUtils.isEmpty(invoice.getRemainder_job_id())) {
 				if (sendInvoiceEmail(invoiceObj)) {
 					invoice.setState(Constants.INVOICE_STATE_SENT);
 				} else {
@@ -76,6 +83,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
 			connection.setAutoCommit(false);
+			//creating remainder 
 			// recurring if invoice has plan id
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
@@ -106,6 +114,47 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited createInvoice(String userID:" + userID + ",companyID:" + companyID + " Invoice invoice)" + invoice);
 		}
 
+	}
+	
+	private static String getJobId(Invoice invoice){
+		try {
+			if(invoice == null || StringUtils.isBlank(invoice.getRemainder_name())){
+				return null;
+			}
+			String remainderServieUrl = Utilities.getLtmUrl("remainder.service.docker.hostname", "remainder.service.docker.port");
+			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
+//			remainderServieUrl = "http://localhost:8080/";
+			remainderServieUrl +="RemainderService/mail/schedule";
+			JSONObject remainderJsonObject = new JSONObject();
+			if(invoice.getRemainder_name().equalsIgnoreCase(Constants.ON_DUE_DATE_THEN_WEEKLY_AFTERWARD) || 
+					invoice.getRemainder_name().equalsIgnoreCase(Constants.WEEKLY_UNTIL_PAID) ){
+				String startDate = CommonUtils.convertDate(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				remainderJsonObject.put("startDate",startDate);
+			}else if(invoice.getRemainder_name().equalsIgnoreCase(Constants.WEEKLY_START_TWO_WEEKS_BEFORE_DUE)  ){
+				String dueDateStr = invoice.getDue_date();
+				Date dueDate = CommonUtils.getDate(dueDateStr, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(dueDate);
+				cal.add(Calendar.DATE, 14);
+				String startDate = CommonUtils.convertDate(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				remainderJsonObject.put("startDate",startDate);
+			}else{
+				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.remainder.name"),412);
+			}
+			remainderJsonObject.put("emails",invoice.getRecepientsMails());
+			remainderJsonObject.put("type","invoice");
+			remainderJsonObject.put("number",invoice.getNumber());
+			remainderJsonObject.put("amount",invoice.getAmount());
+//			remainderJsonObject.put("startDate",invoice.getRemainder().getDate());
+			Object jobIdObj = HTTPClient.postObject(remainderServieUrl,remainderJsonObject.toString());
+			return jobIdObj.toString();
+		} catch (WebApplicationException e) {
+			LOGGER.error("error creating job id",e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error creating job id",e);
+		}
+		return null;
 	}
 
 	public static Invoice updateInvoice(String userID, String companyID, String invoiceID, Invoice invoice) {
