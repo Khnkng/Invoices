@@ -59,6 +59,10 @@ public class PaymentService {
 		return PaymentDAOImpl.getInstance().list(companyId);
 	}
 	
+	public List<Payment> getunmappedPayments(String companyID, String bankAccountID){
+		return PaymentDAOImpl.getInstance().getUnmappedPayment(companyID, bankAccountID);
+	}
+	
 	public Payment getById(String companyId, String paymentId) {
 		return PaymentDAOImpl.getInstance().getById(paymentId);
 	}

@@ -300,6 +300,48 @@ public class PaymentDAOImpl implements paymentDAO{
 			}	
 		return payments;	
 	}
+	
+    public List<Payment> getUnmappedPayment(String companyID, String bankAccountID){
+    	LOGGER.debug("retrieving unmapped payments with companyID" + companyID + " and bank accountID "+ bankAccountID);
+	   ResultSet rset = null;
+	   PreparedStatement pstmt = null;
+	   Connection connection = null;
+	   Payment invoicePayment = null;
+	   List<Payment> payments = new ArrayList<Payment>();
+	   List<String> ids = new ArrayList<String>();
+	   try {
+		connection=DatabaseUtilities.getReadWriteConnection();
+		if(connection!=null){
+			pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_UNMAPPED_PAYMENTS);
+			pstmt.setString(1, companyID);
+			pstmt.setString(2, bankAccountID);
+			rset = pstmt.executeQuery();
+			while(rset.next()){
+				String paymentID = rset.getString("id");
+			if(!ids.contains(paymentID)){
+			    ids.add(paymentID);
+				invoicePayment = new Payment();
+				invoicePayment.setId(paymentID);
+				invoicePayment.setCustomerName(rset.getString("customer_name"));
+				invoicePayment.setDepositedTo(rset.getString("bank_account_id"));
+				invoicePayment.setPaymentDate(rset.getString("payment_date"));
+				invoicePayment.setAmountPaid(rset.getBigDecimal("amount"));
+				payments.add(invoicePayment);
+				}
+			else{
+				invoicePayment.setAmountPaid(rset.getBigDecimal("amount").add(invoicePayment.getAmountPaid()));
+			}
+			}
+		}
+	} catch (Exception e) {
+		LOGGER.error("error while retrieving unmapped payments",e);
+	}
+	   finally {
+			DatabaseUtilities.closeResources(rset, pstmt, connection);
+	}
+	return payments;
+	
+}
 
 	@Override
 	public Payment getById(String paymentId) {
