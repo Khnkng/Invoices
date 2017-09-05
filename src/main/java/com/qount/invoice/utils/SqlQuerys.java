@@ -19,6 +19,7 @@ public class SqlQuerys {
 		public final static String UPDATE_INVOICE_AS_PAID_STATE_QRY = "UPDATE invoice SET state='paid',amount_paid=?,amount_due=? WHERE id=?;";
 		public final static String UPDATE_AS_SENT_QRY = "UPDATE invoice SET state='sent' WHERE id IN(";
 		public final static String GET_BOX_VALUES = "SELECT AVG(DATEDIFF(`due_date`, NOW())) AS avg_rec_date, AVG(amount_due) AS avg_outstanding, COUNT(*) AS invoice_count, SUM(amount_due) AS total_due, (SELECT SUM(`amount_due`) FROM `invoice` WHERE `state` NOT IN ('paid', 'draft') AND `due_date` < NOW() AND `company_id` = ?) AS total_past_due, (SELECT SUM(`payment_amount`) FROM `invoice_payments` WHERE `payment_date` BETWEEN CURDATE() - INTERVAL 30 DAY AND CURDATE() AND `company_id` = ?) AS received_amount FROM `invoice` WHERE `state` NOT IN ('paid', 'draft') AND `company_id` = ?";
+	    public final static String GET_UNMAPPED_PAYMENTS = "SELECT invoice_payments.`bank_account_id`, invoice_payments.`payment_date`, invoice_payments.id, invoice_payments_lines.`amount`,company_customers.`customer_name` FROM `invoice_payments` LEFT JOIN invoice_payments_lines ON invoice_payments.id = invoice_payments_lines.payment_id  LEFT JOIN company_customers ON invoice_payments.`received_from` = company_customers.`customer_id` WHERE  invoice_payments.company_id = ? AND invoice_payments.bank_account_id = ? AND invoice_payments.mapping_id IS NULL ";
 	}
 
 	public final class InvoiceLine {
