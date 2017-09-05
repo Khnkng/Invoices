@@ -25,6 +25,7 @@ import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.CustomerContactDetails;
+import com.qount.invoice.model.Dimension;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
@@ -300,6 +301,15 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("il_id"));
+					String dimensionName = rset.getString("dimensionName");
+					Dimension dimension = null;
+					String dimensionValue = null;
+					if (StringUtils.isNotBlank(dimensionName)) {
+						dimension = new Dimension();
+						dimension.setName(dimensionName);
+						dimensionValue = rset.getString("dimensionValue");
+						dimension.getValues().add(dimensionValue);
+					}
 					int invoiceLineIndex = invoice.getInvoiceLines().indexOf(invoiceLine);
 					if (invoiceLineIndex == -1) {
 						invoiceLine.setInvoice_id(rset.getString("il_invoice_id"));
@@ -401,6 +411,19 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							company.setState(rset.getString("com_state"));
 							company.setZipcode(rset.getString("com_zipcode"));
 							invoice.setCurrencies(currencies_2);
+							if(dimension != null)
+							invoiceLine.getDimensions().add(dimension);
+					}
+					} else {
+						invoiceLine = invoice.getInvoiceLines().get(invoiceLineIndex);
+						if(dimension != null){
+						int dimensionIndex = invoiceLine.getDimensions().indexOf(dimension);
+						if(dimensionIndex != -1){
+							dimension = invoiceLine.getDimensions().get(dimensionIndex);
+							dimension.getValues().add(dimensionValue);
+						} else {
+							invoiceLine.getDimensions().add(dimension);
+						}
 						}
 					}
 				}
