@@ -27,6 +27,7 @@ import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
 import com.qount.invoice.parser.InvoiceParser;
+import com.qount.invoice.service.InvoiceDimension;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -80,6 +81,8 @@ public class InvoiceControllerImpl {
 			if (invoiceResult != null) {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 				if (!invoiceLineResult.isEmpty()) {
+					// saving dimensions of journal lines
+					new InvoiceDimension().create(connection, companyID, invoiceObj.getInvoiceLines());
 					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
@@ -159,6 +162,8 @@ public class InvoiceControllerImpl {
 					List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 					if (invoiceLineResult != null) {
 						connection.commit();
+						// updating dimensions for an invoice
+						new InvoiceDimension().update(connection,companyID,invoiceObj.getInvoiceLines());
 						if (isJERequired) {
 							CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 						}

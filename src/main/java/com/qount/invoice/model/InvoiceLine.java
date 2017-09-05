@@ -1,9 +1,13 @@
 package com.qount.invoice.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -13,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class InvoiceLine {
 
 	private String id;
@@ -31,6 +36,7 @@ public class InvoiceLine {
 	private Coa coa;
 	private String type;
 	private String tax_id;
+	private List<Dimension> dimensions;
 
 	public String getTax_id() {
 		return tax_id;
@@ -160,6 +166,17 @@ public class InvoiceLine {
 		this.notes = notes;
 	}
 	
+	public List<Dimension> getDimensions() {
+		if(dimensions == null){
+			dimensions = new ArrayList<>();
+		}
+		return dimensions;
+	}
+
+	public void setDimensions(List<Dimension> dimensions) {
+		this.dimensions = dimensions;
+	}
+
 	public String prepareJSParemeters(){
 		StringBuilder journalParmBuilder = new StringBuilder();
 		journalParmBuilder.append(this.amount + this.price + this.quantity + this.tax_id + this.item_id);
