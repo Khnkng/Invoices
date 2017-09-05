@@ -174,11 +174,11 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.less.than.due.amount"), 412);
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
-//			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(), companyID, invoiceID);
-//			LOGGER.debug("invoiceExists:" + invoiceExists);
-//			if (invoiceExists) {
-//				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
-//			}
+			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(), companyID, invoiceID);
+			LOGGER.debug("invoiceExists:" + invoiceExists);
+			if (invoiceExists) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
+			}
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
 				if (Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()) {
