@@ -411,6 +411,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							company.setState(rset.getString("com_state"));
 							company.setZipcode(rset.getString("com_zipcode"));
 							invoice.setCurrencies(currencies_2);
+							if(dimension != null)
 							invoiceLine.getDimensions().add(dimension);
 					}
 					} else {
