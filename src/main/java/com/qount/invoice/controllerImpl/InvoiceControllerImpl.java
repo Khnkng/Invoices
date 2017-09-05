@@ -167,15 +167,18 @@ public class InvoiceControllerImpl {
 			if (dbInvoice == null || StringUtils.isBlank(dbInvoice.getId())) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.not.found"), 412);
 			}
-			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
 			}
-			connection = DatabaseUtilities.getReadWriteConnection();
-			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(), companyID, invoiceID);
-			LOGGER.debug("invoiceExists:" + invoiceExists);
-			if (invoiceExists) {
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
+			if(invoice.getAmount()<dbInvoice.getAmount_due()){
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.less.than.due.amount"), 412);
 			}
+			connection = DatabaseUtilities.getReadWriteConnection();
+//			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(), companyID, invoiceID);
+//			LOGGER.debug("invoiceExists:" + invoiceExists);
+//			if (invoiceExists) {
+//				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
+//			}
 			if (invoice != null && invoice.isSendMail()) {
 				invoice.setId(invoiceID);
 				if (Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()) {
@@ -191,7 +194,9 @@ public class InvoiceControllerImpl {
 			}
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					invoice.setState(Constants.INVOICE_STATE_SENT);
+					if(invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)){
+						invoice.setState(Constants.INVOICE_STATE_SENT);
+					}
 				} else {
 					throw new WebApplicationException("error sending email");
 				}
