@@ -173,8 +173,10 @@ public class InvoiceControllerImpl {
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
 			}
-			if (invoice.getAmount() < dbInvoice.getAmount_due()) {
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.less.than.due.amount"), 412);
+			if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)){
+				if (invoice.getAmount() < dbInvoice.getAmount_paid()) {
+					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.less.than.paid.amount"), 412);
+				}
 			}
 			connection = DatabaseUtilities.getReadWriteConnection();
 			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(), companyID, invoiceID);
