@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class InvoiceLine {
 
 	private String id;

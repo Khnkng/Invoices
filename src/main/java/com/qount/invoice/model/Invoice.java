@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.json.JSONArray;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @version 1.0, 30 Nov 2016
  *
  */
+@JsonIgnoreProperties(ignoreUnknown=true)
 @XmlRootElement
 public class Invoice {
 

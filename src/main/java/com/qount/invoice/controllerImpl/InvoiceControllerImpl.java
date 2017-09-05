@@ -82,7 +82,7 @@ public class InvoiceControllerImpl {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 				if (!invoiceLineResult.isEmpty()) {
 					// saving dimensions of journal lines
-					new InvoiceDimension().create(connection, invoiceObj.getInvoiceLines());
+					new InvoiceDimension().create(connection, companyID, invoiceObj.getInvoiceLines());
 					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
@@ -163,7 +163,7 @@ public class InvoiceControllerImpl {
 					if (invoiceLineResult != null) {
 						connection.commit();
 						// updating dimensions for an invoice
-						new InvoiceDimension().update(connection, invoiceObj.getInvoiceLines());
+						new InvoiceDimension().update(connection,companyID,invoiceObj.getInvoiceLines());
 						if (isJERequired) {
 							CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 						}
