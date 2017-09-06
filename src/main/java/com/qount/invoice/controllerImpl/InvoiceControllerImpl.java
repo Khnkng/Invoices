@@ -222,9 +222,9 @@ public class InvoiceControllerImpl {
 				if (deletedInvoiceLineResult != null) {
 					List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 					if (invoiceLineResult != null) {
-						connection.commit();
 						// updating dimensions for an invoice
 						new InvoiceDimension().update(connection, companyID, invoiceObj.getInvoiceLines());
+						connection.commit();
 						if (isJERequired) {
 							CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 						}
