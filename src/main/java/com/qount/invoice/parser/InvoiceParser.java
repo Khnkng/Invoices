@@ -60,8 +60,8 @@ public class InvoiceParser {
 			invoice.setDue_date(payment_date != null ? payment_date.toString() : null);
 			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
-			invoice.setAmount_due(invoice.getAmount());
 			if(createFlag){
+				invoice.setAmount_due(invoice.getAmount());
 				invoice.setAmount_paid(0.00d);
 			}
 			setInvoiceAmountByDate(invoice, userCompany);
