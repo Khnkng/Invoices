@@ -170,6 +170,24 @@ public class InvoiceControllerImpl {
 			if (dbInvoice == null || StringUtils.isBlank(dbInvoice.getId())) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.not.found"), 412);
 			}
+			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, false);
+			invoiceObj.setId(invoiceID);
+			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			if (invoice.isSendMail()) {
+				if (sendInvoiceEmail(invoiceObj)) {
+					//if invoice is paid then sending email and returning response
+					if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)){
+						return InvoiceParser.convertTimeStampToString(dbInvoice);
+					}
+					invoice.setState(Constants.INVOICE_STATE_SENT);
+				} else {
+					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
+				}
+			} else {
+				invoice.setState(Constants.INVOICE_STATE_DRAFT);
+			}
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
 			}
@@ -192,20 +210,7 @@ public class InvoiceControllerImpl {
 					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
 				}
 			}
-			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, false);
-			invoiceObj.setId(invoiceID);
-			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
-			}
-			if (invoice.isSendMail()) {
-				if (sendInvoiceEmail(invoiceObj)) {
-					invoice.setState(Constants.INVOICE_STATE_SENT);
-				} else {
-					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
-				}
-			} else {
-				invoice.setState(Constants.INVOICE_STATE_DRAFT);
-			}
+			
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
