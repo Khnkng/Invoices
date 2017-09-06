@@ -17,7 +17,6 @@ import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.model.Coa;
@@ -85,7 +84,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getTerm());
 				pstmt.setLong(ctr++, new Date().getTime());
-				pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++,
+						invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
 				pstmt.setString(ctr++, invoice.getPayment_options());
@@ -99,7 +99,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getRemainder_name());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted",Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -149,7 +150,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getTerm());
-				pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++,
+						invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
 				pstmt.setString(ctr++, invoice.getPayment_options());
@@ -160,7 +162,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -191,7 +194,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -225,7 +229,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -257,7 +262,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -335,6 +341,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLine.setNotes(rset.getString("il_notes"));
 						invoiceLine.setType(rset.getString("il_type"));
 						invoice.getInvoiceLines().add(invoiceLine);
+						if (dimension != null)
+							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
 							invoice.setRemainder_name(rset.getString("remainder_name"));
@@ -414,19 +422,18 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							company.setState(rset.getString("com_state"));
 							company.setZipcode(rset.getString("com_zipcode"));
 							invoice.setCurrencies(currencies_2);
-							if(dimension != null)
-							invoiceLine.getDimensions().add(dimension);
-					}
+
+						}
 					} else {
 						invoiceLine = invoice.getInvoiceLines().get(invoiceLineIndex);
-						if(dimension != null){
-						int dimensionIndex = invoiceLine.getDimensions().indexOf(dimension);
-						if(dimensionIndex != -1){
-							dimension = invoiceLine.getDimensions().get(dimensionIndex);
-							dimension.getValues().add(dimensionValue);
-						} else {
-							invoiceLine.getDimensions().add(dimension);
-						}
+						if (dimension != null) {
+							int dimensionIndex = invoiceLine.getDimensions().indexOf(dimension);
+							if (dimensionIndex != -1) {
+								dimension = invoiceLine.getDimensions().get(dimensionIndex);
+								dimension.getValues().add(dimensionValue);
+							} else {
+								invoiceLine.getDimensions().add(dimension);
+							}
 						}
 					}
 				}
@@ -448,7 +455,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public Map<String, String> getCount(String userID, String companyID) throws Exception {
 		LOGGER.debug("entered get count of invoice: userID" + userID + " companyID" + companyID);
 		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
-			throw new WebApplicationException("userID or companyID cannot be empty",Constants.INVALID_INPUT_STATUS);
+			throw new WebApplicationException("userID or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
 		}
 		Map<String, String> result = null;
 		PreparedStatement pstmt = null;
@@ -486,7 +493,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId) throws Exception {
 		LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId);
 		if (StringUtils.isAnyBlank(invoiceNumber, companyId)) {
-			throw new WebApplicationException("invoiceNumber or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
+			throw new WebApplicationException("invoiceNumber or companyID cannot be empty",
+					Constants.INVALID_INPUT_STATUS);
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -515,10 +523,12 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId, String id) throws Exception {
+	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId, String id)
+			throws Exception {
 		LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id);
 		if (StringUtils.isAnyBlank(invoiceNumber, companyId, id)) {
-			throw new WebApplicationException("invoiceNumber or companyID od invoiceId cannot be empty", Constants.INVALID_INPUT_STATUS);
+			throw new WebApplicationException("invoiceNumber or companyID od invoiceId cannot be empty",
+					Constants.INVALID_INPUT_STATUS);
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -537,12 +547,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error executing invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id, e);
+			LOGGER.error("Error executing invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId
+					+ " id:" + id, e);
 			throw e;
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
-			LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id);
+			LOGGER.debug(
+					"entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id);
 		}
 		return false;
 	}
@@ -551,7 +563,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception {
 		LOGGER.debug("entered getInvoiceList userID:" + userID + " companyID:" + companyID + "state:" + state);
 		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
-			throw new WebApplicationException("userID or companyID cannot be empty",Constants.INVALID_INPUT_STATUS);
+			throw new WebApplicationException("userID or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
 		}
 		List<Invoice> invoiceLst = new ArrayList<>();
 		PreparedStatement pstmt = null;
@@ -625,7 +637,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(2, invoice.getCompany_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record deleted", Constants.DATABASE_ERROR_STATUS));
 				}
 				LOGGER.debug("no of invoice deleted:" + rowCount);
 			}
@@ -719,7 +732,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public List<Invoice> getInvoiceListByClientId(String userID, String companyID, String clientID) throws Exception {
 		LOGGER.debug("entered getInvoiceList userID:" + userID + " companyID:" + companyID + "clientID:" + clientID);
 		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
-			throw new WebApplicationException("userID or companyID cannot be empty",Constants.INVALID_INPUT_STATUS);
+			throw new WebApplicationException("userID or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
 		}
 		List<Invoice> invoiceLst = new ArrayList<>();
 		PreparedStatement pstmt = null;
@@ -739,14 +752,17 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setNumber(rset.getString("number"));
 					invoice.setId(rset.getString("id"));
 
-					invoice.setInvoice_date(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
-					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setInvoice_date(
+							getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setDue_date(
+							getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
 					invoice.setAmount_paid(rset.getDouble("amount_paid"));
-					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setDue_date(
+							getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 
 					invoiceLst.add(invoice);
 				}
@@ -859,7 +875,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					pstmt.setDouble(ctr++, invoice.getAmount_paid());
 					pstmt.setString(ctr++, invoice.getTerm());
 					pstmt.setLong(ctr++, new Date().getTime());
-					pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
+					pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null
+							: invoice.getRecepientsMailsArr().toString());
 					pstmt.setString(ctr++, invoice.getPlan_id());
 					pstmt.setBoolean(ctr++, invoice.is_recurring());
 					pstmt.setString(ctr++, invoice.getPayment_options());
@@ -891,10 +908,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoiceList;
 	}
-	
+
 	@Override
 	public List<Invoice> getInvoices(String invoiceIds) throws Exception {
-		LOGGER.debug("entered getInvoices invoiceIds:" + invoiceIds );
+		LOGGER.debug("entered getInvoices invoiceIds:" + invoiceIds);
 		if (StringUtils.isBlank(invoiceIds)) {
 			throw new WebApplicationException("invoiceIds cannot be empty", Constants.INVALID_INPUT_STATUS);
 		}
@@ -906,7 +923,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			connection = DatabaseUtilities.getReadConnection();
 			if (connection != null) {
 				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_BY_ID_QRY;
-				query+=invoiceIds+")";
+				query += invoiceIds + ")";
 				pstmt = connection.prepareStatement(query);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -943,14 +960,22 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Connection connection = DatabaseUtilities.getReadConnection();
-		ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM `invoice_payments` WHERE `company_id` = 'a525bf7f-3017-40dd-9f1a-86e4386dfcb4'");
-		while (resultSet.next()) {
-			String paymentID = resultSet.getString("id");
-			System.out.println("id = " + paymentID);
-			JSONObject res = CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", paymentID).toString(), "yoda@qount.io", "a525bf7f-3017-40dd-9f1a-86e4386dfcb4");
-			System.out.println(res);
-		}
+		InvoiceDAOImpl invoiceDAOImpl = new InvoiceDAOImpl();
+		invoiceDAOImpl.get("1f6a8fae-deb8-4092-bb3a-b1f6470c6246");
+		// Connection connection = DatabaseUtilities.getReadConnection();
+		// ResultSet resultSet =
+		// connection.createStatement().executeQuery("SELECT * FROM
+		// `invoice_payments` WHERE `company_id` =
+		// 'a525bf7f-3017-40dd-9f1a-86e4386dfcb4'");
+		// while (resultSet.next()) {
+		// String paymentID = resultSet.getString("id");
+		// System.out.println("id = " + paymentID);
+		// JSONObject res = CommonUtils.createJournal(new
+		// JSONObject().put("source", "invoicePayment").put("sourceID",
+		// paymentID).toString(), "yoda@qount.io",
+		// "a525bf7f-3017-40dd-9f1a-86e4386dfcb4");
+		// System.out.println(res);
+		// }
 	}
 
 }
