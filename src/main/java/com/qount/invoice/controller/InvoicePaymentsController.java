@@ -11,6 +11,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.qount.invoice.model.Payment;
@@ -45,9 +46,14 @@ public class InvoicePaymentsController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Returns list of payments", notes = "Used to retreive list of payments against company", responseContainer = "java.lang.String")
-	public List<Payment> list(@PathParam("userID") String userID, @PathParam("companyID") String companyID) {
-		return PaymentService.getInstance().getList(companyID);
-	}
+	public List<Payment> list(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @QueryParam("mapping") boolean mapping, @QueryParam("bankAccountID") String bankAccountID ) {
+		if(mapping){
+		return PaymentService.getInstance().getunmappedPayments(companyID, bankAccountID);
+		}
+		else{
+			return PaymentService.getInstance().getList(companyID);
+		}
+		}
 	
 	@Path("/{paymentID}")
 	@GET

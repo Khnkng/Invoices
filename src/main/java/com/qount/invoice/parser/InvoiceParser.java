@@ -3,7 +3,6 @@ package com.qount.invoice.parser;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -61,19 +60,16 @@ public class InvoiceParser {
 			invoice.setDue_date(payment_date != null ? payment_date.toString() : null);
 			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
-			invoice.setAmount_due(invoice.getAmount());
 			if(createFlag){
+				invoice.setAmount_due(invoice.getAmount());
 				invoice.setAmount_paid(0.00d);
 			}
 			setInvoiceAmountByDate(invoice, userCompany);
 			List<InvoiceLine> invoiceLines = invoice.getInvoiceLines();
-			if (invoiceLines == null) {
-				invoiceLines = new ArrayList<>();
-			}
 			Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 			while (invoiceLineItr.hasNext()) {
 				InvoiceLine line = invoiceLineItr.next();
-				line.setId(UUID.randomUUID().toString());
+				line.setId(StringUtils.isBlank(line.getId()) ? UUID.randomUUID().toString() : line.getId());
 				line.setInvoice_id(invoice.getId());
 				line.setLast_updated_at(timestamp.toString());
 				line.setLast_updated_by(userId);

@@ -42,7 +42,7 @@ public class PaymentService {
 			if(StringUtils.isBlank(payment.getId())) {
 				payment.setId(UUID.randomUUID().toString());
 			}
-			pymt = PaymentDAOImpl.getInstance().save(payment, connection);
+			pymt = PaymentDAOImpl.getInstance().save(payment, connection, true);
 			connection.commit();
 			CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), userID, companyId);
 		} catch (SQLException e) {
@@ -57,6 +57,10 @@ public class PaymentService {
 	
 	public List<Payment> getList(String companyId) {
 		return PaymentDAOImpl.getInstance().list(companyId);
+	}
+	
+	public List<Payment> getunmappedPayments(String companyID, String bankAccountID){
+		return PaymentDAOImpl.getInstance().getUnmappedPayment(companyID, bankAccountID);
 	}
 	
 	public Payment getById(String companyId, String paymentId) {

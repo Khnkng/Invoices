@@ -191,6 +191,15 @@ public class CommonUtils {
 		}
 		return null;
 	}
+	
+	public static Date getDate(String sourceDate, SimpleDateFormat sourceDateFormat) {
+		try {
+			return sourceDateFormat.parse(sourceDate);
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+		}
+		return null;
+	}
 
 	public static String getGMTDateTime(Date sourceDate) {
 		try {

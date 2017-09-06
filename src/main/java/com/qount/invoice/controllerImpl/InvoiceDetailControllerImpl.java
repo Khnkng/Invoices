@@ -155,7 +155,7 @@ public class InvoiceDetailControllerImpl {
 			payments.add(paymentLine);
 			payment.setPaymentLines(payments);
 			invoice.setAmount_paid(invoice.getAmount_paid()+amountPaidInDollar);
-			if (amountPaidInDollar == invoice.getAmount()) {
+			if (invoice.getAmount_paid() == invoice.getAmount()) {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				invoice.setAmount_due(0);
 			} else {
@@ -172,7 +172,7 @@ public class InvoiceDetailControllerImpl {
 //				//TODO refund payment
 //			}
 			boolean paymentCaptured =false;
-			if(MySQLManager.getPaymentDAOInstance().save(payment, connection)!=null){
+			if(MySQLManager.getPaymentDAOInstance().save(payment, connection, false)!=null){
 				paymentCaptured =true;
 			}
 			if(paymentCaptured){

@@ -42,8 +42,9 @@ public class Payment {
 	
 	private String journalID;
 	
-	
 	private String customerName;
+	
+	private BigDecimal amountPaid;
 	
 	public String getId() {
 		return id;
@@ -137,5 +138,11 @@ public class Payment {
 	}
 	public void setCustomerName(String customerName) {
 		this.customerName = customerName;
+	}
+	public BigDecimal getAmountPaid() {
+		return amountPaid;
+	}
+	public void setAmountPaid(BigDecimal amountPaid) {
+		this.amountPaid = amountPaid;
 	}
 }
