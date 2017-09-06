@@ -47,7 +47,7 @@ public class InvoicePaymentsController {
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Returns list of payments", notes = "Used to retreive list of payments against company", responseContainer = "java.lang.String")
 	public List<Payment> list(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @QueryParam("mapping") boolean mapping, @QueryParam("bankAccountID") String bankAccountID ) {
-		if(mapping){
+		if(!mapping && bankAccountID!= null){
 		return PaymentService.getInstance().getunmappedPayments(companyID, bankAccountID);
 		}
 		else{
