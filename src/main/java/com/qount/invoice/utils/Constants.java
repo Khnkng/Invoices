@@ -95,4 +95,6 @@ public class Constants {
 	public static final String ON_DUE_DATE_THEN_WEEKLY_AFTERWARD = "on due date,then weekly afterward";
 	public static final String WEEKLY_START_TWO_WEEKS_BEFORE_DUE = "weekly start two weeks before due";
 	public static final String WEEKLY_UNTIL_PAID = "weekly until paid";
+	public static final String ENCRYPT_PREFIX = "qount us to be accounted";
+	public static final SimpleDateFormat TIME_STATMP_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 }

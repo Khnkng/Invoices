@@ -27,6 +27,7 @@ import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.LTMUtils;
 import com.qount.invoice.utils.ResponseUtil;
+import com.qount.invoice.utils.Utilities;
 
 /**
  * 
@@ -157,6 +158,7 @@ public class InvoiceDetailControllerImpl {
 			invoice.setAmount_paid(invoice.getAmount_paid()+amountPaidInDollar);
 			if (invoice.getAmount_paid() == invoice.getAmount()) {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
+				Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
 				invoice.setAmount_due(0);
 			} else {
 				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);

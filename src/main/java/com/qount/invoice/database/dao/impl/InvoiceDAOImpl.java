@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.model.Coa;
-import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.CustomerContactDetails;
@@ -285,7 +284,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		Invoice invoice = null;
 		Customer customer = null;
 		CustomerContactDetails customerContactDetails = null;
-		Company company = null;
 		List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -301,11 +299,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice = new Invoice();
 						customer = new Customer();
 						customerContactDetails = new CustomerContactDetails();
-						company = new Company();
 						invoice.setCustomer(customer);
 						invoice.setInvoiceLines(invoiceLines);
 						invoice.setCustomerContactDetails(customerContactDetails);
-						invoice.setCompany(company);
 					}
 					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("il_id"));
@@ -346,6 +342,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
 							invoice.setRemainder_name(rset.getString("remainder_name"));
+							invoice.setRemainder_job_id(rset.getString("remainder_job_id"));
 							invoice.setTax_amount(rset.getDouble("tax_amount"));
 							invoice.setPayment_method(rset.getString("payment_method"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
@@ -407,20 +404,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							customerContactDetails.setMobile(rset.getString("ccd_mobile"));
 							customerContactDetails.setEmail(rset.getString("ccd_email"));
 							customerContactDetails.setOther(rset.getString("ccd_other"));
-							company.setActive(rset.getBoolean("com_active"));
-							company.setId(rset.getString("com_id"));
-							company.setName(rset.getString("com_name"));
-							company.setAddress(rset.getString("com_address"));
-							company.setCity(rset.getString("com_city"));
-							company.setContact_first_name(rset.getString("com_contact_first_name"));
-							company.setContact_last_name(rset.getString("com_contact_last_name"));
-							company.setCurrency(rset.getString("com_currency"));
-							company.setEin(rset.getString("com_ein"));
-							company.setEmail(rset.getString("com_email"));
-							company.setCountry(rset.getString("com_country"));
-							company.setPhone_number(rset.getString("com_phone_number"));
-							company.setState(rset.getString("com_state"));
-							company.setZipcode(rset.getString("com_zipcode"));
 							invoice.setCurrencies(currencies_2);
 
 						}

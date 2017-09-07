@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -37,7 +38,7 @@ public class HTTPClient {
 		try {
 			HttpPost post = new HttpPost(url);
 			post.addHeader("Content-Type", "application/json");
-//			post.addHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
+//			post.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
 			post.setEntity(new StringEntity(payload));
 			responseEntity = HTTPCLIENT.execute(post);
 			HttpEntity entity = responseEntity.getEntity();
@@ -74,6 +75,7 @@ public class HTTPClient {
 		try {
 			HttpPost post = new HttpPost(url);
 			post.addHeader("Content-Type", "application/json");
+//			post.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
 			post.setEntity(new StringEntity(payload));
 			responseEntity = HTTPCLIENT.execute(post);
 			HttpEntity entity = responseEntity.getEntity();
@@ -105,6 +107,7 @@ public class HTTPClient {
 		JSONObject responseJSON = new JSONObject();
 		CloseableHttpResponse responseEntity = null;
 		try {
+			post.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
 			responseEntity = HTTPCLIENT.execute(post);
 			HttpEntity entity = responseEntity.getEntity();
 			int statusCode = responseEntity.getStatusLine().getStatusCode();
@@ -137,6 +140,7 @@ public class HTTPClient {
 		try {
 			HttpPut put = new HttpPut(url.replaceAll(" ", "%20"));
 			put.addHeader("Content-Type", "application/json");
+//			put.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
 			put.setEntity(new StringEntity(payload));
 			responseEntity = HTTPCLIENT.execute(put);
 			HttpEntity entity = responseEntity.getEntity();
@@ -176,6 +180,7 @@ public class HTTPClient {
 		JSONObject responseJSON = null;
 		CloseableHttpResponse responseEntity = null;
 		try {
+//			get.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
 			responseEntity = HTTPCLIENT.execute(get);
 			HttpEntity entity = responseEntity.getEntity();
 			StringWriter writer = new StringWriter();
@@ -210,6 +215,7 @@ public class HTTPClient {
 		CloseableHttpResponse responseEntity = null;
 		try {
 			HttpGet get = new HttpGet(url);
+//			get.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
 			responseEntity = HTTPCLIENT.execute(get);
 			HttpEntity entity = responseEntity.getEntity();
 			StringWriter writer = new StringWriter();
@@ -232,6 +238,38 @@ public class HTTPClient {
 			}
 		}
 		return responseJSON;
+	}
+
+	/**
+	 * 
+	 * @param get
+	 * @return
+	 */
+	public static String delete(String url) {
+		String response = null;
+		CloseableHttpResponse responseEntity = null;
+		try {
+			HttpDelete delete = new HttpDelete(url);
+//			delete.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
+			responseEntity = HTTPCLIENT.execute(delete);
+			HttpEntity entity = responseEntity.getEntity();
+			StringWriter writer = new StringWriter();
+			IOUtils.copy(entity.getContent(), writer);
+			EntityUtils.consume(entity);
+			response = writer.toString();
+			return response;
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("Error calling service", e);
+		} finally {
+			if (responseEntity != null) {
+				try {
+					responseEntity.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return response;
 	}
 
 }

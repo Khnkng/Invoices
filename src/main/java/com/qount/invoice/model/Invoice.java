@@ -63,7 +63,7 @@ public class Invoice {
 	private String send_to;
 	private String email_state;
 	private String payment_method;
-	private Company company;
+	private Company2 company;
 	private CustomerContactDetails customerContactDetails;
 	private double tax_amount;
 	private String journalID;
@@ -123,11 +123,11 @@ public class Invoice {
 		this.tax_amount = tax_amount;
 	}
 
-	public Company getCompany() {
+	public Company2 getCompany() {
 		return company;
 	}
 
-	public void setCompany(Company company) {
+	public void setCompany(Company2 company) {
 		this.company = company;
 	}
 

@@ -13,6 +13,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.qount.invoice.clients.httpClient.HTTPClient;
+import com.qount.invoice.common.PropertyManager;
+
 public class Utilities {
 
 	private static final Logger LOGGER = Logger.getLogger(Utilities.class);
@@ -30,6 +33,8 @@ public class Utilities {
 			String internalLinkingAddress = null, internalLinkingPort = null;
 			internalLinkingAddress = System.getenv(hostName);
 			internalLinkingPort = System.getenv(portName);
+			LOGGER.debug("internalLinkingAddress:"+internalLinkingAddress);
+			LOGGER.debug("internalLinkingPort:"+internalLinkingPort);
 			if (!StringUtils.isBlank(internalLinkingAddress) && !StringUtils.isBlank(internalLinkingPort)) {
 				path = "http://" + internalLinkingAddress + ":" + internalLinkingPort + "/";
 			}
@@ -39,7 +44,7 @@ public class Utilities {
 		}
 		return null;
 	}
-	
+
 	public static String getCurrencySymbol(String currencyCode) {
 		String symbol = null;
 		try {
@@ -65,14 +70,13 @@ public class Utilities {
 		}
 		return symbol;
 	}
-	
-	
+
 	public static String getCurrencyHtmlSymbol(String currencyHtmlSymbol) {
 		try {
 			if (StringUtils.isNotBlank(currencyHtmlSymbol)) {
-				if(currencyHtmlSymbol.contains(",")){
+				if (currencyHtmlSymbol.contains(",")) {
 					return currencyHtmlSymbol.split(",")[0];
-				}else{
+				} else {
 					return currencyHtmlSymbol;
 				}
 			}
@@ -81,8 +85,8 @@ public class Utilities {
 		}
 		return "";
 	}
-	
-	public static String convertDate(String dateFrom, SimpleDateFormat dateFromFormat, SimpleDateFormat dateToFormat){
+
+	public static String convertDate(String dateFrom, SimpleDateFormat dateFromFormat, SimpleDateFormat dateToFormat) {
 		try {
 			return dateToFormat.format(dateFromFormat.parse(dateFrom));
 		} catch (Exception e) {
@@ -90,20 +94,37 @@ public class Utilities {
 		}
 		return null;
 	}
-	
-	public static void throwPreExceptionForEmptyString(String...strings){
-		if(strings == null || strings.length==0){
+
+	public static void throwPreExceptionForEmptyString(String... strings) {
+		if (strings == null || strings.length == 0) {
 			throw new WebApplicationException(Constants.PRECONDITION_FAILED_STR);
 		}
-		for(String str:strings){
-			if(StringUtils.isEmpty(str)){
+		for (String str : strings) {
+			if (StringUtils.isEmpty(str)) {
 				throw new WebApplicationException(Constants.PRECONDITION_FAILED_STR);
 			}
 		}
 	}
-	
+
 	public static void main(String[] args) {
-		throwPreExceptionForEmptyString("mateen",null,null,null);
+		throwPreExceptionForEmptyString("mateen", null, null, null);
 	}
 
+	public static String unschduleInvoiceJob(String jobId) {
+		try {
+			LOGGER.debug("entered unscheduling job: " + jobId );
+			if(StringUtils.isEmpty(jobId)){
+				return null;
+			}
+			LOGGER.debug("unscheduling job: " + jobId );
+			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"), PropertyManager.getProperty("remainder.service.docker.port"));
+			LOGGER.debug("unscheduling job url:" + remainderServieUrl);
+			remainderServieUrl += "RemainderService/mail/unschedule/" + jobId;
+			String result = HTTPClient.delete(remainderServieUrl);
+			LOGGER.debug("unscheduling result:" + result);
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+		}
+		return null;
+	}
 }

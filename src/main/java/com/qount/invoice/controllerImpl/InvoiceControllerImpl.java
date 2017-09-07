@@ -23,6 +23,7 @@ import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
@@ -60,17 +61,13 @@ public class InvoiceControllerImpl {
 			if (invoiceExists) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
-			// boolean isCompanyRegistered =
-			// MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection,
-			// companyID);
-			// if (!isCompanyRegistered) {
-			// throw new
-			// WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
-			// }
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
 				jobId = getJobId(invoice);
+				if(StringUtils.isNotBlank(jobId) && invoice.isSendMail()){
+					invoice.setState(Constants.INVOICE_STATE_SENT);
+				}
 				invoice.setRemainder_job_id(jobId);
 			}
 			if (invoice.isSendMail() && StringUtils.isEmpty(invoice.getRemainder_job_id())) {
@@ -80,7 +77,9 @@ public class InvoiceControllerImpl {
 					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
 				}
 			} else {
-				invoice.setState(Constants.INVOICE_STATE_DRAFT);
+				if(StringUtils.isBlank(invoice.getState())){
+					invoice.setState(Constants.INVOICE_STATE_DRAFT);
+				}
 			}
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
@@ -121,13 +120,15 @@ public class InvoiceControllerImpl {
 
 	private static String getJobId(Invoice invoice) {
 		try {
+			LOGGER.debug("entered getJobId invoice:"+invoice);
 			if (invoice == null || StringUtils.isBlank(invoice.getRemainder_name())) {
 				return null;
 			}
-			String remainderServieUrl = Utilities.getLtmUrl("remainder.service.docker.hostname", "remainder.service.docker.port");
-			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
+			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"), PropertyManager.getProperty("remainder.service.docker.port"));
+//			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
 			// remainderServieUrl = "http://localhost:8080/";
 			remainderServieUrl += "RemainderService/mail/schedule";
+			LOGGER.debug("remainderServieUrl::"+remainderServieUrl);
 			JSONObject remainderJsonObject = new JSONObject();
 			if (invoice.getRemainder_name().equalsIgnoreCase(Constants.ON_DUE_DATE_THEN_WEEKLY_AFTERWARD)
 					|| invoice.getRemainder_name().equalsIgnoreCase(Constants.WEEKLY_UNTIL_PAID)) {
@@ -148,6 +149,7 @@ public class InvoiceControllerImpl {
 			remainderJsonObject.put("type", "invoice");
 			remainderJsonObject.put("number", invoice.getNumber());
 			remainderJsonObject.put("amount", invoice.getAmount());
+			LOGGER.debug("remainderJsonObject::"+remainderJsonObject);
 			// remainderJsonObject.put("startDate",invoice.getRemainder().getDate());
 			Object jobIdObj = HTTPClient.postObject(remainderServieUrl, remainderJsonObject.toString());
 			return jobIdObj.toString();
@@ -156,6 +158,8 @@ public class InvoiceControllerImpl {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("error creating job id", e);
+		}finally{
+			LOGGER.debug("exited getJobId invoice:"+invoice);
 		}
 		return null;
 	}
@@ -379,6 +383,17 @@ public class InvoiceControllerImpl {
 			payments.add(line);
 			payment.setPaymentLines(payments);
 			invoice.setAmount_due(dbInvoice.getAmount() - (dbInvoice.getAmount_paid() + invoice.getAmount()));
+			LOGGER.debug("*********************************************");
+			LOGGER.debug("invoice due amount::"+invoice.getAmount_due());
+			LOGGER.debug("dbInvoice::"+dbInvoice);
+			LOGGER.debug("dbInvoice job id::"+dbInvoice.getRemainder_job_id());
+			LOGGER.debug("*********************************************");
+			if(invoice.getAmount_due()==0.0){
+				LOGGER.debug("amount due is 0");
+				invoice.setState(Constants.INVOICE_STATE_PAID);
+				//unscheduling invoice jobs if any
+				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
+			}
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
 				connection.commit();
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
@@ -434,6 +449,8 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Invoice result = InvoiceParser.convertTimeStampToString(MySQLManager.getInvoiceDAOInstance().get(invoiceID));
+			Company2 company2 = CommonUtils.retrieveCompany(result.getUser_id(), result.getCompany_id());
+			result.setCompany(company2);
 			InvoiceParser.convertAmountToDecimal(result);
 			LOGGER.debug("getInvoice result:" + result);
 			return result;
@@ -578,10 +595,6 @@ public class InvoiceControllerImpl {
 		return false;
 	}
 
-	public static void main(String[] args) {
-		System.out.println(getTwoDecimalNumberAsString(21.1222));
-	}
-
 	private static String getTwoDecimalNumberAsString(double value) {
 		try {
 			String result = value + "";
@@ -673,4 +686,12 @@ public class InvoiceControllerImpl {
 		}
 	}
 
+	public static void main(String[] args) {
+		Invoice invoice = new Invoice();
+		invoice.setAmount_due(0.0d);
+		System.out.println(invoice.getAmount_due());
+		System.out.println(invoice.getAmount_due() == 0);
+		System.out.println(invoice.getAmount_due() == 0.0);
+		System.out.println(invoice.getAmount_due() == 0.0d);
+	}
 }
