@@ -77,7 +77,9 @@ public class InvoiceControllerImpl {
 					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
 				}
 			} else {
-				invoice.setState(Constants.INVOICE_STATE_DRAFT);
+				if(StringUtils.isBlank(invoice.getState())){
+					invoice.setState(Constants.INVOICE_STATE_DRAFT);
+				}
 			}
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
