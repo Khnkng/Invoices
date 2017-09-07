@@ -65,7 +65,7 @@ public class InvoiceControllerImpl {
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
 				jobId = getJobId(invoice);
-				if(StringUtils.isNotBlank(jobId)){
+				if(StringUtils.isNotBlank(jobId) && invoice.isSendMail()){
 					invoice.setState(Constants.INVOICE_STATE_SENT);
 				}
 				invoice.setRemainder_job_id(jobId);
