@@ -385,8 +385,11 @@ public class InvoiceControllerImpl {
 			invoice.setAmount_due(dbInvoice.getAmount() - (dbInvoice.getAmount_paid() + invoice.getAmount()));
 			LOGGER.debug("*********************************************");
 			LOGGER.debug("invoice due amount::"+invoice.getAmount_due());
+			LOGGER.debug("dbInvoice::"+dbInvoice);
+			LOGGER.debug("dbInvoice job id::"+dbInvoice.getRemainder_job_id());
 			LOGGER.debug("*********************************************");
-			if(invoice.getAmount_due()==0){
+			if(invoice.getAmount_due()==0.0){
+				LOGGER.debug("amount due is 0");
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				//unscheduling invoice jobs if any
 				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
