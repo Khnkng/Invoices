@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.model.Coa;
-import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Currencies;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.CustomerContactDetails;
