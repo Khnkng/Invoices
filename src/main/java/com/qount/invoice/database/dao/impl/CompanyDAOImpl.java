@@ -297,10 +297,10 @@ public class CompanyDAOImpl implements CompanyDAO {
 					company.setId(rset.getString("id"));
 					company.setName(rset.getString("name"));
 					company.setEinNumber(rset.getString("ein"));
-					company.setCompanyType(rset.getString("type"));
+//					company.setCompanyType(rset.getString("type"));
 					company.setDefaultCurrency(rset.getString("currency"));
 					company.setCompanyEmail(rset.getString("email"));
-					company.setPaymentInfo(company.getBankInfoFromString(rset.getString("payment_info")));
+//					company.setPaymentInfo(company.getBankInfoFromString(rset.getString("payment_info")));
 					company.setCreatedBy(rset.getString("createdBy"));
 					company.setModifiedBy(rset.getString("modifiedBy"));
 					company.setCreatedDate(rset.getString("createdDate"));
