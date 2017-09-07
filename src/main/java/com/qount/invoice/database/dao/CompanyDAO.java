@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 
 import com.qount.invoice.model.Company;
+import com.qount.invoice.model.Company2;
 
 public interface CompanyDAO {
 
@@ -23,4 +24,6 @@ public interface CompanyDAO {
 	 * @return
 	 */
 	boolean isCompanyRegisteredWithPaymentSpring(Connection conn,String companyId);
+	
+	public Company2 retrieveCompany(String companyID);
 }
