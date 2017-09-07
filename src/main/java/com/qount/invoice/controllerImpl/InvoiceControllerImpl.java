@@ -378,6 +378,9 @@ public class InvoiceControllerImpl {
 			payments.add(line);
 			payment.setPaymentLines(payments);
 			invoice.setAmount_due(dbInvoice.getAmount() - (dbInvoice.getAmount_paid() + invoice.getAmount()));
+			LOGGER.debug("*********************************************");
+			LOGGER.debug("invoice due amount::"+invoice.getAmount_due());
+			LOGGER.debug("*********************************************");
 			if(invoice.getAmount_due()==0){
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				//unscheduling invoice jobs if any
