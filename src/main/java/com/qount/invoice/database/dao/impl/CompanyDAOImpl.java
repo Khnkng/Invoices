@@ -12,7 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.CompanyDAO;
+import com.qount.invoice.model.Address;
 import com.qount.invoice.model.Company;
+import com.qount.invoice.model.Company2;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
@@ -273,4 +275,66 @@ public class CompanyDAOImpl implements CompanyDAO {
 		return false;
 	}
 
+	@Override
+	public Company2 retrieveCompany(String companyID) {
+		if (StringUtils.isBlank(companyID)) {
+			return null;
+		}
+		Company2 company = null;
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		long startTime = System.currentTimeMillis();
+		Connection conn = null;
+		try {
+			conn = DatabaseUtilities.getReadConnection();
+			if (conn != null) {
+				pstmt = conn.prepareStatement(SqlQuerys.Company.RETRIEVE_BY_ID_QRY);
+				pstmt.setString(1, companyID);
+				rset = pstmt.executeQuery();
+				company = new Company2();
+				List<Address> adrsList = new ArrayList<>();
+				while (rset != null && rset.next()) {
+					company.setId(rset.getString("id"));
+					company.setName(rset.getString("name"));
+					company.setEinNumber(rset.getString("ein"));
+					company.setCompanyType(rset.getString("type"));
+					company.setDefaultCurrency(rset.getString("currency"));
+					company.setCompanyEmail(rset.getString("email"));
+					company.setPaymentInfo(company.getBankInfoFromString(rset.getString("payment_info")));
+					company.setCreatedBy(rset.getString("createdBy"));
+					company.setModifiedBy(rset.getString("modifiedBy"));
+					company.setCreatedDate(rset.getString("createdDate"));
+					company.setModifiedDate(rset.getString("modifiedDate"));
+					Address adrs = new Address();
+					adrs.setAddress_id(rset.getString("address_id"));
+					adrs.setSource_id(rset.getString("source_id"));
+					adrs.setCountry(rset.getString("country"));
+					adrs.setState(rset.getString("state"));
+					adrs.setCity(rset.getString("city"));
+					adrs.setZipcode(rset.getString("zipcode"));
+					adrs.setPincode(rset.getString("pincode"));
+					adrs.setPhone_number(rset.getString("phone_number"));
+					adrs.setLine(rset.getString("line"));
+					adrs.setStateCode(rset.getString("state_code"));
+					if (!adrsList.contains(adrs)) {
+						adrsList.add(adrs);
+					}
+				}
+				company.setAddresses(adrsList);
+				if (company.getId() == null) {
+					company = null;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving companies", e);
+			throw new WebApplicationException(e);
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(conn);
+			LOGGER.debug("execution time of CompaniesDAOImpl.retrieveCompany = " + (System.currentTimeMillis() - startTime) + " in mili seconds  CompanyID :" + companyID );
+			System.out.println((System.currentTimeMillis() - startTime));
+		}
+		return company;
+	}
 }

@@ -21,7 +21,9 @@ import org.json.JSONObject;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.clients.httpClient.JerseyClient;
+import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.UserCompany;
 import com.qount.jwt.JWTTokenService;
 
@@ -173,14 +175,29 @@ public class CommonUtils {
 		System.out.println("path = " + path);
 		LOGGER.debug("path = " + path);
 		String token = new JWTTokenService().generate(companyID);
-		Response responseEntity = ClientBuilder.newClient().target(path).request().header("token", token)
-				.accept(MediaType.APPLICATION_JSON).get();
+		Response responseEntity = ClientBuilder.newClient().target(path).request().header("token", token).accept(MediaType.APPLICATION_JSON).get();
 		String response = responseEntity.readEntity(String.class);
 		if (StringUtils.isBlank(response)) {
 			LOGGER.error("invalid company companyID [ " + companyID + " ]");
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Invalid Company", Status.PRECONDITION_FAILED));
 		}
 		return Constants.GSON.fromJson(response, UserCompany.class);
+	}
+
+	public static Company2 retrieveCompany(String userId, String companyID) {
+		try {
+			String hostVaribale = "half.service.docker.hostname";
+			String portVariable = "half.service.docker.port";
+			String GTMVariable = "oneapp.base.url";
+			String url = LTMUtils.getHostAddress(hostVaribale, portVariable, GTMVariable);
+			url += "HalfService/user/{userId}/companies2/{companyId}";
+			url = url.replace("{userId}", userId).replace("{companyId}", companyID);
+			JSONObject responseJSON = HTTPClient.get(url);
+			return Constants.GSON.fromJson(responseJSON.toString(), Company2.class);
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+		}
+		return null;
 	}
 
 	public static String convertDate(String sourceDate, SimpleDateFormat sourceDateFormat, SimpleDateFormat resultDateFormat) {
@@ -191,7 +208,7 @@ public class CommonUtils {
 		}
 		return null;
 	}
-	
+
 	public static Date getDate(String sourceDate, SimpleDateFormat sourceDateFormat) {
 		try {
 			return sourceDateFormat.parse(sourceDate);
@@ -290,8 +307,8 @@ public class CommonUtils {
 			LOGGER.debug("path = " + path);
 			LOGGER.debug("payload = " + payload);
 			String token = new JWTTokenService().generate(companyID);
-			Response responseEntity = ClientBuilder.newClient().target(path).request().header("token", token)
-					.accept(MediaType.APPLICATION_JSON).post(Entity.entity(payload, MediaType.APPLICATION_JSON));
+			Response responseEntity = ClientBuilder.newClient().target(path).request().header("token", token).accept(MediaType.APPLICATION_JSON)
+					.post(Entity.entity(payload, MediaType.APPLICATION_JSON));
 			String responseString = responseEntity.readEntity(String.class);
 			LOGGER.debug("responseString = " + responseString);
 			if (StringUtils.isBlank(responseString)) {
@@ -363,4 +380,8 @@ public class CommonUtils {
 		}
 	}
 
+	public static void main(String[] args) {
+		String token = new JWTTokenService().generate("4b5195e9-e4b5-476b-89f7-296fbecd5afa");
+		System.out.println(token);
+	}
 }

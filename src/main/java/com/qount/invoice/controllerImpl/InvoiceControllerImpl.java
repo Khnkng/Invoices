@@ -23,6 +23,7 @@ import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
@@ -34,6 +35,7 @@ import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.DateUtils;
+import com.qount.invoice.utils.LTMUtils;
 import com.qount.invoice.utils.ResponseUtil;
 import com.qount.invoice.utils.Utilities;
 
@@ -434,6 +436,8 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Invoice result = InvoiceParser.convertTimeStampToString(MySQLManager.getInvoiceDAOInstance().get(invoiceID));
+			Company2 company2 = CommonUtils.retrieveCompany(result.getUser_id(), result.getCompany_id());
+			result.setCompany(company2);
 			InvoiceParser.convertAmountToDecimal(result);
 			LOGGER.debug("getInvoice result:" + result);
 			return result;
