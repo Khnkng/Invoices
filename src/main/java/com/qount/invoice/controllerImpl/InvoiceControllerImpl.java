@@ -35,7 +35,6 @@ import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.DateUtils;
-import com.qount.invoice.utils.LTMUtils;
 import com.qount.invoice.utils.ResponseUtil;
 import com.qount.invoice.utils.Utilities;
 
@@ -62,13 +61,6 @@ public class InvoiceControllerImpl {
 			if (invoiceExists) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
-			// boolean isCompanyRegistered =
-			// MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection,
-			// companyID);
-			// if (!isCompanyRegistered) {
-			// throw new
-			// WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"));
-			// }
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
@@ -127,7 +119,7 @@ public class InvoiceControllerImpl {
 				return null;
 			}
 			String remainderServieUrl = Utilities.getLtmUrl("remainder.service.docker.hostname", "remainder.service.docker.port");
-			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
+//			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
 			// remainderServieUrl = "http://localhost:8080/";
 			remainderServieUrl += "RemainderService/mail/schedule";
 			JSONObject remainderJsonObject = new JSONObject();
@@ -381,6 +373,11 @@ public class InvoiceControllerImpl {
 			payments.add(line);
 			payment.setPaymentLines(payments);
 			invoice.setAmount_due(dbInvoice.getAmount() - (dbInvoice.getAmount_paid() + invoice.getAmount()));
+			if(invoice.getAmount_due()==0){
+				invoice.setState(Constants.INVOICE_STATE_PAID);
+				//unscheduling invoice jobs if any
+				Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
+			}
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
 				connection.commit();
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
