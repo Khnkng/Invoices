@@ -32,6 +32,8 @@ public class Utilities {
 			String internalLinkingAddress = null, internalLinkingPort = null;
 			internalLinkingAddress = System.getenv(hostName);
 			internalLinkingPort = System.getenv(portName);
+			System.out.println("internalLinkingAddress:"+internalLinkingAddress);
+			System.out.println("internalLinkingPort:"+internalLinkingPort);
 			if (!StringUtils.isBlank(internalLinkingAddress) && !StringUtils.isBlank(internalLinkingPort)) {
 				path = "http://" + internalLinkingAddress + ":" + internalLinkingPort + "/";
 			}

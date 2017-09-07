@@ -115,6 +115,7 @@ public class InvoiceControllerImpl {
 
 	private static String getJobId(Invoice invoice) {
 		try {
+			LOGGER.debug("entered getJobId invoice:"+invoice);
 			if (invoice == null || StringUtils.isBlank(invoice.getRemainder_name())) {
 				return null;
 			}
@@ -122,6 +123,7 @@ public class InvoiceControllerImpl {
 //			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
 			// remainderServieUrl = "http://localhost:8080/";
 			remainderServieUrl += "RemainderService/mail/schedule";
+			System.out.println("remainderServieUrl::"+remainderServieUrl);
 			JSONObject remainderJsonObject = new JSONObject();
 			if (invoice.getRemainder_name().equalsIgnoreCase(Constants.ON_DUE_DATE_THEN_WEEKLY_AFTERWARD)
 					|| invoice.getRemainder_name().equalsIgnoreCase(Constants.WEEKLY_UNTIL_PAID)) {
@@ -142,6 +144,7 @@ public class InvoiceControllerImpl {
 			remainderJsonObject.put("type", "invoice");
 			remainderJsonObject.put("number", invoice.getNumber());
 			remainderJsonObject.put("amount", invoice.getAmount());
+			System.out.println("remainderJsonObject::"+remainderJsonObject);
 			// remainderJsonObject.put("startDate",invoice.getRemainder().getDate());
 			Object jobIdObj = HTTPClient.postObject(remainderServieUrl, remainderJsonObject.toString());
 			return jobIdObj.toString();
@@ -150,6 +153,8 @@ public class InvoiceControllerImpl {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("error creating job id", e);
+		}finally{
+			LOGGER.debug("exited getJobId invoice:"+invoice);
 		}
 		return null;
 	}
