@@ -119,7 +119,7 @@ public class InvoiceControllerImpl {
 			if (invoice == null || StringUtils.isBlank(invoice.getRemainder_name())) {
 				return null;
 			}
-			String remainderServieUrl = Utilities.getLtmUrl("remainder.service.docker.hostname", "remainder.service.docker.port");
+			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"), PropertyManager.getProperty("remainder.service.docker.port"));
 //			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
 			// remainderServieUrl = "http://localhost:8080/";
 			remainderServieUrl += "RemainderService/mail/schedule";
