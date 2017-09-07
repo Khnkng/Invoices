@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import com.qount.invoice.clients.httpClient.HTTPClient;
+import com.qount.invoice.common.PropertyManager;
 
 public class Utilities {
 
@@ -32,8 +33,8 @@ public class Utilities {
 			String internalLinkingAddress = null, internalLinkingPort = null;
 			internalLinkingAddress = System.getenv(hostName);
 			internalLinkingPort = System.getenv(portName);
-			System.out.println("internalLinkingAddress:"+internalLinkingAddress);
-			System.out.println("internalLinkingPort:"+internalLinkingPort);
+			LOGGER.debug("internalLinkingAddress:"+internalLinkingAddress);
+			LOGGER.debug("internalLinkingPort:"+internalLinkingPort);
 			if (!StringUtils.isBlank(internalLinkingAddress) && !StringUtils.isBlank(internalLinkingPort)) {
 				path = "http://" + internalLinkingAddress + ":" + internalLinkingPort + "/";
 			}
@@ -115,7 +116,7 @@ public class Utilities {
 				return null;
 			}
 			LOGGER.debug("unscheduling job: " + jobId );
-			String remainderServieUrl = Utilities.getLtmUrl("remainder.service.docker.hostname", "remainder.service.docker.port");
+			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"), PropertyManager.getProperty("remainder.service.docker.port"));
 			LOGGER.debug("unscheduling job url:" + remainderServieUrl);
 			remainderServieUrl += "RemainderService/mail/unschedule/" + jobId;
 			String result = HTTPClient.delete(remainderServieUrl);

@@ -123,7 +123,7 @@ public class InvoiceControllerImpl {
 //			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
 			// remainderServieUrl = "http://localhost:8080/";
 			remainderServieUrl += "RemainderService/mail/schedule";
-			System.out.println("remainderServieUrl::"+remainderServieUrl);
+			LOGGER.debug("remainderServieUrl::"+remainderServieUrl);
 			JSONObject remainderJsonObject = new JSONObject();
 			if (invoice.getRemainder_name().equalsIgnoreCase(Constants.ON_DUE_DATE_THEN_WEEKLY_AFTERWARD)
 					|| invoice.getRemainder_name().equalsIgnoreCase(Constants.WEEKLY_UNTIL_PAID)) {
@@ -144,7 +144,7 @@ public class InvoiceControllerImpl {
 			remainderJsonObject.put("type", "invoice");
 			remainderJsonObject.put("number", invoice.getNumber());
 			remainderJsonObject.put("amount", invoice.getAmount());
-			System.out.println("remainderJsonObject::"+remainderJsonObject);
+			LOGGER.debug("remainderJsonObject::"+remainderJsonObject);
 			// remainderJsonObject.put("startDate",invoice.getRemainder().getDate());
 			Object jobIdObj = HTTPClient.postObject(remainderServieUrl, remainderJsonObject.toString());
 			return jobIdObj.toString();
@@ -584,10 +584,6 @@ public class InvoiceControllerImpl {
 		return false;
 	}
 
-	public static void main(String[] args) {
-		System.out.println(getTwoDecimalNumberAsString(21.1222));
-	}
-
 	private static String getTwoDecimalNumberAsString(double value) {
 		try {
 			String result = value + "";
@@ -679,4 +675,8 @@ public class InvoiceControllerImpl {
 		}
 	}
 
+	public static void main(String[] args) {
+		String startDate = CommonUtils.convertDate("2017-10-22 00:00:00.0", Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+		System.out.println(startDate);
+	}
 }
