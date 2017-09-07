@@ -342,6 +342,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setId(rset.getString("id"));
 							invoice.setRemainder_name(rset.getString("remainder_name"));
+							invoice.setRemainder_job_id(rset.getString("remainder_job_id"));
 							invoice.setTax_amount(rset.getDouble("tax_amount"));
 							invoice.setPayment_method(rset.getString("payment_method"));
 							invoice.setIs_recurring(rset.getBoolean("is_recurring"));

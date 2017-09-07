@@ -112,7 +112,8 @@ public class Utilities {
 
 	public static String unschduleInvoiceJob(String jobId) {
 		try {
-			if(StringUtils.isBlank(jobId)){
+			LOGGER.debug("entered unscheduling job: " + jobId );
+			if(StringUtils.isEmpty(jobId)){
 				return null;
 			}
 			LOGGER.debug("unscheduling job: " + jobId );
