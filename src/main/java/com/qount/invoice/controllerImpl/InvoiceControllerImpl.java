@@ -65,6 +65,9 @@ public class InvoiceControllerImpl {
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
 				jobId = getJobId(invoice);
+				if(StringUtils.isNotBlank(jobId)){
+					invoice.setState(Constants.INVOICE_STATE_SENT);
+				}
 				invoice.setRemainder_job_id(jobId);
 			}
 			if (invoice.isSendMail() && StringUtils.isEmpty(invoice.getRemainder_job_id())) {
@@ -384,7 +387,7 @@ public class InvoiceControllerImpl {
 			if(invoice.getAmount_due()==0){
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				//unscheduling invoice jobs if any
-				Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
+				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
 			}
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
 				connection.commit();
@@ -679,7 +682,11 @@ public class InvoiceControllerImpl {
 	}
 
 	public static void main(String[] args) {
-		String startDate = CommonUtils.convertDate("2017-10-22 00:00:00.0", Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-		System.out.println(startDate);
+		Invoice invoice = new Invoice();
+		invoice.setAmount_due(0.0d);
+		System.out.println(invoice.getAmount_due());
+		System.out.println(invoice.getAmount_due() == 0);
+		System.out.println(invoice.getAmount_due() == 0.0);
+		System.out.println(invoice.getAmount_due() == 0.0d);
 	}
 }
