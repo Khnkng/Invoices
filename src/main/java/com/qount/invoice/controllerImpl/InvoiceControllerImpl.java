@@ -72,12 +72,14 @@ public class InvoiceControllerImpl {
 			}
 			if (invoice.isSendMail() && StringUtils.isEmpty(invoice.getRemainder_job_id())) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					invoice.setState(Constants.INVOICE_STATE_SENT);
+					if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) || invoice.getState().equals(Constants.INVOICE_STATE_SENT)){
+						invoice.setState(Constants.INVOICE_STATE_SENT);
+					}
 				} else {
 					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
 				}
 			} else {
-				if(StringUtils.isBlank(invoice.getState())){
+				if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) ){
 					invoice.setState(Constants.INVOICE_STATE_DRAFT);
 				}
 			}
@@ -185,12 +187,16 @@ public class InvoiceControllerImpl {
 					if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)){
 						return InvoiceParser.convertTimeStampToString(dbInvoice);
 					}
-					invoice.setState(Constants.INVOICE_STATE_SENT);
+					if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) || invoice.getState().equals(Constants.INVOICE_STATE_SENT)){
+						invoice.setState(Constants.INVOICE_STATE_SENT);
+					}
 				} else {
 					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
 				}
 			} else {
-				invoice.setState(Constants.INVOICE_STATE_DRAFT);
+				if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) ){
+					invoice.setState(Constants.INVOICE_STATE_DRAFT);
+				}
 			}
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
