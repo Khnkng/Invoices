@@ -599,7 +599,7 @@ public class InvoiceControllerImpl {
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
 			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
-			String amount = getTwoDecimalNumberAsString(invoice.getAmount());
+			String amount = getTwoDecimalNumberAsString(invoice.getAmount_due());
 			template = template.replace("{{invoice number}}", StringUtils.isBlank(invoice.getNumber()) ? "" : invoice.getNumber())
 					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName()) ? "" : invoice.getCompanyName()).replace("{{amount}}", currency + amount)
 					.replace("{{due date}}", StringUtils.isEmpty(dueDate) ? "" : dueDate).replace("${invoiceLinkUrl}", invoiceLinkUrl)
