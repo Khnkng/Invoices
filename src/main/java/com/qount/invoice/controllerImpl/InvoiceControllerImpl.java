@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +25,7 @@ import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Company2;
+import com.qount.invoice.model.CustomerContactDetails;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
@@ -65,21 +67,22 @@ public class InvoiceControllerImpl {
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
 				jobId = getJobId(invoice);
-				if(StringUtils.isNotBlank(jobId) && invoice.isSendMail()){
+				if (StringUtils.isNotBlank(jobId) && invoice.isSendMail()) {
 					invoice.setState(Constants.INVOICE_STATE_SENT);
 				}
 				invoice.setRemainder_job_id(jobId);
 			}
 			if (invoice.isSendMail() && StringUtils.isEmpty(invoice.getRemainder_job_id())) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) || invoice.getState().equals(Constants.INVOICE_STATE_SENT)){
+					if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
+							|| invoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
 						invoice.setState(Constants.INVOICE_STATE_SENT);
 					}
 				} else {
-					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
+					throw new WebApplicationException("error sending email", Constants.EXPECTATION_FAILED);
 				}
 			} else {
-				if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) ){
+				if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
 					invoice.setState(Constants.INVOICE_STATE_DRAFT);
 				}
 			}
@@ -122,15 +125,16 @@ public class InvoiceControllerImpl {
 
 	private static String getJobId(Invoice invoice) {
 		try {
-			LOGGER.debug("entered getJobId invoice:"+invoice);
+			LOGGER.debug("entered getJobId invoice:" + invoice);
 			if (invoice == null || StringUtils.isBlank(invoice.getRemainder_name())) {
 				return null;
 			}
-			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"), PropertyManager.getProperty("remainder.service.docker.port"));
+			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
+					PropertyManager.getProperty("remainder.service.docker.port"));
 //			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
 			// remainderServieUrl = "http://localhost:8080/";
 			remainderServieUrl += "RemainderService/mail/schedule";
-			LOGGER.debug("remainderServieUrl::"+remainderServieUrl);
+			LOGGER.debug("remainderServieUrl::" + remainderServieUrl);
 			JSONObject remainderJsonObject = new JSONObject();
 			if (invoice.getRemainder_name().equalsIgnoreCase(Constants.ON_DUE_DATE_THEN_WEEKLY_AFTERWARD)
 					|| invoice.getRemainder_name().equalsIgnoreCase(Constants.WEEKLY_UNTIL_PAID)) {
@@ -148,10 +152,23 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.remainder.name"), 412);
 			}
 			remainderJsonObject.put("emails", invoice.getRecepientsMails());
-			remainderJsonObject.put("type", "invoice");
-			remainderJsonObject.put("number", invoice.getNumber());
-			remainderJsonObject.put("amount", invoice.getAmount());
-			LOGGER.debug("remainderJsonObject::"+remainderJsonObject);
+			remainderJsonObject.put("type", Constants.INVOICE);
+			remainderJsonObject.put("subject", PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName());
+			remainderJsonObject.put("mailBodyContentType", PropertyManager.getProperty("invoice.mailBodyContentType"));
+			String mail_body = PropertyManager.getProperty("invoice.remainder.mail.template");
+			String amount_due = invoice.getAmount_due()+"";
+			String due_date = CommonUtils.convertDate(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
+			mail_body = mail_body.replace("{{firstName}}", invoice.getCustomerContactDetails().getFirst_name())
+			.replace("{{lastName}}", invoice.getCustomerContactDetails().getLast_name())
+			.replace("{{invoice number}}", invoice.getNumber())
+			.replace("{{amount}}", amount_due)
+			.replace("{{dueDays}}", due_date)
+			.replace("${invoiceLinkUrl}", invoiceLinkUrl)
+			.replace("${qountLinkUrl}",  PropertyManager.getProperty("qount.url"));
+			remainderJsonObject.put("mail_body", mail_body);
+			System.out.println(remainderJsonObject);
+			LOGGER.debug("remainderJsonObject::" + remainderJsonObject);
 			// remainderJsonObject.put("startDate",invoice.getRemainder().getDate());
 			Object jobIdObj = HTTPClient.postObject(remainderServieUrl, remainderJsonObject.toString());
 			return jobIdObj.toString();
@@ -160,8 +177,8 @@ public class InvoiceControllerImpl {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("error creating job id", e);
-		}finally{
-			LOGGER.debug("exited getJobId invoice:"+invoice);
+		} finally {
+			LOGGER.debug("exited getJobId invoice:" + invoice);
 		}
 		return null;
 	}
@@ -183,25 +200,27 @@ public class InvoiceControllerImpl {
 			}
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					//if invoice is paid then sending email and returning response
-					if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)){
+					// if invoice is paid then sending email and returning
+					// response
+					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 						return InvoiceParser.convertTimeStampToString(dbInvoice);
 					}
-					if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) || invoice.getState().equals(Constants.INVOICE_STATE_SENT)){
+					if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
+							|| invoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
 						invoice.setState(Constants.INVOICE_STATE_SENT);
 					}
 				} else {
-					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
+					throw new WebApplicationException("error sending email", Constants.EXPECTATION_FAILED);
 				}
 			} else {
-				if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) ){
+				if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
 					invoice.setState(Constants.INVOICE_STATE_DRAFT);
 				}
 			}
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
 			}
-			if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)){
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 				if (invoice.getAmount() < dbInvoice.getAmount_paid()) {
 					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.less.than.paid.amount"), 412);
 				}
@@ -220,7 +239,7 @@ public class InvoiceControllerImpl {
 					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
 				}
 			}
-			
+
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
@@ -390,14 +409,14 @@ public class InvoiceControllerImpl {
 			payment.setPaymentLines(payments);
 			invoice.setAmount_due(dbInvoice.getAmount() - (dbInvoice.getAmount_paid() + invoice.getAmount()));
 			LOGGER.debug("*********************************************");
-			LOGGER.debug("invoice due amount::"+invoice.getAmount_due());
-			LOGGER.debug("dbInvoice::"+dbInvoice);
-			LOGGER.debug("dbInvoice job id::"+dbInvoice.getRemainder_job_id());
+			LOGGER.debug("invoice due amount::" + invoice.getAmount_due());
+			LOGGER.debug("dbInvoice::" + dbInvoice);
+			LOGGER.debug("dbInvoice job id::" + dbInvoice.getRemainder_job_id());
 			LOGGER.debug("*********************************************");
-			if(invoice.getAmount_due()==0.0){
+			if (invoice.getAmount_due() == 0.0) {
 				LOGGER.debug("amount due is 0");
 				invoice.setState(Constants.INVOICE_STATE_PAID);
-				//unscheduling invoice jobs if any
+				// unscheduling invoice jobs if any
 				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
 			}
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
@@ -694,10 +713,18 @@ public class InvoiceControllerImpl {
 
 	public static void main(String[] args) {
 		Invoice invoice = new Invoice();
-		invoice.setAmount_due(0.0d);
-		System.out.println(invoice.getAmount_due());
-		System.out.println(invoice.getAmount_due() == 0);
-		System.out.println(invoice.getAmount_due() == 0.0);
-		System.out.println(invoice.getAmount_due() == 0.0d);
+		invoice.setCompanyName("ddss");
+		invoice.setRecepientsMails(Arrays.asList("mateen.khan@qount.io"));
+		invoice.setRemainder_name("on due date,then weekly afterward");
+		invoice.setDue_date("2017-09-11 10:10:10");
+		invoice.setNumber("123");
+		invoice.setAmount_due(51.0d);
+		CustomerContactDetails cust = new CustomerContactDetails();
+		cust.setFirst_name("Mateen");
+		cust.setLast_name("Khan");
+		invoice.setCustomerContactDetails(cust);
+		System.out.println(invoice);
+		System.out.println(getJobId(invoice));
+
 	}
 }
