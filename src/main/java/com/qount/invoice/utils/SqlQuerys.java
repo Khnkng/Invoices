@@ -129,6 +129,7 @@ public class SqlQuerys {
 		public static final String RETRIEVE_BY_ID_QRY = "SELECT `user_id`,`company_id`,`customer_id`,`customer_address`,`customer_city`,`customer_country`,`customer_ein`,`customer_state`,`customer_name`,`customer_zipcode`,`email_ids`,`phone_number`, `coa`, `term` FROM  company_customers WHERE `customer_id`= ? ";
 		public static final String RETRIEVE_LIST_BY_ID_QRY = "SELECT `user_id`,`company_id`,`customer_id`,`customer_address`,`customer_city`,`customer_country`,`customer_ein`,`customer_state`,`customer_name`,`customer_zipcode`,`email_ids`,`phone_number`,`coa`, `term` FROM  company_customers WHERE `user_id`= ? AND `company_id` = ?;";
 		public static final String UPDATE_PAYMENT_SPRING_QRY = "UPDATE  company_customers SET `payment_spring_id` = ? WHERE `customer_id`= ? ;";
+		public static final String GET_CUSTOMER_CONTACT_DETAIL_ID_QRY = "SELECT `id`, `customer_id`, `first_name`, `last_name`, `mobile`, `email`, `other` FROM `customer_contact_details` WHERE id = ? ";
 	}
 
 	public final class InvoicePlan {
