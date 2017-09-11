@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.CustomerDAO;
 import com.qount.invoice.model.Customer;
+import com.qount.invoice.model.CustomerContactDetails;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
@@ -214,6 +215,42 @@ public class CustomerDAOImpl implements CustomerDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			LOGGER.debug("execution time of CustomerDAOImpl.retrieveByID = " + (System.currentTimeMillis() - startTime) + " in mili seconds  Customer:" + customer);
+			System.out.println((System.currentTimeMillis() - startTime));
+		}
+		return null;
+	}
+	
+	@Override
+	public CustomerContactDetails getCustomerContactDetailsByID(Connection conn, CustomerContactDetails customerContactDetails){
+		LOGGER.debug("entered getCustomerContactDetailsByID customerContactDetails:"+customerContactDetails);
+		if (customerContactDetails == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		long startTime = System.currentTimeMillis();
+		try {
+			if (conn != null) {
+				pstmt = conn.prepareStatement(SqlQuerys.Customer.GET_CUSTOMER_CONTACT_DETAIL_ID_QRY);
+				pstmt.setString(1, customerContactDetails.getId());
+				rset = pstmt.executeQuery();
+				if (rset != null && rset.next()) {
+					customerContactDetails.setId(rset.getString("id"));
+					customerContactDetails.setCustomer_id(rset.getString("customer_id"));
+					customerContactDetails.setFirst_name(rset.getString("first_name"));
+					customerContactDetails.setLast_name(rset.getString("last_name"));
+					customerContactDetails.setMobile(rset.getString("mobile"));
+					customerContactDetails.setEmail(rset.getString("email"));
+					customerContactDetails.setOther(rset.getString("other"));
+					return customerContactDetails;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving customer", e);
+			throw new WebApplicationException(e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("execution time of CustomerDAOImpl.getCustomerContactDetailsByID = " + (System.currentTimeMillis() - startTime) + " in mili seconds  customerContactDetails:" + customerContactDetails);
 			System.out.println((System.currentTimeMillis() - startTime));
 		}
 		return null;

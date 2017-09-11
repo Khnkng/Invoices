@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -66,7 +65,7 @@ public class InvoiceControllerImpl {
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
-				jobId = getJobId(invoice);
+				jobId = getJobId(connection,invoice);
 				if (StringUtils.isNotBlank(jobId) && invoice.isSendMail()) {
 					invoice.setState(Constants.INVOICE_STATE_SENT);
 				}
@@ -123,7 +122,7 @@ public class InvoiceControllerImpl {
 
 	}
 
-	private static String getJobId(Invoice invoice) {
+	private static String getJobId(Connection conn, Invoice invoice) {
 		try {
 			LOGGER.debug("entered getJobId invoice:" + invoice);
 			if (invoice == null || StringUtils.isBlank(invoice.getRemainder_name())) {
@@ -159,6 +158,13 @@ public class InvoiceControllerImpl {
 			String amount_due = invoice.getAmount_due()+"";
 			String due_date = CommonUtils.convertDate(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
+			CustomerContactDetails contactDetails = invoice.getCustomerContactDetails() ;
+			if(contactDetails == null){
+				contactDetails = new CustomerContactDetails();
+				contactDetails.setId(invoice.getSend_to());
+				contactDetails = MySQLManager.getCustomerDAOInstance().getCustomerContactDetailsByID(conn, contactDetails);
+				invoice.setCustomerContactDetails(contactDetails);
+			}
 			mail_body = mail_body.replace("{{firstName}}", invoice.getCustomerContactDetails().getFirst_name())
 			.replace("{{lastName}}", invoice.getCustomerContactDetails().getLast_name())
 			.replace("{{invoice number}}", invoice.getNumber())
@@ -711,20 +717,4 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static void main(String[] args) {
-		Invoice invoice = new Invoice();
-		invoice.setCompanyName("ddss");
-		invoice.setRecepientsMails(Arrays.asList("mateen.khan@qount.io"));
-		invoice.setRemainder_name("on due date,then weekly afterward");
-		invoice.setDue_date("2017-09-11 10:10:10");
-		invoice.setNumber("123");
-		invoice.setAmount_due(51.0d);
-		CustomerContactDetails cust = new CustomerContactDetails();
-		cust.setFirst_name("Mateen");
-		cust.setLast_name("Khan");
-		invoice.setCustomerContactDetails(cust);
-		System.out.println(invoice);
-		System.out.println(getJobId(invoice));
-
-	}
 }
