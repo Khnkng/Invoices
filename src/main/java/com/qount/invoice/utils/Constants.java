@@ -97,4 +97,5 @@ public class Constants {
 	public static final String WEEKLY_UNTIL_PAID = "weekly until paid";
 	public static final String ENCRYPT_PREFIX = "qount us to be accounted";
 	public static final SimpleDateFormat TIME_STATMP_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+	public static final String INVOICE = "invoice";
 }
