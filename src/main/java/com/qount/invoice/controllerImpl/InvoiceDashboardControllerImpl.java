@@ -39,10 +39,11 @@ public class InvoiceDashboardControllerImpl {
 		try {
 			String query = null;
 			if (filter == null || filter.equals("receivables")) {
-
 				query = SqlQuerys.Invoice.RETRIEVE_INVOICES_FOR_DASHBOARD_RECEIVABLES_QRY;
-
+			} else if (filter.equals("past_due")) {
+				query = SqlQuerys.Invoice.RETRIEVE_INVOICES_FOR_DASHBOARD_PAST_DUE_QRY;
 			}
+
 			if (StringUtils.isEmpty(query)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
 						Constants.PRECONDITION_FAILED_STR + ":check the query parameter", Status.PRECONDITION_FAILED));
@@ -50,7 +51,7 @@ public class InvoiceDashboardControllerImpl {
 			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance()
 					.retrieveInvoicesByCurrentStateAndCompany(companyID, query);
 			InvoiceParser.formatInvoices(invoiceLst);
-//			result = InvoiceParser.prepareInvoiceDashboardResponse(invoiceLst);
+			// result = InvoiceParser.prepareInvoiceDashboardResponse(invoiceLst);
 			return invoiceLst;
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
