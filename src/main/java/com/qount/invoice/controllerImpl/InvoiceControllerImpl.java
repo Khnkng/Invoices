@@ -24,7 +24,6 @@ import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Company2;
-import com.qount.invoice.model.CustomerContactDetails;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
@@ -158,17 +157,9 @@ public class InvoiceControllerImpl {
 			String amount_due = invoice.getAmount_due()+"";
 			String due_date = CommonUtils.convertDate(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
-			CustomerContactDetails contactDetails = invoice.getCustomerContactDetails() ;
-			if(contactDetails == null){
-				contactDetails = new CustomerContactDetails();
-				contactDetails.setId(invoice.getSend_to());
-				contactDetails = MySQLManager.getCustomerDAOInstance().getCustomerContactDetailsByID(conn, contactDetails);
-				invoice.setCustomerContactDetails(contactDetails);
-			}
-			mail_body = mail_body.replace("{{firstName}}", invoice.getCustomerContactDetails().getFirst_name())
-			.replace("{{lastName}}", invoice.getCustomerContactDetails().getLast_name())
-			.replace("{{invoice number}}", invoice.getNumber())
-			.replace("{{amount}}", amount_due)
+			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
+			mail_body = mail_body.replace("{{invoice number}}", invoice.getNumber())
+			.replace("{{amount}}", currency+amount_due)
 			.replace("{{dueDays}}", due_date)
 			.replace("${invoiceLinkUrl}", invoiceLinkUrl)
 			.replace("${qountLinkUrl}",  PropertyManager.getProperty("qount.url"));
@@ -609,7 +600,7 @@ public class InvoiceControllerImpl {
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url + "HalfService/emails";
-			// url = "https://dev-services.qount.io/HalfService/emails";
+//			 url = "https://dev-services.qount.io/HalfService/emails";
 			Object result = HTTPClient.postObject(url, emailJson.toString());
 			if (result != null && result instanceof java.lang.String && result.equals("true")) {
 				return true;
@@ -717,4 +708,10 @@ public class InvoiceControllerImpl {
 		}
 	}
 
+	public static void main(String[] args) {
+		Invoice invoice = new Invoice();
+		invoice.setCurrency("INR");
+		String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
+		System.out.println(currency);
+	}
 }

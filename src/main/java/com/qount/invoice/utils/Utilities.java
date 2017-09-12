@@ -53,9 +53,9 @@ public class Utilities {
 				if (StringUtils.isNotBlank(symbol)) {
 					return symbol;
 				}
-				if ("INR".equalsIgnoreCase(currencyCode)) {
-					return "₹";
-				}
+//				if ("INR".equalsIgnoreCase(currencyCode)) {
+//					return "₹";
+//				}
 				if ("AUD".equalsIgnoreCase(currencyCode)) {
 					return "$";
 				}
