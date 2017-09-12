@@ -961,4 +961,57 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		// }
 	}
 
+	@Override
+	public List<Invoice> retrieveInvoicesByCurrentStateAndCompany(String companyId, String query) {
+		LOGGER.debug("entered retrieveInvoicesByCurrentStateAndCompany companyId: [ " + companyId + " ] query [" + query
+				+ " ]");
+		List<Invoice> result = new ArrayList<Invoice>();
+		if (StringUtils.isBlank(companyId) && StringUtils.isBlank(query)) {
+			return result;
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection conn = DatabaseUtilities.getReadConnection();
+		long startTime = System.currentTimeMillis();
+		String testquery = null;
+		try {
+			if (conn != null) {
+				pstmt = conn.prepareStatement(query);
+				pstmt.setString(1, companyId);
+				testquery = pstmt.toString();
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					Invoice invoice = new Invoice();
+					invoice.setCustomer_id(rset.getString("customer_id"));
+					invoice.setCustomer_name(rset.getString("customer_name"));
+					invoice.setNumber(rset.getString("number"));
+					invoice.setId(rset.getString("id"));
+					invoice.setUser_id(rset.getString("user_id"));
+					invoice.setCompany_id(rset.getString("company_id"));
+					invoice.setInvoice_date(rset.getString("invoice_date"));
+					invoice.setDue_date(rset.getString("due_date"));
+					invoice.setAmount(rset.getDouble("amount"));
+					invoice.setCurrency(rset.getString("currency"));
+					invoice.setState(rset.getString("state"));
+					invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
+					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setAmount_paid(rset.getDouble("amount_paid"));
+					result.add(invoice);
+				}
+				return result;
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving invoices for dashboard", e);
+			throw new WebApplicationException("unable to get invoice", Constants.DATABASE_ERROR_STATUS);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(conn);
+			LOGGER.debug("execution time of InvoiceDAOImpl.retrieveInvoicesByCurrentStateAndCompany = "
+					+ (System.currentTimeMillis() - startTime) + " in mili seconds with query:" + testquery);
+			LOGGER.debug("exited retrieveInvoicesByCurrentStateAndCompany companyId: [ " + companyId + " ] query ["
+					+ query + " ]");
+		}
+		return result;
+	}
+
 }
