@@ -41,7 +41,7 @@ public class InvoiceDashboardController {
 	@GET
 	@ApiOperation(value = "Used to  Get invoice Dashboard List", notes = "Used to Get invoice Dashboard List Based on CompanyID"
 			+ "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
-			+ "json = {\"query param\":\"receivables\"}"
+			+ "json = {\"query param\":\"receivables, past_due\"}"
 			+ "</div>", responseContainer = "java.lang.String")
 	public List<Invoice> getInvoiceDashboardList(@PathParam("userID") String userID,
 			@PathParam("companyID") String companyID, @QueryParam("filter") String filter) {
