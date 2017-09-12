@@ -154,7 +154,7 @@ public class InvoiceControllerImpl {
 			remainderJsonObject.put("subject", PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName());
 			remainderJsonObject.put("mailBodyContentType", PropertyManager.getProperty("invoice.mailBodyContentType"));
 			String mail_body = PropertyManager.getProperty("invoice.remainder.mail.template");
-			String amount_due = invoice.getAmount_due()+"";
+			String amount_due = getTwoDecimalNumberAsString(invoice.getAmount_due());
 			String due_date = CommonUtils.convertDate(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
 			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
