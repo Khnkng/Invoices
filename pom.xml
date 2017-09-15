@@ -19,6 +19,8 @@
 		<itextpdf-version>5.0.6</itextpdf-version>
 		<commons-beanutils-version>1.8.3</commons-beanutils-version>
 		<log4j-version>1.2.17</log4j-version>
+		<quartz>2.2.1</quartz>
+		<quartz-jobs>2.2.1</quartz-jobs>
 	</properties>
 	<repositories>
 		<repository>
@@ -213,7 +215,7 @@
 			<artifactId>jose4j</artifactId>
 			<version>0.5.5</version>
 		</dependency>
-
+		
 	</dependencies>
 	<build>
 		<finalName>Invoices</finalName>
