@@ -36,8 +36,8 @@ public class InvoiceStateJob implements Job {
 				Date date = new Date(System.currentTimeMillis());
 				String dateStr = date.toString()+" 00:00:00";
 				pstmt.setString(1,dateStr);
-				LOGGER.debug("invoice update query:"+query);
-				LOGGER.debug("invoice update query param:"+dateStr);
+				LOGGER.debug("Invoice State Job update query:"+query);
+				LOGGER.debug("Invoice State Job update query param:"+dateStr);
 				int result = pstmt.executeUpdate();
 				LOGGER.debug("invoice update result:"+result);
 			}
