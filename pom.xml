@@ -216,6 +216,19 @@
 			<version>0.5.5</version>
 		</dependency>
 		
+		<!-- quartz -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>${quartz}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz-jobs</artifactId>
+			<version>${quartz-jobs}</version>
+		</dependency>
+		<!-- quartz -->
+		
 	</dependencies>
 	<build>
 		<finalName>Invoices</finalName>
