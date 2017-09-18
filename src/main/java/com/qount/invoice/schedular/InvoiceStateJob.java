@@ -31,7 +31,7 @@ public class InvoiceStateJob implements Job {
 			conn = DatabaseUtilities.getReadWriteConnection();
 			if (conn != null) {
 //				String query = "UPDATE invoice_test SET state = 'past_due' WHERE id IN ( SELECT id  FROM (SELECT id FROM invoice_test WHERE state !='paid' AND due_date < ?) AS ids);";
-				String query = "UPDATE invoice_test SET state = 'past_due' WHERE id IN ( SELECT id  FROM (SELECT id FROM invoice_test WHERE state !='paid' AND state ='sent' AND due_date < ?) AS ids);";
+				String query = "UPDATE invoice SET state = 'past_due' WHERE id IN ( SELECT id  FROM (SELECT id FROM invoice_test WHERE state !='paid' AND state ='sent' AND due_date < ?) AS ids);";
 				pstmt = conn.prepareStatement(query);
 				Date date = new Date(System.currentTimeMillis());
 				String dateStr = date.toString()+" 00:00:00";
