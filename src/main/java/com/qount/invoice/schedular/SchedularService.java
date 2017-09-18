@@ -107,6 +107,5 @@ public class SchedularService {
 
 //	public static void main(String[] args) {
 //		startJob();
-//		System.out.println("done");
 //	}
 }
