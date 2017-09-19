@@ -44,8 +44,7 @@ public class PropertiesLoader {
 
 	/**
 	 * below method used to load the project environment mode (development |
-	 * production) SERVER_INSTANCE_MODE=PRODUCTION
-	 * SERVER_INSTANCE_MODE=DEVELOPMENT
+	 * production) SERVER_INSTANCE_MODE=PRODUCTION SERVER_INSTANCE_MODE=DEVELOPMENT
 	 */
 	private void loadProjectEnvironmentMode() {
 		String mode = System.getenv("SERVER_INSTANCE_MODE");
