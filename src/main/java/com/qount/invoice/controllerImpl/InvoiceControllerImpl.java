@@ -64,22 +64,23 @@ public class InvoiceControllerImpl {
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
-				jobId = getJobId(invoice);
-				if(StringUtils.isNotBlank(jobId) && invoice.isSendMail()){
+				jobId = getJobId(connection,invoice);
+				if (StringUtils.isNotBlank(jobId) && invoice.isSendMail()) {
 					invoice.setState(Constants.INVOICE_STATE_SENT);
 				}
 				invoice.setRemainder_job_id(jobId);
 			}
 			if (invoice.isSendMail() && StringUtils.isEmpty(invoice.getRemainder_job_id())) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) || invoice.getState().equals(Constants.INVOICE_STATE_SENT)){
+					if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
+							|| invoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
 						invoice.setState(Constants.INVOICE_STATE_SENT);
 					}
 				} else {
-					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
+					throw new WebApplicationException("error sending email", Constants.EXPECTATION_FAILED);
 				}
 			} else {
-				if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) ){
+				if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
 					invoice.setState(Constants.INVOICE_STATE_DRAFT);
 				}
 			}
@@ -120,17 +121,18 @@ public class InvoiceControllerImpl {
 
 	}
 
-	private static String getJobId(Invoice invoice) {
+	private static String getJobId(Connection conn, Invoice invoice) {
 		try {
-			LOGGER.debug("entered getJobId invoice:"+invoice);
+			LOGGER.debug("entered getJobId invoice:" + invoice);
 			if (invoice == null || StringUtils.isBlank(invoice.getRemainder_name())) {
 				return null;
 			}
-			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"), PropertyManager.getProperty("remainder.service.docker.port"));
+			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
+					PropertyManager.getProperty("remainder.service.docker.port"));
 //			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
 			// remainderServieUrl = "http://localhost:8080/";
 			remainderServieUrl += "RemainderService/mail/schedule";
-			LOGGER.debug("remainderServieUrl::"+remainderServieUrl);
+			LOGGER.debug("remainderServieUrl::" + remainderServieUrl);
 			JSONObject remainderJsonObject = new JSONObject();
 			if (invoice.getRemainder_name().equalsIgnoreCase(Constants.ON_DUE_DATE_THEN_WEEKLY_AFTERWARD)
 					|| invoice.getRemainder_name().equalsIgnoreCase(Constants.WEEKLY_UNTIL_PAID)) {
@@ -148,10 +150,22 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.remainder.name"), 412);
 			}
 			remainderJsonObject.put("emails", invoice.getRecepientsMails());
-			remainderJsonObject.put("type", "invoice");
-			remainderJsonObject.put("number", invoice.getNumber());
-			remainderJsonObject.put("amount", invoice.getAmount());
-			LOGGER.debug("remainderJsonObject::"+remainderJsonObject);
+			remainderJsonObject.put("type", Constants.INVOICE);
+			remainderJsonObject.put("subject", PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName());
+			remainderJsonObject.put("mailBodyContentType", PropertyManager.getProperty("invoice.mailBodyContentType"));
+			String mail_body = PropertyManager.getProperty("invoice.remainder.mail.template");
+			String amount_due = getTwoDecimalNumberAsString(invoice.getAmount_due());
+			String due_date = CommonUtils.convertDate(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
+			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
+			mail_body = mail_body.replace("{{invoice number}}", invoice.getNumber())
+			.replace("{{amount}}", currency+amount_due)
+			.replace("{{dueDays}}", due_date)
+			.replace("${invoiceLinkUrl}", invoiceLinkUrl)
+			.replace("${qountLinkUrl}",  PropertyManager.getProperty("qount.url"));
+			remainderJsonObject.put("mail_body", mail_body);
+			System.out.println(remainderJsonObject);
+			LOGGER.debug("remainderJsonObject::" + remainderJsonObject);
 			// remainderJsonObject.put("startDate",invoice.getRemainder().getDate());
 			Object jobIdObj = HTTPClient.postObject(remainderServieUrl, remainderJsonObject.toString());
 			return jobIdObj.toString();
@@ -160,8 +174,8 @@ public class InvoiceControllerImpl {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("error creating job id", e);
-		}finally{
-			LOGGER.debug("exited getJobId invoice:"+invoice);
+		} finally {
+			LOGGER.debug("exited getJobId invoice:" + invoice);
 		}
 		return null;
 	}
@@ -183,25 +197,27 @@ public class InvoiceControllerImpl {
 			}
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					//if invoice is paid then sending email and returning response
-					if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)){
+					// if invoice is paid then sending email and returning
+					// response
+					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 						return InvoiceParser.convertTimeStampToString(dbInvoice);
 					}
-					if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) || invoice.getState().equals(Constants.INVOICE_STATE_SENT)){
+					if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
+							|| invoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
 						invoice.setState(Constants.INVOICE_STATE_SENT);
 					}
 				} else {
-					throw new WebApplicationException("error sending email",Constants.EXPECTATION_FAILED);
+					throw new WebApplicationException("error sending email", Constants.EXPECTATION_FAILED);
 				}
 			} else {
-				if(StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT) ){
+				if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)) {
 					invoice.setState(Constants.INVOICE_STATE_DRAFT);
 				}
 			}
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
 			}
-			if(dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)){
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 				if (invoice.getAmount() < dbInvoice.getAmount_paid()) {
 					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.less.than.paid.amount"), 412);
 				}
@@ -220,7 +236,7 @@ public class InvoiceControllerImpl {
 					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
 				}
 			}
-			
+
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
@@ -390,14 +406,14 @@ public class InvoiceControllerImpl {
 			payment.setPaymentLines(payments);
 			invoice.setAmount_due(dbInvoice.getAmount() - (dbInvoice.getAmount_paid() + invoice.getAmount()));
 			LOGGER.debug("*********************************************");
-			LOGGER.debug("invoice due amount::"+invoice.getAmount_due());
-			LOGGER.debug("dbInvoice::"+dbInvoice);
-			LOGGER.debug("dbInvoice job id::"+dbInvoice.getRemainder_job_id());
+			LOGGER.debug("invoice due amount::" + invoice.getAmount_due());
+			LOGGER.debug("dbInvoice::" + dbInvoice);
+			LOGGER.debug("dbInvoice job id::" + dbInvoice.getRemainder_job_id());
 			LOGGER.debug("*********************************************");
-			if(invoice.getAmount_due()==0.0){
+			if (invoice.getAmount_due() == 0.0) {
 				LOGGER.debug("amount due is 0");
 				invoice.setState(Constants.INVOICE_STATE_PAID);
-				//unscheduling invoice jobs if any
+				// unscheduling invoice jobs if any
 				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
 			}
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
@@ -574,7 +590,7 @@ public class InvoiceControllerImpl {
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
 			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
-			String amount = getTwoDecimalNumberAsString(invoice.getAmount());
+			String amount = getTwoDecimalNumberAsString(invoice.getAmount_due());
 			template = template.replace("{{invoice number}}", StringUtils.isBlank(invoice.getNumber()) ? "" : invoice.getNumber())
 					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName()) ? "" : invoice.getCompanyName()).replace("{{amount}}", currency + amount)
 					.replace("{{due date}}", StringUtils.isEmpty(dueDate) ? "" : dueDate).replace("${invoiceLinkUrl}", invoiceLinkUrl)
@@ -584,7 +600,7 @@ public class InvoiceControllerImpl {
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url + "HalfService/emails";
-			// url = "https://dev-services.qount.io/HalfService/emails";
+//			 url = "https://dev-services.qount.io/HalfService/emails";
 			Object result = HTTPClient.postObject(url, emailJson.toString());
 			if (result != null && result instanceof java.lang.String && result.equals("true")) {
 				return true;
@@ -694,10 +710,8 @@ public class InvoiceControllerImpl {
 
 	public static void main(String[] args) {
 		Invoice invoice = new Invoice();
-		invoice.setAmount_due(0.0d);
-		System.out.println(invoice.getAmount_due());
-		System.out.println(invoice.getAmount_due() == 0);
-		System.out.println(invoice.getAmount_due() == 0.0);
-		System.out.println(invoice.getAmount_due() == 0.0d);
+		invoice.setCurrency("INR");
+		String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
+		System.out.println(currency);
 	}
 }

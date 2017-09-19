@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 
 import com.qount.invoice.model.Customer;
+import com.qount.invoice.model.CustomerContactDetails;
 
 /**
  * DAO interface for CustomerDAOImpl
@@ -22,6 +23,8 @@ public interface CustomerDAO {
 	Customer delete(Customer Customer);
 
 	Customer retrieveById(Connection conn, Customer Customer);
+	
+	CustomerContactDetails getCustomerContactDetailsByID(Connection conn, CustomerContactDetails customerContactDetails);
 
 	List<Customer> retrieveAll(Customer Customer);
 

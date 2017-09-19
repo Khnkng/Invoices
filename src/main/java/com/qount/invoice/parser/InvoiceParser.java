@@ -3,6 +3,7 @@ package com.qount.invoice.parser;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -50,17 +51,19 @@ public class InvoiceParser {
 			invoice.setCompanyName(userCompany.getName());
 
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp payment_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(),
+					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(),
+					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			invoice.setUser_id(userId);
 			if (createFlag) {
 				invoice.setId(UUID.randomUUID().toString());
 			}
 			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
-			invoice.setDue_date(payment_date != null ? payment_date.toString() : null);
+			invoice.setDue_date(due_date != null ? due_date.toString() : null);
 			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
-			if(createFlag){
+			if (createFlag) {
 				invoice.setAmount_due(invoice.getAmount());
 				invoice.setAmount_paid(0.00d);
 			}
@@ -109,8 +112,10 @@ public class InvoiceParser {
 	public static Invoice convertTimeStampToString(Invoice invoice) {
 		try {
 			if (invoice != null) {
-				invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-				invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+				invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(),
+						Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+				invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(),
+						Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -124,9 +129,10 @@ public class InvoiceParser {
 				for (int i = 0; i < invoiceLst.size(); i++) {
 					Invoice invoice = invoiceLst.get(i);
 					if (invoice != null) {
-						invoice.setInvoice_date(
-								convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 					}
 				}
 			}
@@ -156,7 +162,9 @@ public class InvoiceParser {
 						invoice.setProcessing_fees(InvoiceParser.getTwoDecimalValue(invoice.getProcessing_fees()));
 						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getSub_total()));
 						invoice.setTax_amount(InvoiceParser.getTwoDecimalValue(invoice.getTax_amount()));
-						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
+						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null
+								? invoice.getInvoiceLines().iterator()
+								: null;
 						if (invoiceLineIterator != null) {
 							while (invoiceLineIterator.hasNext()) {
 								InvoiceLine invoiceLine = invoiceLineIterator.next();
@@ -189,7 +197,9 @@ public class InvoiceParser {
 				invoice.setProcessing_fees(getTwoDecimalValue(invoice.getProcessing_fees()));
 				invoice.setSub_total(getTwoDecimalValue(invoice.getSub_total()));
 				invoice.setTax_amount(getTwoDecimalValue(invoice.getTax_amount()));
-				Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
+				Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null
+						? invoice.getInvoiceLines().iterator()
+						: null;
 				if (invoiceLineIterator != null) {
 					while (invoiceLineIterator.hasNext()) {
 						InvoiceLine invoiceLine = invoiceLineIterator.next();
@@ -217,7 +227,8 @@ public class InvoiceParser {
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			// throw new WebApplicationException(e.getLocalizedMessage(), 500);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
 
@@ -272,7 +283,8 @@ public class InvoiceParser {
 			Company company = new Company();
 			company.setId(invoice.getCompany_id());
 			Customer customer = new Customer();
-			String customerId = invoice.getCustomer() == null ? invoice.getCustomer_id() : invoice.getCustomer().getCustomer_id();
+			String customerId = invoice.getCustomer() == null ? invoice.getCustomer_id()
+					: invoice.getCustomer().getCustomer_id();
 			customer.setCustomer_id(customerId);
 			invoiceReference.setCompany(company);
 			invoiceReference.setCustomer(customer);
@@ -377,9 +389,11 @@ public class InvoiceParser {
 				Iterator<Invoice> invoicesItr = invoices.iterator();
 				while (invoicesItr.hasNext()) {
 					Invoice invoice = invoicesItr.next();
-					String state = invoice != null && StringUtils.isNotBlank(invoice.getState()) ? invoice.getState() : null;
+					String state = invoice != null && StringUtils.isNotBlank(invoice.getState()) ? invoice.getState()
+							: null;
 					if (StringUtils.isNotBlank(state)) {
-						if (state.equals(Constants.INVOICE_STATE_PAID) || state.equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+						if (state.equals(Constants.INVOICE_STATE_PAID)
+								|| state.equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 							return true;
 						}
 					}
@@ -392,5 +406,40 @@ public class InvoiceParser {
 			LOGGER.debug("exited isPaidStateInvoicePresent invoices:" + invoices);
 		}
 		return true;
+	}
+
+	public static List<Invoice> prepareInvoiceDashboardResponse(List<Invoice> invoiceLst) {
+		List<Invoice> result = new ArrayList<Invoice>();
+		try {
+			if (invoiceLst == null || invoiceLst.size() == 0) {
+				return result;
+			}
+			Iterator<Invoice> invoiceLstItr = invoiceLst.iterator();
+			while (invoiceLstItr.hasNext()) {
+				Invoice invoice = invoiceLstItr.next();
+				Invoice invoiceResponse = new Invoice();
+
+				Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(),
+						Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(),
+						Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+
+				Timestamp created_at = convertStringToTimeStamp(invoice.getCreated_at(),
+						Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+
+				Timestamp last_updated_at = convertStringToTimeStamp(invoice.getLast_updated_at(),
+						Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+
+				invoiceResponse.setInvoice_date(invoice_date.toString());
+				invoiceResponse.setDue_date(due_date.toString());
+				invoiceResponse.setCreated_at(created_at.toString());
+				invoiceResponse.setLast_updated_at(last_updated_at.toString());
+				result.add(invoiceResponse);
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(e.getLocalizedMessage());
+		}
+		return result;
 	}
 }
