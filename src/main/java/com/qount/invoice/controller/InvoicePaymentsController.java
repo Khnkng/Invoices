@@ -20,7 +20,7 @@ import com.qount.invoice.service.PaymentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-@Api(value = "Invoice")
+@Api(value = "Invoice Payments")
 @Path("/users/{userID}/companies/{companyID}/invoice/payment")
 public class InvoicePaymentsController {
 
