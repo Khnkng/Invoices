@@ -6,9 +6,7 @@ import javax.servlet.http.HttpServlet;
 
 import com.qount.invoice.common.Log4jLoder;
 import com.qount.invoice.common.PropertiesLoader;
-import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
-import com.qount.invoice.schedular.SchedularService;
 import com.qount.invoice.utils.Constants;
 
 import io.swagger.jaxrs.config.BeanConfig;
@@ -36,14 +34,7 @@ public class ConfigurationLoaderServlet extends HttpServlet {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		if (PropertyManager.getProperty("invoice.remainder.start.onload").equals("true")) {
-			try {
-				Class.forName(SchedularService.class.getName());
-			} catch (Exception e) {
-				e.printStackTrace();
-				
-			}
-		}
+		
 	}
 
 	
