@@ -36,6 +36,7 @@ public class InvoiceDashboardControllerImpl {
 					Status.PRECONDITION_FAILED));
 		}
 		List<Invoice> result = null;
+		List<Invoice> invoiceLst = null;
 		try {
 			String query = null;
 			if (filter == null || filter.equals("receivables")) {
@@ -47,15 +48,20 @@ public class InvoiceDashboardControllerImpl {
 			} else if (filter.equals("sent")) {
 				query = SqlQuerys.Invoice.RETRIEVE_INVOICES_FOR_DASHBOARD_SENT_QRY;
 			} else if (filter.equals("recvdin30days")) {
-				
+				query = SqlQuerys.Invoice.RETRIEVE_INVOICES_PAID_IN_LAST_30_DAYS;
 			}
 
 			if (StringUtils.isEmpty(query)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
 						Constants.PRECONDITION_FAILED_STR + ":check the query parameter", Status.PRECONDITION_FAILED));
 			}
-			List<Invoice> invoiceLst = MySQLManager.getInvoiceDAOInstance()
-					.retrieveInvoicesByCurrentStateAndCompany(companyID, query);
+			if (filter.equals("recvdin30days")) {
+				invoiceLst = MySQLManager.getInvoiceDAOInstance().retrieveInvoicesPaidInLast30Days(companyID, query);
+			} else {
+				invoiceLst = MySQLManager.getInvoiceDAOInstance().retrieveInvoicesByCurrentStateAndCompany(companyID,
+						query);
+			}
+
 			InvoiceParser.formatInvoices(invoiceLst);
 			// result = InvoiceParser.prepareInvoiceDashboardResponse(invoiceLst);
 			return invoiceLst;
