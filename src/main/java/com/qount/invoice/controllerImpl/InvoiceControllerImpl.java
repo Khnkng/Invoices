@@ -140,7 +140,7 @@ public class InvoiceControllerImpl {
 				remainderJsonObject.put("startDate", startDate);
 			} else if (invoice.getRemainder_name().equalsIgnoreCase(Constants.WEEKLY_START_TWO_WEEKS_BEFORE_DUE)) {
 				String dueDateStr = invoice.getDue_date();
-				Date dueDate = CommonUtils.getDate(dueDateStr, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				Date dueDate = CommonUtils.getDate(dueDateStr, Constants.TIME_STATMP_TO_BILLS_FORMAT);
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(dueDate);
 				cal.add(Calendar.DATE, 14);
