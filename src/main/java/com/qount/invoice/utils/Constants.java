@@ -99,4 +99,6 @@ public class Constants {
 	public static final SimpleDateFormat TIME_STATMP_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 	public static final String INVOICE = "invoice";
 	public static final String INVOICE_SCHEDULAR = "invoice_schedular";
+	public static final String FROM = "info@qount.io";
+	public static final String ACCOUNT = "Qount";
 }
