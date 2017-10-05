@@ -140,7 +140,7 @@ public class InvoiceControllerImpl {
 				remainderJsonObject.put("startDate", startDate);
 			} else if (invoice.getRemainder_name().equalsIgnoreCase(Constants.WEEKLY_START_TWO_WEEKS_BEFORE_DUE)) {
 				String dueDateStr = invoice.getDue_date();
-				Date dueDate = CommonUtils.getDate(dueDateStr, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				Date dueDate = CommonUtils.getDate(dueDateStr, Constants.TIME_STATMP_TO_BILLS_FORMAT);
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(dueDate);
 				cal.add(Calendar.DATE, 14);
@@ -151,6 +151,8 @@ public class InvoiceControllerImpl {
 			}
 			remainderJsonObject.put("emails", invoice.getRecepientsMails());
 			remainderJsonObject.put("type", Constants.INVOICE);
+			remainderJsonObject.put("account", Constants.ACCOUNT);
+			remainderJsonObject.put("from", Constants.FROM);
 			remainderJsonObject.put("subject", PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName());
 			remainderJsonObject.put("mailBodyContentType", PropertyManager.getProperty("invoice.mailBodyContentType"));
 			String mail_body = PropertyManager.getProperty("invoice.remainder.mail.template");

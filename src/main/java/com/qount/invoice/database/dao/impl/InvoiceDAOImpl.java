@@ -4,9 +4,11 @@ import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -294,6 +296,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_QRY);
 				pstmt.setString(1, invoiceID);
 				rset = pstmt.executeQuery();
+				Calendar today = Calendar.getInstance();
+				Date date = today.getTime();
+				System.out.println(date);
 				while (rset.next()) {
 					if (invoice == null) {
 						invoice = new Invoice();
@@ -356,6 +361,20 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLast_updated_by(rset.getString("last_updated_by"));
 							invoice.setLast_updated_at(rset.getString("last_updated_at"));
 							invoice.setState(rset.getString("state"));
+							invoice.setDue_date(rset.getString("due_date"));
+
+							String due_date_Str = rset.getString("due_date");
+							if (due_date_Str != null) {
+								DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+								Date due_date = formatter.parse(due_date_Str);
+								String state1 = rset.getString("state");
+								if (StringUtils.isNotEmpty(state1)
+										&& (state1.equals("partially_paid") || state1.equals("sent"))) {
+									if (due_date != null && due_date.before(date)) {
+										invoice.setState("past_due");
+									}
+								}
+							}
 							invoice.setInvoice_date(rset.getString("invoice_date"));
 							invoice.setNotes(rset.getString("notes"));
 							invoice.setDiscount(rset.getLong("discount"));
@@ -364,7 +383,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setNumber(rset.getString("number"));
 							invoice.setDocument_id(rset.getString("document_id"));
 							invoice.setAmount_due(rset.getDouble("amount_due"));
-							invoice.setDue_date(rset.getString("due_date"));
 							invoice.setSub_total(rset.getDouble("sub_totoal"));
 							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
 							invoice.setCreated_at(rset.getString("created_at"));
@@ -555,17 +573,29 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				String query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
-				query += "  invoice.`company_id`= '" + companyID + "' ";
-				if (!StringUtils.isEmpty(state)) {
-					if (!state.equals("paid")) {
-						query += "AND (state !='paid' OR state IS NULL );";
-					} else {
-						query += "AND state='paid'";
-					}
+				// query += " invoice.`company_id`= '" + companyID + "' ";
+				// if (!StringUtils.isEmpty(state)) {
+				// if (!state.equals("paid")) {
+				// query += "AND (state !='paid' OR state IS NULL );";
+				// } else {
+				// query += "AND state='paid'";
+				// }
+				// }
+				String query = null;
+				if (StringUtils.isNotBlank(state)) {
+					query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY;
+					query += "  invoice.`company_id`= '" + companyID + "' ";
+					query += "AND state='" + state + "'";
+					pstmt = connection.prepareStatement(query);
+				} else {
+					query = SqlQuerys.Invoice.GET_INVOICES_LIST_QRY_2;
+					pstmt = connection.prepareStatement(query);
+					pstmt.setString(1, companyID);
 				}
-				pstmt = connection.prepareStatement(query);
 				rset = pstmt.executeQuery();
+				Calendar today = Calendar.getInstance();
+				Date date = today.getTime();
+				System.out.println(date);
 				while (rset.next()) {
 					Invoice invoice = new Invoice();
 					invoice.setId(rset.getString("id"));
@@ -579,6 +609,18 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setAmount(rset.getDouble("amount"));
 						invoice.setCurrency(rset.getString("currency"));
 						invoice.setState(rset.getString("state"));
+						String due_date_Str = rset.getString("due_date");
+						if (due_date_Str != null) {
+							DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+							Date due_date = formatter.parse(due_date_Str);
+							String state1 = rset.getString("state");
+							if (StringUtils.isNotEmpty(state1)
+									&& (state1.equals("partially_paid") || state1.equals("sent"))) {
+								if (due_date != null && due_date.before(date)) {
+									invoice.setState("past_due");
+								}
+							}
+						}
 						invoice.setAmount_due(rset.getDouble("amount_due"));
 						invoice.setCustomer_name(rset.getString("customer_name"));
 						invoiceLst.add(invoice);
@@ -1016,8 +1058,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 	@Override
 	public List<Invoice> retrieveInvoicesPaidInLast30Days(String companyId, String query) {
-		LOGGER.debug("entered retrieveInvoicesPaidInLast30Days companyId: [ " + companyId + " ] query [" + query
-				+ " ]");
+		LOGGER.debug(
+				"entered retrieveInvoicesPaidInLast30Days companyId: [ " + companyId + " ] query [" + query + " ]");
 		List<Invoice> result = new ArrayList<Invoice>();
 		if (StringUtils.isBlank(companyId) && StringUtils.isBlank(query)) {
 			return result;
@@ -1062,8 +1104,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			DatabaseUtilities.closeConnection(conn);
 			LOGGER.debug("execution time of InvoiceDAOImpl.retrieveInvoicesPaidInLast30Days = "
 					+ (System.currentTimeMillis() - startTime) + " in mili seconds with query:" + testquery);
-			LOGGER.debug("exited retrieveInvoicesPaidInLast30Days companyId: [ " + companyId + " ] query ["
-					+ query + " ]");
+			LOGGER.debug(
+					"exited retrieveInvoicesPaidInLast30Days companyId: [ " + companyId + " ] query [" + query + " ]");
 		}
 		return result;
 	}
