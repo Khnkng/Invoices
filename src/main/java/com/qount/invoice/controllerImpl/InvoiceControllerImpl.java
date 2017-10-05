@@ -151,6 +151,8 @@ public class InvoiceControllerImpl {
 			}
 			remainderJsonObject.put("emails", invoice.getRecepientsMails());
 			remainderJsonObject.put("type", Constants.INVOICE);
+			remainderJsonObject.put("account", Constants.ACCOUNT);
+			remainderJsonObject.put("from", Constants.FROM);
 			remainderJsonObject.put("subject", PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName());
 			remainderJsonObject.put("mailBodyContentType", PropertyManager.getProperty("invoice.mailBodyContentType"));
 			String mail_body = PropertyManager.getProperty("invoice.remainder.mail.template");
