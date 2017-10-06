@@ -53,4 +53,6 @@ public interface InvoiceDAO {
 	public List<Invoice> retrieveInvoicesByCurrentStateAndCompany(String companyId, String query);
 	
 	public List<Invoice> retrieveInvoicesPaidInLast30Days(String companyId, String query);
+	
+	public List<String> getInvoiceJobsList(String invoiceIds) throws Exception;
 }

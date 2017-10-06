@@ -1,8 +1,10 @@
 package com.qount.invoice.utils;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
@@ -11,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jose4j.json.internal.json_simple.JSONArray;
 import org.json.JSONObject;
 
 import com.qount.invoice.clients.httpClient.HTTPClient;
@@ -106,10 +109,6 @@ public class Utilities {
 		}
 	}
 
-	public static void main(String[] args) {
-		throwPreExceptionForEmptyString("mateen", null, null, null);
-	}
-
 	public static String unschduleInvoiceJob(String jobId) {
 		try {
 			LOGGER.debug("entered unscheduling job: " + jobId );
@@ -122,9 +121,39 @@ public class Utilities {
 			remainderServieUrl += "RemainderService/mail/unschedule/" + jobId;
 			String result = HTTPClient.delete(remainderServieUrl);
 			LOGGER.debug("unscheduling result:" + result);
+			return result;
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 		return null;
+	}
+	
+	public static String unschduleInvoiceJobs(List<String> jobIds) {
+		try {
+			LOGGER.debug("entered unscheduling jobs: " + jobIds );
+			if(jobIds==null || jobIds.isEmpty()){
+				return null;
+			}
+			LOGGER.debug("unscheduling jobs: " + jobIds );
+			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"), PropertyManager.getProperty("remainder.service.docker.port"));
+			LOGGER.debug("unscheduling job url:" + remainderServieUrl);
+			remainderServieUrl += "RemainderService/mail/unschedule";
+			JSONArray jobIdsArr = new JSONArray(jobIds);
+			Object result = HTTPClient.postObject(remainderServieUrl,jobIdsArr.toString());
+			LOGGER.debug("unscheduling result:" + result);
+			return result.toString();
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) {
+		List<String> list = new ArrayList<>();
+		list.add("asdf");
+		list.add("asdf1");
+		list.add("asdf2");
+		JSONArray listArr = new JSONArray(list);
+		System.out.println(listArr.toString());
 	}
 }
