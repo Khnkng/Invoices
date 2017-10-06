@@ -503,6 +503,7 @@ public class InvoiceControllerImpl {
 			}
 			Invoice invoiceObj = MySQLManager.getInvoiceDAOInstance().delete(invoice);
 			CommonUtils.deleteJournal(userID, companyID, invoiceID + "@" + "invoice");
+			Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
 			return InvoiceParser.convertTimeStampToString(invoiceObj);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -527,6 +528,7 @@ public class InvoiceControllerImpl {
 			}
 			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(ids);
 			CommonUtils.deleteJournalsAsync(userID, companyID, ids);
+			deleteInvoiceJobsAsync(commaSeparatedLst);
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -540,6 +542,25 @@ public class InvoiceControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited deleteInvoicesById userID: " + userID + " companyID:" + companyID + " ids:" + ids);
+		}
+	}
+	
+	private static void deleteInvoiceJobsAsync(String ids){
+		try {
+			Runnable task = () -> {
+				LOGGER.debug("entered deleteInvoiceJobsAsync ids:"+ids);
+				try {
+					List<String> jobIds = MySQLManager.getInvoiceDAOInstance().getInvoiceJobsList(ids);
+					Utilities.unschduleInvoiceJobs(jobIds);
+				} catch (Exception e) {
+					LOGGER.error(CommonUtils.getErrorStackTrace(e));
+				}
+			};
+			new Thread(task).start();
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+		}finally{
+			LOGGER.debug("exited deleteInvoiceJobsAsync ids:"+ids);
 		}
 	}
 

@@ -983,6 +983,41 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return invoiceLst;
 
 	}
+	
+	
+	@Override
+	public List<String> getInvoiceJobsList(String invoiceIds) throws Exception {
+		LOGGER.debug("entered getInvoiceJobsList invoiceIds:" + invoiceIds);
+		if (StringUtils.isBlank(invoiceIds)) {
+			throw new WebApplicationException("invoiceIds cannot be empty", Constants.INVALID_INPUT_STATUS);
+		}
+		List<String> result = new ArrayList<String>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		try {
+			connection = DatabaseUtilities.getReadConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Invoice.GET_INVOICES_JOBS_LIST_BY_ID_QRY;
+				query += invoiceIds + ")";
+				pstmt = connection.prepareStatement(query);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					result.add(rset.getString("remainder_job_id"));
+				}
+			}
+			return result;
+		} catch (Exception e) {
+			LOGGER.error("Error fetching jobs for invoiceIds [ " + invoiceIds + " ]", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited getInvoiceJobsList invoiceIds:" + invoiceIds);
+		}
+		
+	}
 
 	public static void main(String[] args) throws Exception {
 		InvoiceDAOImpl invoiceDAOImpl = new InvoiceDAOImpl();
