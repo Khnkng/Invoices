@@ -149,6 +149,12 @@ public class InvoiceControllerImpl {
 			} else {
 				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.remainder.name"), 412);
 			}
+			JSONObject custom_args = new JSONObject();
+			custom_args.put("SERVER_INSTANCE_MODE", PropertyManager.getProperty("SERVER_INSTANCE_MODE"));
+			custom_args.put("type", Constants.INVOICE);
+			custom_args.put("id", invoice.getId());
+			remainderJsonObject.put("custom_args", custom_args);
+			remainderJsonObject.put("from_name", Constants.QOUNT);
 			remainderJsonObject.put("emails", invoice.getRecepientsMails());
 			remainderJsonObject.put("type", Constants.INVOICE);
 			remainderJsonObject.put("account", Constants.ACCOUNT);
