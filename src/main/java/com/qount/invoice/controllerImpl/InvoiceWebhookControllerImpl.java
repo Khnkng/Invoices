@@ -7,6 +7,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.qount.invoice.common.PropertyManager;
@@ -29,13 +30,13 @@ public class InvoiceWebhookControllerImpl {
 	public static Response consumeWebHook(String json) {
 		LOGGER.debug("entered consumeWebHook : " + json);
 		try {
-			JSONObject obj = new JSONObject(json);
+			JSONObject obj = new JSONArray(json).optJSONObject(0);
 			String type = obj.optString("type").trim();
 			if(!type.equalsIgnoreCase(Constants.INVOICE)){
 				LOGGER.fatal("webhooked invoked not for invoice from sendgrid with payload :"+json);
 				return Response.ok().build();
 			}
-			String SERVER_INSTANCE_MODE = obj.optString("SERVER_INSTANCE_MODE");
+			String SERVER_INSTANCE_MODE = obj.optString("SERVER_INSTANCE_MODE").toUpperCase();
 			if (SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
 				// forward to development
 			} else if (SERVER_INSTANCE_MODE.equals("PRODUCTION")) {
