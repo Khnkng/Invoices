@@ -75,7 +75,12 @@ public class InvoiceWebhookControllerImpl {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(getInvoiceMailState("delivered", null));
+
+		JSONObject obj = new JSONObject();
+		obj.put("server_INSTANCE_MODE", "asdf");
+		obj.put("SERVER_INSTANCE_MODE", "aaaa");
+		System.out.println(obj.optString("SERVER_INSTANCE_MODE"));
+		
 	}
 
 	private static String getInvoiceMailState(String receivedState, String storedState) {

@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.qount.invoice.clients.httpClient.HTTPClient;
@@ -609,12 +611,6 @@ public class InvoiceControllerImpl {
 	private static boolean sendInvoiceEmail(Invoice invoice) throws Exception {
 		try {
 			LOGGER.debug("entered sendInvoiceEmail invoice: " + invoice);
-			JSONObject emailJson = new JSONObject();
-			emailJson.put("recipients", invoice.getRecepientsMailsArr());
-			String subject = PropertyManager.getProperty("invoice.subject");
-			subject += invoice.getCompanyName();
-			emailJson.put("subject", subject);
-			emailJson.put("mailBodyContentType", PropertyManager.getProperty("mail.body.content.type"));
 			String template = PropertyManager.getProperty("invocie.mail.template");
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
 			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
@@ -624,15 +620,18 @@ public class InvoiceControllerImpl {
 					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName()) ? "" : invoice.getCompanyName()).replace("{{amount}}", currency + amount)
 					.replace("{{due date}}", StringUtils.isEmpty(dueDate) ? "" : dueDate).replace("${invoiceLinkUrl}", invoiceLinkUrl)
 					.replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url"));
-			emailJson.put("body", template);
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
-			url = url + "HalfService/emails";
-//			 url = "https://dev-services.qount.io/HalfService/emails";
-			Object result = HTTPClient.postObject(url, emailJson.toString());
-			if (result != null && result instanceof java.lang.String && result.equals("true")) {
-				return true;
+			url = url + "HalfService/mails";
+//			url = "https://dev-services.qount.io/HalfService/mails";
+			JSONObject emailJson = getMailJson(invoice, template, PropertyManager.getProperty("mail.body.content.type"));
+			Object result = HTTPClient.postUrlAndGetStatus(url, emailJson.toString());
+			if (result != null) {
+				JSONObject obj = new JSONObject(result.toString());
+				if(obj.optInt("status")==202){
+					return true;
+				}
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -644,6 +643,68 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited sendInvoiceEmail  invoice: " + invoice);
 		}
 		return false;
+	}
+	
+	private static JSONObject getMailJson(Invoice invoice,String mail_body,String mailBodyContentType){
+		try {
+			JSONObject result = new JSONObject();
+			LOGGER.debug("entered getMailJson invoice: " + invoice);
+			if(invoice==null){
+				throw new WebApplicationException(PropertyManager.getProperty("mail.invalid.input"),412);
+			}
+			result.put("account", Constants.ACCOUNT);
+			JSONArray personalizations = new JSONArray();
+			result.put("personalizations", personalizations);
+			JSONObject emailJson = new JSONObject();
+			personalizations.put(emailJson);
+			String subject = PropertyManager.getProperty("invoice.subject");
+			subject += invoice.getCompanyName();
+			JSONObject custom_args = new JSONObject();
+			custom_args.put("SERVER_INSTANCE_MODE", PropertyManager.getProperty("SERVER_INSTANCE_MODE"));
+			custom_args.put("type", Constants.INVOICE);
+			custom_args.put("id", invoice.getId());
+			emailJson.put("custom_args", custom_args);
+			emailJson.put("subject", subject);
+			JSONArray toArray = new JSONArray();
+			emailJson.put("to", toArray);
+			List<String> emails = invoice.getRecepientsMails();
+			if(emails ==null || emails.isEmpty()){
+				throw new WebApplicationException(PropertyManager.getProperty("mail.recipients.email.empty.error.msg"),412);
+			}
+			Iterator<String> emailsItr = emails.iterator();
+			while(emailsItr.hasNext()){
+				String email = emailsItr.next();
+				if(StringUtils.isNotBlank(email)){
+					JSONObject emailObj = new JSONObject();
+					emailObj.put("email", email);
+					toArray.put(emailObj);
+				}
+			}
+			JSONObject fromObj = new JSONObject();
+			fromObj.put("email", Constants.FROM);
+			fromObj.put("name",  Constants.QOUNT);
+			result.put("from", fromObj);
+			JSONArray contentArr = new JSONArray();
+			result.put("content", contentArr);
+			JSONObject contentObj = new JSONObject();
+			contentArr.put(contentObj);
+			if(StringUtils.isBlank(mail_body)){
+				throw new WebApplicationException(PropertyManager.getProperty("mail.invalid.input.empty.mail_body"),412);
+			}
+			contentObj.put("value",mail_body);
+			if(StringUtils.isBlank(mailBodyContentType)){
+				throw new WebApplicationException(PropertyManager.getProperty("mail.invalid.input.empty.mail_body_content_type"),412);
+			}
+			contentObj.put("type",mailBodyContentType);
+			return result;
+		} catch (WebApplicationException e) {
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error getMailJson invoice: " + invoice,e);
+			throw e;
+		} finally {
+			LOGGER.debug("exited getMailJson invoice: " + invoice);
+		}
 	}
 
 	private static String getTwoDecimalNumberAsString(double value) {
