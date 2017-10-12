@@ -70,6 +70,7 @@ public class HTTPClient {
 	 * @return
 	 */
 	public static Object postObject(String url, String payload) throws Exception{
+		LOGGER.debug("entered postObject url:"+url+" paload:"+payload);
 		JSONObject responseJSON = null;
 		CloseableHttpResponse responseEntity = null;
 		try {
@@ -90,9 +91,58 @@ public class HTTPClient {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error calling service", e);
+			LOGGER.error("Error calling service  postObject url:"+url+" paload:"+payload, e);
 			throw e;
 		} finally {
+			LOGGER.debug("exited postObject url:"+url+" paload:"+payload);
+			if (responseEntity != null) {
+				try {
+					responseEntity.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return responseJSON;
+	}
+	
+	/**
+	 * 
+	 * @param url
+	 * @param payload
+	 * @return
+	 */
+	public static Object postUrlAndGetStatus(String url, String payload) throws Exception{
+		LOGGER.debug("entered postUrlAndGetStatus url:"+url+" payload:"+payload);
+		JSONObject responseJSON = null;
+		CloseableHttpResponse responseEntity = null;
+		try {
+			HttpPost post = new HttpPost(url);
+			post.addHeader("Content-Type", "application/json");
+			post.setEntity(new StringEntity(payload));
+			responseEntity = HTTPCLIENT.execute(post);
+			HttpEntity entity = responseEntity.getEntity();
+			int status = responseEntity.getStatusLine().getStatusCode();
+			if(status==202){
+				responseJSON = new JSONObject();
+				responseJSON.put("status", status);
+				return responseJSON; 
+			}
+			StringWriter writer = new StringWriter();
+			IOUtils.copy(entity.getContent(), writer);
+			EntityUtils.consume(entity);
+			String response = writer.toString();
+			if (StringUtils.isNotBlank(response)) {
+				responseJSON = CommonUtils.getJsonFromString(response);
+				responseJSON.put("status", status);
+				if(!CommonUtils.isValidJSON(responseJSON)){
+					return response;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error postUrlAndGetStatus url:"+url+" payload:"+payload, e);
+			throw e;
+		} finally {
+			LOGGER.debug("exited postUrlAndGetStatus url:"+url+" payload:"+payload);
 			if (responseEntity != null) {
 				try {
 					responseEntity.close();
