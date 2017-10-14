@@ -30,26 +30,29 @@ public class InvoiceWebhookControllerImpl {
 	public static Response consumeWebHook(String json) {
 		LOGGER.debug("entered consumeWebHook : " + json);
 		try {
-			JSONObject obj = new JSONArray(json).optJSONObject(0);
-			String type = obj.optString("type").trim();
-			if(!type.equalsIgnoreCase(Constants.INVOICE)){
-				LOGGER.fatal("webhooked invoked not for invoice from sendgrid with payload :"+json);
-				return Response.ok().build();
+			JSONArray arr = new JSONArray(json);
+			for(int i=0;i<arr.length();i++){
+				JSONObject obj = arr.optJSONObject(i);
+				String type = obj.optString("type").trim();
+				if(!type.equalsIgnoreCase(Constants.INVOICE)){
+					LOGGER.fatal("webhooked invoked not for invoice from sendgrid with payload :"+json);
+					return Response.ok().build();
+				}
+				String invoiceId = obj.optString("id").trim();
+				if(StringUtils.isBlank(invoiceId)){
+					LOGGER.fatal("webhooked invoked withouth invoiceId json:"+json);
+					return Response.ok().build();
+				}
+	//			String SERVER_INSTANCE_MODE = obj.optString("SERVER_INSTANCE_MODE").toUpperCase();
+	//			if (SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
+	//				String url = PropertyManager.getProperty("invoice.dev.webhook.url");
+	//				LOGGER.debug("invoking url:"+url + " json:"+json);
+	//				HTTPClient.post(url,json);
+	//			} else if (SERVER_INSTANCE_MODE.equals("PRODUCTION")) {
+					updateInvoiceState(obj);
+	//			}
 			}
-			String invoiceId = obj.optString("id").trim();
-			if(StringUtils.isBlank(invoiceId)){
-				LOGGER.fatal("webhooked invoked withouth invoiceId json:"+json);
-				return Response.ok().build();
-			}
-//			String SERVER_INSTANCE_MODE = obj.optString("SERVER_INSTANCE_MODE").toUpperCase();
-//			if (SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
-//				String url = PropertyManager.getProperty("invoice.dev.webhook.url");
-//				LOGGER.debug("invoking url:"+url + " json:"+json);
-//				HTTPClient.post(url,json);
-//			} else if (SERVER_INSTANCE_MODE.equals("PRODUCTION")) {
-				updateInvoiceState(obj);
-//			}
-			return Response.ok("[{\"under\":\"development\"}, " + json + "]").build();
+			return Response.ok(json).build();
 		} catch (Exception e) {
 			LOGGER.error("error consumeWebHook:", e);
 			throw new WebApplicationException(
