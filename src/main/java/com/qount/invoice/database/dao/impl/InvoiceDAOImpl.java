@@ -128,6 +128,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getRemainder_job_id());
+				pstmt.setString(ctr++, invoice.getRemainder_name());
 				pstmt.setString(ctr++, invoice.getUser_id());
 				pstmt.setString(ctr++, invoice.getCompany_id());
 				pstmt.setString(ctr++, invoice.getCustomer_id());

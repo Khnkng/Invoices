@@ -206,24 +206,27 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			boolean createNewRemainder = false;
-			if(
+			boolean deleteOldRemainder = false;
+			if(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())){
 //			no remainder in db creating new
-					(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name()))
-					||
-//			different remainder for invoice 
-					(!StringUtils.isAnyBlank(dbInvoice.getRemainder_name(),invoice.getRemainder_name()) &&
-						!dbInvoice.getRemainder_name().equalsIgnoreCase(invoice.getRemainder_name()))
-				){
 				createNewRemainder = true;
+			}
+			if(!StringUtils.isAnyBlank(dbInvoice.getRemainder_name(),invoice.getRemainder_name()) &&
+						!dbInvoice.getRemainder_name().equalsIgnoreCase(invoice.getRemainder_name())){
+//			different remainder for invoice 
+				createNewRemainder = true;
+				deleteOldRemainder = true;
 			}
 //			different remainder for paid invoice :: false
 			if (createNewRemainder && dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), 412);
 			}
 			if (createNewRemainder) {
-				String result = Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
-				if(StringUtils.isNotBlank(result) && !result.trim().equalsIgnoreCase("true")){
-					throw new WebApplicationException(PropertyManager.getProperty("error.deleting.invoice.job.id"), Constants.EXPECTATION_FAILED);
+				if(deleteOldRemainder){
+					String result = Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
+					if(StringUtils.isNotBlank(result) && !result.trim().equalsIgnoreCase("true")){
+						throw new WebApplicationException(PropertyManager.getProperty("error.deleting.invoice.job.id"), Constants.EXPECTATION_FAILED);
+					}
 				}
 				String jobId = getJobId(connection,invoice);
 				if (StringUtils.isNotBlank(jobId) && !dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {

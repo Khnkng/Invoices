@@ -119,6 +119,7 @@ public class Utilities {
 			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"), PropertyManager.getProperty("remainder.service.docker.port"));
 			LOGGER.debug("unscheduling job url:" + remainderServieUrl);
 			remainderServieUrl += "RemainderService/mail/unschedule/" + jobId;
+//			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/RemainderService/mail/unschedule/" + jobId;
 			String result = HTTPClient.delete(remainderServieUrl);
 			LOGGER.debug("unscheduling result:" + result);
 			return result;
