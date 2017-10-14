@@ -635,7 +635,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 												if(StringUtils.isNotBlank(calculatedState)){
 													calculatedState += ","+calculatedEmailState;
 												}
-												calculatedState += calculatedEmailState;
 											}
 										}
 									}
