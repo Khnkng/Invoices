@@ -205,10 +205,34 @@ public class InvoiceControllerImpl {
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
-			if (invoice.isSendMail()) {
+			boolean createNewRemainder = false;
+			if(
+//			no remainder in db creating new
+					(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name()))
+					||
+//			different remainder for invoice 
+					(!StringUtils.isAnyBlank(dbInvoice.getRemainder_name(),invoice.getRemainder_name()) &&
+						!dbInvoice.getRemainder_name().equalsIgnoreCase(invoice.getRemainder_name()))
+				){
+				createNewRemainder = true;
+			}
+//			different remainder for paid invoice :: false
+			if (createNewRemainder && dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), 412);
+			}
+			if (createNewRemainder) {
+				String result = Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
+				if(StringUtils.isNotBlank(result) && !result.trim().equalsIgnoreCase("true")){
+					throw new WebApplicationException(PropertyManager.getProperty("error.deleting.invoice.job.id"), Constants.EXPECTATION_FAILED);
+				}
+				String jobId = getJobId(connection,invoice);
+				if (StringUtils.isNotBlank(jobId) && !dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+					invoice.setState(Constants.INVOICE_STATE_SENT);
+				}
+				invoice.setRemainder_job_id(jobId);
+			}else if (!createNewRemainder && invoice.isSendMail() ) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					// if invoice is paid then sending email and returning
-					// response
+					// if invoice is paid then sending email and returning response
 					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 						return InvoiceParser.convertTimeStampToString(dbInvoice);
 					}
@@ -246,7 +270,6 @@ public class InvoiceControllerImpl {
 					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
 				}
 			}
-
 			if (connection == null) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}

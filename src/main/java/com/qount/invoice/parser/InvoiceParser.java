@@ -42,7 +42,7 @@ public class InvoiceParser {
 	public static Invoice getInvoiceObj(String userId, Invoice invoice, String companyID, boolean createFlag) {
 		try {
 			if (invoice == null || StringUtils.isAnyBlank(userId, companyID, invoice.getCurrency())) {
-				throw new WebApplicationException("userId, companyId, currency are mandatory");
+				throw new WebApplicationException("userId, companyId, currency are mandatory",412);
 			}
 			UserCompany userCompany = null;
 			invoice.setCompany_id(companyID);
