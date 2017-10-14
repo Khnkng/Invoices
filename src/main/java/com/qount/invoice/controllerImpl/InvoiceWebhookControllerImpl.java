@@ -36,13 +36,19 @@ public class InvoiceWebhookControllerImpl {
 				LOGGER.fatal("webhooked invoked not for invoice from sendgrid with payload :"+json);
 				return Response.ok().build();
 			}
-			String SERVER_INSTANCE_MODE = obj.optString("SERVER_INSTANCE_MODE").toUpperCase();
-			if (SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
-				// forward to development
-			} else if (SERVER_INSTANCE_MODE.equals("PRODUCTION")) {
-				// logic should be here
+			String invoiceId = obj.optString("id").trim();
+			if(StringUtils.isBlank(invoiceId)){
+				LOGGER.fatal("webhooked invoked withouth invoiceId json:"+json);
+				return Response.ok().build();
 			}
-			updateInvoiceState(obj);
+//			String SERVER_INSTANCE_MODE = obj.optString("SERVER_INSTANCE_MODE").toUpperCase();
+//			if (SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
+//				String url = PropertyManager.getProperty("invoice.dev.webhook.url");
+//				LOGGER.debug("invoking url:"+url + " json:"+json);
+//				HTTPClient.post(url,json);
+//			} else if (SERVER_INSTANCE_MODE.equals("PRODUCTION")) {
+				updateInvoiceState(obj);
+//			}
 			return Response.ok("[{\"under\":\"development\"}, " + json + "]").build();
 		} catch (Exception e) {
 			LOGGER.error("error consumeWebHook:", e);
@@ -52,7 +58,7 @@ public class InvoiceWebhookControllerImpl {
 			LOGGER.debug("exited consumeWebHook : " + json);
 		}
 	}
-
+	
 	private static void updateInvoiceState(JSONObject obj) throws Exception{
 		LOGGER.debug("entered updateInvoiceState obj: " + obj);
 		Connection connection = null;
@@ -60,7 +66,7 @@ public class InvoiceWebhookControllerImpl {
 			String invoiceId = obj.optString("id").trim();
 			Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoiceId);
 			String invoiceEmailState = getInvoiceMailState(obj.optString("event"), dbInvoice.getEmail_state());
-			if(!invoiceEmailState.equalsIgnoreCase(dbInvoice.getEmail_state())){
+			if(StringUtils.isNotEmpty(invoiceEmailState) && !invoiceEmailState.equalsIgnoreCase(dbInvoice.getEmail_state())){
 				dbInvoice.setEmail_state(invoiceEmailState);
 				connection = DatabaseUtilities.getReadWriteConnection();
 				MySQLManager.getInvoiceDAOInstance().update(connection, dbInvoice);

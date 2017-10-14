@@ -362,19 +362,19 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLast_updated_at(rset.getString("last_updated_at"));
 							invoice.setState(rset.getString("state"));
 							invoice.setDue_date(rset.getString("due_date"));
-
-							String due_date_Str = rset.getString("due_date");
-							if (due_date_Str != null) {
-								DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-								Date due_date = formatter.parse(due_date_Str);
-								String state1 = rset.getString("state");
-								if (StringUtils.isNotEmpty(state1)
-										&& (state1.equals("partially_paid") || state1.equals("sent"))) {
-									if (due_date != null && due_date.before(date)) {
-										invoice.setState("past_due");
-									}
-								}
-							}
+//removing calculated state in get by id as after update we will get calculated state
+//							String due_date_Str = rset.getString("due_date");
+//							if (due_date_Str != null) {
+//								DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//								Date due_date = formatter.parse(due_date_Str);
+//								String state1 = rset.getString("state");
+//								if (StringUtils.isNotEmpty(state1)
+//										&& (state1.equals("partially_paid") || state1.equals("sent"))) {
+//									if (due_date != null && due_date.before(date)) {
+//										invoice.setState("past_due");
+//									}
+//								}
+//							}
 							invoice.setInvoice_date(rset.getString("invoice_date"));
 							invoice.setNotes(rset.getString("notes"));
 							invoice.setDiscount(rset.getLong("discount"));
@@ -614,10 +614,32 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 							Date due_date = formatter.parse(due_date_Str);
 							String state1 = rset.getString("state");
-							if (StringUtils.isNotEmpty(state1)
-									&& (state1.equals("partially_paid") || state1.equals("sent"))) {
-								if (due_date != null && due_date.before(date)) {
-									invoice.setState("past_due");
+							String email_state = rset.getString("email_state");
+							if (StringUtils.isNotEmpty(state1)){
+								String calculatedState = "";
+								if((state1.equals("partially_paid") || state1.equals("sent"))) {
+									if (due_date != null && due_date.before(date)) {
+										calculatedState="past_due";
+									}
+									if(state1.equals("sent")){
+										if(StringUtils.isNotBlank(email_state)){
+											String calculatedEmailState = "";
+											if(email_state.trim().equalsIgnoreCase(Constants.DELIVERED)){
+												calculatedEmailState = Constants.DELIVERED.toLowerCase();
+											}else if(email_state.trim().equalsIgnoreCase(Constants.OPEN)){
+												calculatedEmailState = Constants.OPEN.toLowerCase();
+											}
+											if(StringUtils.isNotBlank(calculatedEmailState)){
+												if(StringUtils.isNotBlank(calculatedState)){
+													calculatedState += ","+calculatedEmailState;
+												}
+												calculatedState += calculatedEmailState;
+											}
+										}
+									}
+									if(StringUtils.isNotBlank(calculatedState)){
+										invoice.setState(calculatedState);
+									}
 								}
 							}
 						}
