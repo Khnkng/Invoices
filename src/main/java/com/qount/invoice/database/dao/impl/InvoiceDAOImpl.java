@@ -861,6 +861,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(1, companyID);
 				pstmt.setString(2, companyID);
 				pstmt.setString(3, companyID);
+				pstmt.setString(4, companyID);
+				pstmt.setString(5, companyID);
 				rset = pstmt.executeQuery();
 				if (rset.next()) {
 					invoiceMetrics = new InvoiceMetrics();
@@ -869,8 +871,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoiceMetrics.setInvoiceCount(df.format(rset.getDouble("invoice_count")));
 					invoiceMetrics.setTotalReceivableAmount(df.format(rset.getDouble("total_due")));
 					invoiceMetrics.setTotalPastDueAmount(df.format(rset.getDouble("total_past_due")));
-					invoiceMetrics.setSentInvoices("0.00");
-					invoiceMetrics.setOpenedInvoices("0.00");
+					invoiceMetrics.setSentInvoices(df.format(rset.getDouble("sent_invoices")));
+					invoiceMetrics.setOpenedInvoices(df.format(rset.getDouble("open_invoices")));
 					invoiceMetrics.setTotalReceivedLast30Days(df.format(rset.getDouble("received_amount")));
 				}
 			}
