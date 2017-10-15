@@ -79,7 +79,7 @@ public class InvoiceWebhookControllerImpl {
 			throw e;
 		} finally {
 			LOGGER.debug("exited updateInvoiceState obj: " + obj);
-			connection.close();
+			DatabaseUtilities.closeConnection(connection);
 		}
 	}
 
