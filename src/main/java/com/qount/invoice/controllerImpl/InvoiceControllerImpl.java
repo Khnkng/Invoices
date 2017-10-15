@@ -205,6 +205,10 @@ public class InvoiceControllerImpl {
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
+//			remainder for paid invoice
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) && StringUtils.isNotEmpty(invoice.getRemainder_name())) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), 412);
+			}
 			boolean createNewRemainder = false;
 			boolean deleteOldRemainder = false;
 			if(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())){
@@ -216,10 +220,6 @@ public class InvoiceControllerImpl {
 //			different remainder for invoice 
 				createNewRemainder = true;
 				deleteOldRemainder = true;
-			}
-//			different remainder for paid invoice :: false
-			if (createNewRemainder && dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), 412);
 			}
 			if (createNewRemainder) {
 				if(deleteOldRemainder){
