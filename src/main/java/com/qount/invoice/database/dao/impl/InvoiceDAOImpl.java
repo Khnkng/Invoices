@@ -623,18 +623,12 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 									if (due_date != null && due_date.before(date)) {
 										calculatedState="past_due";
 									}
-									if(state1.equals("sent")){
+									if(StringUtils.isNotBlank(calculatedState) && state1.equals("sent")){
 										if(StringUtils.isNotBlank(email_state)){
-											String calculatedEmailState = "";
 											if(email_state.trim().equalsIgnoreCase(Constants.DELIVERED)){
-												calculatedEmailState = Constants.DELIVERED.toLowerCase();
-											}else if(email_state.trim().equalsIgnoreCase(Constants.OPEN)){
-												calculatedEmailState = Constants.OPEN.toLowerCase();
-											}
-											if(StringUtils.isNotBlank(calculatedEmailState)){
-												if(StringUtils.isNotBlank(calculatedState)){
-													calculatedState += ","+calculatedEmailState;
-												}
+												calculatedState = Constants.DELIVERED.toLowerCase();
+											}else if(email_state.trim().equalsIgnoreCase(Constants.OPEN) || email_state.trim().equalsIgnoreCase(Constants.CLICK)){
+												calculatedState = Constants.OPEN.toLowerCase();
 											}
 										}
 									}
