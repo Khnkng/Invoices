@@ -376,7 +376,7 @@ public class HTTPClient {
 			post.setEntity(new StringEntity(payload));
 			responseEntity = HTTPCLIENT.execute(post);
 			HttpEntity entity = responseEntity.getEntity();
-			tempFile = new File("F:/"+UUID.randomUUID().toString()+".txt");
+			tempFile = new File(UUID.randomUUID().toString()+".txt");
 			fout = new FileOutputStream(tempFile);
 			IOUtils.copy(entity.getContent(), fout);
 			fileInputStreamReader = new FileInputStream(tempFile);
