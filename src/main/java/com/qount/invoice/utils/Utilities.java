@@ -1,5 +1,6 @@
 package com.qount.invoice.utils;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Currency;
@@ -156,5 +157,21 @@ public class Utilities {
 		list.add("asdf2");
 		JSONArray listArr = new JSONArray(list);
 		System.out.println(listArr.toString());
+	}
+	
+	public static void deleteFileAsync(File file){
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(5000);
+					if (file!=null&&file.exists()) {
+						file.delete();
+					}
+				} catch (Exception e) {
+					LOGGER.error(e);
+				}
+			}
+		}.start();
 	}
 }
