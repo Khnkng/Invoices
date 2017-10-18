@@ -265,11 +265,11 @@ public class InvoiceControllerImpl {
 			if (invoiceExists) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
-			if (invoice != null && invoice.isSendMail()) {
+			if (invoice != null) {
 				invoice.setId(invoiceID);
-				if (Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) && invoice.isSendMail()) {
+				if (invoice.isSendMail()) {
 					isJERequired = true;
-				} else {
+				} else if(!Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) ) {
 					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
 				}
 			}
