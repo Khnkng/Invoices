@@ -127,4 +127,6 @@ public class Constants {
 		INVOICE_MAIL_STATE_MAP.put(GROUP_UNSUBSCRIBE, 7);
 		INVOICE_MAIL_STATE_MAP.put(GROUP_RESUBSCRIBE, 7);
 	}
+	public static final String APPLICATION_PDF = "application/pdf";
+	public static final String INVOICE_PDF_NAME = "invoice.pdf";
 }

@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.json.JSONArray;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
@@ -75,7 +74,26 @@ public class Invoice {
 	private String bank_account_id;
 	private String remainder_job_id;
 	private String remainder_name;
+	private PdfData pdf_data;
+	private String attachmentBase64;
+	private boolean is_past_due;
 	
+	public boolean isIs_past_due() {
+		return is_past_due;
+	}
+
+	public void setIs_past_due(boolean is_past_due) {
+		this.is_past_due = is_past_due;
+	}
+
+	public String getAttachmentBase64() {
+		return attachmentBase64;
+	}
+
+	public void setAttachmentBase64(String attachmentBase64) {
+		this.attachmentBase64 = attachmentBase64;
+	}
+
 	public String getRemainder_name() {
 		return remainder_name;
 	}
@@ -498,15 +516,6 @@ public class Invoice {
 	}
 
 	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return super.toString();
-	}
-	@Override
     public boolean equals(Object obj) {
         if (obj != null) {
             Invoice invoice = (Invoice) obj;
@@ -514,6 +523,21 @@ public class Invoice {
         }
         return false;
     }
+
+	@Override
+	public String toString() {
+		return "Invoice [id=" + id + ", user_id=" + user_id + ", company_id=" + company_id + ", amount=" + amount + ", sub_total=" + sub_total + ", currency=" + currency
+				+ ", description=" + description + ", objectives=" + objectives + ", last_updated_by=" + last_updated_by + ", last_updated_at=" + last_updated_at + ", customer_id="
+				+ customer_id + ", state=" + state + ", invoice_date=" + invoice_date + ", notes=" + notes + ", discount=" + discount + ", deposit_amount=" + deposit_amount
+				+ ", processing_fees=" + processing_fees + ", is_recurring=" + is_recurring + ", number=" + number + ", document_id=" + document_id + ", amount_due=" + amount_due
+				+ ", due_date=" + due_date + ", amount_by_date=" + amount_by_date + ", currencies=" + currencies + ", action=" + action + ", actionType=" + actionType
+				+ ", created_at=" + created_at + ", payment_spring_token=" + payment_spring_token + ", ends_after=" + ends_after + ", plan_id=" + plan_id + ", amountToPay="
+				+ amountToPay + ", amount_paid=" + amount_paid + ", companyName=" + companyName + ", term=" + term + ", sendMail=" + sendMail + ", recepientsMailsArr="
+				+ recepientsMailsArr + ", payment_options=" + payment_options + ", send_to=" + send_to + ", email_state=" + email_state + ", payment_method=" + payment_method
+				+ ", tax_amount=" + tax_amount + ", journalID=" + journalID + ", payment_type=" + payment_type + ", proposal_id=" + proposal_id + ", customer_name=" + customer_name
+				+ ", reference_number=" + reference_number + ", payment_date=" + payment_date + ", bank_account_id=" + bank_account_id + ", remainder_job_id=" + remainder_job_id
+				+ ", remainder_name=" + remainder_name + "]";
+	}
 
 	public static void main(String[] args) {
 		System.out.println(new Invoice());
@@ -551,5 +575,12 @@ public class Invoice {
 		this.bank_account_id = bank_account_id;
 	}
 
+	public PdfData getPdf_data() {
+		return pdf_data;
+	}
+
+	public void setPdf_data(PdfData pdf_data) {
+		this.pdf_data = pdf_data;
+	}
 	
 }

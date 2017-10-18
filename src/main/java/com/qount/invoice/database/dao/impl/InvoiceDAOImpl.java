@@ -364,19 +364,19 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLast_updated_at(rset.getString("last_updated_at"));
 							invoice.setState(rset.getString("state"));
 							invoice.setDue_date(rset.getString("due_date"));
-//removing calculated state in get by id as after update we will get calculated state
-//							String due_date_Str = rset.getString("due_date");
-//							if (due_date_Str != null) {
-//								DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-//								Date due_date = formatter.parse(due_date_Str);
-//								String state1 = rset.getString("state");
-//								if (StringUtils.isNotEmpty(state1)
-//										&& (state1.equals("partially_paid") || state1.equals("sent"))) {
-//									if (due_date != null && due_date.before(date)) {
-//										invoice.setState("past_due");
-//									}
-//								}
-//							}
+//updated state from past_due to a new field to avoid invalid data manipulation
+							String due_date_Str = rset.getString("due_date");
+							if (due_date_Str != null) {
+								DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+								Date due_date = formatter.parse(due_date_Str);
+								String state1 = rset.getString("state");
+								if (StringUtils.isNotEmpty(state1)
+										&& (state1.equals("partially_paid") || state1.equals("sent"))) {
+									if (due_date != null && due_date.before(date)) {
+										invoice.setIs_past_due(true);
+									}
+								}
+							}
 							invoice.setInvoice_date(rset.getString("invoice_date"));
 							invoice.setNotes(rset.getString("notes"));
 							invoice.setDiscount(rset.getLong("discount"));
