@@ -37,6 +37,15 @@ public class InvoiceLine {
 	private String type;
 	private String tax_id;
 	private List<Dimension> dimensions;
+	private int rank;
+
+	public int getRank() {
+		return rank;
+	}
+
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
 
 	public String getTax_id() {
 		return tax_id;

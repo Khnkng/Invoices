@@ -323,6 +323,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 					int invoiceLineIndex = invoice.getInvoiceLines().indexOf(invoiceLine);
 					if (invoiceLineIndex == -1) {
+						invoiceLine.setRank(rset.getInt("il_rank"));
 						invoiceLine.setInvoice_id(rset.getString("il_invoice_id"));
 						invoiceLine.setDescription(rset.getString("il_description"));
 						Item item = new Item();
