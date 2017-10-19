@@ -88,8 +88,10 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoiceLine.INSERT_QRY);
 				Iterator<InvoiceLine> invoiceLineItr = invoiceLines.iterator();
 				int ctr = 1;
+				int rank = 1;
 				while (invoiceLineItr.hasNext()) {
 					InvoiceLine invoiceLine = invoiceLineItr.next();
+					pstmt.setInt(ctr++, rank);
 					pstmt.setString(ctr++, invoiceLine.getId());
 					pstmt.setString(ctr++, invoiceLine.getInvoice_id());
 					pstmt.setString(ctr++, invoiceLine.getDescription());
@@ -104,6 +106,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 					pstmt.setString(ctr++, invoiceLine.getType());
 					pstmt.setString(ctr++, StringUtils.isBlank(invoiceLine.getTax_id())?null:invoiceLine.getTax_id());
 					ctr = 1;
+					rank++;
 					pstmt.addBatch();
 				}
 				int[] rowCount = pstmt.executeBatch();
