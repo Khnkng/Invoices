@@ -113,6 +113,7 @@ public class Constants {
 	public static final String UNSUBSCRIBE = "unsubscribe";
 	public static final String GROUP_UNSUBSCRIBE = "group unsubscribe";
 	public static final String GROUP_RESUBSCRIBE = "group resubscribe";
+	public static final HashMap<String, Integer> INVOICE_STATE_MAP = new HashMap<String,Integer>();
 	static {
 		DATE_FORMAT_GMT.setTimeZone(TimeZone.getTimeZone("GMT"));
 		INVOICE_MAIL_STATE_MAP.put(PROCESSED, 1);
@@ -126,6 +127,10 @@ public class Constants {
 		INVOICE_MAIL_STATE_MAP.put(UNSUBSCRIBE, 7);
 		INVOICE_MAIL_STATE_MAP.put(GROUP_UNSUBSCRIBE, 7);
 		INVOICE_MAIL_STATE_MAP.put(GROUP_RESUBSCRIBE, 7);
+		INVOICE_STATE_MAP.put(INVOICE_STATE_DRAFT, 1);
+		INVOICE_STATE_MAP.put(INVOICE_STATE_SENT, 2);
+		INVOICE_STATE_MAP.put(INVOICE_STATE_PARTIALLY_PAID, 3);
+		INVOICE_STATE_MAP.put(INVOICE_STATE_PAID, 4);
 	}
 	public static final String APPLICATION_PDF = "application/pdf";
 	public static final String INVOICE_PDF_NAME = "invoice.pdf";

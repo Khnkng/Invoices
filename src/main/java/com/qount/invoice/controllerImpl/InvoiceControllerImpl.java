@@ -225,8 +225,13 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 //			remainder for paid invoice
-			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID) && StringUtils.isNotEmpty(invoice.getRemainder_name())) {
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), 412);
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)){ 
+				if(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())) {
+						throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), 412);
+				}
+			}
+			if(StringUtils.isNotBlank(invoice.getState()) && !dbInvoice.getState().equals(invoice.getState())){
+				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"),Constants.INVALID_INPUT_STATUS);
 			}
 			boolean createNewRemainder = false;
 			boolean deleteOldRemainder = false;
@@ -334,7 +339,7 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited updateInvoice userid:" + userID + " companyID:" + companyID + " invoiceID:" + invoiceID + ": invoice" + invoice);
 		}
 	}
-
+	
 	public static Invoice updateInvoiceState(String invoiceID, Invoice invoice, String userID, String companyID) {
 		LOGGER.debug("entered updateInvoiceState invoiceID:" + invoiceID + ": invoice" + invoice);
 		Connection connection = null;
@@ -852,10 +857,4 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static void main(String[] args) {
-		Invoice invoice = new Invoice();
-		invoice.setCurrency("INR");
-		String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
-		System.out.println(currency);
-	}
 }
