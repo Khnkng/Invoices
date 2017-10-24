@@ -73,7 +73,7 @@ public class InvoiceWebhookControllerImpl {
 			if(StringUtils.isNotEmpty(invoiceEmailState) && !invoiceEmailState.equalsIgnoreCase(dbInvoice.getEmail_state())){
 				dbInvoice.setEmail_state(invoiceEmailState);
 				connection = DatabaseUtilities.getReadWriteConnection();
-				MySQLManager.getInvoiceDAOInstance().update(connection, dbInvoice);
+				MySQLManager.getInvoiceDAOInstance().updateEmailState(connection, dbInvoice);
 			}
 		} catch (Exception e) {
 			LOGGER.error("error updateInvoiceState obj: " + obj, e);
