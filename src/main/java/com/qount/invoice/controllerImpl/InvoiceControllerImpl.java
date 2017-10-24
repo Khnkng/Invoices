@@ -224,6 +224,9 @@ public class InvoiceControllerImpl {
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
+			if(StringUtils.isNotBlank(invoice.getState()) && !invoice.getState().equals(dbInvoice.getState())){
+				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"), 412);
+			}
 //			remainder for paid invoice
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)){ 
 				if(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())) {
