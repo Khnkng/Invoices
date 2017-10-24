@@ -180,6 +180,37 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 	}
+	
+	@Override
+	public Invoice updateEmailState(Connection connection, Invoice invoice) throws Exception {
+		LOGGER.debug("entered invoice updateEmailState:" + invoice);
+		if (invoice == null || StringUtils.isAnyBlank(invoice.getEmail_state(),invoice.getId())) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				int ctr = 1;
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_EMAIL_STATE_QRY);
+				pstmt.setString(ctr++, invoice.getEmail_state());
+				pstmt.setString(ctr++, invoice.getId());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount == 0) {
+					LOGGER.fatal("no record updated updateEmailState:" + invoice);
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error updating updateEmailState:" + invoice.getId() + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited invoice updateEmailState:" + invoice);
+		}
+		return invoice;
+	}
 
 	@Override
 	public Invoice updateState(Connection connection, Invoice invoice) throws Exception {

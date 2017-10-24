@@ -23,6 +23,8 @@ public interface InvoiceDAO {
 	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId, String id) throws Exception;
 
 	public Invoice update(Connection connection, Invoice invoice) throws Exception;;
+	
+	public Invoice updateEmailState(Connection connection, Invoice invoice) throws Exception;;
 
 	public Invoice updateState(Connection connection, Invoice invoice) throws Exception;;
 
