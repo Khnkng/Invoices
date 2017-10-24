@@ -2,6 +2,7 @@ package com.qount.invoice.utils;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.TimeZone;
 
 import com.google.gson.Gson;
@@ -68,9 +69,6 @@ public class Constants {
 	// SimpleDateFormat(PAYMENT_SPRING_API_DATE_FORMAT_STR);
 	public static final SimpleDateFormat INVOICE_DATE_FORMAT = new SimpleDateFormat(INVOICE_DATE_FORMAT_STR);
 	public static final SimpleDateFormat DATE_FORMAT_GMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	static {
-		DATE_FORMAT_GMT.setTimeZone(TimeZone.getTimeZone("GMT"));
-	}
 	public static final String DEFAULT_INVOICE_CURRENCY = "USD";
 	public static final CurrencyConverter CURRENCY_CONVERTER = new CurrencyConverter();
 	public static final String INVOICE_CONVERSION_DATE_FORMAT_STR = "yyyy-MM-dd";
@@ -101,4 +99,39 @@ public class Constants {
 	public static final String INVOICE_SCHEDULAR = "invoice_schedular";
 	public static final String FROM = "info@qount.io";
 	public static final String ACCOUNT = "Qount";
+	public static final String QOUNT = "Qount";
+	//https://sendgrid.com/docs/API_Reference/Webhooks/event.html
+	public static final HashMap<String, Integer> INVOICE_MAIL_STATE_MAP = new HashMap<String,Integer>();
+	public static final String PROCESSED = "processed";
+	public static final String DROPPED = "dropped";
+	public static final String DELIVERED = "delivered";
+	public static final String DEFERRED = "deferred";
+	public static final String BOUNCE = "bounce";
+	public static final String OPEN = "open";
+	public static final String CLICK = "click";
+	public static final String SPAM_REPORT = "spam report";
+	public static final String UNSUBSCRIBE = "unsubscribe";
+	public static final String GROUP_UNSUBSCRIBE = "group unsubscribe";
+	public static final String GROUP_RESUBSCRIBE = "group resubscribe";
+	public static final HashMap<String, Integer> INVOICE_STATE_MAP = new HashMap<String,Integer>();
+	static {
+		DATE_FORMAT_GMT.setTimeZone(TimeZone.getTimeZone("GMT"));
+		INVOICE_MAIL_STATE_MAP.put(PROCESSED, 1);
+		INVOICE_MAIL_STATE_MAP.put(DROPPED, 2);
+		INVOICE_MAIL_STATE_MAP.put(DELIVERED, 3);
+		INVOICE_MAIL_STATE_MAP.put(DEFERRED, 4);
+		INVOICE_MAIL_STATE_MAP.put(BOUNCE, 5);
+		INVOICE_MAIL_STATE_MAP.put(OPEN, 6);
+		INVOICE_MAIL_STATE_MAP.put(CLICK, 7);
+		INVOICE_MAIL_STATE_MAP.put(SPAM_REPORT, 7);
+		INVOICE_MAIL_STATE_MAP.put(UNSUBSCRIBE, 7);
+		INVOICE_MAIL_STATE_MAP.put(GROUP_UNSUBSCRIBE, 7);
+		INVOICE_MAIL_STATE_MAP.put(GROUP_RESUBSCRIBE, 7);
+		INVOICE_STATE_MAP.put(INVOICE_STATE_DRAFT, 1);
+		INVOICE_STATE_MAP.put(INVOICE_STATE_SENT, 2);
+		INVOICE_STATE_MAP.put(INVOICE_STATE_PARTIALLY_PAID, 3);
+		INVOICE_STATE_MAP.put(INVOICE_STATE_PAID, 4);
+	}
+	public static final String APPLICATION_PDF = "application/pdf";
+	public static final String INVOICE_PDF_NAME = "invoice.pdf";
 }

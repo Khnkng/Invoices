@@ -2,6 +2,7 @@ package com.qount.invoice.service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,8 +60,14 @@ public class PaymentService {
 		return PaymentDAOImpl.getInstance().list(companyId);
 	}
 	
-	public List<Payment> getunmappedPayments(String companyID, String bankAccountID){
-		return PaymentDAOImpl.getInstance().getUnmappedPayment(companyID, bankAccountID);
+	public List<Payment> getunmappedPayments(String companyID, String bankAccountID, String entityID){
+		List<Payment> payments = new ArrayList<Payment>();
+		if(entityID == null || entityID.isEmpty()){
+			payments = PaymentDAOImpl.getInstance().getUnmappedPayment(companyID, bankAccountID);
+		}
+		else {
+			payments = PaymentDAOImpl.getInstance().getUnmappedPaymentWithEntityId(companyID, bankAccountID, entityID);
+		 }return payments;
 	}
 	
 	public Payment getById(String companyId, String paymentId) {

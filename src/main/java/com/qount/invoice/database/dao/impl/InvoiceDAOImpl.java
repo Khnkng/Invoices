@@ -128,6 +128,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getRemainder_job_id());
+				pstmt.setString(ctr++, invoice.getRemainder_name());
 				pstmt.setString(ctr++, invoice.getUser_id());
 				pstmt.setString(ctr++, invoice.getCompany_id());
 				pstmt.setString(ctr++, invoice.getCustomer_id());
@@ -321,6 +323,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 					int invoiceLineIndex = invoice.getInvoiceLines().indexOf(invoiceLine);
 					if (invoiceLineIndex == -1) {
+						invoiceLine.setRank(rset.getInt("il_rank"));
 						invoiceLine.setInvoice_id(rset.getString("il_invoice_id"));
 						invoiceLine.setDescription(rset.getString("il_description"));
 						Item item = new Item();
@@ -362,7 +365,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLast_updated_at(rset.getString("last_updated_at"));
 							invoice.setState(rset.getString("state"));
 							invoice.setDue_date(rset.getString("due_date"));
-
+//updated state from past_due to a new field to avoid invalid data manipulation
 							String due_date_Str = rset.getString("due_date");
 							if (due_date_Str != null) {
 								DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -371,7 +374,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 								if (StringUtils.isNotEmpty(state1)
 										&& (state1.equals("partially_paid") || state1.equals("sent"))) {
 									if (due_date != null && due_date.before(date)) {
-										invoice.setState("past_due");
+										invoice.setIs_past_due(true);
 									}
 								}
 							}
@@ -614,10 +617,25 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 							Date due_date = formatter.parse(due_date_Str);
 							String state1 = rset.getString("state");
-							if (StringUtils.isNotEmpty(state1)
-									&& (state1.equals("partially_paid") || state1.equals("sent"))) {
-								if (due_date != null && due_date.before(date)) {
-									invoice.setState("past_due");
+							String email_state = rset.getString("email_state");
+							if (StringUtils.isNotEmpty(state1)){
+								String calculatedState = "";
+								if((state1.equals("partially_paid") || state1.equals("sent"))) {
+									if (due_date != null && due_date.before(date)) {
+										calculatedState="past_due";
+									}
+									if(StringUtils.isNotBlank(calculatedState) && state1.equals("sent")){
+										if(StringUtils.isNotBlank(email_state)){
+											if(email_state.trim().equalsIgnoreCase(Constants.DELIVERED)){
+												calculatedState = Constants.DELIVERED.toLowerCase();
+											}else if(email_state.trim().equalsIgnoreCase(Constants.OPEN) || email_state.trim().equalsIgnoreCase(Constants.CLICK)){
+												calculatedState = Constants.OPEN.toLowerCase();
+											}
+										}
+									}
+									if(StringUtils.isNotBlank(calculatedState)){
+										invoice.setState(calculatedState);
+									}
 								}
 							}
 						}
@@ -838,6 +856,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(1, companyID);
 				pstmt.setString(2, companyID);
 				pstmt.setString(3, companyID);
+				pstmt.setString(4, companyID);
+				pstmt.setString(5, companyID);
 				rset = pstmt.executeQuery();
 				if (rset.next()) {
 					invoiceMetrics = new InvoiceMetrics();
@@ -846,8 +866,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoiceMetrics.setInvoiceCount(df.format(rset.getDouble("invoice_count")));
 					invoiceMetrics.setTotalReceivableAmount(df.format(rset.getDouble("total_due")));
 					invoiceMetrics.setTotalPastDueAmount(df.format(rset.getDouble("total_past_due")));
-					invoiceMetrics.setSentInvoices("0.00");
-					invoiceMetrics.setOpenedInvoices("0.00");
+					invoiceMetrics.setSentInvoices(df.format(rset.getDouble("sent_invoices")));
+					invoiceMetrics.setOpenedInvoices(df.format(rset.getDouble("open_invoices")));
 					invoiceMetrics.setTotalReceivedLast30Days(df.format(rset.getDouble("received_amount")));
 				}
 			}

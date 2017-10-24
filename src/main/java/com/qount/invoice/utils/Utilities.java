@@ -1,5 +1,6 @@
 package com.qount.invoice.utils;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Currency;
@@ -119,6 +120,7 @@ public class Utilities {
 			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"), PropertyManager.getProperty("remainder.service.docker.port"));
 			LOGGER.debug("unscheduling job url:" + remainderServieUrl);
 			remainderServieUrl += "RemainderService/mail/unschedule/" + jobId;
+//			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/RemainderService/mail/unschedule/" + jobId;
 			String result = HTTPClient.delete(remainderServieUrl);
 			LOGGER.debug("unscheduling result:" + result);
 			return result;
@@ -155,5 +157,21 @@ public class Utilities {
 		list.add("asdf2");
 		JSONArray listArr = new JSONArray(list);
 		System.out.println(listArr.toString());
+	}
+	
+	public static void deleteFileAsync(File file){
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(5000);
+					if (file!=null&&file.exists()) {
+						file.delete();
+					}
+				} catch (Exception e) {
+					LOGGER.error(e);
+				}
+			}
+		}.start();
 	}
 }

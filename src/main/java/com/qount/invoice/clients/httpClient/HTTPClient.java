@@ -1,7 +1,12 @@
 package com.qount.invoice.clients.httpClient;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Base64;
+import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import com.qount.invoice.utils.CommonUtils;
+import com.qount.invoice.utils.Utilities;
 
 public class HTTPClient {
 
@@ -70,6 +76,7 @@ public class HTTPClient {
 	 * @return
 	 */
 	public static Object postObject(String url, String payload) throws Exception{
+		LOGGER.debug("entered postObject url:"+url+" paload:"+payload);
 		JSONObject responseJSON = null;
 		CloseableHttpResponse responseEntity = null;
 		try {
@@ -90,9 +97,59 @@ public class HTTPClient {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error calling service", e);
+			LOGGER.error("Error calling service  postObject url:"+url+" paload:"+payload, e);
 			throw e;
 		} finally {
+			LOGGER.debug("exited postObject url:"+url+" paload:"+payload);
+			if (responseEntity != null) {
+				try {
+					responseEntity.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return responseJSON;
+	}
+	
+	/**
+	 * 
+	 * @param url
+	 * @param payload
+	 * @return
+	 */
+	public static Object postUrlAndGetStatus(String url, String payload) throws Exception{
+		LOGGER.debug("entered postUrlAndGetStatus url:"+url+" payload:"+payload);
+		JSONObject responseJSON = null;
+		CloseableHttpResponse responseEntity = null;
+		try {
+			HttpPost post = new HttpPost(url);
+//			post.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
+			post.addHeader("Content-Type", "application/json");
+			post.setEntity(new StringEntity(payload));
+			responseEntity = HTTPCLIENT.execute(post);
+			HttpEntity entity = responseEntity.getEntity();
+			int status = responseEntity.getStatusLine().getStatusCode();
+			if(status==202){
+				responseJSON = new JSONObject();
+				responseJSON.put("status", status);
+				return responseJSON; 
+			}
+			StringWriter writer = new StringWriter();
+			IOUtils.copy(entity.getContent(), writer);
+			EntityUtils.consume(entity);
+			String response = writer.toString();
+			if (StringUtils.isNotBlank(response)) {
+				responseJSON = CommonUtils.getJsonFromString(response);
+				responseJSON.put("status", status);
+				if(!CommonUtils.isValidJSON(responseJSON)){
+					return response;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error postUrlAndGetStatus url:"+url+" payload:"+payload, e);
+			throw e;
+		} finally {
+			LOGGER.debug("exited postUrlAndGetStatus url:"+url+" payload:"+payload);
 			if (responseEntity != null) {
 				try {
 					responseEntity.close();
@@ -107,7 +164,7 @@ public class HTTPClient {
 		JSONObject responseJSON = new JSONObject();
 		CloseableHttpResponse responseEntity = null;
 		try {
-			post.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
+//			post.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
 			responseEntity = HTTPCLIENT.execute(post);
 			HttpEntity entity = responseEntity.getEntity();
 			int statusCode = responseEntity.getStatusLine().getStatusCode();
@@ -165,12 +222,6 @@ public class HTTPClient {
 		return responseJSON;
 	}
 	
-	public static void main(String[] args) {
-		String url = "http://bigpayservices.56f8b68d.svc.dockerapp.io:83/BigPayServices/user/uday.koorella@bighalf.io/companies/big half/bills/576fb55d-0a0a-4003-aa39-a8e719fa9d81";
-		String payload = "{\"id\":\"576fb55d-0a0a-4003-aa39-a8e719fa9d81\",\"name\":\"Bill5.pdf\",\"action\":\"pay\",\"payAmount\":222}";
-		System.out.println(put(url, payload));
-	}
-
 	/**
 	 * 
 	 * @param get
@@ -272,4 +323,93 @@ public class HTTPClient {
 		return response;
 	}
 
+	
+	/**
+	 * 
+	 * @param url
+	 * @param payload
+	 * @return
+	 */
+	public static String postAndGetStringResult(String url, String payload,String header) throws Exception{
+		CloseableHttpResponse responseEntity = null;
+		try {
+			HttpPost post = new HttpPost(url);
+			post.addHeader("Authorization", header);
+			post.addHeader("Content-Type", "application/json");
+			post.setEntity(new StringEntity(payload));
+			responseEntity = HTTPCLIENT.execute(post);
+			HttpEntity entity = responseEntity.getEntity();
+			StringWriter writer = new StringWriter();
+			IOUtils.copy(entity.getContent(), writer);
+			EntityUtils.consume(entity);
+			String response = writer.toString();
+			return response;
+		} catch (Exception e) {
+			LOGGER.error("Error calling service", e);
+			throw e;
+		} finally {
+			if (responseEntity != null) {
+				try {
+					responseEntity.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param url
+	 * @param payload
+	 * @return
+	 */
+	public static String postAndGetBase64StringResult(String url, String payload) throws Exception{
+		CloseableHttpResponse responseEntity = null;
+		File tempFile = null;
+		FileOutputStream fout = null;
+		FileInputStream fileInputStreamReader = null;
+		LOGGER.debug("entered postAndGetBase64StringResult(String url"+url+", String payload"+payload+")");
+		try {
+			HttpPost post = new HttpPost(url);
+//			post.addHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
+			post.addHeader("Content-Type", "application/json");
+			post.setEntity(new StringEntity(payload));
+			responseEntity = HTTPCLIENT.execute(post);
+			HttpEntity entity = responseEntity.getEntity();
+			tempFile = new File(UUID.randomUUID().toString()+".txt");
+			fout = new FileOutputStream(tempFile);
+			IOUtils.copy(entity.getContent(), fout);
+			fileInputStreamReader = new FileInputStream(tempFile);
+			byte[] bytes = new byte[(int)tempFile.length()];
+			fileInputStreamReader.read(bytes);
+	        String encodedBase64 = new String(Base64.getEncoder().encode(bytes));
+	        LOGGER.debug("encodedBase64: "+encodedBase64);
+			return encodedBase64;
+		} catch (Exception e) {
+			LOGGER.error("error postAndGetBase64StringResult(String url"+url+", String payload"+payload+")",e);
+		} finally {
+			LOGGER.debug("exited postAndGetBase64StringResult(String url"+url+", String payload"+payload+")");
+			if (fout != null) {
+				try {
+					fout.close();
+				} catch (IOException e) {
+				}
+			}
+			if (fileInputStreamReader != null) {
+				try {
+					fileInputStreamReader.close();
+				} catch (IOException e) {
+				}
+			}
+			Utilities.deleteFileAsync(tempFile);
+			if (responseEntity != null) {
+				try {
+					responseEntity.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return null;
+	}
+	
 }
