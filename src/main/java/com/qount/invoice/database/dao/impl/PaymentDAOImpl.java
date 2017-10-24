@@ -362,9 +362,52 @@ public class PaymentDAOImpl implements paymentDAO{
 			DatabaseUtilities.closeResources(rset, pstmt, connection);
 	}
 	return payments;
-	
 }
 
+    public List<Payment> getUnmappedPaymentWithEntityId(String companyID, String bankAccountID, String entityID){
+    	LOGGER.debug("retrieving unmapped payments with companyID" + companyID + " and bank accountID "+ bankAccountID + " and  entityID "+ entityID );
+	   ResultSet rset = null;
+	   PreparedStatement pstmt = null;
+	   Connection connection = null;
+	   Payment invoicePayment = null;
+	   List<Payment> payments = new ArrayList<Payment>();
+	   List<String> ids = new ArrayList<String>();
+	   try {
+		connection=DatabaseUtilities.getReadWriteConnection();
+		if(connection!=null){
+			pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_UNMAPPED_PAYMENTS_WITH_ENTITYID);
+			pstmt.setString(1, companyID);
+			pstmt.setString(2, bankAccountID);
+			pstmt.setString(3, entityID);
+			rset = pstmt.executeQuery();
+			while(rset.next()){
+				String paymentID = rset.getString("id");
+			if(!ids.contains(paymentID)){
+			    ids.add(paymentID);
+				invoicePayment = new Payment();
+				invoicePayment.setId(paymentID);
+				invoicePayment.setCustomerName(rset.getString("customer_name"));
+				invoicePayment.setDepositedTo(rset.getString("bank_account_id"));
+				invoicePayment.setPaymentDate(rset.getString("payment_date"));
+				invoicePayment.setAmountPaid(rset.getBigDecimal("amount"));
+				payments.add(invoicePayment);
+				}
+			else{
+				invoicePayment.setAmountPaid(rset.getBigDecimal("amount").add(invoicePayment.getAmountPaid()));
+			}
+			}
+		}
+	} catch (Exception e) {
+		LOGGER.error("error while retrieving unmapped payments with entityID",e);
+		throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+	}
+	   finally {
+			DatabaseUtilities.closeResources(rset, pstmt, connection);
+	}
+	return payments;
+	
+}
+    
 	@Override
 	public Payment getById(String paymentId) {
 		Connection connection = DatabaseUtilities.getReadWriteConnection();
