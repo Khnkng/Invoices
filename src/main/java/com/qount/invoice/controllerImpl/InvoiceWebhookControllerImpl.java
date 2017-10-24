@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
@@ -43,14 +44,14 @@ public class InvoiceWebhookControllerImpl {
 					LOGGER.fatal("webhooked invoked withouth invoiceId json:"+json);
 					return Response.ok().build();
 				}
-	//			String SERVER_INSTANCE_MODE = obj.optString("SERVER_INSTANCE_MODE").toUpperCase();
-	//			if (SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
-	//				String url = PropertyManager.getProperty("invoice.dev.webhook.url");
-	//				LOGGER.debug("invoking url:"+url + " json:"+json);
-	//				HTTPClient.post(url,json);
-	//			} else if (SERVER_INSTANCE_MODE.equals("PRODUCTION")) {
+				String SERVER_INSTANCE_MODE = obj.optString("SERVER_INSTANCE_MODE").toUpperCase();
+				if (SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
+					String url = PropertyManager.getProperty("invoice.dev.webhook.url");
+					LOGGER.debug("invoking url:"+url + " json:"+json);
+					HTTPClient.post(url,json);
+				} else if (SERVER_INSTANCE_MODE.equals("PRODUCTION")) {
 					updateInvoiceState(obj);
-	//			}
+				}
 			}
 			return Response.ok(json).build();
 		} catch (Exception e) {
