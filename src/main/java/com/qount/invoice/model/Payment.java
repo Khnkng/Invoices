@@ -48,6 +48,9 @@ public class Payment {
 	
 	private String depositID;
 	
+	private String status;
+	
+	
 	public String getId() {
 		return id;
 	}
@@ -152,5 +155,11 @@ public class Payment {
 	}
 	public void setDepositID(String depositID) {
 		this.depositID = depositID;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }
