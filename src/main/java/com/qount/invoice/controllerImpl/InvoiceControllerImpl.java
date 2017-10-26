@@ -30,6 +30,7 @@ import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
+import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
 import com.qount.invoice.parser.InvoiceParser;
@@ -559,6 +560,37 @@ public class InvoiceControllerImpl {
 
 	}
 
+	public static InvoicePreference getInvoicePreference(String invoiceID) {
+		Connection connection = null;
+		try {
+			LOGGER.debug("entered getInvoicePreference invocieId:" + invoiceID);
+			if (StringUtils.isEmpty(invoiceID)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			Invoice result = InvoiceParser.convertTimeStampToString(MySQLManager.getInvoiceDAOInstance().get(invoiceID));
+			InvoicePreference invoicePreference = new InvoicePreference();
+			invoicePreference.setCompanyId(result.getCompany_id());
+			connection = DatabaseUtilities.getReadConnection();
+			invoicePreference = MySQLManager.getInvoicePreferenceDAOInstance().getInvoiceByCompanyId(connection, invoicePreference);
+			LOGGER.debug("getInvoicePreference result:" + result);
+			return invoicePreference;
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if (e.getResponse().getStatus() == 412) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
+		} finally {
+			LOGGER.debug("exited getInvoicePreference invocieId:" + invoiceID);
+			DatabaseUtilities.closeConnection(connection);
+		}
+
+	}
+	
 	public static Invoice deleteInvoiceById(String userID, String companyID, String invoiceID) {
 		try {
 			LOGGER.debug("entered deleteInvoiceById userID: " + userID + " companyID: " + companyID + " invoiceID" + invoiceID);
