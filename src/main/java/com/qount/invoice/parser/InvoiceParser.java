@@ -126,26 +126,6 @@ public class InvoiceParser {
 		return invoice;
 	}
 
-	private static List<Invoice> convertTimeStampToString(List<Invoice> invoiceLst) {
-		try {
-			if (invoiceLst != null && !invoiceLst.isEmpty()) {
-				for (int i = 0; i < invoiceLst.size(); i++) {
-					Invoice invoice = invoiceLst.get(i);
-					if (invoice != null) {
-						invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(),
-								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(),
-								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(),
-								new SimpleDateFormat("yyyy-MM-dd"), Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-					}
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-		}
-		return invoiceLst;
-	}
 
 	/**
 	 * method used to convert invoice amount fields to two decimals
@@ -186,6 +166,49 @@ public class InvoiceParser {
 		}
 	}
 
+	public static void formatGetInvoicesResponse(List<Invoice> invoiceLst, Map<String,String> invoicePaymentIdMap){
+		try {
+			if (invoiceLst != null && !invoiceLst.isEmpty()) {
+				for (int i = 0; i < invoiceLst.size(); i++) {
+					Invoice invoice = invoiceLst.get(i);
+					if (invoice != null) {
+						invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(),
+								new SimpleDateFormat("yyyy-MM-dd"), Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setAmount(InvoiceParser.getTwoDecimalValue(invoice.getAmount()));
+						invoice.setAmount_by_date(InvoiceParser.getTwoDecimalValue(invoice.getAmount_by_date()));
+						invoice.setAmount_due(InvoiceParser.getTwoDecimalValue(invoice.getAmount_due()));
+						invoice.setAmount_paid(InvoiceParser.getTwoDecimalValue(invoice.getAmount_paid()));
+						invoice.setAmountToPay(InvoiceParser.getTwoDecimalValue(invoice.getAmountToPay()));
+						invoice.setProcessing_fees(InvoiceParser.getTwoDecimalValue(invoice.getProcessing_fees()));
+						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getSub_total()));
+						invoice.setTax_amount(InvoiceParser.getTwoDecimalValue(invoice.getTax_amount()));
+						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null
+								? invoice.getInvoiceLines().iterator()
+								: null;
+						if (invoiceLineIterator != null) {
+							while (invoiceLineIterator.hasNext()) {
+								InvoiceLine invoiceLine = invoiceLineIterator.next();
+								invoiceLine.setAmount(getTwoDecimalValue(invoiceLine.getAmount()));
+								invoiceLine.setPrice(getTwoDecimalValue(invoiceLine.getPrice()));
+								invoiceLine.setQuantity(getFourDecimalValue(invoiceLine.getQuantity()));
+							}
+						}
+						if(null !=invoicePaymentIdMap && !invoicePaymentIdMap.isEmpty()){
+							invoice.setPayment_ids(invoicePaymentIdMap.get(invoice.getId()));
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}
+	}
+	
 	/**
 	 * method used to convert invoice amount fields to two decimals
 	 * 
@@ -303,11 +326,12 @@ public class InvoiceParser {
 		return null;
 	}
 
-	public static void formatInvoices(List<Invoice> invoiceLst) {
+	public static void formatInvoices(List<Invoice> invoiceLst, Map<String,String> invoicePaymentIdMap) {
 		try {
 			if (invoiceLst != null && !invoiceLst.isEmpty()) {
-				convertTimeStampToString(invoiceLst);
-				convertAmountToDecimal(invoiceLst);
+//				convertTimeStampToString(invoiceLst);
+//				convertAmountToDecimal(invoiceLst);
+				formatGetInvoicesResponse(invoiceLst, invoicePaymentIdMap);
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -446,5 +470,24 @@ public class InvoiceParser {
 			throw new WebApplicationException(e.getLocalizedMessage());
 		}
 		return result;
+	}
+	
+	public static String getInvoiceIds(List<Invoice> invoices){
+		try {
+			LOGGER.debug("entered getInvoiceIds(List<Invoice> invoices"+invoices+")");
+			if(invoices==null || invoices.isEmpty()){
+				return null;
+			}
+			StringBuilder result = new StringBuilder();
+			for(int i=0;i<invoices.size();i++){
+				result.append("'").append(invoices.get(i).getId()).append("',");
+			}
+			return result.substring(0,result.length()-1);
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}finally {
+			LOGGER.debug("exited getInvoiceIds(List<Invoice> invoices"+invoices+")");
+		}
 	}
 }

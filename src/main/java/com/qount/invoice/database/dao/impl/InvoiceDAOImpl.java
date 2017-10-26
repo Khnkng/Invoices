@@ -1068,6 +1068,47 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		
 	}
+	
+	@Override
+	public Map<String,String> getInvoicePaymentsIds(String invoiceIds) throws Exception {
+		LOGGER.debug("entered getInvoicePaymentsIds invoiceIds:" + invoiceIds);
+		if (StringUtils.isBlank(invoiceIds)) {
+			throw new WebApplicationException("invoiceIds cannot be empty", Constants.INVALID_INPUT_STATUS);
+		}
+		Map<String,String> result = new HashMap<String,String>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		try {
+			connection = DatabaseUtilities.getReadConnection();
+			if (connection != null) {
+				String query = SqlQuerys.Invoice.GET_INVOICES_PAYMENTS_MAP_BY_INVOICE_ID_QRY;
+				query += invoiceIds + ")";
+				pstmt = connection.prepareStatement(query);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					String invoiceId = rset.getString("invoice_id");
+					String existingPaymentId = result.get(invoiceId);
+					String newPaymentId = rset.getString("id");
+					if(StringUtils.isNotBlank(existingPaymentId) && !existingPaymentId.contains(newPaymentId)){
+						result.put(invoiceId,existingPaymentId+","+newPaymentId);
+					}else{
+						result.put(invoiceId,newPaymentId);
+					}
+				}
+			}
+			return result;
+		} catch (Exception e) {
+			LOGGER.error("Error payments for invoiceIds [ " + invoiceIds + " ]", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited getInvoicePaymentsIds invoiceIds:" + invoiceIds);
+		}
+		
+	}
 
 	public static void main(String[] args) throws Exception {
 		InvoiceDAOImpl invoiceDAOImpl = new InvoiceDAOImpl();

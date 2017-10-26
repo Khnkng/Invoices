@@ -77,7 +77,16 @@ public class Invoice {
 	private PdfData pdf_data;
 	private String attachmentBase64;
 	private boolean is_past_due;
+	private String payment_ids;
 	
+	public String getPayment_ids() {
+		return payment_ids;
+	}
+
+	public void setPayment_ids(String payment_ids) {
+		this.payment_ids = payment_ids;
+	}
+
 	public boolean isIs_past_due() {
 		return is_past_due;
 	}
