@@ -62,7 +62,7 @@ public class InvoiceDashboardControllerImpl {
 						query);
 			}
 
-			InvoiceParser.formatInvoices(invoiceLst);
+			InvoiceParser.formatInvoices(invoiceLst, null);
 			// result = InvoiceParser.prepareInvoiceDashboardResponse(invoiceLst);
 			return invoiceLst;
 		} catch (Exception e) {

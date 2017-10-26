@@ -505,9 +505,13 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID, companyID, state);
+			Map<String, String> invoicePaymentIdMap = null;
+			if(invoiceLst!=null && !invoiceLst.isEmpty()){
+				invoicePaymentIdMap = MySQLManager.getInvoiceDAOInstance().getInvoicePaymentsIds(InvoiceParser.getInvoiceIds(invoiceLst));
+			}
 			// Map<String, String> badges =
 			// MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
-			InvoiceParser.formatInvoices(invoiceLst);
+			InvoiceParser.formatInvoices(invoiceLst,invoicePaymentIdMap);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			if (e.getResponse().getStatus() == 412) {
