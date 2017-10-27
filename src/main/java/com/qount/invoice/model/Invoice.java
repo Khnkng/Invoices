@@ -78,7 +78,25 @@ public class Invoice {
 	private String attachmentBase64;
 	private boolean is_past_due;
 	private String payment_ids;
+	private String subject;
+	private String from;
 	
+	public String getFrom() {
+		return from;
+	}
+
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
 	public String getPayment_ids() {
 		return payment_ids;
 	}

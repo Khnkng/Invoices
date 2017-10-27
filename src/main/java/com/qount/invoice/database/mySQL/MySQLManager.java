@@ -18,6 +18,7 @@ import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.InvoiceLineDAO;
 import com.qount.invoice.database.dao.InvoicePlanDAO;
 import com.qount.invoice.database.dao.InvoicePreferenceDAO;
+import com.qount.invoice.database.dao.Invoice_historyDAO;
 import com.qount.invoice.database.dao.ProposalDAO;
 import com.qount.invoice.database.dao.ProposalLineDAO;
 import com.qount.invoice.database.dao.paymentDAO;
@@ -28,6 +29,7 @@ import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoiceLineDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoicePlanDAOImpl;
 import com.qount.invoice.database.dao.impl.InvoicePreferenceDAOImpl;
+import com.qount.invoice.database.dao.impl.Invoice_historyDAOImpl;
 import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalDAOImpl;
 import com.qount.invoice.database.dao.impl.ProposalLineDAOImpl;
@@ -63,6 +65,8 @@ public class MySQLManager {
 	private static CompanyDAO companyDAO = null;
 
 	private static InvoicePlanDAO invoicePlanDAO = null;
+	
+	private static Invoice_historyDAO INVOICE_HISTORY_DAO = null;
 
 	private MySQLManager() {
 
@@ -209,5 +213,12 @@ public class MySQLManager {
 			invoicePlanDAO = InvoicePlanDAOImpl.getInvoicePlanDAOImpl();
 		}
 		return invoicePlanDAO;
+	}
+	
+	public static Invoice_historyDAO getInvoice_historyDAO() {
+		if (INVOICE_HISTORY_DAO == null) {
+			INVOICE_HISTORY_DAO = Invoice_historyDAOImpl.getInvoice_historyDAOImpl();
+		}
+		return INVOICE_HISTORY_DAO;
 	}
 }

@@ -18,9 +18,12 @@ import org.apache.log4j.Logger;
 
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.paymentDAO;
+import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -153,6 +156,8 @@ public class PaymentDAOImpl implements paymentDAO{
 				throw new WebApplicationException("unable to perform invoice amount validation", Constants.EXPECTATION_FAILED);
 			}
 			invoiceDAOImpl.update(connection, invoice);
+			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), invoice.getUser_id(), invoice.getCompany_id());
+			MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 		} catch (Exception e) {
 			throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 		} 
