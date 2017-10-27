@@ -15,11 +15,13 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.model.InvoicePreference;
@@ -490,4 +492,101 @@ public class InvoiceParser {
 			LOGGER.debug("exited getInvoiceIds(List<Invoice> invoices"+invoices+")");
 		}
 	}
+	
+	public static InvoiceHistory getInvoice_history(Invoice invoice,String id, String user_id,String companyId){
+		try{
+			LOGGER.debug("entered getInvoice_history(Invoice invoice:"+invoice+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+")");
+			if(invoice!=null){
+				InvoiceHistory invoiceHistory = new InvoiceHistory();
+				invoiceHistory.setAction(invoice.getState());
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				invoiceHistory.setAction_at(timestamp.toString());
+				invoiceHistory.setCompany_id(companyId);
+				invoiceHistory.setCreated_at(timestamp.toString());
+				invoiceHistory.setCreated_by(user_id);
+				invoiceHistory.setEmail_from(invoice.getFrom());
+				invoiceHistory.setEmail_subject(invoice.getSubject());
+				invoiceHistory.setEmail_to(new JSONArray(invoice.getRecepientsMails()).toString());
+				invoiceHistory.setId(id);
+				invoiceHistory.setInvoice_id(invoice.getId());
+				invoiceHistory.setLast_updated_at(timestamp.toString());
+				invoiceHistory.setLast_updated_by(user_id);
+				invoiceHistory.setUser_id(user_id);
+				return invoiceHistory;
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}finally {
+			LOGGER.debug("exited getInvoice_history(Invoice invoice"+invoice+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+")");
+		}
+		return null;
+	}
+	
+	public static InvoiceHistory getInvoice_history(Invoice invoice,String id, String user_id,String companyId,String emailState,String email){
+		try{
+			LOGGER.debug("entered getInvoice_history(Invoice invoice:"+invoice+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+" String emailState:"+emailState+" String email:"+email+")");
+			if(invoice!=null){
+				InvoiceHistory invoiceHistory = new InvoiceHistory();
+				invoiceHistory.setAction(emailState);
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				invoiceHistory.setAction_at(timestamp.toString());
+				invoiceHistory.setCompany_id(companyId);
+				invoiceHistory.setCreated_at(timestamp.toString());
+				invoiceHistory.setCreated_by(user_id);
+				invoiceHistory.setEmail_from(invoice.getFrom());
+				invoiceHistory.setEmail_subject(invoice.getSubject());
+				invoiceHistory.setEmail_to(email);
+				invoiceHistory.setId(id);
+				invoiceHistory.setInvoice_id(invoice.getId());
+				invoiceHistory.setLast_updated_at(timestamp.toString());
+				invoiceHistory.setLast_updated_by(user_id);
+				invoiceHistory.setUser_id(user_id);
+				return invoiceHistory;
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}finally {
+			LOGGER.debug("exited getInvoice_history(Invoice invoice"+invoice+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+" String emailState:"+emailState+" String email:"+email+")");
+		}
+		return null;
+	}
+	
+	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds,String id, String user_id,String companyId){
+		try{
+			List<InvoiceHistory> result = null;
+			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:"+invoiceIds+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+")");
+			if(invoiceIds!=null && !invoiceIds.isEmpty()){
+				result = new ArrayList<InvoiceHistory>();
+				for(int i=0;i<invoiceIds.size();i++){
+					String invoiceId = invoiceIds.get(i);
+					InvoiceHistory invoiceHistory = new InvoiceHistory();
+					invoiceHistory.setAction(Constants.DELETE);
+					Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+					invoiceHistory.setAction_at(timestamp.toString());
+					invoiceHistory.setCompany_id(companyId);
+					invoiceHistory.setCreated_at(timestamp.toString());
+					invoiceHistory.setCreated_by(user_id);
+					invoiceHistory.setEmail_from(null);
+					invoiceHistory.setEmail_subject(null);
+					invoiceHistory.setEmail_to(null);
+					invoiceHistory.setId(id);
+					invoiceHistory.setInvoice_id(invoiceId);
+					invoiceHistory.setLast_updated_at(timestamp.toString());
+					invoiceHistory.setLast_updated_by(user_id);
+					invoiceHistory.setUser_id(user_id);
+					result.add(invoiceHistory);
+				}
+				return result;
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}finally {
+			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds"+invoiceIds+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+")");
+		}
+		return null;
+	}
+	
 }

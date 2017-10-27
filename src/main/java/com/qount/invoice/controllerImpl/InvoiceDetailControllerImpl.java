@@ -19,8 +19,10 @@ import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -180,6 +182,8 @@ public class InvoiceDetailControllerImpl {
 			if(paymentCaptured){
 				connection.commit();
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getCompany_id());
+				InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), invoice.getUser_id(), companyID);
+				MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 				return true;
 			}else{
 				LOGGER.fatal("payment done but not saved in qount db");

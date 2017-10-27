@@ -134,4 +134,6 @@ public class Constants {
 	}
 	public static final String APPLICATION_PDF = "application/pdf";
 	public static final String INVOICE_PDF_NAME = "invoice.pdf";
+	public static final int INVALID_INPUT = 412;
+	public static final String DELETE = "delete";
 }

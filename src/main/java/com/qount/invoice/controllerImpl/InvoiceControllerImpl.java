@@ -28,6 +28,7 @@ import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.InvoicePreference;
@@ -109,6 +110,8 @@ public class InvoiceControllerImpl {
 				if (!invoiceLineResult.isEmpty()) {
 					// saving dimensions of journal lines
 					new InvoiceDimension().create(connection, companyID, invoiceObj.getInvoiceLines());
+					InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
+					MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
@@ -166,13 +169,17 @@ public class InvoiceControllerImpl {
 			custom_args.put("SERVER_INSTANCE_MODE", PropertyManager.getProperty("SERVER_INSTANCE_MODE"));
 			custom_args.put("type", Constants.INVOICE);
 			custom_args.put("id", invoice.getId());
+			String from = Constants.QOUNT;
+			invoice.setFrom(from);
 			remainderJsonObject.put("custom_args", custom_args);
-			remainderJsonObject.put("from_name", Constants.QOUNT);
+			remainderJsonObject.put("from_name", from);
 			remainderJsonObject.put("emails", invoice.getRecepientsMails());
 			remainderJsonObject.put("type", Constants.INVOICE);
 			remainderJsonObject.put("account", Constants.ACCOUNT);
 			remainderJsonObject.put("from", Constants.FROM);
-			remainderJsonObject.put("subject", PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName());
+			String subject = PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName();
+			invoice.setSubject(subject);
+			remainderJsonObject.put("subject", subject);
 			remainderJsonObject.put("mailBodyContentType", PropertyManager.getProperty("invoice.mailBodyContentType"));
 			String mail_body = PropertyManager.getProperty("invoice.remainder.mail.template");
 			String amount_due = getTwoDecimalNumberAsString(invoice.getAmount_due());
@@ -265,6 +272,8 @@ public class InvoiceControllerImpl {
 				if (sendInvoiceEmail(invoiceObj)) {
 					// if invoice is paid then sending email and returning response
 					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
+						InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
+						MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 						return InvoiceParser.convertTimeStampToString(dbInvoice);
 					}
 					if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
@@ -323,6 +332,8 @@ public class InvoiceControllerImpl {
 						if (isJERequired) {
 							CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 						}
+						InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
+						MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 						return InvoiceParser.convertTimeStampToString(invoiceResult);
 					}
 				}
@@ -400,6 +411,8 @@ public class InvoiceControllerImpl {
 			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
 			if (invoiceResult != null) {
+				InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), invoice.getUser_id(), invoice.getCompany_id());
+				MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 				return invoice;
 			}
 		} catch (WebApplicationException e) {
@@ -430,6 +443,8 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(PropertyManager.getProperty("draft.invoice.paid.validation"), 412);
 			}
 			if (markAsPaid(connection, invoice, dbInvoice)) {
+				InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), invoice.getUser_id(), invoice.getCompany_id());
+				MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 				return invoice;
 			}
 		} catch (WebApplicationException e) {
@@ -592,6 +607,7 @@ public class InvoiceControllerImpl {
 	}
 	
 	public static Invoice deleteInvoiceById(String userID, String companyID, String invoiceID) {
+		Connection connection = null;
 		try {
 			LOGGER.debug("entered deleteInvoiceById userID: " + userID + " companyID: " + companyID + " invoiceID" + invoiceID);
 			Invoice invoice = InvoiceParser.getInvoiceObjToDelete(userID, companyID, invoiceID);
@@ -599,6 +615,9 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Invoice invoiceObj = MySQLManager.getInvoiceDAOInstance().delete(invoice);
+			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
+			connection = DatabaseUtilities.getReadWriteConnection();
+			MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 			CommonUtils.deleteJournal(userID, companyID, invoiceID + "@" + "invoice");
 			Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
 			return InvoiceParser.convertTimeStampToString(invoiceObj);
@@ -614,10 +633,12 @@ public class InvoiceControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited deleteInvoiceById userID: " + userID + " companyID: " + companyID + " invoiceID" + invoiceID);
+			DatabaseUtilities.closeConnection(connection);
 		}
 	}
 
 	public static boolean deleteInvoicesById(String userID, String companyID, List<String> ids) {
+		Connection connection = null;
 		try {
 			LOGGER.debug("entered deleteInvoicesById userID: " + userID + " companyID:" + companyID + " ids:" + ids);
 			if (StringUtils.isAnyBlank(userID, companyID) || ids == null || ids.isEmpty()) {
@@ -627,6 +648,9 @@ public class InvoiceControllerImpl {
 			CommonUtils.deleteJournalsAsync(userID, companyID, ids);
 			List<String> jobIds = MySQLManager.getInvoiceDAOInstance().getInvoiceJobsList(commaSeparatedLst);
 			deleteInvoiceJobsAsync(jobIds);
+			List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID);
+			connection = DatabaseUtilities.getReadWriteConnection();
+			MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -640,6 +664,7 @@ public class InvoiceControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited deleteInvoicesById userID: " + userID + " companyID:" + companyID + " ids:" + ids);
+			DatabaseUtilities.closeConnection(connection);
 		}
 	}
 	
@@ -662,6 +687,7 @@ public class InvoiceControllerImpl {
 	}
 
 	public static boolean updateInvoicesAsSent(String userID, String companyID, List<String> ids) {
+		Connection connection = null;
 		try {
 			LOGGER.debug("entered updateInvoicesAsSent userID: " + userID + " companyID:" + companyID + " ids:" + ids);
 			if (StringUtils.isAnyBlank(userID, companyID) || ids == null || ids.isEmpty()) {
@@ -677,6 +703,10 @@ public class InvoiceControllerImpl {
 			}
 			boolean isSent = MySQLManager.getInvoiceDAOInstance().updateStateAsSent(userID, companyID, commaSeparatedLst);
 			if (isSent) {
+				connection = DatabaseUtilities.getReadWriteConnection();
+				List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID);
+				connection = DatabaseUtilities.getReadWriteConnection();
+				MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
 				for (String invoiceID : ids) {
 					CommonUtils.createJournalAsync(new JSONObject().put("source", "invoice").put("sourceID", invoiceID).toString(), userID, companyID);
 				}
@@ -694,6 +724,7 @@ public class InvoiceControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited updateInvoicesAsSent userID: " + userID + " companyID:" + companyID + " ids:" + ids);
+			DatabaseUtilities.closeConnection(connection);
 		}
 	}
 
@@ -748,6 +779,7 @@ public class InvoiceControllerImpl {
 			personalizations.put(emailJson);
 			String subject = PropertyManager.getProperty("invoice.subject");
 			subject += invoice.getCompanyName();
+			invoice.setSubject(subject);
 			JSONObject custom_args = new JSONObject();
 			custom_args.put("SERVER_INSTANCE_MODE", PropertyManager.getProperty("SERVER_INSTANCE_MODE"));
 			custom_args.put("type", Constants.INVOICE);
@@ -771,7 +803,9 @@ public class InvoiceControllerImpl {
 			}
 			JSONObject fromObj = new JSONObject();
 			fromObj.put("email", Constants.FROM);
-			fromObj.put("name",  Constants.QOUNT);
+			String from  = Constants.QOUNT;
+			invoice.setFrom(from);
+			fromObj.put("name",  from);
 			result.put("from", fromObj);
 			JSONArray contentArr = new JSONArray();
 			result.put("content", contentArr);
