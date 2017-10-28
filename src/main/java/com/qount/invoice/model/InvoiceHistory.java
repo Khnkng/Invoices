@@ -17,6 +17,15 @@ public class InvoiceHistory {
 	private String created_at;
 	private String last_updated_by;
 	private String last_updated_at;
+	private String description;
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	public String getId() {
 		return id;
