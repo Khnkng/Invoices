@@ -119,7 +119,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			if (conn != null) {
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.GET_BY_INVOICE_AND_ACTION_ID_QRY);
 				pstmt.setString(1, invoiceId);
-				pstmt.setString(1, action);
+				pstmt.setString(2, action);
 				rset = pstmt.executeQuery();
 				if (rset.next()) {
 					String id = rset.getString("id");
