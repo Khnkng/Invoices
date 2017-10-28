@@ -159,6 +159,7 @@ public class SqlQuerys {
 		public static final String GET_QRY = "SELECT `webhook_event_id`,`description`, `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM `invoice_history` WHERE `id` = ?;";
 		public static final String GET_BY_WEBHOOK_ID_QRY = "SELECT `id` FROM `invoice_history` WHERE `webhook_event_id` = ? limit 1;";
 		public static final String GET_ALL_QRY = "SELECT `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM invoice_history where created_by = ? and company_id = ?;";
+		public static final String GET_ALL_BY_INVOICE_ID_QRY = "SELECT `webhook_event_id`,`description`, `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM `invoice_history` WHERE `invoice_id` = ?;";
 	}
 	
 }
