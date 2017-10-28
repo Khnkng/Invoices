@@ -12,6 +12,7 @@ import javax.ws.rs.WebApplicationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.Invoice_historyDAO;
 import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.utils.Constants;
@@ -70,6 +71,39 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		}
 		LOGGER.debug("exited getAll:" + invoice_history);
 		return invoice_history;
+	}
+	
+	
+	@Override
+	public boolean getByWebhookId(Connection conn, String webhookId) {
+		LOGGER.debug("entered getByWebhookId:" + webhookId);
+		if (StringUtils.isBlank(webhookId)) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		try {
+			if (conn != null) {
+				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.GET_BY_WEBHOOK_ID_QRY);
+				pstmt.setString(1, webhookId);
+				rset = pstmt.executeQuery();
+				if (rset.next()) {
+					String id = rset.getString("id");
+					LOGGER.debug("result id:"+id);
+					return StringUtils.isNotBlank(id)?true:false;
+				}else{
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving getByWebhookId:", e);
+			throw new WebApplicationException(e.getMessage(), Constants.EXPECTATION_FAILED);
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		LOGGER.debug("exited getByWebhookId:" + webhookId);
+		return false;
 	}
 
 	@Override
@@ -179,6 +213,9 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (conn != null) {
+				if(getByWebhookId(conn, invoice_history.getWebhook_event_id())){
+					throw new WebApplicationException(PropertyManager.getProperty("invoice.history.webhook.event.already.stored")+":"+invoice_history.getWebhook_event_id(), Constants.INVALID_INPUT_STATUS);
+				}
 				int ctr = 1;
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 				pstmt.setString(ctr++, invoice_history.getDescription());

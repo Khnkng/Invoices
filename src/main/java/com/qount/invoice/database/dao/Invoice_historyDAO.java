@@ -21,4 +21,5 @@ public interface Invoice_historyDAO {
 
 	InvoiceHistory update(Connection conn, InvoiceHistory invoice_history);
 
+	boolean getByWebhookId(Connection conn, String webhookId);
 }
