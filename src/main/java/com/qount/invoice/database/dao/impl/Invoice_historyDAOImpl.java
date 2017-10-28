@@ -74,12 +74,11 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		return invoice_history;
 	}
 	
-	
 	@Override
-	public boolean getByWebhookId(Connection conn, String webhookId) {
+	public String getByWebhookId(Connection conn, String webhookId) {
 		LOGGER.debug("entered getByWebhookId:" + webhookId);
 		if (StringUtils.isBlank(webhookId)) {
-			return false;
+			return null;
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -91,9 +90,9 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				if (rset.next()) {
 					String id = rset.getString("id");
 					LOGGER.debug("result id:"+id);
-					return StringUtils.isNotBlank(id)?true:false;
+					return id;
 				}else{
-					return true;
+					return null;
 				}
 			}
 		} catch (Exception e) {
@@ -104,7 +103,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
 		LOGGER.debug("exited getByWebhookId:" + webhookId);
-		return false;
+		return null;
 	}
 
 	@Override
@@ -146,6 +145,49 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
 		LOGGER.debug("exited getAll");
+		return result;
+	}
+	
+	@Override
+	public List<InvoiceHistory> getAllByInvoiceId(Connection conn, InvoiceHistory input) {
+		LOGGER.debug("entered getAllByInvoiceId:"+input);
+		List<InvoiceHistory> result = null;
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		try {
+			if (conn != null) {
+				result = new ArrayList<InvoiceHistory>();
+				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.GET_ALL_QRY);
+				pstmt.setString(1, input.getInvoice_id());
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					InvoiceHistory invoice_history = new InvoiceHistory();
+					invoice_history.setWebhook_event_id(rset.getString("webhook_event_id"));
+					invoice_history.setDescription(rset.getString("description"));
+					invoice_history.setId(rset.getString("id"));
+					invoice_history.setInvoice_id(rset.getString("invoice_id"));
+					invoice_history.setUser_id(rset.getString("user_id"));
+					invoice_history.setAction(rset.getString("action"));
+					invoice_history.setAction_at(rset.getString("action_at"));
+					invoice_history.setCompany_id(rset.getString("company_id"));
+					invoice_history.setEmail_to(rset.getString("email_to"));
+					invoice_history.setEmail_subject(rset.getString("email_subject"));
+					invoice_history.setEmail_from(rset.getString("email_from"));
+					invoice_history.setCreated_by(rset.getString("created_by"));
+					invoice_history.setCreated_at(rset.getString("created_at"));
+					invoice_history.setLast_updated_by(rset.getString("last_updated_by"));
+					invoice_history.setLast_updated_at(rset.getString("last_updated_at"));
+					result.add(invoice_history);
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving all invoice_history", e);
+			throw new WebApplicationException(e.getMessage(), Constants.EXPECTATION_FAILED);
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		LOGGER.debug("exited getAllByInvoiceId input:"+input);
 		return result;
 	}
 
@@ -214,7 +256,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (conn != null) {
-				if(getByWebhookId(conn, invoice_history.getWebhook_event_id())){
+				if(StringUtils.isNotBlank(getByWebhookId(conn, invoice_history.getWebhook_event_id()))){
 					throw new WebApplicationException(PropertyManager.getProperty("invoice.history.webhook.event.already.stored")+":"+invoice_history.getWebhook_event_id(), Constants.INVALID_INPUT_STATUS);
 				}
 				int ctr = 1;
