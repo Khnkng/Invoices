@@ -35,8 +35,8 @@ public class Invoice_historyController {
 	@Path("/invoice/{invoiceId}")
 	@ApiOperation(value = "Returns Invoice_historys for invoice id", notes = "Used to get of Invoice_historys by invoice id", responseContainer = "java.lang.String")
 	@Produces(MediaType.APPLICATION_JSON)
-	public InvoiceHistory getInvoice_historysForInvoice(@NotNull @PathParam("userId") String userId, @NotNull @PathParam("companyId") String companyId, @NotNull @PathParam("invoiceId") String invoiceId) {
-		return Invoice_historyControllerImpl.getInvoice_history(userId, companyId, invoiceId);
+	public List<InvoiceHistory> getInvoice_historysForInvoice(@NotNull @PathParam("userId") String userId, @NotNull @PathParam("companyId") String companyId, @NotNull @PathParam("invoiceId") String invoiceId) {
+		return Invoice_historyControllerImpl.getInvoice_historysByInvoiceid(userId, companyId, invoiceId);
 	}
 
 	

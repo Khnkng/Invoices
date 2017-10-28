@@ -40,14 +40,13 @@ public class Invoice_historyControllerImpl {
 		}
 	}
 	
-	public static InvoiceHistory getInvoice_historysByInvoiceid(String userId, String companyId, String id, String invoiceId) {
+	public static List<InvoiceHistory> getInvoice_historysByInvoiceid(String userId, String companyId, String invoiceId) {
 		Connection conn = null;
 		try {
 			conn = DatabaseUtilities.getReadConnection();
 			InvoiceHistory invoice_history = new InvoiceHistory();
 			invoice_history.setInvoice_id(invoiceId);
-			invoice_history = MySQLManager.getInvoice_historyDAO().get(conn, invoice_history);
-			return invoice_history;
+			return MySQLManager.getInvoice_historyDAO().getAllByInvoiceId(conn, invoice_history);
 		} catch (WebApplicationException e) {
 			LOGGER.error("getInvoice_history", e);
 			throw new WebApplicationException(Utilities.constructResponse(e.getMessage(), e.getResponse().getStatus()));

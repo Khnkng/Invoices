@@ -191,7 +191,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		try {
 			if (conn != null) {
 				result = new ArrayList<InvoiceHistory>();
-				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.GET_ALL_QRY);
+				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.GET_ALL_BY_INVOICE_ID_QRY);
 				pstmt.setString(1, input.getInvoice_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
