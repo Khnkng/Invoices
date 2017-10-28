@@ -45,6 +45,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				pstmt.setString(1, invoice_history.getId());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
+					invoice_history.setDescription(rset.getString("description"));
 					invoice_history.setId(rset.getString("id"));
 					invoice_history.setInvoice_id(rset.getString("invoice_id"));
 					invoice_history.setUser_id(rset.getString("user_id"));
@@ -180,6 +181,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			if (conn != null) {
 				int ctr = 1;
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
+				pstmt.setString(ctr++, invoice_history.getDescription());
 				pstmt.setString(ctr++, invoice_history.getId());
 				pstmt.setString(ctr++, invoice_history.getInvoice_id());
 				pstmt.setString(ctr++, invoice_history.getUser_id());
@@ -221,6 +223,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				for(int i=0;i<invoice_historys.size();i++){
 					pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 					InvoiceHistory invoice_history = invoice_historys.get(i);
+					pstmt.setString(ctr++, invoice_history.getDescription());
 					pstmt.setString(ctr++, invoice_history.getId());
 					pstmt.setString(ctr++, invoice_history.getInvoice_id());
 					pstmt.setString(ctr++, invoice_history.getUser_id());
@@ -263,6 +266,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			if (conn != null) {
 				int ctr = 1;
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice_history.getDescription());
 				pstmt.setString(ctr++, invoice_history.getInvoice_id());
 				pstmt.setString(ctr++, invoice_history.getUser_id());
 				pstmt.setString(ctr++, invoice_history.getAction());

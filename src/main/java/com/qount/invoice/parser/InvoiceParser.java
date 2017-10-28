@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
@@ -506,7 +507,9 @@ public class InvoiceParser {
 				invoiceHistory.setCreated_by(user_id);
 				invoiceHistory.setEmail_from(invoice.getFrom());
 				invoiceHistory.setEmail_subject(invoice.getSubject());
-				invoiceHistory.setEmail_to(new JSONArray(invoice.getRecepientsMails()).toString());
+				if(invoice.isSendMail()){
+					invoiceHistory.setEmail_to(new JSONArray(invoice.getRecepientsMails()).toString());
+				}
 				invoiceHistory.setId(id);
 				invoiceHistory.setInvoice_id(invoice.getId());
 				invoiceHistory.setLast_updated_at(timestamp.toString());
@@ -553,10 +556,10 @@ public class InvoiceParser {
 		return null;
 	}
 	
-	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds,String id, String user_id,String companyId){
+	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds,String id, String user_id,String companyId, boolean markAsSent){
 		try{
 			List<InvoiceHistory> result = null;
-			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:"+invoiceIds+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+")");
+			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:"+invoiceIds+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+" boolean markAsSent:"+markAsSent+")");
 			if(invoiceIds!=null && !invoiceIds.isEmpty()){
 				result = new ArrayList<InvoiceHistory>();
 				for(int i=0;i<invoiceIds.size();i++){
@@ -576,6 +579,9 @@ public class InvoiceParser {
 					invoiceHistory.setLast_updated_at(timestamp.toString());
 					invoiceHistory.setLast_updated_by(user_id);
 					invoiceHistory.setUser_id(user_id);
+					if(markAsSent){
+						invoiceHistory.setDescription(PropertyManager.getProperty("invoice.history.mark.as.sent"));
+					}
 					result.add(invoiceHistory);
 				}
 				return result;
@@ -584,7 +590,7 @@ public class InvoiceParser {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}finally {
-			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds"+invoiceIds+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+")");
+			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds"+invoiceIds+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+" boolean markAsSent:"+markAsSent+")");
 		}
 		return null;
 	}

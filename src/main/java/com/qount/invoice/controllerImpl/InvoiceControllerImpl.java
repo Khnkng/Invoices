@@ -111,6 +111,10 @@ public class InvoiceControllerImpl {
 					// saving dimensions of journal lines
 					new InvoiceDimension().create(connection, companyID, invoiceObj.getInvoiceLines());
 					InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
+					if (!invoice.isSendMail() && StringUtils.isNotBlank(jobId)) {
+						invoice_history.setDescription(PropertyManager.getProperty("invoice.history.desc.no.mail.but.job"));
+						invoice_history.setAction_at(invoice.getDue_date());
+					}
 					MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 					connection.commit();
 				}
@@ -648,7 +652,7 @@ public class InvoiceControllerImpl {
 			CommonUtils.deleteJournalsAsync(userID, companyID, ids);
 			List<String> jobIds = MySQLManager.getInvoiceDAOInstance().getInvoiceJobsList(commaSeparatedLst);
 			deleteInvoiceJobsAsync(jobIds);
-			List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID);
+			List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID, false);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
@@ -704,7 +708,7 @@ public class InvoiceControllerImpl {
 			boolean isSent = MySQLManager.getInvoiceDAOInstance().updateStateAsSent(userID, companyID, commaSeparatedLst);
 			if (isSent) {
 				connection = DatabaseUtilities.getReadWriteConnection();
-				List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID);
+				List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID, true);
 				connection = DatabaseUtilities.getReadWriteConnection();
 				MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
 				for (String invoiceID : ids) {
@@ -930,4 +934,9 @@ public class InvoiceControllerImpl {
 		}
 	}
 
+	public static void main(String[] args) {
+		String dateStr = "12/12/2017";
+		String startDate = CommonUtils.convertDate(dateStr, Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+		System.out.println(startDate);
+	}
 }

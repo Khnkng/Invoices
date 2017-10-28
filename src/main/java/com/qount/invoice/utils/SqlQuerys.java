@@ -152,11 +152,11 @@ public class SqlQuerys {
 	
 	public final class Invoice_history{
 
-		public static final String INSERT_QRY = "INSERT INTO invoice_history ( `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );";
-		public static final String UPDATE_QRY = "UPDATE invoice_history SET `invoice_id` = ?, `user_id` = ?, `action` = ?, `action_at` = ?, `company_id` = ?, `email_to` = ?, `email_subject` = ?, `email_from` = ?, `last_updated_by` = ?, `last_updated_at` = ? WHERE `id` = ?;";
+		public static final String INSERT_QRY = "INSERT INTO invoice_history (`description`, `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		public static final String UPDATE_QRY = "UPDATE invoice_history SET `description` = ?, `invoice_id` = ?, `user_id` = ?, `action` = ?, `action_at` = ?, `company_id` = ?, `email_to` = ?, `email_subject` = ?, `email_from` = ?, `last_updated_by` = ?, `last_updated_at` = ? WHERE `id` = ?;";
 		public static final String DELETE_QRY = "DELETE FROM invoice_history WHERE `id` = ?;";
 		public static final String DELETE_BY_IDS_QRY = "DELETE FROM invoice_history WHERE `id` IN (";
-		public static final String GET_QRY = "SELECT `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM `invoice_history` WHERE `id` = ?;";
+		public static final String GET_QRY = "SELECT `description`, `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM `invoice_history` WHERE `id` = ?;";
 		public static final String GET_ALL_QRY = "SELECT `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM invoice_history where created_by = ? and company_id = ?;";
 	}
 	
