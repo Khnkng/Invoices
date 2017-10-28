@@ -80,11 +80,11 @@ public class InvoiceWebhookControllerImpl {
 			String inputEmailState = obj.optString("event");
 			String email = obj.optString("email");
 			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(dbInvoice, UUID.randomUUID().toString(), dbInvoice.getUser_id(), dbInvoice.getCompany_id(),inputEmailState,email);
+			connection = DatabaseUtilities.getReadWriteConnection();
 			MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 			String invoiceEmailState = getInvoiceMailState(inputEmailState, dbInvoice.getEmail_state());
 			if(StringUtils.isNotEmpty(invoiceEmailState) && !invoiceEmailState.equalsIgnoreCase(dbInvoice.getEmail_state())){
 				dbInvoice.setEmail_state(invoiceEmailState);
-				connection = DatabaseUtilities.getReadWriteConnection();
 				MySQLManager.getInvoiceDAOInstance().updateEmailState(connection, dbInvoice);
 			}
 		} catch (Exception e) {
