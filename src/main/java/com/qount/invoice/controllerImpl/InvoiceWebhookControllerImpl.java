@@ -3,7 +3,6 @@ package com.qount.invoice.controllerImpl;
 import java.sql.Connection;
 import java.util.UUID;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +18,6 @@ import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
-import com.qount.invoice.utils.ResponseUtil;
 
 /**
  * 
@@ -60,15 +58,12 @@ public class InvoiceWebhookControllerImpl {
 					}
 				}
 			}
-			
-			return Response.ok(json).build();
 		} catch (Exception e) {
 			LOGGER.error("error consumeWebHook:", e);
-			throw new WebApplicationException(
-					ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, PropertyManager.getProperty("invoice.webhook.error.msg"), Constants.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited consumeWebHook : " + json+" devUpdate:"+devUpdate);
 		}
+		return Response.ok(json).build();
 	}
 	
 	private static void updateInvoiceState(JSONObject obj) throws Exception{
@@ -79,7 +74,9 @@ public class InvoiceWebhookControllerImpl {
 			Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoiceId);
 			String inputEmailState = obj.optString("event");
 			String email = obj.optString("email");
+			String webhook_event_id = obj.optString("sg_event_id");
 			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(dbInvoice, UUID.randomUUID().toString(), dbInvoice.getUser_id(), dbInvoice.getCompany_id(),inputEmailState,email);
+			invoice_history.setWebhook_event_id(webhook_event_id);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 			String invoiceEmailState = getInvoiceMailState(inputEmailState, dbInvoice.getEmail_state());
