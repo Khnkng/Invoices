@@ -556,7 +556,7 @@ public class InvoiceParser {
 		return null;
 	}
 	
-	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds,String id, String user_id,String companyId, boolean markAsSent){
+	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds,String id, String user_id,String companyId, boolean markAsSent, String state){
 		try{
 			List<InvoiceHistory> result = null;
 			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:"+invoiceIds+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+" boolean markAsSent:"+markAsSent+")");
@@ -565,7 +565,7 @@ public class InvoiceParser {
 				for(int i=0;i<invoiceIds.size();i++){
 					String invoiceId = invoiceIds.get(i);
 					InvoiceHistory invoiceHistory = new InvoiceHistory();
-					invoiceHistory.setAction(Constants.DELETE);
+					invoiceHistory.setAction(state);
 					Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 					invoiceHistory.setAction_at(timestamp.toString());
 					invoiceHistory.setCompany_id(companyId);
