@@ -105,6 +105,40 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		LOGGER.debug("exited getByWebhookId:" + webhookId);
 		return null;
 	}
+	
+	
+	@Override
+	public String getByInvoiceidAndAction(Connection conn, String invoiceId, String action) {
+		LOGGER.debug("entered getByInvoiceidAndState:" + invoiceId +" state:"+action);
+		if (StringUtils.isAnyBlank(invoiceId,action)) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		try {
+			if (conn != null) {
+				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.GET_BY_INVOICE_AND_ACTION_ID_QRY);
+				pstmt.setString(1, invoiceId);
+				pstmt.setString(1, action);
+				rset = pstmt.executeQuery();
+				if (rset.next()) {
+					String id = rset.getString("id");
+					LOGGER.debug("result id:"+id);
+					return id;
+				}else{
+					return null;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving getByInvoiceidAndState:", e);
+			throw new WebApplicationException(e.getMessage(), Constants.EXPECTATION_FAILED);
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		LOGGER.debug("exited getByInvoiceidAndState:" + invoiceId +" state:"+action);
+		return null;
+	}
 
 	@Override
 	public List<InvoiceHistory> getAll(Connection conn, InvoiceHistory input) {
@@ -256,8 +290,8 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (conn != null) {
-				if(StringUtils.isNotBlank(getByWebhookId(conn, invoice_history.getWebhook_event_id()))){
-					throw new WebApplicationException(PropertyManager.getProperty("invoice.history.webhook.event.already.stored")+":"+invoice_history.getWebhook_event_id(), Constants.INVALID_INPUT_STATUS);
+				if(StringUtils.isNotBlank(getByInvoiceidAndAction(conn, invoice_history.getInvoice_id(),invoice_history.getAction()))){
+					throw new WebApplicationException(PropertyManager.getProperty("invoice.history.event.already.stored")+":"+invoice_history.getWebhook_event_id(), Constants.INVALID_INPUT_STATUS);
 				}
 				int ctr = 1;
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);

@@ -24,4 +24,6 @@ public interface Invoice_historyDAO {
 	String getByWebhookId(Connection conn, String webhookId);
 	
 	List<InvoiceHistory> getAllByInvoiceId(Connection conn, InvoiceHistory input);
+	
+	String getByInvoiceidAndAction(Connection conn, String invoiceId, String action);
 }
