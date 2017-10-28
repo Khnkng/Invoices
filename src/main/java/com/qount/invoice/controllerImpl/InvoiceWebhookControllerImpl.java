@@ -51,7 +51,7 @@ public class InvoiceWebhookControllerImpl {
 					updateInvoiceState(obj);
 				}else{
 					String SERVER_INSTANCE_MODE = obj.optString("SERVER_INSTANCE_MODE").toUpperCase();
-					if (devUpdate && SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
+					if (!devUpdate && SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
 						String url = PropertyManager.getProperty("invoice.dev.webhook.url")+"?devUpdate=true";
 						LOGGER.debug("invoking url:"+url + " json:"+json);
 						HTTPClient.post(url,json);
@@ -97,11 +97,7 @@ public class InvoiceWebhookControllerImpl {
 	}
 
 	public static void main(String[] args) {
-
-		JSONObject obj = new JSONObject();
-		obj.put("server_INSTANCE_MODE", "asdf");
-		obj.put("SERVER_INSTANCE_MODE", "aaaa");
-		System.out.println(obj.optString("SERVER_INSTANCE_MODE"));
+		consumeWebHook("[{\"ip\":\"64.233.173.17\",\"sg_event_id\":\"mRe3fWDVTn63KQ1ituDxew\",\"sg_message_id\":\"ZQ5YBfo3RO-ch1arVz6_7Q.filter0025p3mdw1-18878-59F3DC31-6.0\",\"useragent\":\"Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)\",\"event\":\"open\",\"email\":\"mateen.khan@qount.io\",\"timestamp\":1509154036,\"SERVER_INSTANCE_MODE\":\"DEVELOPMENT\",\"type\":\"invoice\",\"id\":\"3f66430d-aed7-4b60-923e-fb208e6cbea4\"}]", false);
 		
 	}
 
