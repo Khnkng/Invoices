@@ -290,8 +290,8 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		PreparedStatement pstmt = null;
 		try {
 			if (conn != null) {
-				if(StringUtils.isNotBlank(getByInvoiceidAndAction(conn, invoice_history.getInvoice_id(),invoice_history.getAction()))){
-					throw new WebApplicationException(PropertyManager.getProperty("invoice.history.event.already.stored")+":"+invoice_history.getWebhook_event_id(), Constants.INVALID_INPUT_STATUS);
+				if(StringUtils.isNotBlank(getByWebhookId(conn, invoice_history.getWebhook_event_id()))){
+					throw new WebApplicationException(PropertyManager.getProperty("invoice.history.webhook.event.already.stored")+":"+invoice_history.getWebhook_event_id(), Constants.INVALID_INPUT_STATUS);
 				}
 				int ctr = 1;
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
