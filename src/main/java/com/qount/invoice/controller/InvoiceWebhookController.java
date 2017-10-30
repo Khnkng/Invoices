@@ -4,6 +4,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -26,7 +27,7 @@ public class InvoiceWebhookController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Invoice WebHook", notes = "Used for invoice webhooks", responseContainer = "java.lang.String")
-	public Response consumeWebHook(String json) {
-		return InvoiceWebhookControllerImpl.consumeWebHook(json);
+	public Response consumeWebHook(@QueryParam("devUpdate") boolean devUpdate,String json) {
+		return InvoiceWebhookControllerImpl.consumeWebHook(json,devUpdate);
 	}
 }

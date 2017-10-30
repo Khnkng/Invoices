@@ -174,4 +174,16 @@ public class Utilities {
 			}
 		}.start();
 	}
+	
+	public static String toQoutedCommaSeparatedString(List<String> strings) {
+		String result = null;
+		if (strings != null && !strings.isEmpty()) {
+			result = "";
+			for (int i = 0; i < strings.size(); i++) {
+				result += "'" + strings.get(i) + "',";
+			}
+			result = result.substring(0, result.length() - 1);
+		}
+		return result;
+	}
 }

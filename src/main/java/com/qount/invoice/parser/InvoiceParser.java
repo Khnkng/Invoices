@@ -15,11 +15,14 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.model.InvoicePreference;
@@ -126,26 +129,6 @@ public class InvoiceParser {
 		return invoice;
 	}
 
-	private static List<Invoice> convertTimeStampToString(List<Invoice> invoiceLst) {
-		try {
-			if (invoiceLst != null && !invoiceLst.isEmpty()) {
-				for (int i = 0; i < invoiceLst.size(); i++) {
-					Invoice invoice = invoiceLst.get(i);
-					if (invoice != null) {
-						invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(),
-								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(),
-								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(),
-								new SimpleDateFormat("yyyy-MM-dd"), Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-					}
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-		}
-		return invoiceLst;
-	}
 
 	/**
 	 * method used to convert invoice amount fields to two decimals
@@ -186,6 +169,49 @@ public class InvoiceParser {
 		}
 	}
 
+	public static void formatGetInvoicesResponse(List<Invoice> invoiceLst, Map<String,String> invoicePaymentIdMap){
+		try {
+			if (invoiceLst != null && !invoiceLst.isEmpty()) {
+				for (int i = 0; i < invoiceLst.size(); i++) {
+					Invoice invoice = invoiceLst.get(i);
+					if (invoice != null) {
+						invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(),
+								new SimpleDateFormat("yyyy-MM-dd"), Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setAmount(InvoiceParser.getTwoDecimalValue(invoice.getAmount()));
+						invoice.setAmount_by_date(InvoiceParser.getTwoDecimalValue(invoice.getAmount_by_date()));
+						invoice.setAmount_due(InvoiceParser.getTwoDecimalValue(invoice.getAmount_due()));
+						invoice.setAmount_paid(InvoiceParser.getTwoDecimalValue(invoice.getAmount_paid()));
+						invoice.setAmountToPay(InvoiceParser.getTwoDecimalValue(invoice.getAmountToPay()));
+						invoice.setProcessing_fees(InvoiceParser.getTwoDecimalValue(invoice.getProcessing_fees()));
+						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getSub_total()));
+						invoice.setTax_amount(InvoiceParser.getTwoDecimalValue(invoice.getTax_amount()));
+						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null
+								? invoice.getInvoiceLines().iterator()
+								: null;
+						if (invoiceLineIterator != null) {
+							while (invoiceLineIterator.hasNext()) {
+								InvoiceLine invoiceLine = invoiceLineIterator.next();
+								invoiceLine.setAmount(getTwoDecimalValue(invoiceLine.getAmount()));
+								invoiceLine.setPrice(getTwoDecimalValue(invoiceLine.getPrice()));
+								invoiceLine.setQuantity(getFourDecimalValue(invoiceLine.getQuantity()));
+							}
+						}
+						if(null !=invoicePaymentIdMap && !invoicePaymentIdMap.isEmpty()){
+							invoice.setPayment_ids(invoicePaymentIdMap.get(invoice.getId()));
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}
+	}
+	
 	/**
 	 * method used to convert invoice amount fields to two decimals
 	 * 
@@ -303,11 +329,12 @@ public class InvoiceParser {
 		return null;
 	}
 
-	public static void formatInvoices(List<Invoice> invoiceLst) {
+	public static void formatInvoices(List<Invoice> invoiceLst, Map<String,String> invoicePaymentIdMap) {
 		try {
 			if (invoiceLst != null && !invoiceLst.isEmpty()) {
-				convertTimeStampToString(invoiceLst);
-				convertAmountToDecimal(invoiceLst);
+//				convertTimeStampToString(invoiceLst);
+//				convertAmountToDecimal(invoiceLst);
+				formatGetInvoicesResponse(invoiceLst, invoicePaymentIdMap);
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -447,4 +474,125 @@ public class InvoiceParser {
 		}
 		return result;
 	}
+	
+	public static String getInvoiceIds(List<Invoice> invoices){
+		try {
+			LOGGER.debug("entered getInvoiceIds(List<Invoice> invoices"+invoices+")");
+			if(invoices==null || invoices.isEmpty()){
+				return null;
+			}
+			StringBuilder result = new StringBuilder();
+			for(int i=0;i<invoices.size();i++){
+				result.append("'").append(invoices.get(i).getId()).append("',");
+			}
+			return result.substring(0,result.length()-1);
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}finally {
+			LOGGER.debug("exited getInvoiceIds(List<Invoice> invoices"+invoices+")");
+		}
+	}
+	
+	public static InvoiceHistory getInvoice_history(Invoice invoice,String id, String user_id,String companyId){
+		try{
+			LOGGER.debug("entered getInvoice_history(Invoice invoice:"+invoice+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+")");
+			if(invoice!=null){
+				InvoiceHistory invoiceHistory = new InvoiceHistory();
+				invoiceHistory.setAction(invoice.getState());
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				invoiceHistory.setAction_at(timestamp.toString());
+				invoiceHistory.setCompany_id(companyId);
+				invoiceHistory.setCreated_at(timestamp.toString());
+				invoiceHistory.setCreated_by(user_id);
+				invoiceHistory.setEmail_from(invoice.getFrom());
+				invoiceHistory.setEmail_subject(invoice.getSubject());
+				if(invoice.isSendMail()){
+					invoiceHistory.setEmail_to(new JSONArray(invoice.getRecepientsMails()).toString());
+				}
+				invoiceHistory.setId(id);
+				invoiceHistory.setInvoice_id(invoice.getId());
+				invoiceHistory.setLast_updated_at(timestamp.toString());
+				invoiceHistory.setLast_updated_by(user_id);
+				invoiceHistory.setUser_id(user_id);
+				return invoiceHistory;
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}finally {
+			LOGGER.debug("exited getInvoice_history(Invoice invoice"+invoice+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+")");
+		}
+		return null;
+	}
+	
+	public static InvoiceHistory getInvoice_history(Invoice invoice,String id, String user_id,String companyId,String emailState,String email){
+		try{
+			LOGGER.debug("entered getInvoice_history(Invoice invoice:"+invoice+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+" String emailState:"+emailState+" String email:"+email+")");
+			if(invoice!=null){
+				InvoiceHistory invoiceHistory = new InvoiceHistory();
+				invoiceHistory.setAction(emailState);
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				invoiceHistory.setAction_at(timestamp.toString());
+				invoiceHistory.setCompany_id(companyId);
+				invoiceHistory.setCreated_at(timestamp.toString());
+				invoiceHistory.setCreated_by(user_id);
+				invoiceHistory.setEmail_from(invoice.getFrom());
+				invoiceHistory.setEmail_subject(invoice.getSubject());
+				invoiceHistory.setEmail_to(email);
+				invoiceHistory.setId(id);
+				invoiceHistory.setInvoice_id(invoice.getId());
+				invoiceHistory.setLast_updated_at(timestamp.toString());
+				invoiceHistory.setLast_updated_by(user_id);
+				invoiceHistory.setUser_id(user_id);
+				return invoiceHistory;
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}finally {
+			LOGGER.debug("exited getInvoice_history(Invoice invoice"+invoice+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+" String emailState:"+emailState+" String email:"+email+")");
+		}
+		return null;
+	}
+	
+	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds,String id, String user_id,String companyId, boolean markAsSent, String state){
+		try{
+			List<InvoiceHistory> result = null;
+			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:"+invoiceIds+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+" boolean markAsSent:"+markAsSent+")");
+			if(invoiceIds!=null && !invoiceIds.isEmpty()){
+				result = new ArrayList<InvoiceHistory>();
+				for(int i=0;i<invoiceIds.size();i++){
+					String invoiceId = invoiceIds.get(i);
+					InvoiceHistory invoiceHistory = new InvoiceHistory();
+					invoiceHistory.setAction(state);
+					Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+					invoiceHistory.setAction_at(timestamp.toString());
+					invoiceHistory.setCompany_id(companyId);
+					invoiceHistory.setCreated_at(timestamp.toString());
+					invoiceHistory.setCreated_by(user_id);
+					invoiceHistory.setEmail_from(null);
+					invoiceHistory.setEmail_subject(null);
+					invoiceHistory.setEmail_to(null);
+					invoiceHistory.setId(id);
+					invoiceHistory.setInvoice_id(invoiceId);
+					invoiceHistory.setLast_updated_at(timestamp.toString());
+					invoiceHistory.setLast_updated_by(user_id);
+					invoiceHistory.setUser_id(user_id);
+					if(markAsSent){
+						invoiceHistory.setDescription(PropertyManager.getProperty("invoice.history.mark.as.sent"));
+					}
+					result.add(invoiceHistory);
+				}
+				return result;
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}finally {
+			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds"+invoiceIds+" String id:"+id+", String user_id:"+user_id+",String companyId:"+companyId+" boolean markAsSent:"+markAsSent+")");
+		}
+		return null;
+	}
+	
 }

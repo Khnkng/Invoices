@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.qount.invoice.controllerImpl.InvoiceControllerImpl;
 import com.qount.invoice.controllerImpl.InvoiceDetailControllerImpl;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.ResponseUtil;
 
@@ -42,6 +43,15 @@ public class InvoiceDetailController {
 	@ApiOperation(notes = "Used to retieve invoice for given id", value = "retieves invoice", responseContainer = "java.lang.String")
 	public Invoice openInvoice(@PathParam("invoiceID") @NotNull String invoiceID,@QueryParam("action") String action) {
 		return InvoiceControllerImpl.getInvoice(invoiceID);
+	}
+	
+	@Path("/{invoiceID}/preference")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(notes = "Used to retieve invoice for given id", value = "retieves invoice", responseContainer = "java.lang.String")
+	public InvoicePreference getInvoicePreference(@PathParam("invoiceID") @NotNull String invoiceID) {
+		return InvoiceControllerImpl.getInvoicePreference(invoiceID);
 	}
 	
 	@Path("/{invoiceID}")

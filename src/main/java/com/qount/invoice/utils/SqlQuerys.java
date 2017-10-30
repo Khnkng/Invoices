@@ -14,6 +14,7 @@ public class SqlQuerys {
 		public final static String GET_INVOICES_LIST_QRY_2 = " SELECT invoice.`email_state`,invoice.`customer_id`,invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,invoice.`amount_due`,invoice.`amount_paid`,journals.id AS journal_id, journals.`isActive`, `company_customers`.`customer_name` FROM invoice LEFT JOIN journals ON invoice.`id` = journals.`sourceID` LEFT JOIN `company_customers` ON `invoice`.`customer_id` = `company_customers`.`customer_id`  WHERE invoice.`company_id`= ?";
 		public final static String GET_INVOICES_LIST_BY_ID_QRY = " SELECT `customer_id`,`number`,`id`,`invoice_date`,`due_date`,`amount`,`currency`,`state`,`amount_by_date`,`amount_due`,`amount_paid` FROM invoice WHERE  id in(";
 		public final static String GET_INVOICES_JOBS_LIST_BY_ID_QRY = " SELECT `remainder_job_id` FROM invoice WHERE  id in (";
+		public final static String GET_INVOICES_PAYMENTS_MAP_BY_INVOICE_ID_QRY = " SELECT DISTINCT(ip.id),ipl.`invoice_id` FROM `invoice_payments` ip INNER JOIN `invoice_payments_lines` ipl ON ipl.`payment_id` = ip.`id` AND ipl.`invoice_id` IN (";
 		public final static String QOUNT_QRY = "SELECT ( SELECT  COUNT(id) FROM invoice WHERE company_id=?) AS invoice_count,( SELECT COUNT(id) FROM `proposal` WHERE company_id=?) AS proposal_count,( SELECT COUNT(id) FROM `invoice_payments` WHERE company_id=? ) AS payment_count FROM DUAL";
 		public final static String UPDATE_STATE_QRY = "UPDATE invoice SET state=? WHERE id=?;";
 		public final static String MARK_AS_PAID_QRY = "UPDATE invoice SET amount_paid=?,amount_due=?,refrence_number=?,state=? WHERE id=?;";
@@ -116,7 +117,7 @@ public class SqlQuerys {
 
 	public final class Payments {
 		public static final String INSERT_QRY = "INSERT INTO invoice_payments ( `id`,`received_from`,`payment_amount`,`currency_code`,`reference_no`,`payment_date`,`memo`,`company_id`,`type`, `payment_notes`, `bank_account_id`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `received_from` = ?, `payment_amount` = ?, `currency_code` = ?, `reference_no` = ?, `payment_date` = ?, `memo` = ?, `company_id` = ?,`type` = ?,`payment_notes` = ?, `bank_account_id` = ?";
-		public static final String RETRIEVE_BY_COMPANYID_QRY = "SELECT invoice_payments.*,journals.`id` AS journal_id,journals.`isActive`,company_customers.`customer_name` FROM invoice_payments LEFT JOIN journals ON `invoice_payments`.id = journals.`sourceID` LEFT JOIN company_customers ON company_customers.`customer_id`= invoice_payments.`received_from` WHERE invoice_payments.`company_id`= ?";
+		public static final String RETRIEVE_BY_COMPANYID_QRY = "SELECT invoice_payments.*,journals.`id` AS journal_id,journals.`isActive`,company_customers.`customer_name`, deposits.`id` AS deposit_id FROM invoice_payments LEFT JOIN journals ON `invoice_payments`.id = journals.`sourceID` LEFT JOIN company_customers ON company_customers.`customer_id`= invoice_payments.`received_from` LEFT JOIN transaction_mappings ON transaction_mappings.`id` = invoice_payments.`mapping_id` LEFT JOIN deposits ON deposits.`mapping_id` = transaction_mappings.`id`  WHERE invoice_payments.`company_id`= ? ";
 		public static final String RETRIEVE_BY_PAYMENTID_QRY = "SELECT * FROM invoice_payments WHERE `id` = ?;";
 	}
 
@@ -148,4 +149,18 @@ public class SqlQuerys {
 		public static final String GET_QRY = "SELECT `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately`, `user_id`, `company_id`, `created_by`, `created_at_mills`, `last_updated_by`, `last_updated_at`,`day_month` , `day_day` , `day_week`, `plan_id` FROM invoice_plan WHERE `id` = ?;";
 		public static final String GET_ALL_QRY = "SELECT `id`, `name`, `amount`, `frequency`, `ends_after`, `bill_immediately`, `plan_id` FROM invoice_plan WHERE `user_id` = ? and `company_id` = ?;";
 	}
+	
+	public final class Invoice_history{
+
+		public static final String INSERT_QRY = "INSERT INTO invoice_history (`webhook_event_id`,`description`, `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		public static final String UPDATE_QRY = "UPDATE invoice_history SET `webhook_event_id`=?, `description` = ?, `invoice_id` = ?, `user_id` = ?, `action` = ?, `action_at` = ?, `company_id` = ?, `email_to` = ?, `email_subject` = ?, `email_from` = ?, `last_updated_by` = ?, `last_updated_at` = ? WHERE `id` = ?;";
+		public static final String DELETE_QRY = "DELETE FROM invoice_history WHERE `id` = ?;";
+		public static final String DELETE_BY_IDS_QRY = "DELETE FROM invoice_history WHERE `id` IN (";
+		public static final String GET_QRY = "SELECT `webhook_event_id`,`description`, `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM `invoice_history` WHERE `id` = ?;";
+		public static final String GET_BY_WEBHOOK_ID_QRY = "SELECT `id` FROM `invoice_history` WHERE `webhook_event_id` = ? limit 1;";
+		public static final String GET_BY_INVOICE_AND_ACTION_ID_QRY = "SELECT `id` FROM `invoice_history` WHERE `invoice_id` = ? AND `action` = ? limit 1;";
+		public static final String GET_ALL_QRY = "SELECT `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM invoice_history where created_by = ? and company_id = ?;";
+		public static final String GET_ALL_BY_INVOICE_ID_QRY = "SELECT `webhook_event_id`,`description`, `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM `invoice_history` WHERE `invoice_id` = ? ORDER BY `action_at` ASC;";
+	}
+	
 }
