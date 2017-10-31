@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.InvoiceHistory;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.Utilities;
@@ -46,7 +47,9 @@ public class Invoice_historyControllerImpl {
 			conn = DatabaseUtilities.getReadConnection();
 			InvoiceHistory invoice_history = new InvoiceHistory();
 			invoice_history.setInvoice_id(invoiceId);
-			return MySQLManager.getInvoice_historyDAO().getAllByInvoiceId(conn, invoice_history);
+			List<InvoiceHistory> invoice_historys = MySQLManager.getInvoice_historyDAO().getAllByInvoiceId(conn, invoice_history);
+			InvoiceParser.formatGetInvoiceHistoriesResponse(invoice_historys);
+			return invoice_historys;
 		} catch (WebApplicationException e) {
 			LOGGER.error("getInvoice_history", e);
 			throw new WebApplicationException(Utilities.constructResponse(e.getMessage(), e.getResponse().getStatus()));
@@ -66,6 +69,7 @@ public class Invoice_historyControllerImpl {
 			invoice_history.setCreated_by(userId);
 			invoice_history.setCompany_id(companyId);
 			List<InvoiceHistory> invoice_historys = MySQLManager.getInvoice_historyDAO().getAll(conn, invoice_history);
+			InvoiceParser.formatGetInvoiceHistoriesResponse(invoice_historys);
 			return invoice_historys;
 		} catch (WebApplicationException e) {
 			LOGGER.error("getInvoice_historys", e);

@@ -219,7 +219,7 @@ public class InvoiceParser {
 					InvoiceHistory invoiceHistory = invoiceHistoryLst.get(i);
 					if (invoiceHistory != null) {
 						invoiceHistory.setAction_at(convertTimeStampToString(invoiceHistory.getAction_at(),
-								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.UI_DATE_TIME_FORMAT));
 						invoiceHistory.setAction(StringUtils.capitalize(invoiceHistory.getAction()));
 					}
 				}
