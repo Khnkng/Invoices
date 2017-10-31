@@ -19,6 +19,15 @@ public class InvoiceHistory {
 	private String last_updated_at;
 	private String description;
 	private String webhook_event_id;
+	private double amount;
+	
+	public double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
 
 	public String getWebhook_event_id() {
 		return webhook_event_id;

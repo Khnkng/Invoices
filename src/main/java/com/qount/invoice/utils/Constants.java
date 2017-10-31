@@ -2,6 +2,7 @@ package com.qount.invoice.utils;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TimeZone;
 
@@ -34,10 +35,12 @@ public class Constants {
 
 	public static final String BILLS_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
 	public static final String INVOICE_UI_DATE_FORMAT = "MM/dd/yy";
+	public static final String UI_DATE_TIME_FORMAT_STR = "MM/dd/yy hh:mm:ss";
 	public static final String PROPOSAL_UI_DATE_FORMAT = "MM/dd/yy";
 	public static final String INVOICE_MAIL_DATE_FORMAT = "MMM dd, yyyy";
 	public static final SimpleDateFormat TIME_STATMP_TO_BILLS_FORMAT = new SimpleDateFormat(BILLS_DATE_FORMAT);
 	public static final SimpleDateFormat TIME_STATMP_TO_INVOICE_FORMAT = new SimpleDateFormat(INVOICE_UI_DATE_FORMAT);
+	public static final SimpleDateFormat UI_DATE_TIME_FORMAT = new SimpleDateFormat(UI_DATE_TIME_FORMAT_STR);
 	public static final SimpleDateFormat TIME_STATMP_TO_PROPOSAL_FORMAT = new SimpleDateFormat(PROPOSAL_UI_DATE_FORMAT);
 	public static final SimpleDateFormat DATE_TO_INVOICE_FORMAT = new SimpleDateFormat(Constants.INVOICE_UI_DATE_FORMAT);
 	public static final SimpleDateFormat TIME_STATMP_TO_INVOICE_MAIL_FORMAT = new SimpleDateFormat(INVOICE_MAIL_DATE_FORMAT);
@@ -103,6 +106,7 @@ public class Constants {
 	public static final String QOUNT = "Qount";
 	//https://sendgrid.com/docs/API_Reference/Webhooks/event.html
 	public static final HashMap<String, Integer> INVOICE_MAIL_STATE_MAP = new HashMap<String,Integer>();
+	public static final ArrayList<String> INVOICE_MAIL_STORING_LST = new ArrayList<String>();
 	public static final String PROCESSED = "processed";
 	public static final String DROPPED = "dropped";
 	public static final String DELIVERED = "delivered";
@@ -132,6 +136,12 @@ public class Constants {
 		INVOICE_STATE_MAP.put(INVOICE_STATE_SENT, 2);
 		INVOICE_STATE_MAP.put(INVOICE_STATE_PARTIALLY_PAID, 3);
 		INVOICE_STATE_MAP.put(INVOICE_STATE_PAID, 4);
+		INVOICE_MAIL_STORING_LST.add(DELIVERED);
+		INVOICE_MAIL_STORING_LST.add(DROPPED);
+		INVOICE_MAIL_STORING_LST.add(DEFERRED);
+		INVOICE_MAIL_STORING_LST.add(BOUNCE);
+		INVOICE_MAIL_STORING_LST.add(OPEN);
+		INVOICE_MAIL_STORING_LST.add(CLICK);
 	}
 	public static final String APPLICATION_PDF = "application/pdf";
 	public static final String INVOICE_PDF_NAME = "invoice.pdf";
