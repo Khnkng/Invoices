@@ -212,6 +212,25 @@ public class InvoiceParser {
 		}
 	}
 	
+	public static void formatGetInvoiceHistoriesResponse(List<InvoiceHistory> invoiceHistoryLst){
+		try {
+			if (invoiceHistoryLst != null && !invoiceHistoryLst.isEmpty()) {
+				for (int i = 0; i < invoiceHistoryLst.size(); i++) {
+					InvoiceHistory invoiceHistory = invoiceHistoryLst.get(i);
+					if (invoiceHistory != null) {
+						invoiceHistory.setAction_at(convertTimeStampToString(invoiceHistory.getAction_at(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoiceHistory.setAction(StringUtils.capitalize(invoiceHistory.getAction()));
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}
+	}
+	
+	
 	/**
 	 * method used to convert invoice amount fields to two decimals
 	 * 
@@ -515,6 +534,7 @@ public class InvoiceParser {
 				invoiceHistory.setLast_updated_at(timestamp.toString());
 				invoiceHistory.setLast_updated_by(user_id);
 				invoiceHistory.setUser_id(user_id);
+				invoiceHistory.setAmount(invoice.getAmount());
 				return invoiceHistory;
 			}
 		} catch (Exception e) {

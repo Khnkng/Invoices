@@ -46,6 +46,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				pstmt.setString(1, invoice_history.getId());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
+					invoice_history.setAmount(rset.getDouble("amount"));
 					invoice_history.setWebhook_event_id(rset.getString("webhook_event_id"));
 					invoice_history.setDescription(rset.getString("description"));
 					invoice_history.setId(rset.getString("id"));
@@ -155,6 +156,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					InvoiceHistory invoice_history = new InvoiceHistory();
+					invoice_history.setAmount(rset.getDouble("amount"));
 					invoice_history.setId(rset.getString("id"));
 					invoice_history.setInvoice_id(rset.getString("invoice_id"));
 					invoice_history.setUser_id(rset.getString("user_id"));
@@ -191,11 +193,14 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		try {
 			if (conn != null) {
 				result = new ArrayList<InvoiceHistory>();
-				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.GET_ALL_BY_INVOICE_ID_QRY);
+				String query = SqlQuerys.Invoice_history.GET_ALL_BY_INVOICE_ID_WTIH_LIMITED_ACTION_QRY.replace("?", "'"+input.getInvoice_id()+"'");
+				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") ORDER BY `action_at` ASC";
+				pstmt = conn.prepareStatement(query);
 				pstmt.setString(1, input.getInvoice_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					InvoiceHistory invoice_history = new InvoiceHistory();
+					invoice_history.setAmount(rset.getDouble("amount"));
 					invoice_history.setWebhook_event_id(rset.getString("webhook_event_id"));
 					invoice_history.setDescription(rset.getString("description"));
 					invoice_history.setId(rset.getString("id"));
@@ -295,6 +300,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				}
 				int ctr = 1;
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
+				pstmt.setDouble(ctr++, invoice_history.getAmount());
 				pstmt.setString(ctr++, invoice_history.getWebhook_event_id());
 				pstmt.setString(ctr++, invoice_history.getDescription());
 				pstmt.setString(ctr++, invoice_history.getId());
@@ -338,6 +344,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				for(int i=0;i<invoice_historys.size();i++){
 					pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 					InvoiceHistory invoice_history = invoice_historys.get(i);
+					pstmt.setDouble(ctr++, invoice_history.getAmount());
 					pstmt.setString(ctr++, invoice_history.getWebhook_event_id());
 					pstmt.setString(ctr++, invoice_history.getDescription());
 					pstmt.setString(ctr++, invoice_history.getId());
@@ -382,6 +389,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			if (conn != null) {
 				int ctr = 1;
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.UPDATE_QRY);
+				pstmt.setDouble(ctr++, invoice_history.getAmount());
 				pstmt.setString(ctr++, invoice_history.getWebhook_event_id());
 				pstmt.setString(ctr++, invoice_history.getDescription());
 				pstmt.setString(ctr++, invoice_history.getInvoice_id());
@@ -409,5 +417,5 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		LOGGER.debug("exited update:" + invoice_history);
 		return invoice_history;
 	}
-
+	
 }

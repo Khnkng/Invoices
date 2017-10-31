@@ -2,6 +2,7 @@ package com.qount.invoice.utils;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TimeZone;
 
@@ -103,6 +104,7 @@ public class Constants {
 	public static final String QOUNT = "Qount";
 	//https://sendgrid.com/docs/API_Reference/Webhooks/event.html
 	public static final HashMap<String, Integer> INVOICE_MAIL_STATE_MAP = new HashMap<String,Integer>();
+	public static final ArrayList<String> INVOICE_MAIL_STORING_LST = new ArrayList<String>();
 	public static final String PROCESSED = "processed";
 	public static final String DROPPED = "dropped";
 	public static final String DELIVERED = "delivered";
@@ -132,6 +134,12 @@ public class Constants {
 		INVOICE_STATE_MAP.put(INVOICE_STATE_SENT, 2);
 		INVOICE_STATE_MAP.put(INVOICE_STATE_PARTIALLY_PAID, 3);
 		INVOICE_STATE_MAP.put(INVOICE_STATE_PAID, 4);
+		INVOICE_MAIL_STORING_LST.add(DELIVERED);
+		INVOICE_MAIL_STORING_LST.add(DROPPED);
+		INVOICE_MAIL_STORING_LST.add(DEFERRED);
+		INVOICE_MAIL_STORING_LST.add(BOUNCE);
+		INVOICE_MAIL_STORING_LST.add(OPEN);
+		INVOICE_MAIL_STORING_LST.add(CLICK);
 	}
 	public static final String APPLICATION_PDF = "application/pdf";
 	public static final String INVOICE_PDF_NAME = "invoice.pdf";

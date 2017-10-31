@@ -359,7 +359,8 @@ public class InvoiceControllerImpl {
 			if (!invoice.isSendMail() && StringUtils.isNotBlank(jobId)) {
 				invoice_history.setDescription(PropertyManager.getProperty("invoice.history.desc.no.mail.but.job"));
 				invoice_history.setAction_at(invoice.getDue_date());
-				invoice_history.setEmail_to(new JSONArray(invoice.getRecepientsMails()).toString());
+				invoice_history.setEmail_to(toCommaSeparatedString(invoice.getRecepientsMails()));
+				invoice_history.setAmount(invoice.getAmount());
 			}
 			return MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 		} catch (Exception e) {
@@ -368,6 +369,19 @@ public class InvoiceControllerImpl {
 		}finally {
 			LOGGER.debug("exited createInvoiceHistory(Invoice invoice:"+invoice+",String userID:"+userID+",String companyID:"+companyID+",String jobId:"+jobId+")");
 		}
+	}
+	
+	
+	public static String toCommaSeparatedString(List<String> strings) {
+		String result = null;
+		if (strings != null && !strings.isEmpty()) {
+			result = "";
+			for (int i = 0; i < strings.size(); i++) {
+				result += "" + strings.get(i) + ",";
+			}
+			result = result.substring(0, result.length() - 1);
+		}
+		return result;
 	}
 	
 	public static Invoice updateInvoiceState(String invoiceID, Invoice invoice, String userID, String companyID) {
