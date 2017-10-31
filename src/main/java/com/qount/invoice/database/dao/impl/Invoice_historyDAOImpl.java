@@ -417,4 +417,12 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		return invoice_history;
 	}
 	
+	public static void main(String[] args) {
+		InvoiceHistory input = new InvoiceHistory();
+		input.setInvoice_id("57d3e3e3-fdd1-4ddc-90fe-1e059a11b0de");
+		String query = SqlQuerys.Invoice_history.GET_ALL_BY_INVOICE_ID_WTIH_LIMITED_ACTION_QRY.replace("?", "'"+input.getInvoice_id()+"'");
+		query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") ORDER BY `action_at` ASC";
+		System.out.println(query);
+	}
+	
 }
