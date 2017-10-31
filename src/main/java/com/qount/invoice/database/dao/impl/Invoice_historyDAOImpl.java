@@ -196,7 +196,6 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				String query = SqlQuerys.Invoice_history.GET_ALL_BY_INVOICE_ID_WTIH_LIMITED_ACTION_QRY.replace("?", "'"+input.getInvoice_id()+"'");
 				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") ORDER BY `action_at` ASC";
 				pstmt = conn.prepareStatement(query);
-				pstmt.setString(1, input.getInvoice_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					InvoiceHistory invoice_history = new InvoiceHistory();
