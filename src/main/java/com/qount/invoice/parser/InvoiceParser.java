@@ -535,6 +535,12 @@ public class InvoiceParser {
 				invoiceHistory.setLast_updated_by(user_id);
 				invoiceHistory.setUser_id(user_id);
 				invoiceHistory.setAmount(invoice.getAmount());
+				invoiceHistory.setAmount_by_date(invoice.getAmount_by_date());
+				invoiceHistory.setAmount_due(invoice.getAmount_due());
+				invoiceHistory.setAmount_paid(invoice.getAmount_paid());
+				invoiceHistory.setTax_amount(invoice.getTax_amount());
+				invoiceHistory.setCurrency(invoice.getCurrency());
+				invoiceHistory.setSub_totoal(invoice.getSub_total());
 				return invoiceHistory;
 			}
 		} catch (Exception e) {
