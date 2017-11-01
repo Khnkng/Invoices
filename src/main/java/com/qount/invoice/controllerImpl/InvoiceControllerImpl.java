@@ -358,16 +358,16 @@ public class InvoiceControllerImpl {
 			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
 			if (!invoice.isSendMail() && StringUtils.isNotBlank(jobId)) {
 				invoice_history.setDescription(PropertyManager.getProperty("invoice.history.desc.no.mail.but.job"));
-				invoice_history.setAction_at(invoice.getDue_date());
-				invoice_history.setEmail_to(toCommaSeparatedString(invoice.getRecepientsMails()));
-				invoice_history.setAmount(invoice.getAmount());
-				invoice_history.setCurrency(invoice.getCurrency());
-				invoice_history.setAmount_by_date(invoice.getAmount_by_date());
-				invoice_history.setAmount_due(invoice.getAmount_due());
-				invoice_history.setAmount_paid(invoice.getAmount_paid());
-				invoice_history.setSub_totoal(invoice.getSub_total());
-				invoice_history.setTax_amount(invoice.getTax_amount());
 			}
+			invoice_history.setAction_at(invoice.getDue_date());
+			invoice_history.setEmail_to(toCommaSeparatedString(invoice.getRecepientsMails()));
+			invoice_history.setAmount(invoice.getAmount());
+			invoice_history.setCurrency(invoice.getCurrency());
+			invoice_history.setAmount_by_date(invoice.getAmount_by_date());
+			invoice_history.setAmount_due(invoice.getAmount_due());
+			invoice_history.setAmount_paid(invoice.getAmount_paid());
+			invoice_history.setSub_totoal(invoice.getSub_total());
+			invoice_history.setTax_amount(invoice.getTax_amount());
 			return MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 		} catch (Exception e) {
 			LOGGER.error("",e);
