@@ -20,7 +20,61 @@ public class InvoiceHistory {
 	private String description;
 	private String webhook_event_id;
 	private double amount;
+	private String currency;
+	private double sub_totoal;
+	private double amount_by_date;
+	private double amount_paid;
+	private double tax_amount;
+	private double amount_due;
 	
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
+	public double getSub_totoal() {
+		return sub_totoal;
+	}
+
+	public void setSub_totoal(double sub_totoal) {
+		this.sub_totoal = sub_totoal;
+	}
+
+	public double getAmount_by_date() {
+		return amount_by_date;
+	}
+
+	public void setAmount_by_date(double amount_by_date) {
+		this.amount_by_date = amount_by_date;
+	}
+
+	public double getAmount_paid() {
+		return amount_paid;
+	}
+
+	public void setAmount_paid(double amount_paid) {
+		this.amount_paid = amount_paid;
+	}
+
+	public double getTax_amount() {
+		return tax_amount;
+	}
+
+	public void setTax_amount(double tax_amount) {
+		this.tax_amount = tax_amount;
+	}
+
+	public double getAmount_due() {
+		return amount_due;
+	}
+
+	public void setAmount_due(double amount_due) {
+		this.amount_due = amount_due;
+	}
+
 	public double getAmount() {
 		return amount;
 	}

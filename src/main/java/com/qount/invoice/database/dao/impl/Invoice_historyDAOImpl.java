@@ -45,7 +45,13 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.GET_QRY);
 				pstmt.setString(1, invoice_history.getId());
 				rset = pstmt.executeQuery();
-				while (rset.next()) {
+				while (rset.next()) { 
+					invoice_history.setCurrency(rset.getString("currency"));
+					invoice_history.setSub_totoal(rset.getDouble("sub_totoal"));
+					invoice_history.setAmount_by_date(rset.getDouble("amount_by_date"));
+					invoice_history.setAmount_paid(rset.getDouble("amount_paid"));
+					invoice_history.setTax_amount(rset.getDouble("tax_amount"));
+					invoice_history.setAmount_due(rset.getDouble("amount_due"));
 					invoice_history.setAmount(rset.getDouble("amount"));
 					invoice_history.setWebhook_event_id(rset.getString("webhook_event_id"));
 					invoice_history.setDescription(rset.getString("description"));
@@ -199,6 +205,12 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					InvoiceHistory invoice_history = new InvoiceHistory();
+					invoice_history.setCurrency(rset.getString("currency"));
+					invoice_history.setSub_totoal(rset.getDouble("sub_totoal"));
+					invoice_history.setAmount_by_date(rset.getDouble("amount_by_date"));
+					invoice_history.setAmount_paid(rset.getDouble("amount_paid"));
+					invoice_history.setTax_amount(rset.getDouble("tax_amount"));
+					invoice_history.setAmount_due(rset.getDouble("amount_due"));
 					invoice_history.setAmount(rset.getDouble("amount"));
 					invoice_history.setWebhook_event_id(rset.getString("webhook_event_id"));
 					invoice_history.setDescription(rset.getString("description"));
@@ -299,6 +311,12 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				}
 				int ctr = 1;
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
+				pstmt.setString(ctr++, invoice_history.getCurrency());
+				pstmt.setDouble(ctr++, invoice_history.getSub_totoal());
+				pstmt.setDouble(ctr++, invoice_history.getAmount_by_date());
+				pstmt.setDouble(ctr++, invoice_history.getAmount_paid());
+				pstmt.setDouble(ctr++, invoice_history.getTax_amount());
+				pstmt.setDouble(ctr++, invoice_history.getAmount_due());
 				pstmt.setDouble(ctr++, invoice_history.getAmount());
 				pstmt.setString(ctr++, invoice_history.getWebhook_event_id());
 				pstmt.setString(ctr++, invoice_history.getDescription());
@@ -343,6 +361,12 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				for(int i=0;i<invoice_historys.size();i++){
 					pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 					InvoiceHistory invoice_history = invoice_historys.get(i);
+					pstmt.setString(ctr++, invoice_history.getCurrency());
+					pstmt.setDouble(ctr++, invoice_history.getSub_totoal());
+					pstmt.setDouble(ctr++, invoice_history.getAmount_by_date());
+					pstmt.setDouble(ctr++, invoice_history.getAmount_paid());
+					pstmt.setDouble(ctr++, invoice_history.getTax_amount());
+					pstmt.setDouble(ctr++, invoice_history.getAmount_due());
 					pstmt.setDouble(ctr++, invoice_history.getAmount());
 					pstmt.setString(ctr++, invoice_history.getWebhook_event_id());
 					pstmt.setString(ctr++, invoice_history.getDescription());
