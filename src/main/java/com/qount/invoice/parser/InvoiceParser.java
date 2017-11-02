@@ -212,6 +212,34 @@ public class InvoiceParser {
 		}
 	}
 	
+	public static void formatGetInvoiceHistoriesResponse(List<InvoiceHistory> invoiceHistoryLst){
+		try {
+			if (invoiceHistoryLst != null && !invoiceHistoryLst.isEmpty()) {
+				for (int i = 0; i < invoiceHistoryLst.size(); i++) {
+					InvoiceHistory invoiceHistory = invoiceHistoryLst.get(i);
+					if (invoiceHistory != null) {
+						invoiceHistory.setAction_at(convertTimeStampToString(invoiceHistory.getAction_at(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.UI_DATE_TIME_FORMAT));
+						String action = StringUtils.capitalize(invoiceHistory.getAction());
+						if(StringUtils.isNoneBlank(action)){
+							action = action.replace("_", " ");
+						}
+						invoiceHistory.setAction(action);
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		}
+	}
+	
+	public static void main(String[] args) {
+		String action = "Partially_paid";
+		action = action.replaceAll("_", " ");
+		System.out.println(action);
+	}
+	
 	/**
 	 * method used to convert invoice amount fields to two decimals
 	 * 
@@ -515,6 +543,14 @@ public class InvoiceParser {
 				invoiceHistory.setLast_updated_at(timestamp.toString());
 				invoiceHistory.setLast_updated_by(user_id);
 				invoiceHistory.setUser_id(user_id);
+				invoiceHistory.setAmount(invoice.getAmount());
+				invoiceHistory.setAmount_by_date(invoice.getAmount_by_date());
+				invoiceHistory.setAmount_due(invoice.getAmount_due());
+				invoiceHistory.setAmount_paid(invoice.getAmount_paid());
+				invoiceHistory.setTax_amount(invoice.getTax_amount());
+				invoiceHistory.setCurrency(invoice.getCurrency());
+				invoiceHistory.setSub_totoal(invoice.getSub_total());
+				invoiceHistory.setAction_at_mills(new Date().getTime());
 				return invoiceHistory;
 			}
 		} catch (Exception e) {
@@ -545,6 +581,7 @@ public class InvoiceParser {
 				invoiceHistory.setLast_updated_at(timestamp.toString());
 				invoiceHistory.setLast_updated_by(user_id);
 				invoiceHistory.setUser_id(user_id);
+				invoiceHistory.setAction_at_mills(new Date().getTime());
 				return invoiceHistory;
 			}
 		} catch (Exception e) {

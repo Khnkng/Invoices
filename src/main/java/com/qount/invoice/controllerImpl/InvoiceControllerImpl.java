@@ -358,9 +358,18 @@ public class InvoiceControllerImpl {
 			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
 			if (!invoice.isSendMail() && StringUtils.isNotBlank(jobId)) {
 				invoice_history.setDescription(PropertyManager.getProperty("invoice.history.desc.no.mail.but.job"));
-				invoice_history.setAction_at(invoice.getDue_date());
-				invoice_history.setEmail_to(new JSONArray(invoice.getRecepientsMails()).toString());
 			}
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+			invoice_history.setAction_at(timestamp.toString());
+			invoice_history.setEmail_to(toCommaSeparatedString(invoice.getRecepientsMails()));
+			invoice_history.setAmount(invoice.getAmount());
+			invoice_history.setCurrency(invoice.getCurrency());
+			invoice_history.setAmount_by_date(invoice.getAmount_by_date());
+			invoice_history.setAmount_due(invoice.getAmount_due());
+			invoice_history.setAmount_paid(invoice.getAmount_paid());
+			invoice_history.setSub_totoal(invoice.getSub_total());
+			invoice_history.setTax_amount(invoice.getTax_amount());
+			invoice_history.setAction_at_mills(new Date().getTime());
 			return MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 		} catch (Exception e) {
 			LOGGER.error("",e);
@@ -368,6 +377,18 @@ public class InvoiceControllerImpl {
 		}finally {
 			LOGGER.debug("exited createInvoiceHistory(Invoice invoice:"+invoice+",String userID:"+userID+",String companyID:"+companyID+",String jobId:"+jobId+")");
 		}
+	}
+	
+	public static String toCommaSeparatedString(List<String> strings) {
+		String result = null;
+		if (strings != null && !strings.isEmpty()) {
+			result = "";
+			for (int i = 0; i < strings.size(); i++) {
+				result += "" + strings.get(i) + ",";
+			}
+			result = result.substring(0, result.length() - 1);
+		}
+		return result;
 	}
 	
 	public static Invoice updateInvoiceState(String invoiceID, Invoice invoice, String userID, String companyID) {
@@ -458,8 +479,6 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(PropertyManager.getProperty("draft.invoice.paid.validation"), 412);
 			}
 			if (markAsPaid(connection, invoice, dbInvoice)) {
-				InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), invoice.getUser_id(), invoice.getCompany_id());
-				MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 				return invoice;
 			}
 		} catch (WebApplicationException e) {
@@ -943,11 +962,5 @@ public class InvoiceControllerImpl {
 		} finally {
 			LOGGER.debug("exited get box values userID:" + userID + " companyID:" + companyID);
 		}
-	}
-
-	public static void main(String[] args) {
-		String dateStr = "12/12/2017";
-		String startDate = CommonUtils.convertDate(dateStr, Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-		System.out.println(startDate);
 	}
 }
