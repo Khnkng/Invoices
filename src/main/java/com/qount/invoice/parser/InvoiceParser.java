@@ -581,6 +581,7 @@ public class InvoiceParser {
 				invoiceHistory.setLast_updated_at(timestamp.toString());
 				invoiceHistory.setLast_updated_by(user_id);
 				invoiceHistory.setUser_id(user_id);
+				invoiceHistory.setAction_at_mills(new Date().getTime());
 				return invoiceHistory;
 			}
 		} catch (Exception e) {
