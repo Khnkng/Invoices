@@ -220,7 +220,11 @@ public class InvoiceParser {
 					if (invoiceHistory != null) {
 						invoiceHistory.setAction_at(convertTimeStampToString(invoiceHistory.getAction_at(),
 								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.UI_DATE_TIME_FORMAT));
-						invoiceHistory.setAction(StringUtils.capitalize(invoiceHistory.getAction()));
+						String action = StringUtils.capitalize(invoiceHistory.getAction());
+						if(StringUtils.isNoneBlank(action)){
+							action = action.replace("_", " ");
+						}
+						invoiceHistory.setAction(action);
 					}
 				}
 			}
@@ -230,6 +234,11 @@ public class InvoiceParser {
 		}
 	}
 	
+	public static void main(String[] args) {
+		String action = "Partially_paid";
+		action = action.replaceAll("_", " ");
+		System.out.println(action);
+	}
 	
 	/**
 	 * method used to convert invoice amount fields to two decimals
@@ -541,6 +550,7 @@ public class InvoiceParser {
 				invoiceHistory.setTax_amount(invoice.getTax_amount());
 				invoiceHistory.setCurrency(invoice.getCurrency());
 				invoiceHistory.setSub_totoal(invoice.getSub_total());
+				invoiceHistory.setAction_at_mills(new Date().getTime());
 				return invoiceHistory;
 			}
 		} catch (Exception e) {

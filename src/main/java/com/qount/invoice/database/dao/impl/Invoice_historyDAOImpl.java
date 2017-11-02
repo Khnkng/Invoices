@@ -200,11 +200,12 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			if (conn != null) {
 				result = new ArrayList<InvoiceHistory>();
 				String query = SqlQuerys.Invoice_history.GET_ALL_BY_INVOICE_ID_WTIH_LIMITED_ACTION_QRY.replace("?", "'"+input.getInvoice_id()+"'");
-				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") ORDER BY `action_at` ASC";
+				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") ORDER BY `action_at_mills` ASC";
 				pstmt = conn.prepareStatement(query);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					InvoiceHistory invoice_history = new InvoiceHistory();
+					invoice_history.setAction_at_mills(rset.getLong("action_at_mills"));
 					invoice_history.setCurrency(rset.getString("currency"));
 					invoice_history.setSub_totoal(rset.getDouble("sub_totoal"));
 					invoice_history.setAmount_by_date(rset.getDouble("amount_by_date"));
@@ -311,6 +312,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				}
 				int ctr = 1;
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
+				pstmt.setLong(ctr++, invoice_history.getAction_at_mills());
 				pstmt.setString(ctr++, invoice_history.getCurrency());
 				pstmt.setDouble(ctr++, invoice_history.getSub_totoal());
 				pstmt.setDouble(ctr++, invoice_history.getAmount_by_date());
