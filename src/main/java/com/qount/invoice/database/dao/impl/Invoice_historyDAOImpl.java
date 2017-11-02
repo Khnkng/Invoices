@@ -363,6 +363,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				for(int i=0;i<invoice_historys.size();i++){
 					pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 					InvoiceHistory invoice_history = invoice_historys.get(i);
+					pstmt.setLong(ctr++, invoice_history.getAction_at_mills());
 					pstmt.setString(ctr++, invoice_history.getCurrency());
 					pstmt.setDouble(ctr++, invoice_history.getSub_totoal());
 					pstmt.setDouble(ctr++, invoice_history.getAmount_by_date());
