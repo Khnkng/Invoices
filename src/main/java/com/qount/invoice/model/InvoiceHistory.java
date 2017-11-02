@@ -26,7 +26,16 @@ public class InvoiceHistory {
 	private double amount_paid;
 	private double tax_amount;
 	private double amount_due;
+	private long action_at_mills;
 	
+	public long getAction_at_mills() {
+		return action_at_mills;
+	}
+
+	public void setAction_at_mills(long action_at_mills) {
+		this.action_at_mills = action_at_mills;
+	}
+
 	public String getCurrency() {
 		return currency;
 	}

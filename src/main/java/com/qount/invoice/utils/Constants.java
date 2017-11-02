@@ -35,7 +35,7 @@ public class Constants {
 
 	public static final String BILLS_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
 	public static final String INVOICE_UI_DATE_FORMAT = "MM/dd/yy";
-	public static final String UI_DATE_TIME_FORMAT_STR = "MM/dd/yy hh:mm:ss";
+	public static final String UI_DATE_TIME_FORMAT_STR = "MM/dd/yy HH:mm:ss";
 	public static final String PROPOSAL_UI_DATE_FORMAT = "MM/dd/yy";
 	public static final String INVOICE_MAIL_DATE_FORMAT = "MMM dd, yyyy";
 	public static final SimpleDateFormat TIME_STATMP_TO_BILLS_FORMAT = new SimpleDateFormat(BILLS_DATE_FORMAT);
