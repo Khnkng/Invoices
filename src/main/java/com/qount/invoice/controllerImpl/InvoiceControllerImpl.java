@@ -267,7 +267,8 @@ public class InvoiceControllerImpl {
 					invoice.setState(Constants.INVOICE_STATE_SENT);
 				}
 				invoice.setRemainder_job_id(jobId);
-			}else if (!createNewRemainder && invoice.isSendMail() ) {
+			}
+			if (invoice.isSendMail() ) {
 				if (sendInvoiceEmail(invoiceObj)) {
 					// if invoice is paid then sending email and returning response
 					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
