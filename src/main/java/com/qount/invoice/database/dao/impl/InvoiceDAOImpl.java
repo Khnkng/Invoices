@@ -59,6 +59,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getId());
 				pstmt.setString(ctr++, invoice.getUser_id());
 				pstmt.setString(ctr++, invoice.getCompany_id());
@@ -128,6 +129,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getRemainder_job_id());
 				pstmt.setString(ctr++, invoice.getRemainder_name());
 				pstmt.setString(ctr++, invoice.getUser_id());
@@ -378,6 +380,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (dimension != null)
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
+							invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
 							invoice.setId(rset.getString("id"));
 							invoice.setRemainder_name(rset.getString("remainder_name"));
 							invoice.setRemainder_job_id(rset.getString("remainder_job_id"));
@@ -924,6 +927,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				while (invoiceItr.hasNext()) {
 					Invoice invoice = invoiceItr.next();
+					pstmt.setString(ctr++, invoice.getAttachments_metadata());
 					pstmt.setString(ctr++, invoice.getId());
 					pstmt.setString(ctr++, invoice.getUser_id());
 					pstmt.setString(ctr++, invoice.getCompany_id());
