@@ -80,7 +80,16 @@ public class Invoice {
 	private String payment_ids;
 	private String subject;
 	private String from;
+	private String attachments_metadata;
 	
+	public String getAttachments_metadata() {
+		return attachments_metadata;
+	}
+
+	public void setAttachments_metadata(String attachments_metadata) {
+		this.attachments_metadata = attachments_metadata;
+	}
+
 	public String getFrom() {
 		return from;
 	}
