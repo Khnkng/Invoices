@@ -76,6 +76,8 @@ public class InvoiceControllerImpl {
 					invoice.setAttachmentBase64(base64StringOfAttachment);
 				}
 			}
+			invoice.setUser_id(userID);
+			invoice.setCompany_id(companyID);
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
 				jobId = getJobId(connection,invoice);
@@ -200,6 +202,15 @@ public class InvoiceControllerImpl {
 				attachments.put(attahcment);
 				remainderJsonObject.put("attachments", attachments);
 			}
+			remainderJsonObject.put("userId", invoice.getUser_id());
+			remainderJsonObject.put("companyId", invoice.getCompany_id());
+			String attachmentsMetadata = invoice.getAttachments_metadata();
+			if(StringUtils.isNotBlank(attachmentsMetadata)){
+				JSONObject attachmentsMetdataObj = new JSONObject(attachmentsMetadata);
+				if(CommonUtils.isValidJSON(attachmentsMetdataObj)){
+					remainderJsonObject.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
+				}
+			}
 			LOGGER.debug("remainderJsonObject::" + remainderJsonObject);
 			// remainderJsonObject.put("startDate",invoice.getRemainder().getDate());
 			Object jobIdObj = HTTPClient.postObject(remainderServieUrl, remainderJsonObject.toString());
@@ -242,6 +253,8 @@ public class InvoiceControllerImpl {
 			if(StringUtils.isNotBlank(invoice.getState()) && !dbInvoice.getState().equals(invoice.getState())){
 				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"),Constants.INVALID_INPUT_STATUS);
 			}
+			invoice.setUser_id(userID);
+			invoice.setCompany_id(companyID);
 			boolean createNewRemainder = false;
 			boolean deleteOldRemainder = false;
 			if(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())){
@@ -862,6 +875,15 @@ public class InvoiceControllerImpl {
 				attahcment.put("content", invoice.getAttachmentBase64());
 				attachments.put(attahcment);
 				result.put("attachments", attachments);
+			}
+			result.put("userId", invoice.getUser_id());
+			result.put("companyId", invoice.getCompany_id());
+			String attachmentsMetadata = invoice.getAttachments_metadata();
+			if(StringUtils.isNotBlank(attachmentsMetadata)){
+				JSONObject attachmentsMetdataObj = new JSONObject(attachmentsMetadata);
+				if(CommonUtils.isValidJSON(attachmentsMetdataObj)){
+					result.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
+				}
 			}
 			return result;
 		} catch (WebApplicationException e) {
