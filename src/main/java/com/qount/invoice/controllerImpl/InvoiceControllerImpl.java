@@ -255,6 +255,15 @@ public class InvoiceControllerImpl {
 			}
 			invoice.setUser_id(userID);
 			invoice.setCompany_id(companyID);
+			String base64StringOfAttachment = null;
+			if(invoice.getPdf_data()!=null){
+				String url = PropertyManager.getProperty("report.pdf.url");
+				LOGGER.debug("url::" + url);
+				base64StringOfAttachment = HTTPClient.postAndGetBase64StringResult(url, new ObjectMapper().writeValueAsString(invoice.getPdf_data()));
+				if(StringUtils.isNotBlank(base64StringOfAttachment)){
+					invoice.setAttachmentBase64(base64StringOfAttachment);
+				}
+			}
 			boolean createNewRemainder = false;
 			boolean deleteOldRemainder = false;
 			if(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())){
