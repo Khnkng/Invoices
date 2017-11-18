@@ -4,7 +4,7 @@ package com.qount.invoice.utils;
 public class SqlQuerys {
 
 	public final class Invoice {
-		public static final String INSERT_QRY = "INSERT INTO invoice (`attachments_metadata`, `id`, `user_id`, `company_id`, `customer_id`, `amount`, `currency`, `description`, `objectives`, `last_updated_by`, `last_updated_at`, `state`, `invoice_date`, `notes`, `discount`, `deposit_amount`, `processing_fees`, `number`, `document_id`, `amount_due`, `due_date`, `sub_totoal`, `amount_by_date`, `created_at`, `amount_paid`, `term`, `created_at_millis`, `recepients_mails`, `plan_id`, `is_recurring`, `payment_options`, `email_state`, `send_to`,`payment_method`,`tax_amount`,`proposal_id`,`remainder_job_id`,`remainder_name` ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		public static final String INSERT_QRY = "INSERT INTO invoice (`attachments_metadata`, `id`, `user_id`, `company_id`, `customer_id`, `amount`, `currency`, `description`, `objectives`, `last_updated_by`, `last_updated_at`, `state`, `invoice_date`, `notes`, `discount`, `deposit_amount`, `processing_fees`, `number`, `document_id`, `amount_due`, `due_date`, `sub_totoal`, `amount_by_date`, `created_at`, `amount_paid`, `term`, `created_at_millis`, `recepients_mails`, `plan_id`, `is_recurring`, `payment_options`, `email_state`, `send_to`,`payment_method`,`tax_amount`,`proposal_id`,`remainder_job_id`,`remainder_name` ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		public static final String UPDATE_QRY = "UPDATE invoice SET `attachments_metadata`=?,`remainder_job_id` = ?, `remainder_name` = ?, `user_id` = ?, `company_id` = ?, `customer_id` = ?, `amount` = ?, `currency` = ?, `description` = ?, `objectives` = ?, `last_updated_by` = ?, `last_updated_at` = ?, `state` = ?, `invoice_date` = ?, `notes` = ?, `discount` = ?, `deposit_amount` = ?, `processing_fees` = ?, `number` = ?, `document_id` = ?, `amount_due` = ?, `due_date` = ?, `sub_totoal` = ?, `amount_by_date` = ?, `amount_paid` = ?, `term` = ?, `recepients_mails` = ?, `plan_id` = ?, `is_recurring` = ?, `payment_options` = ?, `send_to` = ?,`payment_method` = ?, `tax_amount` = ? WHERE `id` = ?;";
 		public static final String UPDATE_EMAIL_STATE_QRY = "UPDATE invoice SET `email_state` = ? WHERE `id` = ?;";
 		public final static String DELETE_QRY = "DELETE FROM invoice WHERE `id`=? AND   `company_id` =?;";
@@ -165,4 +165,10 @@ public class SqlQuerys {
 		public static final String LIMITED_ACTIONS = "'draft','sent','partially_paid','paid','delivered','dropped','deferred','bounce','open','click'";
 	}
 	
+	public final class InvoiceCommission {
+		public static final String INSERT_QRY = "INSERT INTO invoice_commission (`id`, `vendor_id`, `invoice_id`,`percentage`, `amount`,`event_type`, `event_at`, `bill_id`, `company_id`, `bill_created`, `item_id`, `item_name`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		public static final String DELETE_BY_INVOICE_ID_QRY = "delete from invoice_commission WHERE `invoice_id` = ?;";
+		public static final String GET_BY_INVOICE_ID_QRY = "SELECT `id`, `vendor_id`, `invoice_id`,`percentage`, `amount`,`event_type`, `event_at`, `bill_id`, `company_id`, `bill_created`, `item_name`, `item_id` FROM invoice_commission WHERE invoice_id=?;";
+		public static final String GET_BY_INVOICE_ID_AND_NOT_BILL_CREATION_QRY = "SELECT `id`, `vendor_id`, `invoice_id`,`percentage`, `amount`,`event_type`, `event_at`, `bill_id`, `company_id`, `bill_created`, `item_name`, `item_id` FROM invoice_commission WHERE invoice_id=? and bill_created=false;";
+	}
 }
