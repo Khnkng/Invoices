@@ -638,8 +638,8 @@ public class InvoiceParser {
 										 LOGGER.fatal("ltm invoice->apserivce not present ltm url:"+apServiceUrl);
 										 return;
 									 }
-//									apServiceUrl = "https://dev-services.qount.io/BigPayServices/";
-									apServiceUrl += "user/"+userId+"/companies/"+companyId+"/bills";
+//									apServiceUrl = "https://dev-services.qount.io/";
+									apServiceUrl += "BigPayServices/user/"+userId+"/companies/"+companyId+"/bills";
 									JSONObject invoiceCommisionJson = getInvoiceCommissionJson(invoiceCommission, companyId);
 									JSONObject result = HTTPClient.post(apServiceUrl, invoiceCommisionJson.toString());
 									if (CommonUtils.isValidJSON(result)) {
