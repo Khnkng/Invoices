@@ -61,7 +61,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
-				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getId());
 				pstmt.setString(ctr++, invoice.getUser_id());
 				pstmt.setString(ctr++, invoice.getCompany_id());
