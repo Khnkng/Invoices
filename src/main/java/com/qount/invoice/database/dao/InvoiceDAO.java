@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceCommission;
 import com.qount.invoice.model.InvoiceMetrics;
 
 /**
@@ -46,11 +47,11 @@ public interface InvoiceDAO {
 	
 	public InvoiceMetrics getInvoiceMetrics(String companyID)  throws Exception;
 	
-	public List<Invoice> saveInvoice(Connection connection, List<Invoice> invoice) throws Exception;;
+	public List<Invoice> saveInvoice(Connection connection, List<Invoice> invoice) throws Exception;
 	
 	public Invoice markAsPaid(Connection connection, Invoice invoice) throws Exception;
 	
-	public List<Invoice> getInvoices(String invoiceIds) throws Exception;;
+	public List<Invoice> getInvoices(String invoiceIds) throws Exception;
 	
 	public List<Invoice> retrieveInvoicesByCurrentStateAndCompany(String companyId, String query);
 	
@@ -59,4 +60,11 @@ public interface InvoiceDAO {
 	public List<String> getInvoiceJobsList(String invoiceIds) throws Exception;
 	
 	public Map<String,String> getInvoicePaymentsIds(String invoiceIds) throws Exception;
+	
+	public List<InvoiceCommission> createInvoiceCommissionLst(Connection connection, List<InvoiceCommission> invoiceCommissionLst, String invoiceID) throws Exception;
+	
+	public InvoiceCommission deleteInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) throws Exception;
+	
+	public List<InvoiceCommission> getInvoiceCommissionLst(Connection connection, InvoiceCommission invoiceCommission, boolean billsNotCreated) throws Exception;
+	
 }

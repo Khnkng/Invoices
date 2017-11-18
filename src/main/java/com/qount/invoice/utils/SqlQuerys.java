@@ -165,4 +165,10 @@ public class SqlQuerys {
 		public static final String LIMITED_ACTIONS = "'draft','sent','partially_paid','paid','delivered','dropped','deferred','bounce','open','click'";
 	}
 	
+	public final class InvoiceCommission {
+		public static final String INSERT_QRY = "INSERT INTO invoice_commission (`id`, `vendor_id`, `invoice_id`,`percentage`, `amount`,`event_type`, `event_at`, `bill_id`, `company_id`, `bill_created`, `item_id`, `item_name`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		public static final String DELETE_BY_INVOICE_ID_QRY = "delete from invoice_commission WHERE `invoice_id` = ?;";
+		public static final String GET_BY_INVOICE_ID_QRY = "SELECT `id`, `vendor_id`, `invoice_id`,`percentage`, `amount`,`event_type`, `event_at`, `bill_id`, `company_id`, `bill_created`, `item_name`, `item_id` FROM invoice_commission WHERE invoice_id=?;";
+		public static final String GET_BY_INVOICE_ID_AND_NOT_BILL_CREATION_QRY = "SELECT `id`, `vendor_id`, `invoice_id`,`percentage`, `amount`,`event_type`, `event_at`, `bill_id`, `company_id`, `bill_created`, `item_name`, `item_id` FROM invoice_commission WHERE invoice_id=? and bill_created=false;";
+	}
 }

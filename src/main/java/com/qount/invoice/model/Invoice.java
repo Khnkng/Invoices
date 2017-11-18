@@ -81,7 +81,17 @@ public class Invoice {
 	private String subject;
 	private String from;
 	private String attachments_metadata;
+	private List<InvoiceCommission> invoiceCommissions;
 	
+
+	public List<InvoiceCommission> getInvoiceCommissions() {
+		return invoiceCommissions;
+	}
+
+	public void setInvoiceCommissions(List<InvoiceCommission> invoiceCommissions) {
+		this.invoiceCommissions = invoiceCommissions;
+	}
+
 	public String getAttachments_metadata() {
 		return attachments_metadata;
 	}
