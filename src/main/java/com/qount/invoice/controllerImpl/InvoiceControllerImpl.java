@@ -68,6 +68,12 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
+			InvoicePreference invoicePreference = new InvoicePreference();
+			invoicePreference.setCompanyId(invoice.getCompany_id());
+			invoicePreference = MySQLManager.getInvoicePreferenceDAOInstance().getInvoiceByCompanyId(connection, invoicePreference);
+			if(invoicePreference!=null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())){
+				invoice.setMailSubject(invoicePreference.getDefaultTitle());
+			}
 			String base64StringOfAttachment = null;
 			if(invoice.getPdf_data()!=null){
 				String url = PropertyManager.getProperty("report.pdf.url");
@@ -183,6 +189,9 @@ public class InvoiceControllerImpl {
 			remainderJsonObject.put("account", Constants.ACCOUNT);
 			remainderJsonObject.put("from", Constants.FROM);
 			String subject = PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName();
+			if(StringUtils.isNotEmpty(invoice.getMailSubject())){
+				subject = invoice.getMailSubject();
+			} 
 			invoice.setSubject(subject);
 			remainderJsonObject.put("subject", subject);
 			remainderJsonObject.put("mailBodyContentType", PropertyManager.getProperty("invoice.mailBodyContentType"));
@@ -847,6 +856,9 @@ public class InvoiceControllerImpl {
 			custom_args.put("type", Constants.INVOICE);
 			custom_args.put("id", invoice.getId());
 			emailJson.put("custom_args", custom_args);
+			if(StringUtils.isNotEmpty(invoice.getMailSubject())){
+				subject = invoice.getMailSubject();
+			}
 			emailJson.put("subject", subject);
 			JSONArray toArray = new JSONArray();
 			emailJson.put("to", toArray);
