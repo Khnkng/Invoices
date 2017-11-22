@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 
 import com.qount.invoice.controllerImpl.InvoiceControllerImpl;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceCommission;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -130,4 +131,27 @@ public class InvoiceController {
 	public Response getInvoiceMetrics(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @QueryParam("startDate") String startDate, @QueryParam("endDate") String endDate) {
 		return InvoiceControllerImpl.getInvoiceMetrics(userID, companyID);
 	}
+	
+	@POST
+	@Path("/{invoiceId}/commissions")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@NotNull(message = "Invalid Request")
+	@ApiOperation(value = "Create InvoiceCommission", notes = "Used to add new invoice commission" + "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
+			+ "json = {\"title\":\"Sales Commission - Invoice 14qw\",\"vendorID\":\"1eefab59-08b6-4ef6-9507-446d3a31e430\",\"amount\":10,\"companyID\":\"495a05f7-4b01-421d-9f64-16d73618a38d\",\"id\":\"94c6deaa-e31d-c21c-678b-1b1ea84fcd4d\",\"dueDate\":\"11/17/2017\",\"term\":\"custom\",\"billDate\":\"11/17/2017\",\"recurring\":\"onlyonce\",\"currency\":\"USD\",\"billID\":\"16qw\",\"action\":\"submit\",\"lines\":[{\"unitPrice\":10,\"quantity\":1,\"amount\":10,\"itemCode\":\"SalesCommissions\"}]}"
+			+ "</div>", responseContainer = "java.lang.String")
+	public List<InvoiceCommission> createInvoiceCommission(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceId") @NotNull String invoiceId, @Valid List<InvoiceCommission> invoiceCommissions) {
+		return InvoiceControllerImpl.createInvoiceCommissions(userID, companyID, invoiceId, invoiceCommissions);
+	}
+	
+	@GET
+	@Path("/{invoiceId}/commissions")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@NotNull(message = "Invalid Request")
+	@ApiOperation(value = "Get InvoiceCommision", notes = "Used to add get invoice commissions" , responseContainer = "java.lang.String")
+	public List<InvoiceCommission> getInvoiceCommissions(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceId") @NotNull String invoiceId) {
+		return InvoiceControllerImpl.getInvoiceCommissions(userID, companyID, invoiceId);
+	}
+
 }

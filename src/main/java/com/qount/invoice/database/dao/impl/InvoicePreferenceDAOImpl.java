@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.database.dao.InvoicePreferenceDAO;
 import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.utils.CommonUtils;
+import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
 
 /**
@@ -148,6 +149,9 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
 		}
 		LOGGER.debug("exited getInvoiceByCompanyId:" + invoicePreference);
 		return result;

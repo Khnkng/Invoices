@@ -81,7 +81,25 @@ public class Invoice {
 	private String subject;
 	private String from;
 	private String attachments_metadata;
+	private List<InvoiceCommission> invoiceCommissions;
+	private String mailSubject;
 	
+	public String getMailSubject() {
+		return mailSubject;
+	}
+
+	public void setMailSubject(String mailSubject) {
+		this.mailSubject = mailSubject;
+	}
+
+	public List<InvoiceCommission> getInvoiceCommissions() {
+		return invoiceCommissions;
+	}
+
+	public void setInvoiceCommissions(List<InvoiceCommission> invoiceCommissions) {
+		this.invoiceCommissions = invoiceCommissions;
+	}
+
 	public String getAttachments_metadata() {
 		return attachments_metadata;
 	}

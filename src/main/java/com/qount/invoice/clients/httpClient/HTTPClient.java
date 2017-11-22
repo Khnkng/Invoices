@@ -41,6 +41,7 @@ public class HTTPClient {
 	public static JSONObject post(String url, String payload) throws Exception{
 		JSONObject responseJSON = null;
 		CloseableHttpResponse responseEntity = null;
+		LOGGER.debug("entered post(String url:"+url+"String payload:"+payload);
 		try {
 			HttpPost post = new HttpPost(url);
 			post.addHeader("Content-Type", "application/json");
@@ -52,6 +53,7 @@ public class HTTPClient {
 			IOUtils.copy(entity.getContent(), writer);
 			EntityUtils.consume(entity);
 			String response = writer.toString();
+			LOGGER.debug("response:"+response);
 			if (StringUtils.isNotBlank(response)) {
 				responseJSON = new JSONObject(response);
 			}
@@ -65,6 +67,7 @@ public class HTTPClient {
 				} catch (IOException e) {
 				}
 			}
+			LOGGER.debug("exited post(String url:"+url+"String payload:"+payload);
 		}
 		return responseJSON;
 	}

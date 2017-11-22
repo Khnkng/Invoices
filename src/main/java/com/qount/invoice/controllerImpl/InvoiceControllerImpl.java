@@ -28,6 +28,7 @@ import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceCommission;
 import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
@@ -67,6 +68,12 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
+			InvoicePreference invoicePreference = new InvoicePreference();
+			invoicePreference.setCompanyId(invoice.getCompany_id());
+			invoicePreference = MySQLManager.getInvoicePreferenceDAOInstance().getInvoiceByCompanyId(connection, invoicePreference);
+			if(invoicePreference!=null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())){
+				invoice.setMailSubject(invoicePreference.getDefaultTitle());
+			}
 			String base64StringOfAttachment = null;
 			if(invoice.getPdf_data()!=null){
 				String url = PropertyManager.getProperty("report.pdf.url");
@@ -112,6 +119,10 @@ public class InvoiceControllerImpl {
 				if (!invoiceLineResult.isEmpty()) {
 					// saving dimensions of journal lines
 					createInvoiceHistory(invoice, userID, companyID, jobId, connection);
+					List<InvoiceCommission> invoiceCommissions = invoice.getInvoiceCommissions();
+					if(invoiceCommissions!=null && !invoiceCommissions.isEmpty()){
+						
+					}
 					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
@@ -178,6 +189,9 @@ public class InvoiceControllerImpl {
 			remainderJsonObject.put("account", Constants.ACCOUNT);
 			remainderJsonObject.put("from", Constants.FROM);
 			String subject = PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName();
+			if(StringUtils.isNotEmpty(invoice.getMailSubject())){
+				subject = invoice.getMailSubject();
+			} 
 			invoice.setSubject(subject);
 			remainderJsonObject.put("subject", subject);
 			remainderJsonObject.put("mailBodyContentType", PropertyManager.getProperty("invoice.mailBodyContentType"));
@@ -842,6 +856,9 @@ public class InvoiceControllerImpl {
 			custom_args.put("type", Constants.INVOICE);
 			custom_args.put("id", invoice.getId());
 			emailJson.put("custom_args", custom_args);
+			if(StringUtils.isNotEmpty(invoice.getMailSubject())){
+				subject = invoice.getMailSubject();
+			}
 			emailJson.put("subject", subject);
 			JSONArray toArray = new JSONArray();
 			emailJson.put("to", toArray);
@@ -995,4 +1012,45 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited get box values userID:" + userID + " companyID:" + companyID);
 		}
 	}
+	
+	public static List<InvoiceCommission> createInvoiceCommissions(String userID, String companyID,String invoiceID, List<InvoiceCommission> invoiceCommissionLst) {
+		Connection connection = null;
+		try{
+			LOGGER.debug("entered createInvoiceCommission(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID+", InvoiceCommission invoiceCommissionLst:"+invoiceCommissionLst);
+			InvoiceParser.createInvoiceCommisionsBills(invoiceCommissionLst, companyID, userID);
+			connection = DatabaseUtilities.getReadWriteConnection();
+			return MySQLManager.getInvoiceDAOInstance().createInvoiceCommissionLst(connection, invoiceCommissionLst, invoiceID);
+		} catch (WebApplicationException e) {
+			LOGGER.error("error creating createInvoiceCommissions",e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse().getStatus()));
+		} catch (Exception e) {
+			LOGGER.error("error creating createInvoiceCommissions",e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
+		} finally {
+			LOGGER.debug("exited createInvoiceCommission(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID+", InvoiceCommission invoiceCommissionLst:"+invoiceCommissionLst);
+			DatabaseUtilities.closeConnection(connection);
+		}
+	}
+	
+	
+	public static List<InvoiceCommission> getInvoiceCommissions(String userID, String companyID,String invoiceID) {
+		Connection connection = null;
+		try{
+			LOGGER.debug("entered getInvoiceCommissions(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID);
+			connection = DatabaseUtilities.getReadWriteConnection();
+			InvoiceCommission invoiceCommission = new InvoiceCommission();
+			invoiceCommission.setInvoice_id(invoiceID);
+			return MySQLManager.getInvoiceDAOInstance().getInvoiceCommissionLst(connection, invoiceCommission, false);
+		} catch (WebApplicationException e) {
+			LOGGER.error("error retriving InvoiceCommissions",e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse().getStatus()));
+		} catch (Exception e) {
+			LOGGER.error("error retriving InvoiceCommissions",e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
+		} finally {
+			LOGGER.debug("exited getInvoiceCommissions(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID);
+			DatabaseUtilities.closeConnection(connection);
+		}
+	}
+	
 }
