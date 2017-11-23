@@ -1269,6 +1269,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					pstmt.setBoolean(ctr++, invoiceCommission.isBillCreated());
 					pstmt.setString(ctr++, invoiceCommission.getItem_id());
 					pstmt.setString(ctr++, invoiceCommission.getItem_name());
+					pstmt.setString(ctr++, invoiceCommission.getBillLineId());
 					pstmt.addBatch();
 					ctr=1;
 				}
@@ -1344,6 +1345,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					InvoiceCommission dbinvoiceCommission = new InvoiceCommission();
+					dbinvoiceCommission.setBillLineId(rset.getString("bill_line_id"));
 					dbinvoiceCommission.setId(rset.getString("id"));
 					dbinvoiceCommission.setVendor_id(rset.getString("vendor_id"));
 					dbinvoiceCommission.setInvoice_id(rset.getString("invoice_id"));
