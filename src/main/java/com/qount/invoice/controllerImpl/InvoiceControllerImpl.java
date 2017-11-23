@@ -1017,7 +1017,7 @@ public class InvoiceControllerImpl {
 		Connection connection = null;
 		try{
 			LOGGER.debug("entered createInvoiceCommission(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID+", InvoiceCommission invoiceCommissionLst:"+invoiceCommissionLst);
-			InvoiceParser.createInvoiceCommisionsBills(invoiceCommissionLst, companyID, userID);
+			InvoiceParser.createOrUpdateInvoiceCommisionsBills(invoiceCommissionLst, companyID, userID, null);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			return MySQLManager.getInvoiceDAOInstance().createInvoiceCommissionLst(connection, invoiceCommissionLst, invoiceID);
 		} catch (WebApplicationException e) {
@@ -1053,4 +1053,75 @@ public class InvoiceControllerImpl {
 		}
 	}
 	
+	
+	public static List<InvoiceCommission> updateInvoiceCommissions(String userID, String companyID,String invoiceID, List<InvoiceCommission> invoiceCommissionLst) {
+		Connection connection = null;
+		try{
+			LOGGER.debug("entered updateInvoiceCommissions(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID+", InvoiceCommission invoiceCommissionLst:"+invoiceCommissionLst);
+			String billId = null;
+			if(invoiceCommissionLst!=null && !invoiceCommissionLst.isEmpty()){
+				billId = invoiceCommissionLst.get(0).getBill_id();
+			}
+			if(StringUtils.isBlank(billId)){
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.billID"),412);
+			}
+			InvoiceParser.createOrUpdateInvoiceCommisionsBills(invoiceCommissionLst, companyID, userID, billId);
+			connection = DatabaseUtilities.getReadWriteConnection();
+			InvoiceDAO invoiceDAO = MySQLManager.getInvoiceDAOInstance();
+			InvoiceCommission invoiceCommission = new InvoiceCommission();
+			invoiceCommission.setInvoice_id(invoiceID);
+			connection.setAutoCommit(false);
+			invoiceCommission = invoiceDAO.deleteInvoiceCommission(connection, invoiceCommission);
+			List<InvoiceCommission> result = null;
+			if(invoiceCommission!=null){
+				result = MySQLManager.getInvoiceDAOInstance().createInvoiceCommissionLst(connection, invoiceCommissionLst, invoiceID);
+				if(result==null || result.isEmpty()){
+					throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "error updating invoice commission", Status.EXPECTATION_FAILED));
+				}else{
+					connection.commit();
+				}
+			}
+			return result;
+		} catch (WebApplicationException e) {
+			LOGGER.error("error updateInvoiceCommissions",e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse().getStatus()));
+		} catch (Exception e) {
+			LOGGER.error("error updateInvoiceCommissions",e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
+		} finally {
+			LOGGER.debug("exited updateInvoiceCommissions(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID+", InvoiceCommission invoiceCommissionLst:"+invoiceCommissionLst);
+			DatabaseUtilities.closeConnection(connection);
+		}
+	}
+	
+	public static InvoiceCommission deleteInvoiceCommission(String userID, String companyID,String invoiceID, String billId) {
+		Connection connection = null;
+		try{
+			LOGGER.debug("entered deleteInvoiceCommission(String user:"+userID+"ID, String companyID:"+companyID+",String billId:"+billId);
+			if(StringUtils.isBlank(billId)){
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.billID"),412);
+			}
+			connection = DatabaseUtilities.getReadWriteConnection();
+			InvoiceDAO invoiceDAO = MySQLManager.getInvoiceDAOInstance();
+			InvoiceCommission invoiceCommission = new InvoiceCommission();
+			invoiceCommission.setInvoice_id(invoiceID);
+			invoiceCommission = invoiceDAO.deleteInvoiceCommission(connection, invoiceCommission);
+			if(invoiceCommission!=null){
+				boolean isBillDeleted = InvoiceParser.deleteInvoivceCommissionBill(userID, companyID, invoiceID, billId);
+				if(isBillDeleted){
+					return invoiceCommission;
+				}
+			}
+			return null;
+		} catch (WebApplicationException e) {
+			LOGGER.error("error deleteInvoiceCommission",e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse().getStatus()));
+		} catch (Exception e) {
+			LOGGER.error("error deleteInvoiceCommission",e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
+		} finally {
+			LOGGER.debug("exited deleteInvoiceCommission(String user:"+userID+"ID, String companyID:"+companyID+",String billId:"+billId);
+			DatabaseUtilities.closeConnection(connection);
+		}
+	}
 }
