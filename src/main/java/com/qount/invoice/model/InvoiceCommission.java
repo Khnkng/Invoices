@@ -32,7 +32,16 @@ public class InvoiceCommission {
 	private boolean billCreated;
 	private String item_name;
 	private String item_id;
+	private String billLineId;
 	
+	public String getBillLineId() {
+		return billLineId;
+	}
+
+	public void setBillLineId(String billLineId) {
+		this.billLineId = billLineId;
+	}
+
 	public String getItem_name() {
 		return item_name;
 	}

@@ -1318,7 +1318,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
-			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited deleteInvoiceCommission:" + invoiceCommission);
 		}
 		return invoiceCommission;

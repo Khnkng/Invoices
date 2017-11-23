@@ -197,6 +197,8 @@ public class HTTPClient {
 	public static JSONObject put(String url, String payload) {
 		CloseableHttpResponse responseEntity = null;
 		JSONObject responseJSON = null;
+		LOGGER.debug("entered put(String url:"+url+", String payload:"+payload);
+		
 		try {
 			HttpPut put = new HttpPut(url.replaceAll(" ", "%20"));
 			put.addHeader("Content-Type", "application/json");
@@ -208,6 +210,7 @@ public class HTTPClient {
 			IOUtils.copy(entity.getContent(), writer);
 			EntityUtils.consume(entity);
 			String response = writer.toString();
+			LOGGER.debug("response:"+response);
 			if (StringUtils.isNotBlank(response)) {
 				responseJSON = new JSONObject(response);
 				responseJSON.put("statusCode", responseEntity.getStatusLine().getStatusCode());
@@ -221,6 +224,7 @@ public class HTTPClient {
 				} catch (IOException e) {
 				}
 			}
+			LOGGER.debug("exited put(String url:"+url+", String payload:"+payload);
 		}
 		return responseJSON;
 	}
@@ -302,6 +306,7 @@ public class HTTPClient {
 	public static String delete(String url) {
 		String response = null;
 		CloseableHttpResponse responseEntity = null;
+		LOGGER.debug("entered delete(String url:"+url);
 		try {
 			HttpDelete delete = new HttpDelete(url);
 //			delete.addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiI5MGUwZDU4Ny1kZjE2LTQ1YzgtOTExZC1jYjFlNDhmMDA4ZTMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJxb3VudC5pbyIsImV4cCI6MTUyNjk5MTcwMiwianRpIjoiNDdlYzgxNTAtMDJlNy00MDBjLWE3YTctNDNkNmJmMTQ5OTg3IiwiaWF0IjoxNDk1NDU1NzAzLCJuYmYiOjE0OTU0NTU1ODMsInN1YiI6IntcImlkXCI6XCJyYXZpa2lyYW43MzhAZ21haWwuY29tXCIsXCJwaG9uZU51bWJlclwiOm51bGwsXCJwcm9maWxlUGljXCI6bnVsbCxcImNyZWF0ZWREYXRlXCI6bnVsbCxcIm1vZGlmaWVkRGF0ZVwiOm51bGwsXCJkZWZhdWx0Q29tcGFueVwiOm51bGwsXCJ0ZW1wUGFzc3dvcmRcIjpmYWxzZSxcInZlbmRvcklEXCI6bnVsbCxcImFjdGl2ZVwiOmZhbHNlLFwicGFzc3dvcmRcIjpudWxsLFwiYWRtaW5cIjpmYWxzZSxcImZpcnN0X25hbWVcIjpcIlJhdmlraXJhblwiLFwibGFzdF9uYW1lXCI6XCJEZXZpbmVuaVwifSJ9.xAWpRbt8ARab_YqgB70Y4KEk2K1NQ9HeYiffMeEs8xo");
@@ -311,6 +316,7 @@ public class HTTPClient {
 			IOUtils.copy(entity.getContent(), writer);
 			EntityUtils.consume(entity);
 			response = writer.toString();
+			LOGGER.debug("response:"+response);
 			return response;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -322,6 +328,7 @@ public class HTTPClient {
 				} catch (IOException e) {
 				}
 			}
+			LOGGER.debug("exited delete(String url:"+url);
 		}
 		return response;
 	}
