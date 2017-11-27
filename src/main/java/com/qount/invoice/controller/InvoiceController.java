@@ -140,8 +140,8 @@ public class InvoiceController {
 	@ApiOperation(value = "Create InvoiceCommission", notes = "Used to add new invoice commission" + "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
 			+ "json = {\"title\":\"Sales Commission - Invoice 14qw\",\"vendorID\":\"1eefab59-08b6-4ef6-9507-446d3a31e430\",\"amount\":10,\"companyID\":\"495a05f7-4b01-421d-9f64-16d73618a38d\",\"id\":\"94c6deaa-e31d-c21c-678b-1b1ea84fcd4d\",\"dueDate\":\"11/17/2017\",\"term\":\"custom\",\"billDate\":\"11/17/2017\",\"recurring\":\"onlyonce\",\"currency\":\"USD\",\"billID\":\"16qw\",\"action\":\"submit\",\"lines\":[{\"unitPrice\":10,\"quantity\":1,\"amount\":10,\"itemCode\":\"SalesCommissions\"}]}"
 			+ "</div>", responseContainer = "java.lang.String")
-	public List<InvoiceCommission> createInvoiceCommission(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceId") @NotNull String invoiceId, @Valid List<InvoiceCommission> invoiceCommissions) {
-		return InvoiceControllerImpl.createInvoiceCommissions(userID, companyID, invoiceId, invoiceCommissions);
+	public InvoiceCommission createInvoiceCommission(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceId") @NotNull String invoiceId, @Valid InvoiceCommission invoiceCommission) {
+		return InvoiceControllerImpl.createInvoiceCommissions(userID, companyID, invoiceId, invoiceCommission);
 	}
 	
 	@GET
@@ -152,6 +152,28 @@ public class InvoiceController {
 	@ApiOperation(value = "Get InvoiceCommision", notes = "Used to add get invoice commissions" , responseContainer = "java.lang.String")
 	public List<InvoiceCommission> getInvoiceCommissions(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceId") @NotNull String invoiceId) {
 		return InvoiceControllerImpl.getInvoiceCommissions(userID, companyID, invoiceId);
+	}
+	
+//	@PUT
+//	@Path("/{invoiceId}/commissions/{commissionId}")
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	@NotNull(message = "Invalid Request")
+//	@ApiOperation(value = "Update InvoiceCommission", notes = "Used to update invoice commission" + "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
+//			+ "json = {\"title\":\"Sales Commission - Invoice 14qw\",\"vendorID\":\"1eefab59-08b6-4ef6-9507-446d3a31e430\",\"amount\":10,\"companyID\":\"495a05f7-4b01-421d-9f64-16d73618a38d\",\"id\":\"94c6deaa-e31d-c21c-678b-1b1ea84fcd4d\",\"dueDate\":\"11/17/2017\",\"term\":\"custom\",\"billDate\":\"11/17/2017\",\"recurring\":\"onlyonce\",\"currency\":\"USD\",\"billID\":\"16qw\",\"action\":\"submit\",\"lines\":[{\"unitPrice\":10,\"quantity\":1,\"amount\":10,\"itemCode\":\"SalesCommissions\"}]}"
+//			+ "</div>", responseContainer = "java.lang.String")
+//	public InvoiceCommission updateInvoiceCommission(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceId") @NotNull String invoiceId,@PathParam("commissionId") String commissionId, @Valid List<InvoiceCommission> invoiceCommissions) {
+//		return InvoiceControllerImpl.updateInvoiceCommissions(userID, companyID, invoiceId, invoiceCommissions);
+//	}
+	
+	@DELETE
+	@Path("/{invoiceId}/commissions/{billId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@NotNull(message = "Invalid Request")
+	@ApiOperation(value = "DELETE InvoiceCommission", notes = "Used to delete invoice commission" , responseContainer = "java.lang.String")
+	public InvoiceCommission deleteInvoiceCommission(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("invoiceId") @NotNull String invoiceId, @PathParam("billId") @NotNull String billId) {
+		return InvoiceControllerImpl.deleteInvoiceCommission(userID, companyID, invoiceId, billId);
 	}
 
 }

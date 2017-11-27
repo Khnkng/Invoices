@@ -19,8 +19,10 @@ import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceCommission;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -178,6 +180,13 @@ public class InvoiceDetailControllerImpl {
 				paymentCaptured =true;
 			}
 			if(paymentCaptured){
+				InvoiceCommission invoiceCommission = new InvoiceCommission();
+				invoiceCommission.setInvoice_id(invoice.getId());
+				List<InvoiceCommission> invoiceCommissionLst = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissionLst(connection, invoiceCommission, true);
+				if(invoiceCommissionLst!=null && !invoiceCommissionLst.isEmpty()){
+					InvoiceParser.createInvoicePaidCommissions(invoiceCommissionLst, invoice.getUser_id(), invoice.getCompany_id());
+					MySQLManager.getInvoiceDAOInstance().mergeInvoiceCommissionLst(connection, invoiceCommissionLst, invoiceID);
+				}
 				connection.commit();
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getCompany_id());
 				return true;
