@@ -61,10 +61,11 @@ public interface InvoiceDAO {
 	
 	public Map<String,String> getInvoicePaymentsIds(String invoiceIds) throws Exception;
 	
-	public List<InvoiceCommission> createInvoiceCommissionLst(Connection connection, List<InvoiceCommission> invoiceCommissionLst, String invoiceID) throws Exception;
+	public InvoiceCommission createInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) throws Exception;
 	
 	public InvoiceCommission deleteInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) throws Exception;
 	
 	public List<InvoiceCommission> getInvoiceCommissionLst(Connection connection, InvoiceCommission invoiceCommission, boolean billsNotCreated) throws Exception;
 	
+	public List<InvoiceCommission> mergeInvoiceCommissionLst(Connection connection, List<InvoiceCommission> invoiceCommissionLst, String invoiceID) throws Exception ;
 }
