@@ -171,4 +171,8 @@ public class SqlQuerys {
 		public static final String GET_BY_INVOICE_ID_QRY = "SELECT `bill_line_id`, `id`, `vendor_id`, `invoice_id`,`percentage`, `amount`,`event_type`, `event_at`, `bill_id`, `company_id`, `bill_created`, `item_name`, `item_id` FROM invoice_commission WHERE invoice_id=?;";
 		public static final String GET_BY_INVOICE_ID_AND_NOT_BILL_CREATION_QRY = "SELECT `bill_line_id`, `id`, `vendor_id`, `invoice_id`,`percentage`, `amount`,`event_type`, `event_at`, `bill_id`, `company_id`, `bill_created`, `item_name`, `item_id` FROM invoice_commission WHERE invoice_id=? and bill_created=false;";
 	}
+	
+	public final class PayEvent {
+		public final static String UPDATE = "UPDATE pay_event SET `is_eligible` = TRUE WHERE `invoice_id` = ?;";
+	}
 }
