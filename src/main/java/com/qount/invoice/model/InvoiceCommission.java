@@ -1,5 +1,7 @@
 package com.qount.invoice.model;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,10 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class InvoiceCommission {
 
 	private String id;
-	private String vendor_id;
 	private String invoice_id;
-	private double percentage;
-	private double amount;
 	private double invoice_amount;
 	private String event_type;
 	private String event_at;
@@ -30,32 +29,59 @@ public class InvoiceCommission {
 	private String invoice_number;
 	private String currency;
 	private boolean billCreated;
-	private String item_name;
-	private String item_id;
-	private String billLineId;
-	
-	public String getBillLineId() {
-		return billLineId;
+	private String user_id;
+	private List<InvoiceCommissionLines> lines;
+	private String created_at;
+	private String last_updated_at;
+	private String last_updated_by;
+	private String vendor_id;
+
+	public String getVendor_id() {
+		return vendor_id;
 	}
 
-	public void setBillLineId(String billLineId) {
-		this.billLineId = billLineId;
+	public void setVendor_id(String vendor_id) {
+		this.vendor_id = vendor_id;
 	}
 
-	public String getItem_name() {
-		return item_name;
+	public List<InvoiceCommissionLines> getLines() {
+		return lines;
 	}
 
-	public void setItem_name(String item_name) {
-		this.item_name = item_name;
+	public void setLines(List<InvoiceCommissionLines> lines) {
+		this.lines = lines;
 	}
 
-	public String getItem_id() {
-		return item_id;
+	public String getLast_updated_at() {
+		return last_updated_at;
 	}
 
-	public void setItem_id(String item_id) {
-		this.item_id = item_id;
+	public void setLast_updated_at(String last_updated_at) {
+		this.last_updated_at = last_updated_at;
+	}
+
+	public String getLast_updated_by() {
+		return last_updated_by;
+	}
+
+	public void setLast_updated_by(String last_updated_by) {
+		this.last_updated_by = last_updated_by;
+	}
+
+	public String getUser_id() {
+		return user_id;
+	}
+
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
+	}
+
+	public String getCreated_at() {
+		return created_at;
+	}
+
+	public void setCreated_at(String created_at) {
+		this.created_at = created_at;
 	}
 
 	public double getInvoice_amount() {
@@ -82,14 +108,6 @@ public class InvoiceCommission {
 		this.billCreated = billCreated;
 	}
 
-	public String getVendor_id() {
-		return vendor_id;
-	}
-
-	public void setVendor_id(String vendor_id) {
-		this.vendor_id = vendor_id;
-	}
-
 	public String getInvoice_id() {
 		return invoice_id;
 	}
@@ -114,14 +132,6 @@ public class InvoiceCommission {
 		this.bill_id = bill_id;
 	}
 
-	public double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
-
 	public String getInvoice_number() {
 		return invoice_number;
 	}
@@ -136,14 +146,6 @@ public class InvoiceCommission {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public double getPercentage() {
-		return percentage;
-	}
-
-	public void setPercentage(double percentage) {
-		this.percentage = percentage;
 	}
 
 	public String getEvent_type() {
@@ -187,4 +189,7 @@ public class InvoiceCommission {
 		return super.toString();
 	}
 	
+	public static void main(String[] args) {
+		System.out.println(new InvoiceCommission());
+	}
 }
