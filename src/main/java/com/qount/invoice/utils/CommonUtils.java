@@ -275,6 +275,7 @@ public class CommonUtils {
 	}
 
 	public static JSONObject createJournal(String payload, String userID, String companyID) {
+		LOGGER.debug("entered createJournal(String payload:"+payload+", String userID:"+userID+", String companyID:"+companyID);
 		JSONObject responseJSON = null;
 		JSONObject queJSON = new JSONObject(payload).put("companyID", companyID).put("userID", userID);
 		try {
@@ -294,6 +295,8 @@ public class CommonUtils {
 		} catch (Exception e) {
 			LOGGER.error("Error creating invoice journal", e);
 			RedisUtils.writeToQue(queJSON.toString());
+		} finally{
+			LOGGER.debug("exited createJournal(String payload:"+payload+", String userID:"+userID+", String companyID:"+companyID);
 		}
 		return responseJSON;
 	}
