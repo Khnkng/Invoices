@@ -29,6 +29,7 @@ import com.qount.invoice.model.CustomerContactDetails;
 import com.qount.invoice.model.Dimension;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
+import com.qount.invoice.model.InvoiceCommissionLines;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Item;
@@ -1227,15 +1228,52 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public InvoiceCommission createInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) throws Exception {
-		LOGGER.debug("entered createInvoiceCommissionLst(invoiceCommissionLst):" + invoiceCommission);
-		if (invoiceCommission == null) {
+	public InvoiceCommission updateInvoiceCommissionBillState(Connection connection, InvoiceCommission invoiceCommission) throws Exception {
+		LOGGER.debug("entered updateInvoiceCommissionBillState(invoiceCommissionLst):" + invoiceCommission);
+		if (invoiceCommission == null || invoiceCommission.getLines()==null || invoiceCommission.getLines().isEmpty()) {
 			return null;
 		}
 		PreparedStatement pstmt = null;
 		try {
-			pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.INSERT_QRY);
 			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.UPDATE_BILL_STATE_QRY);
+				int ctr = 1;
+				pstmt.setBoolean(ctr++, invoiceCommission.isBillCreated());
+				pstmt.setLong(ctr++, new Date().getTime());
+				pstmt.setString(ctr++, invoiceCommission.getUser_id());
+				pstmt.setString(ctr++, invoiceCommission.getId());
+				int rowCount = pstmt.executeUpdate();
+				LOGGER.debug("invoice comission updated rowCount:" + rowCount);
+				if(rowCount>0){
+					return invoiceCommission;
+				}else{
+					throw new WebApplicationException("invoice comiission lines are not inserted invoiceCommission:"+invoiceCommission, Constants.DATABASE_ERROR_STATUS);
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("Error in updateInvoiceCommissionBillState:" + invoiceCommission + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited updateInvoiceCommissionBillState(invoiceCommissionLst):" + invoiceCommission);
+		}
+		return invoiceCommission;
+	}
+	
+	@Override
+	public InvoiceCommission createInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) throws Exception {
+		LOGGER.debug("entered createInvoiceCommissionLst(invoiceCommissionLst):" + invoiceCommission);
+		if (invoiceCommission == null || invoiceCommission.getLines()==null || invoiceCommission.getLines().isEmpty()) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		PreparedStatement pstmt2 = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.INSERT_QRY);
 				int ctr = 1;
 				pstmt.setString(ctr++, invoiceCommission.getId());
 				pstmt.setString(ctr++, invoiceCommission.getInvoice_id());
@@ -1250,11 +1288,33 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoiceCommission.getUser_id());
 				pstmt.setLong(ctr++, new Date().getTime());
 				pstmt.setLong(ctr++, new Date().getTime());
-				pstmt.setString(ctr++, invoiceCommission.getLast_updated_by());
+				pstmt.setString(ctr++, invoiceCommission.getUser_id());
 				pstmt.setString(ctr++, invoiceCommission.getVendor_id());
 				int rowCount = pstmt.executeUpdate();
-				LOGGER.debug("rowCount:" + rowCount);
-				if (rowCount == 0) {
+				LOGGER.debug("invoice comission inserted rowCount:" + rowCount);
+				if(rowCount>0){
+					List<InvoiceCommissionLines> lines = invoiceCommission.getLines();
+					Iterator<InvoiceCommissionLines> linesItr = lines.iterator();
+					while(linesItr.hasNext()){
+						InvoiceCommissionLines invoiceCommissionLine= linesItr.next();
+						pstmt2 = connection.prepareStatement(SqlQuerys.InvoiceCommissionLine.INSERT_QRY);
+						ctr = 1;
+						pstmt2.setString(ctr++, invoiceCommissionLine.getId());
+						pstmt2.setDouble(ctr++, invoiceCommissionLine.getAmount());
+						pstmt2.setString(ctr++, invoiceCommissionLine.getItem_name());
+						pstmt2.setString(ctr++, invoiceCommissionLine.getItem_id());
+						pstmt2.setString(ctr++, invoiceCommission.getId());
+						pstmt2.setString(ctr++, invoiceCommissionLine.getAmount_type());
+						pstmt2.addBatch();
+					}
+					int rowCountArr[] = pstmt2.executeBatch();
+					LOGGER.debug("invoice comission lines inserted count:" + Arrays.toString(rowCountArr));
+					if(rowCountArr.length>0){
+						return invoiceCommission;
+					}else{
+						throw new WebApplicationException("invoice comiission lines are not inserted invoiceCommission:"+invoiceCommission, Constants.DATABASE_ERROR_STATUS);
+					}
+				}else if (rowCount == 0) {
 					throw new WebApplicationException("no record inserted", Constants.DATABASE_ERROR_STATUS);
 				}
 			}
@@ -1266,6 +1326,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeStatement(pstmt2);
 			LOGGER.debug("exited createInvoiceCommissionLst(invoiceCommissionLst):" + invoiceCommission);
 		}
 		return invoiceCommission;
@@ -1287,7 +1348,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(1, invoiceCommission.getInvoice_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException("no record deleted", Constants.DATABASE_ERROR_STATUS);
+					LOGGER.debug("invoiceCommission record not deleted");
 				}
 				LOGGER.debug("no of invoiceCommissions deleted:" + rowCount);
 			}
@@ -1305,110 +1366,64 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public List<InvoiceCommission> getInvoiceCommissionLst(Connection connection, InvoiceCommission invoiceCommission, boolean billsNotCreated) throws Exception {
-		return null;
-//		LOGGER.debug("entered getInvoiceCommissionLst:" + invoiceCommission);
-//		if (invoiceCommission == null || StringUtils.isBlank(invoiceCommission.getInvoice_id())) {
-//			throw new WebApplicationException("invoiceIds cannot be empty", Constants.INVALID_INPUT_STATUS);
-//		}
-//		List<InvoiceCommission> invoiceCommisionLst = new ArrayList<InvoiceCommission>();
-//		PreparedStatement pstmt = null;
-//		ResultSet rset = null;
-//		try {
-//			if (connection != null) {
-//				if(billsNotCreated){
-//					pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.GET_BY_INVOICE_ID_AND_NOT_BILL_CREATION_QRY);
-//					pstmt.setString(1, invoiceCommission.getInvoice_id());
-//				}else{
-//					pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.GET_BY_INVOICE_ID_QRY);
-//					pstmt.setString(1, invoiceCommission.getInvoice_id());
-//				}
-//				rset = pstmt.executeQuery();
-//				while (rset.next()) {
-//					InvoiceCommission dbinvoiceCommission = new InvoiceCommission();
-//					dbinvoiceCommission.setBillLineId(rset.getString("bill_line_id"));
-//					dbinvoiceCommission.setId(rset.getString("id"));
-//					dbinvoiceCommission.setVendor_id(rset.getString("vendor_id"));
-//					dbinvoiceCommission.setInvoice_id(rset.getString("invoice_id"));
-//					dbinvoiceCommission.setPercentage(rset.getDouble("percentage"));
-//					dbinvoiceCommission.setAmount(rset.getDouble("amount"));
-//					dbinvoiceCommission.setEvent_type(rset.getString("event_type"));
-//					dbinvoiceCommission.setEvent_at(rset.getString("event_at"));
-//					dbinvoiceCommission.setBill_id(rset.getString("bill_id"));
-//					dbinvoiceCommission.setCompany_id(rset.getString("company_id"));
-//					dbinvoiceCommission.setBillCreated(rset.getBoolean("bill_created"));
-//					dbinvoiceCommission.setItem_name(rset.getString("item_name"));
-//					dbinvoiceCommission.setItem_id(rset.getString("item_id"));
-//					invoiceCommisionLst.add(dbinvoiceCommission);
-//				}
-//			}
-//		} catch (Exception e) {
-//			LOGGER.error("Error fetching invoicesCommision:" + invoiceCommission , e);
-//			throw e;
-//		} finally {
-//			DatabaseUtilities.closeResultSet(rset);
-//			DatabaseUtilities.closeStatement(pstmt);
-//			DatabaseUtilities.closeConnection(connection);
-//			LOGGER.debug("exited getInvoiceCommissionLst:" + invoiceCommission);
-//		}
-//		return invoiceCommisionLst;
+	public InvoiceCommission getInvoiceCommission(InvoiceCommission invoiceCommission) throws Exception {
+		LOGGER.debug("entered getInvoiceCommissionLst:" + invoiceCommission);
+		if (invoiceCommission == null || StringUtils.isBlank(invoiceCommission.getInvoice_id())) {
+			throw new WebApplicationException("invoiceIds cannot be empty", Constants.INVALID_INPUT_STATUS);
+		}
+		InvoiceCommission dbinvoiceCommission = null;
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = DatabaseUtilities.getReadConnection();
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.GET_BY_INVOICE_ID_QRY);
+				pstmt.setString(1, invoiceCommission.getInvoice_id());
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					if(dbinvoiceCommission==null){
+						dbinvoiceCommission = new InvoiceCommission();
+						List<InvoiceCommissionLines> invoiceCommissionLines = new ArrayList<>();
+						dbinvoiceCommission.setLines(invoiceCommissionLines);
+					}
+					InvoiceCommissionLines dbInvoiceCommissionLine = new InvoiceCommissionLines();
+					dbInvoiceCommissionLine.setId(rset.getString("icl_id"));
+					if(dbinvoiceCommission.getLines().contains(dbInvoiceCommissionLine)){
+						continue;
+					}
+					dbInvoiceCommissionLine.setAmount(rset.getDouble("icl_amount"));
+					dbInvoiceCommissionLine.setItem_name(rset.getString("item_name"));
+					dbInvoiceCommissionLine.setItem_id(rset.getString("item_id"));
+					dbInvoiceCommissionLine.setAmount_type(rset.getString("amount_type"));
+					dbinvoiceCommission.getLines().add(dbInvoiceCommissionLine);
+					dbinvoiceCommission.setId(rset.getString("id"));
+					dbinvoiceCommission.setInvoice_id(rset.getString("invoice_id"));
+					dbinvoiceCommission.setInvoice_amount(rset.getDouble("invoice_amount"));
+					dbinvoiceCommission.setEvent_type(rset.getString("event_type"));
+					dbinvoiceCommission.setEvent_at(rset.getString("event_at"));
+					dbinvoiceCommission.setBill_id(rset.getString("bill_id"));
+					dbinvoiceCommission.setCompany_id(rset.getString("company_id"));
+					dbinvoiceCommission.setInvoice_number(rset.getString("invoice_number"));
+					dbinvoiceCommission.setCurrency(rset.getString("currency"));
+					dbinvoiceCommission.setBillCreated(rset.getBoolean("billCreated"));
+					dbinvoiceCommission.setUser_id(rset.getString("user_id"));
+					dbinvoiceCommission.setCreated_at(rset.getLong("created_at"));
+					dbinvoiceCommission.setLast_updated_at(rset.getLong("last_updated_at"));
+					dbinvoiceCommission.setLast_updated_by(rset.getString("last_updated_by"));
+					dbinvoiceCommission.setVendor_id(rset.getString("vendor_id"));
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error fetching invoicesCommision:" + invoiceCommission , e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited getInvoiceCommissionLst:" + invoiceCommission);
+		}
+		return dbinvoiceCommission;
 	}
 
 	
-	@Override
-	public List<InvoiceCommission> mergeInvoiceCommissionLst(Connection connection, List<InvoiceCommission> invoiceCommissionLst, String invoiceID) throws Exception {
-		return null;
-//		LOGGER.debug("entered mergeInvoiceCommissionLst(invoiceCommissionLst):" + invoiceCommissionLst +" invoiceID:"+invoiceID);
-//		if (invoiceCommissionLst == null || invoiceCommissionLst.isEmpty() ) {
-//			return null;
-//		}
-//		if(StringUtils.isBlank(invoiceID)){
-//			throw new WebApplicationException("invoice id cannot be null",412);
-//		}
-//		PreparedStatement pstmt = null;
-//		try {
-//			pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.INSERT_QRY);
-//			if (connection != null) {
-//				int ctr = 1;
-//				for(int i=0;i<invoiceCommissionLst.size();i++){
-//					InvoiceCommission invoiceCommission = invoiceCommissionLst.get(i);
-//					pstmt.setString(ctr++, invoiceCommission.getId());
-//					pstmt.setString(ctr++, invoiceCommission.getVendor_id());
-//					pstmt.setString(ctr++, invoiceID);
-//					pstmt.setDouble(ctr++, invoiceCommission.getPercentage());
-//					pstmt.setDouble(ctr++, invoiceCommission.getAmount());
-//					pstmt.setString(ctr++, invoiceCommission.getEvent_type());
-//					pstmt.setString(ctr++, invoiceCommission.getEvent_at());
-//					pstmt.setString(ctr++, invoiceCommission.getBill_id());
-//					pstmt.setString(ctr++, invoiceCommission.getCompany_id());
-//					pstmt.setBoolean(ctr++, invoiceCommission.isBillCreated());
-//					pstmt.setString(ctr++, invoiceCommission.getItem_id());
-//					pstmt.setString(ctr++, invoiceCommission.getItem_name());
-//					pstmt.setString(ctr++, invoiceCommission.getBillLineId());
-//					pstmt.addBatch();
-//					ctr=1;
-//				}
-//				int[] rowCountArr = pstmt.executeBatch();
-//				LOGGER.debug("result rowCountArr:"+Arrays.toString(rowCountArr));
-//				if (rowCountArr.length == 0) {
-//					throw new WebApplicationException("no record inserted", Constants.DATABASE_ERROR_STATUS);
-//				}
-//			}
-//		} catch (WebApplicationException e) {
-//			LOGGER.error("Error mergeInvoiceCommissionLst:" + invoiceCommissionLst + ",  ", e);
-//			throw e;
-//		} catch (Exception e) {
-//			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-//			throw e;
-//		} finally {
-//			DatabaseUtilities.closeStatement(pstmt);
-//			LOGGER.debug("exited mergeInvoiceCommissionLst(invoiceCommissionLst):" + invoiceCommissionLst);
-//		}
-//		return invoiceCommissionLst;
-	}
-	
-	public static void main(String[] args) {
-		int[] a = {1,2,3,4};
-		System.out.println(Arrays.toString(a));
-	}
 }

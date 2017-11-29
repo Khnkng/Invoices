@@ -22,7 +22,6 @@ import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
-import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -43,20 +42,21 @@ public class InvoiceDetailControllerImpl {
 	public static boolean makeInvoicePayment(Invoice invoice, String invoiceID, Invoice inputInvoice) {
 		Connection connection = null;
 		try {
-			LOGGER.debug("entered makeInvoicePayment dbInvoice:"+invoice+ "uiInvoice"+inputInvoice);
+			LOGGER.debug("entered makeInvoicePayment dbInvoice:" + invoice + "uiInvoice" + inputInvoice);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			String dbInvoiceState = invoice.getState();
-			if(dbInvoiceState.equals(Constants.INVOICE_STATE_DRAFT)){
-				throw new WebApplicationException(PropertyManager.getProperty("draft.invoice.paid.validation"),412);
+			if (dbInvoiceState.equals(Constants.INVOICE_STATE_DRAFT)) {
+				throw new WebApplicationException(PropertyManager.getProperty("draft.invoice.paid.validation"), 412);
 			}
 			boolean isCompanyRegistered = MySQLManager.getCompanyDAOInstance().isCompanyRegisteredWithPaymentSpring(connection, invoice.getCompany_id());
-			if(!isCompanyRegistered){
-				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"),412);
+			if (!isCompanyRegistered) {
+				throw new WebApplicationException(PropertyManager.getProperty("paymentspring.company.not.registered"), 412);
 			}
-			String emailToSend = invoice.getCustomerContactDetails()!=null?invoice.getCustomerContactDetails().getEmail():PropertyManager.getProperty("invoice.default.mail.address");
-			String payment_spring_id = invoice.getCustomer()!=null?invoice.getCustomer().getPayment_spring_id():null;
-			String customerId = invoice.getCustomer()!=null?invoice.getCustomer().getCustomer_id():null;
-			boolean isPaymentSpringCustomerExists = StringUtils.isEmpty(getPaymentSpringCustomer(payment_spring_id, invoice.getCompany_id()))?false:true;
+			String emailToSend = invoice.getCustomerContactDetails() != null ? invoice.getCustomerContactDetails().getEmail()
+					: PropertyManager.getProperty("invoice.default.mail.address");
+			String payment_spring_id = invoice.getCustomer() != null ? invoice.getCustomer().getPayment_spring_id() : null;
+			String customerId = invoice.getCustomer() != null ? invoice.getCustomer().getCustomer_id() : null;
+			boolean isPaymentSpringCustomerExists = StringUtils.isEmpty(getPaymentSpringCustomer(payment_spring_id, invoice.getCompany_id())) ? false : true;
 			String currency = invoice.getCurrencies() != null ? invoice.getCurrencies().getCode() : invoice.getCurrency();
 			if (StringUtils.isEmpty(currency)) {
 				throw new WebApplicationException("invoice currency is empty!");
@@ -65,8 +65,8 @@ public class InvoiceDetailControllerImpl {
 				throw new WebApplicationException("non USD currency payment not supported yet");
 			}
 			String payment_type = inputInvoice.getPayment_type();
-			if(StringUtils.isBlank(payment_type) || (!StringUtils.equals(payment_type, Constants.INVOICE_CREDIT_CARD)
-					& !StringUtils.equals(payment_type, Constants.INVOICE_BANK_ACCOUNT))){
+			if (StringUtils.isBlank(payment_type)
+					|| (!StringUtils.equals(payment_type, Constants.INVOICE_CREDIT_CARD) & !StringUtils.equals(payment_type, Constants.INVOICE_BANK_ACCOUNT))) {
 				throw new WebApplicationException("only bank and credit card payments methods supported");
 			}
 			JSONObject payloadObj = null;
@@ -108,19 +108,21 @@ public class InvoiceDetailControllerImpl {
 							ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "payment token is mandatory for one time invoice payment", Status.EXPECTATION_FAILED));
 				}
 				String token = inputInvoice.getPayment_spring_token();
-				if(isPaymentSpringCustomerExists){
+				if (isPaymentSpringCustomerExists) {
 					updatePaymentSpringCustomer(payment_spring_id, token, invoice.getCompany_id());
-				}else{
+				} else {
 					payment_spring_id = createPaymentSpringCustomer(token, invoice.getCompany_id());
 					boolean updateCustomer = MySQLManager.getCustomerDAOInstance().updatePaymentSpring(payment_spring_id, customerId);
-					if(!updateCustomer){
+					if (!updateCustomer) {
 						throw new WebApplicationException("error updating customer with payment id");
 					}
 				}
-//				payloadObj = getOneTimeChargePaymentSpringJson(inputInvoice.getPayment_spring_token(), amountToPayInCents);
-//				break;
+				// payloadObj =
+				// getOneTimeChargePaymentSpringJson(inputInvoice.getPayment_spring_token(),
+				// amountToPayInCents);
+				// break;
 			case "one_time_customer_charge":
-				payloadObj = getOneTimeCustomerChargePaymentSpringJson(payment_spring_id, amountToPayInCents,payment_type);
+				payloadObj = getOneTimeCustomerChargePaymentSpringJson(payment_spring_id, amountToPayInCents, payment_type);
 				break;
 			case Constants.SUBSCRIPTION_CUSTOMER_CHARGE:
 				// payloadObj =
@@ -131,11 +133,11 @@ public class InvoiceDetailControllerImpl {
 				// urlAction = "subscription";
 				break;
 			}
-			if(payloadObj!=null){
+			if (payloadObj != null) {
 				payloadObj.put("email_address", emailToSend);
 			}
 			JSONObject result = invokeChargePaymentSpringApi(companyID, payloadObj, urlAction);
-			LOGGER.debug("payment spring payment result:"+result);
+			LOGGER.debug("payment spring payment result:" + result);
 			if (result == null || result.length() == 0) {
 				throw new WebApplicationException("server error while making one time invoice payment");
 			}
@@ -143,11 +145,11 @@ public class InvoiceDetailControllerImpl {
 				throw new WebApplicationException(result.optJSONArray("errors").optJSONObject(0).optString("message"));
 			}
 			long amount_settled = result.optLong("amount_settled");
-//			String status = result.optString("status");
+			// String status = result.optString("status");
 			transactionId = result.optString("id");
-			if(StringUtils.isNotBlank(transactionId)){
+			if (StringUtils.isNotBlank(transactionId)) {
 				connection.setAutoCommit(false);
-			}else{
+			} else {
 				throw new WebApplicationException("unable to make payment from payment gateway");
 			}
 			payment.setReferenceNo(invoice.getNumber());
@@ -157,7 +159,7 @@ public class InvoiceDetailControllerImpl {
 			paymentLine.setAmount(new BigDecimal(amountPaidInDollar));
 			payments.add(paymentLine);
 			payment.setPaymentLines(payments);
-			invoice.setAmount_paid(invoice.getAmount_paid()+amountPaidInDollar);
+			invoice.setAmount_paid(invoice.getAmount_paid() + amountPaidInDollar);
 			if (invoice.getAmount_paid() == invoice.getAmount()) {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
@@ -167,51 +169,75 @@ public class InvoiceDetailControllerImpl {
 				double amount_due = invoice.getAmount() - invoice.getAmount_paid();
 				invoice.setAmount_due(amount_due);
 			}
-//			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-//			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
-//			Invoice invoiceObj = InvoiceParser.getInvoiceObj(invoice.getUser_id(), invoice, companyID, false);
-//			boolean isInvoiceUpdated = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj)!=null?true:false;
-//			if(!isInvoiceUpdated){
-//				throw new WebApplicationException("payment done but not saved in qount db");
-//				//TODO refund payment
-//			}
-			boolean paymentCaptured =false;
-			if(MySQLManager.getPaymentDAOInstance().save(payment, connection, false)!=null){
-				paymentCaptured =true;
+			// Timestamp invoice_date =
+			// InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(),
+			// Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			// invoice.setInvoice_date(invoice_date != null ?
+			// invoice_date.toString() : null);
+			// Invoice invoiceObj =
+			// InvoiceParser.getInvoiceObj(invoice.getUser_id(), invoice,
+			// companyID, false);
+			// boolean isInvoiceUpdated =
+			// MySQLManager.getInvoiceDAOInstance().update(connection,
+			// invoiceObj)!=null?true:false;
+			// if(!isInvoiceUpdated){
+			// throw new WebApplicationException("payment done but not saved in
+			// qount db");
+			// //TODO refund payment
+			// }
+			boolean paymentCaptured = false;
+			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
+				paymentCaptured = true;
 			}
-			if(paymentCaptured){
+			if (paymentCaptured) {
 				InvoiceCommission invoiceCommission = new InvoiceCommission();
 				invoiceCommission.setInvoice_id(invoice.getId());
-				List<InvoiceCommission> invoiceCommissionLst = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissionLst(connection, invoiceCommission, true);
-				if(invoiceCommissionLst!=null && !invoiceCommissionLst.isEmpty()){
-					InvoiceParser.createInvoicePaidCommissions(invoiceCommissionLst, invoice.getUser_id(), invoice.getCompany_id());
-					MySQLManager.getInvoiceDAOInstance().mergeInvoiceCommissionLst(connection, invoiceCommissionLst, invoiceID);
+				InvoiceCommission dbInvoiceCommission = MySQLManager.getInvoiceDAOInstance().getInvoiceCommission(invoiceCommission);
+				if (dbInvoiceCommission != null) {
+					String eventAt = dbInvoiceCommission.getEvent_at();
+					if (StringUtils.isBlank(eventAt)) {
+						throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
+					}
+					if (eventAt.equals(Constants.PAID)) {
+						dbInvoiceCommission.setCreateBill(true);
+					}
+					dbInvoiceCommission.setUser_id(invoice.getUser_id());
+					dbInvoiceCommission.setCompany_id(invoice.getCompany_id());
+					dbInvoiceCommission.setInvoice_id(invoice.getId());
+					dbInvoiceCommission.setCurrency(invoice.getCurrency());
+					dbInvoiceCommission.setInvoice_amount(invoice.getAmount());
+					dbInvoiceCommission.setInvoice_number(invoice.getNumber());
+					if (InvoiceControllerImpl.createPaidInvoiceCommissions(connection, dbInvoiceCommission)==null) {
+						throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+					}
+					connection.commit();
+					CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getCompany_id());
+					return true;
+				} else {
+					LOGGER.fatal("payment done but not saved in qount db");
+					LOGGER.fatal("invoiceID:" + invoiceID);
+					LOGGER.fatal("transactionId:" + transactionId);
+					LOGGER.fatal("payment:" + payment);
+					throw new WebApplicationException("payment done but not saved in qount db");
+					// TODO refund payment
 				}
-				connection.commit();
-				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getCompany_id());
-				return true;
-			}else{
-				LOGGER.fatal("payment done but not saved in qount db");
-				LOGGER.fatal("invoiceID:"+invoiceID);
-				LOGGER.fatal("transactionId:"+transactionId);
-				LOGGER.fatal("payment:"+payment);
-				throw new WebApplicationException("payment done but not saved in qount db");
-				//TODO refund payment
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(),
+					e.getResponse() != null ? e.getResponse().getStatus() : Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
-			LOGGER.debug("exited makeInvoicePayment dbInvoice:"+invoice+ "uiInvoice"+inputInvoice);
+			LOGGER.debug("exited makeInvoicePayment dbInvoice:" + invoice + "uiInvoice" + inputInvoice);
 		}
+		return false;
 	}
 
 	private static JSONObject invokeChargePaymentSpringApi(String companyId, JSONObject payloadObj, String urlAction) throws Exception {
 		try {
-			LOGGER.debug("entered invokeChargePaymentSpringApi companyId:" + companyId + " payloadObj :"+payloadObj+" urlAction :"+urlAction);
+			LOGGER.debug("entered invokeChargePaymentSpringApi companyId:" + companyId + " payloadObj :" + payloadObj + " urlAction :" + urlAction);
 			if (StringUtils.isEmpty(companyId) || payloadObj == null || payloadObj.length() == 0) {
 				throw new WebApplicationException("company id and payload object cannot be empty companyID:" + companyId + " payloadObj: " + payloadObj);
 			}
@@ -226,18 +252,19 @@ public class InvoiceDetailControllerImpl {
 			System.out.println(payloadObj);
 			System.out.println("*******************************************");
 			JSONObject responseJson = HTTPClient.post(path, payloadObj.toString());
-			LOGGER.debug("result invokeChargePaymentSpringApi path:" + path + " payloadObj :"+ payloadObj+" responseJson:"+responseJson);
+			LOGGER.debug("result invokeChargePaymentSpringApi path:" + path + " payloadObj :" + payloadObj + " responseJson:" + responseJson);
 			if (responseJson != null && responseJson.length() != 0) {
 				return responseJson;
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(),
+					e.getResponse() != null ? e.getResponse().getStatus() : Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("exited invokeChargePaymentSpringApi companyId:" + companyId+ " payloadObj :"+payloadObj+" urlAction :"+urlAction);
+			LOGGER.debug("exited invokeChargePaymentSpringApi companyId:" + companyId + " payloadObj :" + payloadObj + " urlAction :" + urlAction);
 		}
 		return null;
 	}
@@ -265,38 +292,41 @@ public class InvoiceDetailControllerImpl {
 	// }
 	// }
 
-//	private static JSONObject getOneTimeChargePaymentSpringJson(String payment_spring_token, Object amount) {
-//		try {
-//			if (StringUtils.isEmpty(payment_spring_token)) {
-//				throw new WebApplicationException("payment spring token cannot be empty for one time charge");
-//			}
-//			JSONObject payloadObj = new JSONObject();
-//			payloadObj.put("token", payment_spring_token);
-//			payloadObj.put("amount", amount);
-//			return payloadObj;
-//		} catch (Exception e) {
-//			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-//			throw e;
-//		}
-//	}
+	// private static JSONObject getOneTimeChargePaymentSpringJson(String
+	// payment_spring_token, Object amount) {
+	// try {
+	// if (StringUtils.isEmpty(payment_spring_token)) {
+	// throw new WebApplicationException("payment spring token cannot be empty
+	// for one time charge");
+	// }
+	// JSONObject payloadObj = new JSONObject();
+	// payloadObj.put("token", payment_spring_token);
+	// payloadObj.put("amount", amount);
+	// return payloadObj;
+	// } catch (Exception e) {
+	// LOGGER.error(CommonUtils.getErrorStackTrace(e));
+	// throw e;
+	// }
+	// }
 
 	private static JSONObject getOneTimeCustomerChargePaymentSpringJson(String customer_id, Object amount, String payment_type) {
 		try {
-			LOGGER.debug("entered getOneTimeCustomerChargePaymentSpringJson(customer_id:"+customer_id+", amount"+amount+", payment_type:"+payment_type);
+			LOGGER.debug("entered getOneTimeCustomerChargePaymentSpringJson(customer_id:" + customer_id + ", amount" + amount + ", payment_type:" + payment_type);
 			if (StringUtils.isEmpty(customer_id)) {
 				throw new WebApplicationException("customer_id cannot be empty for one time charge");
 			}
 			JSONObject payloadObj = new JSONObject();
 			payloadObj.put("customer_id", customer_id);
 			payloadObj.put("amount", amount);
-			if(StringUtils.isNotBlank(payment_type) && payment_type.equals(Constants.INVOICE_BANK_ACCOUNT)){
-				payloadObj.put("charge_bank_account",true);
+			if (StringUtils.isNotBlank(payment_type) && payment_type.equals(Constants.INVOICE_BANK_ACCOUNT)) {
+				payloadObj.put("charge_bank_account", true);
 			}
-			LOGGER.debug("exited getOneTimeCustomerChargePaymentSpringJson(customer_id:"+customer_id+", amount"+amount+", payment_type:"+payment_type);
+			LOGGER.debug("exited getOneTimeCustomerChargePaymentSpringJson(customer_id:" + customer_id + ", amount" + amount + ", payment_type:" + payment_type);
 			return payloadObj;
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(),
+					e.getResponse() != null ? e.getResponse().getStatus() : Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
@@ -358,18 +388,18 @@ public class InvoiceDetailControllerImpl {
 			return conversion;
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(),
+					e.getResponse() != null ? e.getResponse().getStatus() : Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		}
 	}
 
-	
 	private static String updatePaymentSpringCustomer(String payment_spring_id, String token, String companyId) {
 		try {
-			LOGGER.debug("entered updatePaymentSpringCustomer: payment_spring_id" + payment_spring_id + " token:" + token+ " companyId:" + companyId);
-			if (StringUtils.isAnyBlank(companyId,payment_spring_id,token)) {
+			LOGGER.debug("entered updatePaymentSpringCustomer: payment_spring_id" + payment_spring_id + " token:" + token + " companyId:" + companyId);
+			if (StringUtils.isAnyBlank(companyId, payment_spring_id, token)) {
 				throw new WebApplicationException("companyId,payment_spring_id,token cannot be empty to update customer payment details");
 			}
 			String path = LTMUtils.getHostAddress("payment.spring.docker.hostname", "payment.spring.docker.port", "oneapp.base.url");
@@ -384,7 +414,7 @@ public class InvoiceDetailControllerImpl {
 			JSONObject result = HTTPClient.put(path, paymentSpringObject.toString());
 			if (CommonUtils.isValidJSON(result)) {
 				JSONArray errors = result.optJSONArray("errors");
-				if(CommonUtils.isValidJSONArray(errors)){
+				if (CommonUtils.isValidJSONArray(errors)) {
 					throw new WebApplicationException(errors.optJSONObject(0).optString("message"));
 				}
 				String payment_customer_id = result.optString("id");
@@ -394,20 +424,21 @@ public class InvoiceDetailControllerImpl {
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(),
+					e.getResponse() != null ? e.getResponse().getStatus() : Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("exited updatePaymentSpringCustomer: payment_spring_id" + payment_spring_id + " token:" + token+ " companyId:" + companyId);
+			LOGGER.debug("exited updatePaymentSpringCustomer: payment_spring_id" + payment_spring_id + " token:" + token + " companyId:" + companyId);
 		}
 		return null;
 	}
-	
+
 	private static String createPaymentSpringCustomer(String token, String companyId) throws Exception {
 		try {
-			LOGGER.debug("entered createPaymentSpringCustomer: token:" + token+ " companyId:" + companyId);
-			if (StringUtils.isAnyBlank(companyId,token)) {
+			LOGGER.debug("entered createPaymentSpringCustomer: token:" + token + " companyId:" + companyId);
+			if (StringUtils.isAnyBlank(companyId, token)) {
 				throw new WebApplicationException("companyId,token cannot be empty to create customer payment details");
 			}
 			String path = LTMUtils.getHostAddress("payment.spring.docker.hostname", "payment.spring.docker.port", "oneapp.base.url");
@@ -421,7 +452,7 @@ public class InvoiceDetailControllerImpl {
 			JSONObject result = HTTPClient.post(path, paymentSpringObject.toString());
 			if (CommonUtils.isValidJSON(result)) {
 				JSONArray errors = result.optJSONArray("errors");
-				if(CommonUtils.isValidJSONArray(errors)){
+				if (CommonUtils.isValidJSONArray(errors)) {
 					throw new WebApplicationException(errors.optJSONObject(0).optString("message"));
 				}
 				String payment_customer_id = result.optString("id");
@@ -431,20 +462,21 @@ public class InvoiceDetailControllerImpl {
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(),
+					e.getResponse() != null ? e.getResponse().getStatus() : Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("exited createPaymentSpringCustomer: token:" + token+ " companyId:" + companyId);
+			LOGGER.debug("exited createPaymentSpringCustomer: token:" + token + " companyId:" + companyId);
 		}
 		return null;
 	}
-	
-	private static String getPaymentSpringCustomer(String payment_spring_id,String companyId) {
+
+	private static String getPaymentSpringCustomer(String payment_spring_id, String companyId) {
 		try {
 			LOGGER.debug("entered getPaymentSpringCustomer: payment_spring_id" + payment_spring_id + " companyId:" + companyId);
-			if(StringUtils.isBlank(payment_spring_id)){
+			if (StringUtils.isBlank(payment_spring_id)) {
 				return null;
 			}
 			if (StringUtils.isBlank(companyId)) {
@@ -454,7 +486,7 @@ public class InvoiceDetailControllerImpl {
 			if (StringUtils.isEmpty(path)) {
 				throw new WebApplicationException("internal server error unable to url for payment server ");
 			}
-//			path = "http://paymentspring-dev.7f026d40.svc.dockerapp.io:85/";
+			// path = "http://paymentspring-dev.7f026d40.svc.dockerapp.io:85/";
 			path = path + "PaymentSpring/companies/" + companyId + "/customers/" + payment_spring_id;
 			path = path.replace("{comapnyID}", companyId);
 			System.out.println(path);
@@ -462,7 +494,7 @@ public class InvoiceDetailControllerImpl {
 			System.out.println(result);
 			if (CommonUtils.isValidJSON(result)) {
 				JSONArray errors = result.optJSONArray("errors");
-				if(CommonUtils.isValidJSONArray(errors)){
+				if (CommonUtils.isValidJSONArray(errors)) {
 					throw new WebApplicationException(errors.optJSONObject(0).optString("message"));
 				}
 				String payment_customer_id = result.optString("id");
@@ -472,7 +504,8 @@ public class InvoiceDetailControllerImpl {
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse()!=null?e.getResponse().getStatus():Constants.EXPECTATION_FAILED));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(),
+					e.getResponse() != null ? e.getResponse().getStatus() : Constants.EXPECTATION_FAILED));
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		} finally {
@@ -480,12 +513,11 @@ public class InvoiceDetailControllerImpl {
 		}
 		return null;
 	}
-	
+
 	public static void main(String[] args) {
 		String payment_spring_id = "9864d1";
 		String companyId = "495a05f7-4b01-421d-9f64-16d73618a38d";
 		System.out.println(getPaymentSpringCustomer(payment_spring_id, companyId));
 	}
-	
-	
+
 }
