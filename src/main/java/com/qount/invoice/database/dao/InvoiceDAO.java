@@ -65,7 +65,7 @@ public interface InvoiceDAO {
 	
 	public InvoiceCommission deleteInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) throws Exception;
 	
-	public List<InvoiceCommission> getInvoiceCommissionLst(Connection connection, InvoiceCommission invoiceCommission, boolean billsNotCreated) throws Exception;
+	public InvoiceCommission getInvoiceCommission(InvoiceCommission invoiceCommission) throws Exception;
 	
-	public List<InvoiceCommission> mergeInvoiceCommissionLst(Connection connection, List<InvoiceCommission> invoiceCommissionLst, String invoiceID) throws Exception ;
+	public InvoiceCommission updateInvoiceCommissionBillState(Connection connection, InvoiceCommission invoiceCommission) throws Exception;
 }

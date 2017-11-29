@@ -18,10 +18,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class InvoiceCommissionLines {
 
 	private String id;
-	private double percentage;
 	private double amount;
 	private String item_name;
 	private String item_id;
+	private String amount_type;
+	
+	public String getAmount_type() {
+		return amount_type;
+	}
+
+	public void setAmount_type(String amount_type) {
+		this.amount_type = amount_type;
+	}
 
 	public String getItem_name() {
 		return item_name;
@@ -45,14 +53,6 @@ public class InvoiceCommissionLines {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public double getPercentage() {
-		return percentage;
-	}
-
-	public void setPercentage(double percentage) {
-		this.percentage = percentage;
 	}
 
 	public double getAmount() {
@@ -88,4 +88,7 @@ public class InvoiceCommissionLines {
 		return super.toString();
 	}
 	
+	public static void main(String[] args) {
+		System.out.println(new InvoiceCommissionLines());
+	}
 }

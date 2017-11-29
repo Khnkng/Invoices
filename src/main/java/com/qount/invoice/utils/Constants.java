@@ -153,4 +153,6 @@ public class Constants {
 	public static final String DATE = "date";
 	public static final String CREATE = "create";
 	public static final String PAID = "paid";
+	public static final String PERCENTAGE = "percentage";
+	public static final String FLAT_FEE = "flat_fee";
 }

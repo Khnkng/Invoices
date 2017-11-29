@@ -31,10 +31,28 @@ public class InvoiceCommission {
 	private boolean billCreated;
 	private String user_id;
 	private List<InvoiceCommissionLines> lines;
-	private String created_at;
-	private String last_updated_at;
+	private long created_at;
+	private long last_updated_at;
 	private String last_updated_by;
 	private String vendor_id;
+	private boolean updateBill;
+	private boolean createBill;
+
+	public boolean isCreateBill() {
+		return createBill;
+	}
+
+	public void setCreateBill(boolean createBill) {
+		this.createBill = createBill;
+	}
+
+	public boolean isUpdateBill() {
+		return updateBill;
+	}
+
+	public void setUpdateBill(boolean updateBill) {
+		this.updateBill = updateBill;
+	}
 
 	public String getVendor_id() {
 		return vendor_id;
@@ -52,11 +70,11 @@ public class InvoiceCommission {
 		this.lines = lines;
 	}
 
-	public String getLast_updated_at() {
+	public long getLast_updated_at() {
 		return last_updated_at;
 	}
 
-	public void setLast_updated_at(String last_updated_at) {
+	public void setLast_updated_at(long last_updated_at) {
 		this.last_updated_at = last_updated_at;
 	}
 
@@ -76,11 +94,11 @@ public class InvoiceCommission {
 		this.user_id = user_id;
 	}
 
-	public String getCreated_at() {
+	public long getCreated_at() {
 		return created_at;
 	}
 
-	public void setCreated_at(String created_at) {
+	public void setCreated_at(long created_at) {
 		this.created_at = created_at;
 	}
 
