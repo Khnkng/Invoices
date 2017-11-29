@@ -24,6 +24,16 @@ public class InvoicePreference {
 	private boolean hideUnits;
 	private boolean hidePrice;
 	private boolean hideAmount;
+	private boolean displayCommission;
+	
+
+	public boolean isDisplayCommission() {
+		return displayCommission;
+	}
+
+	public void setDisplayCommission(boolean displayCommission) {
+		this.displayCommission = displayCommission;
+	}
 
 	public String getTemplateType() {
 		return templateType;
