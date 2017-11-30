@@ -83,7 +83,25 @@ public class Invoice {
 	private String attachments_metadata;
 	private String mailSubject;
 	private InvoiceCommission commission;
+	private String late_fee_id;
+	private double late_fee_amount;
 	
+	public String getLate_fee_id() {
+		return late_fee_id;
+	}
+
+	public void setLate_fee_id(String late_fee_id) {
+		this.late_fee_id = late_fee_id;
+	}
+
+	public double getLate_fee_amount() {
+		return late_fee_amount;
+	}
+
+	public void setLate_fee_amount(double late_fee_amount) {
+		this.late_fee_amount = late_fee_amount;
+	}
+
 	public InvoiceCommission getCommission() {
 		return commission;
 	}
