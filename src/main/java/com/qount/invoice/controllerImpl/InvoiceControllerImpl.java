@@ -383,7 +383,6 @@ public class InvoiceControllerImpl {
 						if (inputInvoiceCommission.isUpdateBill()) {
 							// deleteing bills an comission and creating new one
 							inputInvoiceCommission.setInvoice_id(invoiceID);
-							MySQLManager.getInvoiceDAOInstance().deleteInvoiceCommission(connection, inputInvoiceCommission);
 							if (inputInvoiceCommission != null) {
 								String eventAt = inputInvoiceCommission.getEvent_at();
 								if (StringUtils.isBlank(eventAt)) {
@@ -398,12 +397,14 @@ public class InvoiceControllerImpl {
 								inputInvoiceCommission.setCurrency(invoice.getCurrency());
 								inputInvoiceCommission.setInvoice_amount(invoice.getAmount());
 								inputInvoiceCommission.setInvoice_number(invoice.getNumber());
-								if (InvoiceParser.deleteInvoivceCommissionBill(inputInvoiceCommission)) {
-									if (createInvoiceCommissions(connection, inputInvoiceCommission) == null) {
-										throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
-									}else{
-										connection.commit();
-									}
+								if(StringUtils.isNotBlank(inputInvoiceCommission.getBill_id())){
+									MySQLManager.getInvoiceDAOInstance().deleteInvoiceCommission(connection, inputInvoiceCommission);
+									InvoiceParser.deleteInvoivceCommissionBill(inputInvoiceCommission);
+								}
+								if (createInvoiceCommissions(connection, inputInvoiceCommission) == null) {
+									throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+								}else{
+									connection.commit();
 								}
 							}
 						} else {

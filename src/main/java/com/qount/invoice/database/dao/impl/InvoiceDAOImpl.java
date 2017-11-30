@@ -1354,7 +1354,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(1, invoiceCommission.getInvoice_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					LOGGER.debug("invoiceCommission record not deleted");
+					LOGGER.warn("invoiceCommission record not deleted");
 				}
 				LOGGER.debug("no of invoiceCommissions deleted:" + rowCount);
 			}
