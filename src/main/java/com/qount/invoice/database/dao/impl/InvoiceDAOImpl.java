@@ -1278,6 +1278,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.INSERT_QRY);
 				int ctr = 1;
+				pstmt.setString(ctr++, invoiceCommission.getEvent_date());
 				pstmt.setString(ctr++, invoiceCommission.getId());
 				pstmt.setString(ctr++, invoiceCommission.getInvoice_id());
 				pstmt.setDouble(ctr++, invoiceCommission.getInvoice_amount());
@@ -1369,6 +1370,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(1, invoiceCommission.getInvoice_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
+					dbinvoiceCommission.setEvent_date(rset.getString("event_date"));
 					dbinvoiceCommission.setId(rset.getString("id"));
 					dbinvoiceCommission.setInvoice_id(rset.getString("invoice_id"));
 					dbinvoiceCommission.setInvoice_amount(rset.getDouble("invoice_amount"));
