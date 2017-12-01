@@ -566,16 +566,16 @@ public class InvoiceControllerImpl {
 				// unscheduling invoice jobs if any
 				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
 			}
-			// creating commissions if any
-			if (invoice.getAmount_due() == 0.0) {
+			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
+				connection.commit();
+				// creating commissions if any
 				InvoiceCommission invoiceCommission = new InvoiceCommission();
 				invoiceCommission.setInvoice_id(invoice.getId());
-				if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
+				if (invoice.getAmount_due() == 0.0) {
 					List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
 					createInvoicePaidCommissions(connection, dbInvoiceCommissions, invoice.getUser_id(), dbInvoice.getCompany_id(), invoice.getId(), invoice.getNumber(),
 							invoice.getAmount(), invoice.getCurrency());
 				}
-				connection.commit();
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
 						invoice.getCompany_id());
 				return true;
