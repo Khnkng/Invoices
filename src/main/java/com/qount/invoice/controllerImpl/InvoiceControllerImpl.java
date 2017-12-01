@@ -1191,7 +1191,8 @@ public class InvoiceControllerImpl {
 							commission.setInvoice_id(invoiceId);
 							commission.setCurrency(currency);
 							commission.setInvoice_amount(invoiceAmount);
-							commission.setInvoice_number((invoiceNumberCounter++)+"_"+invoiceNumber);
+							String tempInvoiceNumber = StringUtils.isBlank(commission.getInvoice_number())?(invoiceNumberCounter++)+"_"+invoiceNumber:commission.getInvoice_number();
+							commission.setInvoice_number(tempInvoiceNumber);
 							if (StringUtils.isNotBlank(commission.getBill_id())) {
 								if (StringUtils.isBlank(commission.getId())) {
 									// bill id and commission id are same
