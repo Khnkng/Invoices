@@ -645,10 +645,10 @@ public class InvoiceParser {
 		return false;
 	}
 
-	public static boolean createInvoiceCommisionBill(InvoiceCommission invoiceCommission) {
+	public static boolean createInvoiceCommisionBill(InvoiceCommission invoiceCommission,String id) {
 		try {
 			LOGGER.debug("entered createInvoiceCommisionBill invoiceCommission:" + invoiceCommission);
-			JSONObject billsJson = getInvoiceCommissionJson(invoiceCommission);
+			JSONObject billsJson = getInvoiceCommissionJson(invoiceCommission,id);
 			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname", "half.service.docker.apservice.port");
 			if (StringUtils.isBlank(apServiceUrl)) {
 				LOGGER.fatal("ltm invoice->apserivce not present ltm url:" + apServiceUrl);
@@ -677,7 +677,7 @@ public class InvoiceParser {
 		return false;
 	}
 
-	private static JSONObject getInvoiceCommissionJson(InvoiceCommission invoiceCommision) {
+	private static JSONObject getInvoiceCommissionJson(InvoiceCommission invoiceCommision, String id) {
 		try {
 			LOGGER.debug("entered getInvoiceCommissionJson invoiceCommision:" + invoiceCommision);
 			if (invoiceCommision == null) {
@@ -705,7 +705,7 @@ public class InvoiceParser {
 				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.number"), Constants.INVALID_INPUT);
 			}
 			String title = String.format(PropertyManager.getProperty("invoice.commission.bill.title"), invoiceCommision.getInvoice_number());
-			String id = UUID.randomUUID().toString();
+			id = StringUtils.isNotBlank(id)?id:UUID.randomUUID().toString();
 			invoiceCommision.setId(id);
 			invoiceCommision.setBill_id(id);
 			//every invoice commission will have bill with only one line 

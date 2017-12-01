@@ -1029,7 +1029,7 @@ public class InvoiceControllerImpl {
 		try {
 			LOGGER.debug("entered createInvoiceCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
 			if (invoiceCommission.isCreateBill()) {
-				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission);
+				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission, null);
 				if (!isInvoiceCommissionCreated) {
 					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 				}
@@ -1051,7 +1051,7 @@ public class InvoiceControllerImpl {
 		try {
 			LOGGER.debug("entered createInvoicePaidCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
 			if (invoiceCommission.isCreateBill()) {
-				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission);
+				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission,invoiceCommission.getId());
 				if (!isInvoiceCommissionCreated) {
 					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 				}
@@ -1066,29 +1066,6 @@ public class InvoiceControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited createInvoicePaidCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
-		}
-	}
-
-	public static InvoiceCommission createPaidInvoiceCommissions(Connection connection, InvoiceCommission invoiceCommission) {
-		try {
-			LOGGER.debug("entered createPaidInvoiceCommissions(InvoiceCommission invoiceCommission:" + invoiceCommission);
-			if (invoiceCommission.isCreateBill()) {
-				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission);
-				if (!isInvoiceCommissionCreated) {
-					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
-				} else {
-					return MySQLManager.getInvoiceDAOInstance().updateInvoiceCommissionBillState(connection, invoiceCommission);
-				}
-			}
-			return null;
-		} catch (WebApplicationException e) {
-			LOGGER.error("error in createPaidInvoiceCommissions", e);
-			throw e;
-		} catch (Exception e) {
-			LOGGER.error("error in createPaidInvoiceCommissions", e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
-		} finally {
-			LOGGER.debug("exited createPaidInvoiceCommissions(InvoiceCommission invoiceCommission:" + invoiceCommission);
 		}
 	}
 
