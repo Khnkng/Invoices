@@ -652,9 +652,9 @@ public class InvoiceParser {
 			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname", "half.service.docker.apservice.port");
 			if (StringUtils.isBlank(apServiceUrl)) {
 				LOGGER.fatal("ltm invoice->apserivce not present ltm url:" + apServiceUrl);
-//				return false;
+				return false;
 			}
-			 apServiceUrl = "https://dev-services.qount.io/";
+//			 apServiceUrl = "https://dev-services.qount.io/";
 			apServiceUrl += "BigPayServices/user/" + invoiceCommission.getUser_id() + "/companies/" + invoiceCommission.getCompany_id() + "/bills";
 			JSONObject result = HTTPClient.post(apServiceUrl, billsJson.toString());
 			if (CommonUtils.isValidJSON(result)) {
