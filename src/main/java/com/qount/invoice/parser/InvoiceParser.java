@@ -24,7 +24,6 @@ import com.qount.invoice.model.Company;
 import com.qount.invoice.model.Customer;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
-import com.qount.invoice.model.InvoiceCommissionLines;
 import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMail;
@@ -613,17 +612,17 @@ public class InvoiceParser {
 		return null;
 	}
 
-	public static boolean deleteInvoivceCommissionBill(InvoiceCommission invoiceCommission) throws Exception{
+	public static boolean deleteInvoivceCommissionBill(InvoiceCommission invoiceCommission) throws Exception {
 		try {
 			LOGGER.debug("entered deleteInvoivceCommissionBill(invoiceCommission:" + invoiceCommission);
 			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname", "half.service.docker.apservice.port");
 			if (StringUtils.isBlank(apServiceUrl)) {
 				LOGGER.fatal("ltm invoice->apserivce not present ltm url:" + apServiceUrl);
-				 return false;
+				return false;
 			}
-//			apServiceUrl = "https://dev-services.qount.io/";
-			if(StringUtils.isAnyBlank(invoiceCommission.getUser_id(),invoiceCommission.getCompany_id(),invoiceCommission.getBill_id())){
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.delete.billl.empty.userid.companyid.billId"),Constants.INVALID_INPUT);
+			// apServiceUrl = "https://dev-services.qount.io/";
+			if (StringUtils.isAnyBlank(invoiceCommission.getUser_id(), invoiceCommission.getCompany_id(), invoiceCommission.getBill_id())) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.delete.billl.empty.userid.companyid.billId"), Constants.INVALID_INPUT);
 			}
 			apServiceUrl += "BigPayServices/user/" + invoiceCommission.getUser_id() + "/companies/" + invoiceCommission.getCompany_id() + "/bills/"
 					+ invoiceCommission.getBill_id();
@@ -646,23 +645,16 @@ public class InvoiceParser {
 		return false;
 	}
 
-	public static boolean createInvoiceCommisionsBills(InvoiceCommission invoiceCommission) {
+	public static boolean createInvoiceCommisionBill(InvoiceCommission invoiceCommission) {
 		try {
-			LOGGER.debug("entered createInvoiceCommisionsBills invoiceCommission:" + invoiceCommission);
-			if (invoiceCommission == null || invoiceCommission.getLines().isEmpty()) {
-				LOGGER.debug("empty invoiceCommission:" + invoiceCommission);
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.lines"), Constants.INVALID_INPUT);
-			}
-			if (StringUtils.isAnyBlank(invoiceCommission.getUser_id(), invoiceCommission.getCompany_id())) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.userid.companyid"), Constants.INVALID_INPUT);
-			}
+			LOGGER.debug("entered createInvoiceCommisionBill invoiceCommission:" + invoiceCommission);
 			JSONObject billsJson = getInvoiceCommissionJson(invoiceCommission);
 			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname", "half.service.docker.apservice.port");
 			if (StringUtils.isBlank(apServiceUrl)) {
 				LOGGER.fatal("ltm invoice->apserivce not present ltm url:" + apServiceUrl);
-				 return false;
+				return false;
 			}
-//			apServiceUrl = "https://dev-services.qount.io/";
+			// apServiceUrl = "https://dev-services.qount.io/";
 			apServiceUrl += "BigPayServices/user/" + invoiceCommission.getUser_id() + "/companies/" + invoiceCommission.getCompany_id() + "/bills";
 			JSONObject result = HTTPClient.post(apServiceUrl, billsJson.toString());
 			if (CommonUtils.isValidJSON(result)) {
@@ -675,21 +667,24 @@ public class InvoiceParser {
 				return true;
 			}
 		} catch (WebApplicationException e) {
-			LOGGER.debug("WebApplicationException in createInvoiceCommisionsBills", e);
+			LOGGER.debug("WebApplicationException in createInvoiceCommisionBill", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.debug("error in createInvoiceCommisionsBills", e);
+			LOGGER.debug("error in createInvoiceCommisionBill", e);
 		} finally {
-			LOGGER.debug("exited createInvoiceCommisionsBills invoiceCommission:" + invoiceCommission);
+			LOGGER.debug("exited createInvoiceCommisionBill invoiceCommission:" + invoiceCommission);
 		}
 		return false;
 	}
 
 	private static JSONObject getInvoiceCommissionJson(InvoiceCommission invoiceCommision) {
 		try {
-			LOGGER.debug("entered handleInvoiceCommissionStringEvent invoiceCommision:" + invoiceCommision);
-			if (invoiceCommision == null || invoiceCommision.getLines().isEmpty() || StringUtils.isEmpty(invoiceCommision.getCompany_id())) {
-				throw new WebApplicationException(Constants.PRECONDITION_FAILED_STR, Constants.INVALID_INPUT);
+			LOGGER.debug("entered getInvoiceCommissionJson invoiceCommision:" + invoiceCommision);
+			if (invoiceCommision == null) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty"), Constants.INVALID_INPUT);
+			}
+			if (StringUtils.isAnyBlank(invoiceCommision.getUser_id(), invoiceCommision.getCompany_id())) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.userid.companyid"), Constants.INVALID_INPUT);
 			}
 			String eventType = invoiceCommision.getEvent_type();
 			if (StringUtils.isBlank(eventType)) {
@@ -711,63 +706,43 @@ public class InvoiceParser {
 			}
 			String title = String.format(PropertyManager.getProperty("invoice.commission.bill.title"), invoiceCommision.getInvoice_number());
 			String id = UUID.randomUUID().toString();
-//			String id = null;
-//			boolean updateBill = false;
-//			if (StringUtils.isNotBlank(invoiceCommision.getBill_id())) {
-//				id = invoiceCommision.getBill_id();
-//				updateBill = true;
-//			} else {
-//				id = UUID.randomUUID().toString();
-//			}
 			invoiceCommision.setId(id);
 			invoiceCommision.setBill_id(id);
-			if (StringUtils.isBlank(invoiceCommision.getCompany_id())) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.companyId"), Constants.INVALID_INPUT);
-			}
+			//every invoice commission will have bill with only one line 
+			invoiceCommision.setBillLineId(id);
 			String currentDate = DateUtils.getCurrentDate(Constants.DATE_TO_COMMISSION_BILLS_UI_DATE_FORMAT);
-			// invoiceCommision.setBillLineId(id);
-			// invoiceCommision.setAmount(invoiceCommissionAmount);
-			List<InvoiceCommissionLines> invoiceCommisionLines = invoiceCommision.getLines();
-			Iterator<InvoiceCommissionLines> invoiceCommisionLinesItr = invoiceCommisionLines.iterator();
 			JSONArray lines = new JSONArray();
-			double totalLinesAmount = 0.0;
-			while (invoiceCommisionLinesItr.hasNext()) {
-				JSONObject lineObj = new JSONObject();
-				InvoiceCommissionLines invoiceCommissionLine = invoiceCommisionLinesItr.next();
-				String itemName = invoiceCommissionLine.getItem_name();
-				if (StringUtils.isEmpty(itemName)) {
-					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.itemname"), Constants.INVALID_INPUT);
-				}
-				String invoiceCommissionLinesId = UUID.randomUUID().toString();
-				invoiceCommissionLine.setId(invoiceCommissionLinesId);
-				lines.put(lineObj);
-				lineObj.put("quantity", 1);
-				String amountType = invoiceCommissionLine.getAmount_type();
-				if (StringUtils.isEmpty(amountType)) {
-					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.amountType"), Constants.INVALID_INPUT);
-				}
-				if (!amountType.equals(Constants.PERCENTAGE) && !amountType.equals(Constants.FLAT_FEE)) {
-					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.invalid.amountType"), Constants.INVALID_INPUT);
-				}
-				if (invoiceCommissionLine.getAmount() <= 0.0) {
-					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.percentage"), Constants.INVALID_INPUT);
-				}
-				double invoiceCommissionAmount = 0.0;
-				if (invoiceCommissionLine.getAmount_type().equals(Constants.PERCENTAGE)) {
-					invoiceCommissionAmount = invoiceCommision.getInvoice_amount() * (invoiceCommissionLine.getAmount() / 100);
-				} else if (invoiceCommissionLine.getAmount_type().equals(Constants.FLAT_FEE)) {
-					invoiceCommissionAmount = invoiceCommissionLine.getAmount();
-				}
-				totalLinesAmount += invoiceCommissionAmount;
-				lineObj.put("unitPrice", invoiceCommissionAmount);
-				lineObj.put("amount", invoiceCommissionAmount);
-				lineObj.put("itemCode", itemName);
-				lineObj.put("billLineId", invoiceCommissionLinesId);
+			JSONObject lineObj = new JSONObject();
+			String itemName = invoiceCommision.getItem_name();
+			if (StringUtils.isEmpty(itemName)) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.itemname"), Constants.INVALID_INPUT);
 			}
+			lines.put(lineObj);
+			lineObj.put("quantity", 1);
+			String amountType = invoiceCommision.getAmount_type();
+			if (StringUtils.isEmpty(amountType)) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.amountType"), Constants.INVALID_INPUT);
+			}
+			if (!amountType.equals(Constants.PERCENTAGE) && !amountType.equals(Constants.FLAT_FEE)) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.invalid.amountType"), Constants.INVALID_INPUT);
+			}
+			if (invoiceCommision.getAmount() <= 0.0) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.percentage"), Constants.INVALID_INPUT);
+			}
+			double invoiceCommissionAmount = 0.0;
+			if (invoiceCommision.getAmount_type().equals(Constants.PERCENTAGE)) {
+				invoiceCommissionAmount = invoiceCommision.getInvoice_amount() * (invoiceCommision.getAmount() / 100);
+			} else if (invoiceCommision.getAmount_type().equals(Constants.FLAT_FEE)) {
+				invoiceCommissionAmount = invoiceCommision.getAmount();
+			}
+			lineObj.put("unitPrice", invoiceCommissionAmount);
+			lineObj.put("amount", invoiceCommissionAmount);
+			lineObj.put("itemCode", itemName);
+			lineObj.put("billLineId", invoiceCommision.getBillLineId());
 			JSONObject apServiceInputJson = new JSONObject();
 			apServiceInputJson.put("title", title);
 			apServiceInputJson.put("vendorID", invoiceCommision.getVendor_id());
-			apServiceInputJson.put("amount", totalLinesAmount);
+			apServiceInputJson.put("amount", invoiceCommissionAmount);
 			apServiceInputJson.put("companyID", invoiceCommision.getCompany_id());
 			apServiceInputJson.put("id", invoiceCommision.getId());
 			if (eventType.equals(Constants.DATE)) {
@@ -780,18 +755,16 @@ public class InvoiceParser {
 			apServiceInputJson.put("recurring", "onlyonce");
 			apServiceInputJson.put("currency", invoiceCommision.getCurrency());
 			apServiceInputJson.put("billID", "Sales Commission _" + invoiceCommision.getInvoice_number());
-//			if (!updateBill) {
 			apServiceInputJson.put("action", "submit");
-//			}
 			apServiceInputJson.put("lines", lines);
 			return apServiceInputJson;
 		} catch (WebApplicationException e) {
-			LOGGER.error("WebApplicationException in handleInvoiceCommissionStringEvent", e);
+			LOGGER.error("WebApplicationException in getInvoiceCommissionJson", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error("error in handleInvoiceCommissionStringEvent", e);
+			LOGGER.error("error in getInvoiceCommissionJson", e);
 		} finally {
-			LOGGER.debug("exited handleInvoiceCommissionStringEvent invoiceCommision:" + invoiceCommision);
+			LOGGER.debug("exited getInvoiceCommissionJson invoiceCommision:" + invoiceCommision);
 		}
 		return null;
 	}

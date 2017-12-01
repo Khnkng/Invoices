@@ -166,14 +166,10 @@ public class SqlQuerys {
 	}
 	
 	public final class InvoiceCommission {
-		public static final String INSERT_QRY = "INSERT INTO invoice_commission (`id`, `invoice_id`, `invoice_amount`,`event_type`, `event_at`,`bill_id`, `company_id`, `invoice_number`, `currency`, `billCreated`, `user_id`, `created_at`, `last_updated_at`, `last_updated_by`, `vendor_id`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		public static final String DELETE_BY_INVOICE_ID_QRY = "delete from invoice_commission WHERE `invoice_id` = ?;";
-		public static final String GET_BY_INVOICE_ID_QRY = "SELECT ic.`id`, `invoice_id`, `invoice_amount`,`event_type`, `event_at`,`bill_id`, `company_id`, `invoice_number`, `currency`, `billCreated`, `user_id`, `created_at`, `last_updated_at`, `last_updated_by`, `vendor_id`, icl.`id` icl_id, icl.`amount` icl_amount,`item_name`, `item_id`,`invoice_commission_id`, `amount_type` FROM invoice_commission  ic LEFT JOIN `invoice_commission_lines` icl ON ic.id = icl.invoice_commission_id WHERE ic.invoice_id=?";
+		public static final String INSERT_QRY = "INSERT INTO invoice_commission (`id`, `invoice_id`, `invoice_amount`,`event_type`, `event_at`,`bill_id`, `company_id`, `invoice_number`, `currency`, `billCreated`, `user_id`, `created_at`, `last_updated_at`, `last_updated_by`, `vendor_id`, `amount`, `item_name`, `item_id`, `amount_type`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		public static final String DELETE_BY_INVOICE_ID_QRY = "delete from invoice_commission WHERE `id` = ?;";
+		public static final String GET_BY_INVOICE_ID_QRY = "SELECT `id`, `invoice_id`, `invoice_amount`,`event_type`, `event_at`,`bill_id`, `company_id`, `invoice_number`, `currency`, `billCreated`, `user_id`, `created_at`, `last_updated_at`, `last_updated_by`, `vendor_id`, `amount`, `item_name`, `item_id`, `amount_type` FROM invoice_commission  WHERE invoice_id=?";
 		public static final String UPDATE_BILL_STATE_QRY = "update invoice_commission set `billCreated` = ?, `last_updated_at` = ?, `last_updated_by` = ? , where id = ?";
-	}
-	
-	public final class InvoiceCommissionLine {
-		public static final String INSERT_QRY = "INSERT INTO invoice_commission_lines (`id`, `amount`,`item_name`, `item_id`,`invoice_commission_id`, `amount_type`) VALUES( ?, ?, ?, ?, ?, ?)";
 	}
 	
 	public final class PayEvent {

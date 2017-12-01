@@ -82,10 +82,18 @@ public class Invoice {
 	private String from;
 	private String attachments_metadata;
 	private String mailSubject;
-	private InvoiceCommission commission;
+	private List<InvoiceCommission> commissions;
 	private String late_fee_id;
 	private double late_fee_amount;
 	
+	public List<InvoiceCommission> getCommissions() {
+		return commissions;
+	}
+
+	public void setCommissions(List<InvoiceCommission> commissions) {
+		this.commissions = commissions;
+	}
+
 	public String getLate_fee_id() {
 		return late_fee_id;
 	}
@@ -100,14 +108,6 @@ public class Invoice {
 
 	public void setLate_fee_amount(double late_fee_amount) {
 		this.late_fee_amount = late_fee_amount;
-	}
-
-	public InvoiceCommission getCommission() {
-		return commission;
-	}
-
-	public void setCommission(InvoiceCommission commission) {
-		this.commission = commission;
 	}
 
 	public String getMailSubject() {

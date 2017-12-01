@@ -119,28 +119,9 @@ public class InvoiceControllerImpl {
 				if (!invoiceLineResult.isEmpty()) {
 					// saving dimensions of journal lines
 					createInvoiceHistory(invoice, userID, companyID, jobId, connection);
-					InvoiceCommission inputInvoiceCommission = invoice.getCommission();
-					if (inputInvoiceCommission != null) {
-						String eventAt = inputInvoiceCommission.getEvent_at();
-						if (StringUtils.isBlank(eventAt)) {
-							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
-						}
-						if (!eventAt.equals(Constants.PAID)) {
-							inputInvoiceCommission.setCreateBill(true);
-						}
-						inputInvoiceCommission.setUser_id(invoice.getUser_id());
-						inputInvoiceCommission.setCompany_id(companyID);
-						inputInvoiceCommission.setInvoice_id(invoice.getId());
-						inputInvoiceCommission.setCurrency(invoice.getCurrency());
-						inputInvoiceCommission.setInvoice_amount(invoice.getAmount());
-						inputInvoiceCommission.setInvoice_number(invoice.getNumber());
-						if (createInvoiceCommissions(connection, inputInvoiceCommission) == null) {
-							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
-						}
-						connection.commit();
-					} else {
-						connection.commit();
-					}
+					createInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
+							invoice.getCurrency());
+					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
 				if (invoice.isSendMail())
@@ -379,43 +360,15 @@ public class InvoiceControllerImpl {
 					if (invoiceLineResult != null) {
 						// updating dimensions for an invoice
 						new InvoiceDimension().update(connection, companyID, invoiceObj.getInvoiceLines());
-						InvoiceCommission inputInvoiceCommission = invoice.getCommission();
-						if (inputInvoiceCommission.isUpdateBill()) {
-							// deleteing bills an comission and creating new one
-							inputInvoiceCommission.setInvoice_id(invoiceID);
-							if (inputInvoiceCommission != null) {
-								String eventAt = inputInvoiceCommission.getEvent_at();
-								if (StringUtils.isBlank(eventAt)) {
-									throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
-								}
-								if (!eventAt.equals(Constants.PAID)) {
-									inputInvoiceCommission.setCreateBill(true);
-								}
-								inputInvoiceCommission.setUser_id(userID);
-								inputInvoiceCommission.setCompany_id(companyID);
-								inputInvoiceCommission.setInvoice_id(invoice.getId());
-								inputInvoiceCommission.setCurrency(invoice.getCurrency());
-								inputInvoiceCommission.setInvoice_amount(invoice.getAmount());
-								inputInvoiceCommission.setInvoice_number(invoice.getNumber());
-								if(StringUtils.isNotBlank(inputInvoiceCommission.getBill_id())){
-									MySQLManager.getInvoiceDAOInstance().deleteInvoiceCommission(connection, inputInvoiceCommission);
-									InvoiceParser.deleteInvoivceCommissionBill(inputInvoiceCommission);
-								}
-								if (createInvoiceCommissions(connection, inputInvoiceCommission) == null) {
-									throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
-								}else{
-									connection.commit();
-								}
-							}
-						} else {
-							connection.commit();
-						}
-						if (isJERequired) {
-							CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
-						}
-						createInvoiceHistory(invoice, userID, companyID, jobId, connection);
-						return InvoiceParser.convertTimeStampToString(invoiceResult);
+						updateInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
+								invoice.getCurrency());
+						connection.commit();
 					}
+					if (isJERequired) {
+						CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
+					}
+					createInvoiceHistory(invoice, userID, companyID, jobId, connection);
+					return InvoiceParser.convertTimeStampToString(invoiceResult);
 				}
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.EXPECTATION_FAILED));
@@ -615,28 +568,10 @@ public class InvoiceControllerImpl {
 				// creating commissions if any
 				InvoiceCommission invoiceCommission = new InvoiceCommission();
 				invoiceCommission.setInvoice_id(invoice.getId());
-
 				if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
-					InvoiceCommission dbInvoiceCommission = MySQLManager.getInvoiceDAOInstance().getInvoiceCommission(invoiceCommission);
-					if (dbInvoiceCommission != null) {
-						String eventAt = dbInvoiceCommission.getEvent_at();
-						if (StringUtils.isBlank(eventAt)) {
-							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
-						}
-						if (eventAt.equals(Constants.PAID)) {
-							dbInvoiceCommission.setCreateBill(true);
-						}
-						dbInvoiceCommission.setUser_id(invoice.getUser_id());
-						dbInvoiceCommission.setCompany_id(dbInvoice.getCompany_id());
-						dbInvoiceCommission.setInvoice_id(invoice.getId());
-						dbInvoiceCommission.setCurrency(invoice.getCurrency());
-						dbInvoiceCommission.setInvoice_amount(invoice.getAmount());
-						dbInvoiceCommission.setInvoice_number(invoice.getNumber());
-						if (createPaidInvoiceCommissions(connection, dbInvoiceCommission) == null) {
-							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
-						}
-						connection.commit();
-					}
+					List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
+					createInvoicePaidCommissions(connection, dbInvoiceCommissions, invoice.getUser_id(), dbInvoice.getCompany_id(), invoice.getId(), invoice.getNumber(), invoice.getAmount(),
+							invoice.getCurrency());
 					connection.commit();
 					CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
 							invoice.getCompany_id());
@@ -698,7 +633,7 @@ public class InvoiceControllerImpl {
 			Invoice result = InvoiceParser.convertTimeStampToString(MySQLManager.getInvoiceDAOInstance().get(invoiceID));
 			InvoiceCommission invoiceCommission = new InvoiceCommission();
 			invoiceCommission.setInvoice_id(invoiceID);
-			result.setCommission(MySQLManager.getInvoiceDAOInstance().getInvoiceCommission(invoiceCommission));
+			result.setCommissions(MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission));
 			Company2 company2 = CommonUtils.retrieveCompany(result.getUser_id(), result.getCompany_id());
 			result.setCompany(company2);
 			InvoiceParser.convertAmountToDecimal(result);
@@ -1087,11 +1022,11 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static InvoiceCommission createInvoiceCommissions(Connection connection, InvoiceCommission invoiceCommission) {
+	public static InvoiceCommission createInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) {
 		try {
 			LOGGER.debug("entered createInvoiceCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
 			if (invoiceCommission.isCreateBill()) {
-				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionsBills(invoiceCommission);
+				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission);
 				if (!isInvoiceCommissionCreated) {
 					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 				}
@@ -1099,13 +1034,35 @@ public class InvoiceControllerImpl {
 			InvoiceCommission result = MySQLManager.getInvoiceDAOInstance().createInvoiceCommission(connection, invoiceCommission);
 			return result;
 		} catch (WebApplicationException e) {
-			LOGGER.error("error creating createInvoiceCommissions", e);
+			LOGGER.error("error creating createInvoiceCommission", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error("error creating createInvoiceCommissions", e);
+			LOGGER.error("error creating createInvoiceCommission", e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
 			LOGGER.debug("exited createInvoiceCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
+		}
+	}
+	
+	public static InvoiceCommission createInvoicePaidCommission(Connection connection, InvoiceCommission invoiceCommission) {
+		try {
+			LOGGER.debug("entered createInvoicePaidCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
+			if (invoiceCommission.isCreateBill()) {
+				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission);
+				if (!isInvoiceCommissionCreated) {
+					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+				}
+			}
+			InvoiceCommission result = MySQLManager.getInvoiceDAOInstance().updateInvoiceCommissionBillState(connection, invoiceCommission);
+			return result;
+		} catch (WebApplicationException e) {
+			LOGGER.error("error createInvoicePaidCommission", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error createInvoicePaidCommission", e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
+		} finally {
+			LOGGER.debug("exited createInvoicePaidCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
 		}
 	}
 
@@ -1113,7 +1070,7 @@ public class InvoiceControllerImpl {
 		try {
 			LOGGER.debug("entered createPaidInvoiceCommissions(InvoiceCommission invoiceCommission:" + invoiceCommission);
 			if (invoiceCommission.isCreateBill()) {
-				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionsBills(invoiceCommission);
+				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission);
 				if (!isInvoiceCommissionCreated) {
 					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 				} else {
@@ -1132,4 +1089,132 @@ public class InvoiceControllerImpl {
 		}
 	}
 
+	private static boolean createInvoiceCommissions(Connection connection, List<InvoiceCommission> commissions, String userId, String companyId, String invoiceId,
+			String invoiceNumber, double invoiceAmount, String currency) {
+		try {
+			LOGGER.debug("entered createInvoiceCommissions invoiceCommisions:" + commissions);
+			if (commissions != null && !commissions.isEmpty()) {
+				Iterator<InvoiceCommission> commissionsItr = commissions.iterator();
+				while (commissionsItr.hasNext()) {
+					InvoiceCommission commission = commissionsItr.next();
+					if (commission != null) {
+						String eventAt = commission.getEvent_at();
+						if (StringUtils.isBlank(eventAt)) {
+							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
+						}
+						if (!eventAt.equals(Constants.PAID)) {
+							commission.setCreateBill(true);
+						}
+						commission.setUser_id(userId);
+						commission.setCompany_id(companyId);
+						commission.setInvoice_id(invoiceId);
+						commission.setCurrency(currency);
+						commission.setInvoice_amount(invoiceAmount);
+						commission.setInvoice_number(invoiceNumber);
+						if (createInvoiceCommission(connection, commission) == null) {
+							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+						}
+					}
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("WebApplicationException in createInvoiceCommissions", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error in createInvoiceCommissions", e);
+		} finally {
+			LOGGER.debug("exited createInvoiceCommissions invoiceCommisions:" + commissions);
+		}
+		return false;
+	}
+	
+	public static boolean createInvoicePaidCommissions(Connection connection, List<InvoiceCommission> commissions, String userId, String companyId, String invoiceId,
+			String invoiceNumber, double invoiceAmount, String currency) {
+		try {
+			LOGGER.debug("entered createInvoiceCommissions invoiceCommisions:" + commissions);
+			if (commissions != null && !commissions.isEmpty()) {
+				Iterator<InvoiceCommission> commissionsItr = commissions.iterator();
+				while (commissionsItr.hasNext()) {
+					InvoiceCommission commission = commissionsItr.next();
+					if (commission != null) {
+						String eventAt = commission.getEvent_at();
+						if (StringUtils.isBlank(eventAt)) {
+							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
+						}
+						if (eventAt.equals(Constants.PAID) && !commission.isBillCreated()) {
+							commission.setCreateBill(true);
+						}
+						commission.setUser_id(userId);
+						commission.setCompany_id(companyId);
+						commission.setInvoice_id(invoiceId);
+						commission.setCurrency(currency);
+						commission.setInvoice_amount(invoiceAmount);
+						commission.setInvoice_number(invoiceNumber);
+						if (createInvoicePaidCommission(connection, commission) == null) {
+							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+						}
+					}
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("WebApplicationException in createInvoiceCommissions", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error in createInvoiceCommissions", e);
+		} finally {
+			LOGGER.debug("exited createInvoiceCommissions invoiceCommisions:" + commissions);
+		}
+		return false;
+	}
+
+	private static boolean updateInvoiceCommissions(Connection connection, List<InvoiceCommission> commissions, String userId, String companyId, String invoiceId,
+			String invoiceNumber, double invoiceAmount, String currency) {
+		try {
+			LOGGER.debug("entered updateInvoiceCommissions invoiceCommisions:" + commissions);
+			if (commissions != null && !commissions.isEmpty()) {
+				Iterator<InvoiceCommission> commissionsItr = commissions.iterator();
+				while (commissionsItr.hasNext()) {
+					InvoiceCommission commission = commissionsItr.next();
+					if (commission != null) {
+						if (commission.isUpdateBill()) {
+							String eventAt = commission.getEvent_at();
+							if (StringUtils.isBlank(eventAt)) {
+								throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
+							}
+							if (!eventAt.equals(Constants.PAID)) {
+								commission.setCreateBill(true);
+							}
+							commission.setUser_id(userId);
+							commission.setCompany_id(companyId);
+							commission.setInvoice_id(invoiceId);
+							commission.setCurrency(currency);
+							commission.setInvoice_amount(invoiceAmount);
+							commission.setInvoice_number(invoiceNumber);
+							if (StringUtils.isNotBlank(commission.getBill_id())) {
+								if (StringUtils.isBlank(commission.getId())) {
+									// bill id and commission id are same
+									commission.setId(commission.getBill_id());
+								}
+								MySQLManager.getInvoiceDAOInstance().deleteInvoiceCommission(connection, commission);
+								InvoiceParser.deleteInvoivceCommissionBill(commission);
+							}
+							if(!commission.isDelete()){
+								if (createInvoiceCommission(connection, commission) == null) {
+									throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("WebApplicationException in updateInvoiceCommissions", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error in updateInvoiceCommissions", e);
+		} finally {
+			LOGGER.debug("exited updateInvoiceCommissions invoiceCommisions:" + commissions);
+		}
+		return false;
+	}
 }
