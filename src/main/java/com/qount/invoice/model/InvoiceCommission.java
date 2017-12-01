@@ -26,6 +26,7 @@ public class InvoiceCommission {
 	private double invoice_amount;
 	private String event_type;
 	private String event_at;
+	private String event_date;
 	private String bill_id;
 	private String company_id;
 	private String invoice_number;
@@ -45,6 +46,14 @@ public class InvoiceCommission {
 	private String billLineId;
 	private boolean delete;
 	 
+	public String getEvent_date() {
+		return event_date;
+	}
+
+	public void setEvent_date(String event_date) {
+		this.event_date = event_date;
+	}
+
 	public boolean isDelete() {
 		return delete;
 	}

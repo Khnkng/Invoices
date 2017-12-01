@@ -654,7 +654,7 @@ public class InvoiceParser {
 				LOGGER.fatal("ltm invoice->apserivce not present ltm url:" + apServiceUrl);
 				return false;
 			}
-			// apServiceUrl = "https://dev-services.qount.io/";
+//			 apServiceUrl = "https://dev-services.qount.io/";
 			apServiceUrl += "BigPayServices/user/" + invoiceCommission.getUser_id() + "/companies/" + invoiceCommission.getCompany_id() + "/bills";
 			JSONObject result = HTTPClient.post(apServiceUrl, billsJson.toString());
 			if (CommonUtils.isValidJSON(result)) {
@@ -746,7 +746,11 @@ public class InvoiceParser {
 			apServiceInputJson.put("companyID", invoiceCommision.getCompany_id());
 			apServiceInputJson.put("id", invoiceCommision.getId());
 			if (eventType.equals(Constants.DATE)) {
-				apServiceInputJson.put("dueDate", eventAt);
+				String eventDate = invoiceCommision.getEvent_date();
+				if (StringUtils.isBlank(eventDate)) {
+					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventDate"), Constants.INVALID_INPUT);
+				}
+				apServiceInputJson.put("dueDate", eventDate);
 			} else {
 				apServiceInputJson.put("dueDate", currentDate);
 			}
