@@ -1,7 +1,5 @@
 package com.qount.invoice.model;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +11,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  * @author Mateen, Qount.
  * @version 1.0, 15 Nov 2017
+ *
+ */
+/**
+ * @author MateenAhmed
  *
  */
 @XmlRootElement
@@ -30,13 +32,66 @@ public class InvoiceCommission {
 	private String currency;
 	private boolean billCreated;
 	private String user_id;
-	private List<InvoiceCommissionLines> lines;
 	private long created_at;
 	private long last_updated_at;
 	private String last_updated_by;
 	private String vendor_id;
 	private boolean updateBill;
 	private boolean createBill;
+	private double amount;
+	private String item_name;
+	private String item_id;
+	private String amount_type;
+	private String billLineId;
+	private boolean delete;
+	 
+	public boolean isDelete() {
+		return delete;
+	}
+
+	public void setDelete(boolean delete) {
+		this.delete = delete;
+	}
+
+	public String getBillLineId() {
+		return billLineId;
+	}
+
+	public void setBillLineId(String billLineId) {
+		this.billLineId = billLineId;
+	}
+
+	public double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
+
+	public String getItem_name() {
+		return item_name;
+	}
+
+	public void setItem_name(String item_name) {
+		this.item_name = item_name;
+	}
+
+	public String getItem_id() {
+		return item_id;
+	}
+
+	public void setItem_id(String item_id) {
+		this.item_id = item_id;
+	}
+
+	public String getAmount_type() {
+		return amount_type;
+	}
+
+	public void setAmount_type(String amount_type) {
+		this.amount_type = amount_type;
+	}
 
 	public boolean isCreateBill() {
 		return createBill;
@@ -60,14 +115,6 @@ public class InvoiceCommission {
 
 	public void setVendor_id(String vendor_id) {
 		this.vendor_id = vendor_id;
-	}
-
-	public List<InvoiceCommissionLines> getLines() {
-		return lines;
-	}
-
-	public void setLines(List<InvoiceCommissionLines> lines) {
-		this.lines = lines;
 	}
 
 	public long getLast_updated_at() {

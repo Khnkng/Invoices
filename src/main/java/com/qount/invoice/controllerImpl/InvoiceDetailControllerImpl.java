@@ -192,35 +192,19 @@ public class InvoiceDetailControllerImpl {
 			if (paymentCaptured) {
 				InvoiceCommission invoiceCommission = new InvoiceCommission();
 				invoiceCommission.setInvoice_id(invoice.getId());
-				InvoiceCommission dbInvoiceCommission = MySQLManager.getInvoiceDAOInstance().getInvoiceCommission(invoiceCommission);
-				if (dbInvoiceCommission != null) {
-					String eventAt = dbInvoiceCommission.getEvent_at();
-					if (StringUtils.isBlank(eventAt)) {
-						throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
-					}
-					if (eventAt.equals(Constants.PAID)) {
-						dbInvoiceCommission.setCreateBill(true);
-					}
-					dbInvoiceCommission.setUser_id(invoice.getUser_id());
-					dbInvoiceCommission.setCompany_id(invoice.getCompany_id());
-					dbInvoiceCommission.setInvoice_id(invoice.getId());
-					dbInvoiceCommission.setCurrency(invoice.getCurrency());
-					dbInvoiceCommission.setInvoice_amount(invoice.getAmount());
-					dbInvoiceCommission.setInvoice_number(invoice.getNumber());
-					if (InvoiceControllerImpl.createPaidInvoiceCommissions(connection, dbInvoiceCommission)==null) {
-						throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
-					}
-					connection.commit();
-					CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getCompany_id());
-					return true;
-				} else {
-					LOGGER.fatal("payment done but not saved in qount db");
-					LOGGER.fatal("invoiceID:" + invoiceID);
-					LOGGER.fatal("transactionId:" + transactionId);
-					LOGGER.fatal("payment:" + payment);
-					throw new WebApplicationException("payment done but not saved in qount db");
-					// TODO refund payment
-				}
+				List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
+				InvoiceControllerImpl.createInvoicePaidCommissions(connection, dbInvoiceCommissions, invoice.getUser_id(), invoice.getCompany_id(), invoice.getId(),
+						invoice.getNumber(), invoice.getAmount(), invoice.getCurrency());
+				connection.commit();
+				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getCompany_id());
+				return true;
+			} else {
+				LOGGER.fatal("payment done but not saved in qount db");
+				LOGGER.fatal("invoiceID:" + invoiceID);
+				LOGGER.fatal("transactionId:" + transactionId);
+				LOGGER.fatal("payment:" + payment);
+				throw new WebApplicationException("payment done but not saved in qount db");
+				// TODO refund payment
 			}
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -232,7 +216,6 @@ public class InvoiceDetailControllerImpl {
 			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited makeInvoicePayment dbInvoice:" + invoice + "uiInvoice" + inputInvoice);
 		}
-		return false;
 	}
 
 	private static JSONObject invokeChargePaymentSpringApi(String companyId, JSONObject payloadObj, String urlAction) throws Exception {
