@@ -565,21 +565,22 @@ public class InvoiceControllerImpl {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				// unscheduling invoice jobs if any
 				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
-				// creating commissions if any
+			}
+			// creating commissions if any
+			if (invoice.getAmount_due() == 0.0) {
 				InvoiceCommission invoiceCommission = new InvoiceCommission();
 				invoiceCommission.setInvoice_id(invoice.getId());
 				if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
-					if (invoice.getAmount_due() == 0.0) {
-						List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
-						createInvoicePaidCommissions(connection, dbInvoiceCommissions, invoice.getUser_id(), dbInvoice.getCompany_id(), invoice.getId(), invoice.getNumber(), invoice.getAmount(),
-								invoice.getCurrency());
-					}
-					connection.commit();
-					CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
-							invoice.getCompany_id());
-					return true;
+					List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
+					createInvoicePaidCommissions(connection, dbInvoiceCommissions, invoice.getUser_id(), dbInvoice.getCompany_id(), invoice.getId(), invoice.getNumber(),
+							invoice.getAmount(), invoice.getCurrency());
 				}
+				connection.commit();
+				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
+						invoice.getCompany_id());
+				return true;
 			}
+
 		} catch (WebApplicationException e) {
 			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
 			throw e;
@@ -1045,7 +1046,7 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited createInvoiceCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
 		}
 	}
-	
+
 	public static InvoiceCommission createInvoicePaidCommission(Connection connection, InvoiceCommission invoiceCommission) {
 		try {
 			LOGGER.debug("entered createInvoicePaidCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
@@ -1113,7 +1114,7 @@ public class InvoiceControllerImpl {
 						commission.setInvoice_id(invoiceId);
 						commission.setCurrency(currency);
 						commission.setInvoice_amount(invoiceAmount);
-						commission.setInvoice_number((invoiceNumberCounter++)+"_"+invoiceNumber);
+						commission.setInvoice_number((invoiceNumberCounter++) + "_" + invoiceNumber);
 						if (createInvoiceCommission(connection, commission) == null) {
 							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 						}
@@ -1130,7 +1131,7 @@ public class InvoiceControllerImpl {
 		}
 		return false;
 	}
-	
+
 	public static boolean createInvoicePaidCommissions(Connection connection, List<InvoiceCommission> commissions, String userId, String companyId, String invoiceId,
 			String invoiceNumber, double invoiceAmount, String currency) {
 		try {
@@ -1193,7 +1194,8 @@ public class InvoiceControllerImpl {
 							commission.setInvoice_id(invoiceId);
 							commission.setCurrency(currency);
 							commission.setInvoice_amount(invoiceAmount);
-							String tempInvoiceNumber = StringUtils.isBlank(commission.getInvoice_number())?(invoiceNumberCounter++)+"_"+invoiceNumber:commission.getInvoice_number();
+							String tempInvoiceNumber = StringUtils.isBlank(commission.getInvoice_number()) ? (invoiceNumberCounter++) + "_" + invoiceNumber
+									: commission.getInvoice_number();
 							commission.setInvoice_number(tempInvoiceNumber);
 							if (StringUtils.isNotBlank(commission.getBill_id())) {
 								if (StringUtils.isBlank(commission.getId())) {
@@ -1203,7 +1205,7 @@ public class InvoiceControllerImpl {
 								MySQLManager.getInvoiceDAOInstance().deleteInvoiceCommission(connection, commission);
 								InvoiceParser.deleteInvoivceCommissionBill(commission);
 							}
-							if(!commission.isDelete()){
+							if (!commission.isDelete()) {
 								if (createInvoiceCommission(connection, commission) == null) {
 									throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 								}

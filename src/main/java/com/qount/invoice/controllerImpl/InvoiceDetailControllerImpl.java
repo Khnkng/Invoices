@@ -190,9 +190,9 @@ public class InvoiceDetailControllerImpl {
 				paymentCaptured = true;
 			}
 			if (paymentCaptured) {
-				InvoiceCommission invoiceCommission = new InvoiceCommission();
-				invoiceCommission.setInvoice_id(invoice.getId());
 				if (invoice.getAmount_paid() == invoice.getAmount()) {
+					InvoiceCommission invoiceCommission = new InvoiceCommission();
+					invoiceCommission.setInvoice_id(invoice.getId());
 					List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
 					InvoiceControllerImpl.createInvoicePaidCommissions(connection, dbInvoiceCommissions, invoice.getUser_id(), invoice.getCompany_id(), invoice.getId(),
 							invoice.getNumber(), invoice.getAmount(), invoice.getCurrency());
