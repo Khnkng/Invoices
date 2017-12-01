@@ -573,8 +573,8 @@ public class InvoiceControllerImpl {
 				invoiceCommission.setInvoice_id(invoice.getId());
 				if (invoice.getAmount_due() == 0.0) {
 					List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
-					createInvoicePaidCommissions(connection, dbInvoiceCommissions, invoice.getUser_id(), dbInvoice.getCompany_id(), invoice.getId(), invoice.getNumber(),
-							invoice.getAmount(), invoice.getCurrency());
+					createInvoicePaidCommissions(connection, dbInvoiceCommissions, dbInvoice.getUser_id(), dbInvoice.getCompany_id(), dbInvoice.getId(),
+							dbInvoice.getAmount(), dbInvoice.getCurrency());
 				}
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
 						invoice.getCompany_id());
@@ -1133,7 +1133,7 @@ public class InvoiceControllerImpl {
 	}
 
 	public static boolean createInvoicePaidCommissions(Connection connection, List<InvoiceCommission> commissions, String userId, String companyId, String invoiceId,
-			String invoiceNumber, double invoiceAmount, String currency) {
+			double invoiceAmount, String currency) {
 		try {
 			LOGGER.debug("entered createInvoiceCommissions invoiceCommisions:" + commissions);
 			if (commissions != null && !commissions.isEmpty()) {
@@ -1153,7 +1153,6 @@ public class InvoiceControllerImpl {
 						commission.setInvoice_id(invoiceId);
 						commission.setCurrency(currency);
 						commission.setInvoice_amount(invoiceAmount);
-						commission.setInvoice_number(invoiceNumber);
 						if (createInvoicePaidCommission(connection, commission) == null) {
 							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 						}

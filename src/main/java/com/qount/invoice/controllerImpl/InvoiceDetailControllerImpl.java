@@ -195,7 +195,7 @@ public class InvoiceDetailControllerImpl {
 					invoiceCommission.setInvoice_id(invoice.getId());
 					List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
 					InvoiceControllerImpl.createInvoicePaidCommissions(connection, dbInvoiceCommissions, invoice.getUser_id(), invoice.getCompany_id(), invoice.getId(),
-							invoice.getNumber(), invoice.getAmount(), invoice.getCurrency());
+							invoice.getAmount(), invoice.getCurrency());
 				}
 				connection.commit();
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getCompany_id());
