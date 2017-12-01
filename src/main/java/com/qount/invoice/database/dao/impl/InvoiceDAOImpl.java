@@ -1360,7 +1360,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			throw new WebApplicationException("invoiceId cannot be empty", Constants.INVALID_INPUT_STATUS);
 		}
 		List<InvoiceCommission> result = new ArrayList<>();
-		InvoiceCommission dbinvoiceCommission = new InvoiceCommission();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Connection connection = DatabaseUtilities.getReadConnection();
@@ -1370,6 +1369,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(1, invoiceCommission.getInvoice_id());
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
+					InvoiceCommission dbinvoiceCommission = new InvoiceCommission();
 					dbinvoiceCommission.setEvent_date(rset.getString("event_date"));
 					dbinvoiceCommission.setId(rset.getString("id"));
 					dbinvoiceCommission.setInvoice_id(rset.getString("invoice_id"));
