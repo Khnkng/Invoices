@@ -618,9 +618,9 @@ public class InvoiceParser {
 			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname", "half.service.docker.apservice.port");
 			if (StringUtils.isBlank(apServiceUrl)) {
 				LOGGER.fatal("ltm invoice->apserivce not present ltm url:" + apServiceUrl);
-//				return false;
+				return false;
 			}
-			 apServiceUrl = "https://dev-services.qount.io/";
+//			 apServiceUrl = "https://dev-services.qount.io/";
 			if (StringUtils.isAnyBlank(invoiceCommission.getUser_id(), invoiceCommission.getCompany_id(), invoiceCommission.getBill_id())) {
 				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.delete.billl.empty.userid.companyid.billId"), Constants.INVALID_INPUT);
 			}
@@ -652,9 +652,9 @@ public class InvoiceParser {
 			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname", "half.service.docker.apservice.port");
 			if (StringUtils.isBlank(apServiceUrl)) {
 				LOGGER.fatal("ltm invoice->apserivce not present ltm url:" + apServiceUrl);
-//				return false;
+				return false;
 			}
-			 apServiceUrl = "https://dev-services.qount.io/";
+//			 apServiceUrl = "https://dev-services.qount.io/";
 			apServiceUrl += "BigPayServices/user/" + invoiceCommission.getUser_id() + "/companies/" + invoiceCommission.getCompany_id() + "/bills";
 			JSONObject result = HTTPClient.post(apServiceUrl, billsJson.toString());
 			if (CommonUtils.isValidJSON(result)) {
