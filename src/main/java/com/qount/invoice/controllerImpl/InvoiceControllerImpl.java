@@ -1095,6 +1095,7 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("entered createInvoiceCommissions invoiceCommisions:" + commissions);
 			if (commissions != null && !commissions.isEmpty()) {
 				Iterator<InvoiceCommission> commissionsItr = commissions.iterator();
+				int invoiceNumberCounter = 1;
 				while (commissionsItr.hasNext()) {
 					InvoiceCommission commission = commissionsItr.next();
 					if (commission != null) {
@@ -1110,7 +1111,7 @@ public class InvoiceControllerImpl {
 						commission.setInvoice_id(invoiceId);
 						commission.setCurrency(currency);
 						commission.setInvoice_amount(invoiceAmount);
-						commission.setInvoice_number(invoiceNumber);
+						commission.setInvoice_number((invoiceNumberCounter++)+"_"+invoiceNumber);
 						if (createInvoiceCommission(connection, commission) == null) {
 							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 						}
@@ -1173,6 +1174,7 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("entered updateInvoiceCommissions invoiceCommisions:" + commissions);
 			if (commissions != null && !commissions.isEmpty()) {
 				Iterator<InvoiceCommission> commissionsItr = commissions.iterator();
+				int invoiceNumberCounter = 1;
 				while (commissionsItr.hasNext()) {
 					InvoiceCommission commission = commissionsItr.next();
 					if (commission != null) {
@@ -1189,7 +1191,7 @@ public class InvoiceControllerImpl {
 							commission.setInvoice_id(invoiceId);
 							commission.setCurrency(currency);
 							commission.setInvoice_amount(invoiceAmount);
-							commission.setInvoice_number(invoiceNumber);
+							commission.setInvoice_number((invoiceNumberCounter++)+"_"+invoiceNumber);
 							if (StringUtils.isNotBlank(commission.getBill_id())) {
 								if (StringUtils.isBlank(commission.getId())) {
 									// bill id and commission id are same
