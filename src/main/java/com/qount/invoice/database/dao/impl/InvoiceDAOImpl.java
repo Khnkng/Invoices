@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 
@@ -1279,7 +1280,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.INSERT_QRY);
 				int ctr = 1;
 				pstmt.setString(ctr++, invoiceCommission.getEvent_date());
-				pstmt.setString(ctr++, invoiceCommission.getId());
+				pstmt.setString(ctr++, StringUtils.isBlank(invoiceCommission.getId())?UUID.randomUUID().toString():invoiceCommission.getId());
 				pstmt.setString(ctr++, invoiceCommission.getInvoice_id());
 				pstmt.setDouble(ctr++, invoiceCommission.getInvoice_amount());
 				pstmt.setString(ctr++, invoiceCommission.getEvent_type());
