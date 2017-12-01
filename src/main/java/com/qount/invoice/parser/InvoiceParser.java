@@ -758,7 +758,7 @@ public class InvoiceParser {
 			apServiceInputJson.put("billDate", currentDate);
 			apServiceInputJson.put("recurring", "onlyonce");
 			apServiceInputJson.put("currency", invoiceCommision.getCurrency());
-			apServiceInputJson.put("billID", "Sales Commission _" + invoiceCommision.getInvoice_number());
+			apServiceInputJson.put("billID", "Sales Commission " + invoiceCommision.getInvoice_number());
 			apServiceInputJson.put("action", "submit");
 			apServiceInputJson.put("lines", lines);
 			return apServiceInputJson;
