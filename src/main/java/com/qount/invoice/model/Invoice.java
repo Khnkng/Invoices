@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -95,7 +96,7 @@ public class Invoice {
 	}
 
 	public String getLate_fee_id() {
-		return late_fee_id;
+		return StringUtils.isBlank(late_fee_id)?null:late_fee_id;
 	}
 
 	public void setLate_fee_id(String late_fee_id) {
