@@ -86,7 +86,34 @@ public class Invoice {
 	private List<InvoiceCommission> commissions;
 	private String late_fee_id;
 	private double late_fee_amount;
+	private boolean late_fee_applied;
+	private String existing_late_fee_id;
+	private double existing_late_fee_amount;
 	
+	public String getExisting_late_fee_id() {
+		return existing_late_fee_id;
+	}
+
+	public void setExisting_late_fee_id(String existing_late_fee_id) {
+		this.existing_late_fee_id = existing_late_fee_id;
+	}
+
+	public double getExisting_late_fee_amount() {
+		return existing_late_fee_amount;
+	}
+
+	public void setExisting_late_fee_amount(double existing_late_fee_amount) {
+		this.existing_late_fee_amount = existing_late_fee_amount;
+	}
+
+	public boolean isLate_fee_applied() {
+		return late_fee_applied;
+	}
+
+	public void setLate_fee_applied(boolean late_fee_applied) {
+		this.late_fee_applied = late_fee_applied;
+	}
+
 	public List<InvoiceCommission> getCommissions() {
 		return commissions;
 	}

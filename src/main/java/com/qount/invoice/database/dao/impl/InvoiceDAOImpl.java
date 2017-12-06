@@ -68,9 +68,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
 						invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
 						invoice.setAmount_due(invoice.getAmount_due()+invoice.getLate_fee_amount());
+						invoice.setLate_fee_applied(true);
 					}
 				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
@@ -142,7 +144,11 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
-				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
+				if(!invoice.isLate_fee_applied()){
+					if(StringUtils.isNotBlank(invoice.getExisting_late_fee_id())){
+						invoice.setAmount(invoice.getAmount()-invoice.getExisting_late_fee_amount());
+						invoice.setAmount_due(invoice.getAmount()-invoice.getAmount_paid());
+					}
 					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 					Date due_date = formatter.parse(invoice.getDue_date());
 					Date date = Calendar.getInstance().getTime();
@@ -153,6 +159,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
@@ -407,6 +414,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
+							invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
 							invoice.setLate_fee_id(rset.getString("late_fee_id"));
 							invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
 							invoice.setId(rset.getString("id"));
