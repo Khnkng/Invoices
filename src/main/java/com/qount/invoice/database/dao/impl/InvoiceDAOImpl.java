@@ -149,7 +149,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					if (due_date != null && due_date.before(date)) {
 						invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
 						invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
-						invoice.setAmount_due(invoice.getAmount_due()+invoice.getLate_fee_amount());
+						invoice.setAmount_due(invoice.getAmount()-invoice.getAmount_paid());
 					}
 				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
