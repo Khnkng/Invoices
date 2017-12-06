@@ -60,6 +60,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
+				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
 					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 					Date due_date = formatter.parse(invoice.getDue_date());
@@ -67,7 +68,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					if (due_date != null && due_date.before(date)) {
 						invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
 						invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
-						invoice.setAmount_due(invoice.getAmount_due()+invoice.getLate_fee_amount());
+						invoice.setAmount_due(invoice.getAmount());
 						invoice.setLate_fee_applied(true);
 					} else{
 						invoice.setLate_fee_applied(false);
@@ -146,13 +147,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
-				if(StringUtils.isNotBlank(invoice.getExisting_late_fee_id())){
-					//removing existing late fee
-					invoice.setAmount(invoice.getAmount()-invoice.getExisting_late_fee_amount());
-					invoice.setAmount_due(invoice.getAmount()-invoice.getAmount_paid());
-				}
-				if(!invoice.isLate_fee_applied()){
-					//new late fee
+				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
+				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
 					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 					Date due_date = formatter.parse(invoice.getDue_date());
 					Date date = Calendar.getInstance().getTime();
