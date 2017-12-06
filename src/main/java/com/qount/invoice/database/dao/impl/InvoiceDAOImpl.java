@@ -680,6 +680,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setCustomer_id(rset.getString("customer_id"));
 						invoice.setId(rset.getString("id"));
 						invoice.setInvoice_date(rset.getString("invoice_date"));
+						invoice.setLate_fee_id(rset.getString("late_fee_id"));
+						invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
+						invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
 						invoice.setDue_date(rset.getString("due_date"));
 						invoice.setAmount(rset.getDouble("amount"));
 						invoice.setCurrency(rset.getString("currency"));
