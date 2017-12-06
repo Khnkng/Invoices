@@ -71,15 +71,15 @@ public class InvoiceControllerImpl {
 			InvoicePreference invoicePreference = new InvoicePreference();
 			invoicePreference.setCompanyId(invoice.getCompany_id());
 			invoicePreference = MySQLManager.getInvoicePreferenceDAOInstance().getInvoiceByCompanyId(connection, invoicePreference);
-			if(invoicePreference!=null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())){
+			if (invoicePreference != null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())) {
 				invoice.setMailSubject(invoicePreference.getDefaultTitle());
 			}
 			String base64StringOfAttachment = null;
-			if(invoice.getPdf_data()!=null){
+			if (invoice.getPdf_data() != null) {
 				String url = PropertyManager.getProperty("report.pdf.url");
 				LOGGER.debug("url::" + url);
 				base64StringOfAttachment = HTTPClient.postAndGetBase64StringResult(url, new ObjectMapper().writeValueAsString(invoice.getPdf_data()));
-				if(StringUtils.isNotBlank(base64StringOfAttachment)){
+				if (StringUtils.isNotBlank(base64StringOfAttachment)) {
 					invoice.setAttachmentBase64(base64StringOfAttachment);
 				}
 			}
@@ -87,7 +87,7 @@ public class InvoiceControllerImpl {
 			invoice.setCompany_id(companyID);
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
-				jobId = getJobId(connection,invoice);
+				jobId = getJobId(connection, invoice);
 				if (StringUtils.isNotBlank(jobId) && invoice.isSendMail()) {
 					invoice.setState(Constants.INVOICE_STATE_SENT);
 				}
@@ -119,10 +119,8 @@ public class InvoiceControllerImpl {
 				if (!invoiceLineResult.isEmpty()) {
 					// saving dimensions of journal lines
 					createInvoiceHistory(invoice, userID, companyID, jobId, connection);
-					List<InvoiceCommission> invoiceCommissions = invoice.getInvoiceCommissions();
-					if(invoiceCommissions!=null && !invoiceCommissions.isEmpty()){
-						
-					}
+					createInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
+							invoice.getCurrency());
 					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
@@ -130,7 +128,7 @@ public class InvoiceControllerImpl {
 					CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 				return InvoiceParser.convertTimeStampToString(invoiceObj);
 			}
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.EXPECTATION_FAILED));
+			throw new WebApplicationException(Constants.FAILURE_STATUS_STR, Constants.EXPECTATION_FAILED);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			if (e.getResponse().getStatus() == 412) {
@@ -156,7 +154,8 @@ public class InvoiceControllerImpl {
 			}
 			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
 					PropertyManager.getProperty("remainder.service.docker.port"));
-//			remainderServieUrl = "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
+			// remainderServieUrl =
+			// "http://remainderservice-dev.be0c8795.svc.dockerapp.io:93/";
 			// remainderServieUrl = "http://localhost:8080/";
 			remainderServieUrl += "RemainderService/mail/schedule";
 			LOGGER.debug("remainderServieUrl::" + remainderServieUrl);
@@ -189,9 +188,9 @@ public class InvoiceControllerImpl {
 			remainderJsonObject.put("account", Constants.ACCOUNT);
 			remainderJsonObject.put("from", Constants.FROM);
 			String subject = PropertyManager.getProperty("invoice.remainder.mail.subject") + invoice.getCompanyName();
-			if(StringUtils.isNotEmpty(invoice.getMailSubject())){
+			if (StringUtils.isNotEmpty(invoice.getMailSubject())) {
 				subject = invoice.getMailSubject();
-			} 
+			}
 			invoice.setSubject(subject);
 			remainderJsonObject.put("subject", subject);
 			remainderJsonObject.put("mailBodyContentType", PropertyManager.getProperty("invoice.mailBodyContentType"));
@@ -200,14 +199,11 @@ public class InvoiceControllerImpl {
 			String due_date = CommonUtils.convertDate(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
 			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
-			mail_body = mail_body.replace("{{invoice number}}", invoice.getNumber())
-			.replace("{{amount}}", currency+amount_due)
-			.replace("{{dueDays}}", due_date)
-			.replace("${invoiceLinkUrl}", invoiceLinkUrl)
-			.replace("${qountLinkUrl}",  PropertyManager.getProperty("qount.url"));
+			mail_body = mail_body.replace("{{invoice number}}", invoice.getNumber()).replace("{{amount}}", currency + amount_due).replace("{{dueDays}}", due_date)
+					.replace("${invoiceLinkUrl}", invoiceLinkUrl).replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url"));
 			remainderJsonObject.put("mail_body", mail_body);
 			System.out.println(remainderJsonObject);
-			if(StringUtils.isNotBlank(invoice.getAttachmentBase64())){
+			if (StringUtils.isNotBlank(invoice.getAttachmentBase64())) {
 				JSONArray attachments = new JSONArray();
 				JSONObject attahcment = new JSONObject();
 				attahcment.put("type", Constants.APPLICATION_PDF);
@@ -219,9 +215,9 @@ public class InvoiceControllerImpl {
 			remainderJsonObject.put("userId", invoice.getUser_id());
 			remainderJsonObject.put("companyId", invoice.getCompany_id());
 			String attachmentsMetadata = invoice.getAttachments_metadata();
-			if(StringUtils.isNotBlank(attachmentsMetadata)){
+			if (StringUtils.isNotBlank(attachmentsMetadata)) {
 				JSONObject attachmentsMetdataObj = new JSONObject(attachmentsMetadata);
-				if(CommonUtils.isValidJSON(attachmentsMetdataObj)){
+				if (CommonUtils.isValidJSON(attachmentsMetdataObj)) {
 					remainderJsonObject.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
 				}
 			}
@@ -255,58 +251,59 @@ public class InvoiceControllerImpl {
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
-			if(StringUtils.isNotBlank(invoice.getState()) && !invoice.getState().equals(dbInvoice.getState())){
+			if (StringUtils.isNotBlank(invoice.getState()) && !invoice.getState().equals(dbInvoice.getState())) {
 				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"), 412);
 			}
-//			remainder for paid invoice
-			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)){ 
-				if(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())) {
-						throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), 412);
+			// remainder for paid invoice
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
+				if (StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())) {
+					throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), 412);
 				}
 			}
-			if(StringUtils.isNotBlank(invoice.getState()) && !dbInvoice.getState().equals(invoice.getState())){
-				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"),Constants.INVALID_INPUT_STATUS);
+			if (StringUtils.isNotBlank(invoice.getState()) && !dbInvoice.getState().equals(invoice.getState())) {
+				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"), Constants.INVALID_INPUT_STATUS);
 			}
 			invoice.setUser_id(userID);
 			invoice.setCompany_id(companyID);
 			String base64StringOfAttachment = null;
-			if(invoice.getPdf_data()!=null){
+			if (invoice.getPdf_data() != null) {
 				String url = PropertyManager.getProperty("report.pdf.url");
 				LOGGER.debug("url::" + url);
 				base64StringOfAttachment = HTTPClient.postAndGetBase64StringResult(url, new ObjectMapper().writeValueAsString(invoice.getPdf_data()));
-				if(StringUtils.isNotBlank(base64StringOfAttachment)){
+				if (StringUtils.isNotBlank(base64StringOfAttachment)) {
 					invoice.setAttachmentBase64(base64StringOfAttachment);
 				}
 			}
 			boolean createNewRemainder = false;
 			boolean deleteOldRemainder = false;
-			if(StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())){
-//			no remainder in db creating new
+			if (StringUtils.isBlank(dbInvoice.getRemainder_name()) && StringUtils.isNotBlank(invoice.getRemainder_name())) {
+				// no remainder in db creating new
 				createNewRemainder = true;
 			}
-			if(!StringUtils.isAnyBlank(dbInvoice.getRemainder_name(),invoice.getRemainder_name()) &&
-						!dbInvoice.getRemainder_name().equalsIgnoreCase(invoice.getRemainder_name())){
-//			different remainder for invoice 
+			if (!StringUtils.isAnyBlank(dbInvoice.getRemainder_name(), invoice.getRemainder_name())
+					&& !dbInvoice.getRemainder_name().equalsIgnoreCase(invoice.getRemainder_name())) {
+				// different remainder for invoice
 				createNewRemainder = true;
 				deleteOldRemainder = true;
 			}
 			String jobId = null;
 			if (createNewRemainder) {
-				if(deleteOldRemainder){
+				if (deleteOldRemainder) {
 					String result = Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
-					if(StringUtils.isNotBlank(result) && !result.trim().equalsIgnoreCase("true")){
+					if (StringUtils.isNotBlank(result) && !result.trim().equalsIgnoreCase("true")) {
 						throw new WebApplicationException(PropertyManager.getProperty("error.deleting.invoice.job.id"), Constants.EXPECTATION_FAILED);
 					}
 				}
-				jobId = getJobId(connection,invoice);
+				jobId = getJobId(connection, invoice);
 				if (StringUtils.isNotBlank(jobId) && !dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 					invoice.setState(Constants.INVOICE_STATE_SENT);
 				}
 				invoice.setRemainder_job_id(jobId);
 			}
-			if (invoice.isSendMail() ) {
+			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					// if invoice is paid then sending email and returning response
+					// if invoice is paid then sending email and returning
+					// response
 					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 						createInvoiceHistory(invoice, userID, companyID, jobId, connection);
 						return InvoiceParser.convertTimeStampToString(dbInvoice);
@@ -341,7 +338,7 @@ public class InvoiceControllerImpl {
 				invoice.setId(invoiceID);
 				if (invoice.isSendMail()) {
 					isJERequired = true;
-				} else if(!Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState()) ) {
+				} else if (!Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState())) {
 					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
 				}
 			}
@@ -363,13 +360,15 @@ public class InvoiceControllerImpl {
 					if (invoiceLineResult != null) {
 						// updating dimensions for an invoice
 						new InvoiceDimension().update(connection, companyID, invoiceObj.getInvoiceLines());
+						updateInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
+								invoice.getCurrency());
 						connection.commit();
-						if (isJERequired) {
-							CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
-						}
-						createInvoiceHistory(invoice, userID, companyID, jobId, connection);
-						return InvoiceParser.convertTimeStampToString(invoiceResult);
 					}
+					if (isJERequired) {
+						CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
+					}
+					createInvoiceHistory(invoice, userID, companyID, jobId, connection);
+					return InvoiceParser.convertTimeStampToString(invoiceResult);
 				}
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.EXPECTATION_FAILED));
@@ -388,10 +387,11 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited updateInvoice userid:" + userID + " companyID:" + companyID + " invoiceID:" + invoiceID + ": invoice" + invoice);
 		}
 	}
-	
-	public static InvoiceHistory createInvoiceHistory(Invoice invoice,String userID,String companyID,String jobId,Connection connection){
+
+	public static InvoiceHistory createInvoiceHistory(Invoice invoice, String userID, String companyID, String jobId, Connection connection) {
 		try {
-			LOGGER.debug("entered createInvoiceHistory(Invoice invoice:"+invoice+",String userID:"+userID+",String companyID:"+companyID+",String jobId:"+jobId+")");
+			LOGGER.debug(
+					"entered createInvoiceHistory(Invoice invoice:" + invoice + ",String userID:" + userID + ",String companyID:" + companyID + ",String jobId:" + jobId + ")");
 			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
 			if (!invoice.isSendMail() && StringUtils.isNotBlank(jobId)) {
 				invoice_history.setDescription(PropertyManager.getProperty("invoice.history.desc.no.mail.but.job"));
@@ -409,13 +409,13 @@ public class InvoiceControllerImpl {
 			invoice_history.setAction_at_mills(new Date().getTime());
 			return MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 		} catch (Exception e) {
-			LOGGER.error("",e);
+			LOGGER.error("", e);
 			throw e;
-		}finally {
-			LOGGER.debug("exited createInvoiceHistory(Invoice invoice:"+invoice+",String userID:"+userID+",String companyID:"+companyID+",String jobId:"+jobId+")");
+		} finally {
+			LOGGER.debug("exited createInvoiceHistory(Invoice invoice:" + invoice + ",String userID:" + userID + ",String companyID:" + companyID + ",String jobId:" + jobId + ")");
 		}
 	}
-	
+
 	public static String toCommaSeparatedString(List<String> strings) {
 		String result = null;
 		if (strings != null && !strings.isEmpty()) {
@@ -427,7 +427,7 @@ public class InvoiceControllerImpl {
 		}
 		return result;
 	}
-	
+
 	public static Invoice updateInvoiceState(String invoiceID, Invoice invoice, String userID, String companyID) {
 		LOGGER.debug("entered updateInvoiceState invoiceID:" + invoiceID + ": invoice" + invoice);
 		Connection connection = null;
@@ -565,21 +565,22 @@ public class InvoiceControllerImpl {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				// unscheduling invoice jobs if any
 				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
-				//creating commissions if any
-				InvoiceCommission invoiceCommission = new InvoiceCommission();
-				invoiceCommission.setInvoice_id(invoice.getId());
-				List<InvoiceCommission> invoiceCommissionLst = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissionLst(connection, invoiceCommission, true);
-				if(invoiceCommissionLst!=null && !invoiceCommissionLst.isEmpty()){
-					InvoiceParser.createInvoicePaidCommissions(invoiceCommissionLst, invoice.getUser_id(), invoice.getCompany_id());
-					MySQLManager.getInvoiceDAOInstance().mergeInvoiceCommissionLst(connection, invoiceCommissionLst, invoice.getId());
-				}
 			}
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
 				connection.commit();
+				// creating commissions if any
+				InvoiceCommission invoiceCommission = new InvoiceCommission();
+				invoiceCommission.setInvoice_id(invoice.getId());
+				if (invoice.getAmount_due() == 0.0) {
+					List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
+					createInvoicePaidCommissions(connection, dbInvoiceCommissions, dbInvoice.getUser_id(), dbInvoice.getCompany_id(), dbInvoice.getId(),
+							dbInvoice.getAmount(), dbInvoice.getCurrency());
+				}
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
 						invoice.getCompany_id());
 				return true;
 			}
+
 		} catch (WebApplicationException e) {
 			LOGGER.error("error in markInvoiceAsPaid invoice:" + invoice, e);
 			throw e;
@@ -601,12 +602,12 @@ public class InvoiceControllerImpl {
 			}
 			invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceList(userID, companyID, state);
 			Map<String, String> invoicePaymentIdMap = null;
-			if(invoiceLst!=null && !invoiceLst.isEmpty()){
+			if (invoiceLst != null && !invoiceLst.isEmpty()) {
 				invoicePaymentIdMap = MySQLManager.getInvoiceDAOInstance().getInvoicePaymentsIds(InvoiceParser.getInvoiceIds(invoiceLst));
 			}
 			// Map<String, String> badges =
 			// MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
-			InvoiceParser.formatInvoices(invoiceLst,invoicePaymentIdMap);
+			InvoiceParser.formatInvoices(invoiceLst, invoicePaymentIdMap);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			if (e.getResponse().getStatus() == 412) {
@@ -633,6 +634,9 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			Invoice result = InvoiceParser.convertTimeStampToString(MySQLManager.getInvoiceDAOInstance().get(invoiceID));
+			InvoiceCommission invoiceCommission = new InvoiceCommission();
+			invoiceCommission.setInvoice_id(invoiceID);
+			result.setCommissions(MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission));
 			Company2 company2 = CommonUtils.retrieveCompany(result.getUser_id(), result.getCompany_id());
 			result.setCompany(company2);
 			InvoiceParser.convertAmountToDecimal(result);
@@ -684,7 +688,7 @@ public class InvoiceControllerImpl {
 		}
 
 	}
-	
+
 	public static Invoice deleteInvoiceById(String userID, String companyID, String invoiceID) {
 		Connection connection = null;
 		try {
@@ -746,11 +750,11 @@ public class InvoiceControllerImpl {
 			DatabaseUtilities.closeConnection(connection);
 		}
 	}
-	
-	private static void deleteInvoiceJobsAsync(List<String> jobIds){
+
+	private static void deleteInvoiceJobsAsync(List<String> jobIds) {
 		try {
 			Runnable task = () -> {
-				LOGGER.debug("entered deleteInvoiceJobsAsync jobIds:"+jobIds);
+				LOGGER.debug("entered deleteInvoiceJobsAsync jobIds:" + jobIds);
 				try {
 					Utilities.unschduleInvoiceJobs(jobIds);
 				} catch (Exception e) {
@@ -760,8 +764,8 @@ public class InvoiceControllerImpl {
 			new Thread(task).start();
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-		}finally{
-			LOGGER.debug("exited deleteInvoiceJobsAsync jobIds:"+jobIds);
+		} finally {
+			LOGGER.debug("exited deleteInvoiceJobsAsync jobIds:" + jobIds);
 		}
 	}
 
@@ -823,12 +827,12 @@ public class InvoiceControllerImpl {
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url + "HalfService/mails";
-//			url = "https://dev-services.qount.io/HalfService/mails";
+			// url = "https://dev-services.qount.io/HalfService/mails";
 			JSONObject emailJson = getMailJson(invoice, template, PropertyManager.getProperty("mail.body.content.type"));
 			Object result = HTTPClient.postUrlAndGetStatus(url, emailJson.toString());
 			if (result != null) {
 				JSONObject obj = new JSONObject(result.toString());
-				if(obj.optInt("status")==202){
+				if (obj.optInt("status") == 202) {
 					return true;
 				}
 			}
@@ -843,13 +847,13 @@ public class InvoiceControllerImpl {
 		}
 		return false;
 	}
-	
-	private static JSONObject getMailJson(Invoice invoice,String mail_body,String mailBodyContentType){
+
+	private static JSONObject getMailJson(Invoice invoice, String mail_body, String mailBodyContentType) {
 		try {
 			JSONObject result = new JSONObject();
 			LOGGER.debug("entered getMailJson invoice: " + invoice);
-			if(invoice==null){
-				throw new WebApplicationException(PropertyManager.getProperty("mail.invalid.input"),412);
+			if (invoice == null) {
+				throw new WebApplicationException(PropertyManager.getProperty("mail.invalid.input"), 412);
 			}
 			result.put("account", Constants.ACCOUNT);
 			JSONArray personalizations = new JSONArray();
@@ -864,20 +868,20 @@ public class InvoiceControllerImpl {
 			custom_args.put("type", Constants.INVOICE);
 			custom_args.put("id", invoice.getId());
 			emailJson.put("custom_args", custom_args);
-			if(StringUtils.isNotEmpty(invoice.getMailSubject())){
+			if (StringUtils.isNotEmpty(invoice.getMailSubject())) {
 				subject = invoice.getMailSubject();
 			}
 			emailJson.put("subject", subject);
 			JSONArray toArray = new JSONArray();
 			emailJson.put("to", toArray);
 			List<String> emails = invoice.getRecepientsMails();
-			if(emails ==null || emails.isEmpty()){
-				throw new WebApplicationException(PropertyManager.getProperty("mail.recipients.email.empty.error.msg"),412);
+			if (emails == null || emails.isEmpty()) {
+				throw new WebApplicationException(PropertyManager.getProperty("mail.recipients.email.empty.error.msg"), 412);
 			}
 			Iterator<String> emailsItr = emails.iterator();
-			while(emailsItr.hasNext()){
+			while (emailsItr.hasNext()) {
 				String email = emailsItr.next();
-				if(StringUtils.isNotBlank(email)){
+				if (StringUtils.isNotBlank(email)) {
 					JSONObject emailObj = new JSONObject();
 					emailObj.put("email", email);
 					toArray.put(emailObj);
@@ -885,23 +889,23 @@ public class InvoiceControllerImpl {
 			}
 			JSONObject fromObj = new JSONObject();
 			fromObj.put("email", Constants.FROM);
-			String from  = Constants.QOUNT;
+			String from = Constants.QOUNT;
 			invoice.setFrom(from);
-			fromObj.put("name",  from);
+			fromObj.put("name", from);
 			result.put("from", fromObj);
 			JSONArray contentArr = new JSONArray();
 			result.put("content", contentArr);
 			JSONObject contentObj = new JSONObject();
 			contentArr.put(contentObj);
-			if(StringUtils.isBlank(mail_body)){
-				throw new WebApplicationException(PropertyManager.getProperty("mail.invalid.input.empty.mail_body"),412);
+			if (StringUtils.isBlank(mail_body)) {
+				throw new WebApplicationException(PropertyManager.getProperty("mail.invalid.input.empty.mail_body"), 412);
 			}
-			contentObj.put("value",mail_body);
-			if(StringUtils.isBlank(mailBodyContentType)){
-				throw new WebApplicationException(PropertyManager.getProperty("mail.invalid.input.empty.mail_body_content_type"),412);
+			contentObj.put("value", mail_body);
+			if (StringUtils.isBlank(mailBodyContentType)) {
+				throw new WebApplicationException(PropertyManager.getProperty("mail.invalid.input.empty.mail_body_content_type"), 412);
 			}
-			contentObj.put("type",mailBodyContentType);
-			if(StringUtils.isNotBlank(invoice.getAttachmentBase64())){
+			contentObj.put("type", mailBodyContentType);
+			if (StringUtils.isNotBlank(invoice.getAttachmentBase64())) {
 				JSONArray attachments = new JSONArray();
 				JSONObject attahcment = new JSONObject();
 				attahcment.put("type", Constants.APPLICATION_PDF);
@@ -913,9 +917,9 @@ public class InvoiceControllerImpl {
 			result.put("userId", invoice.getUser_id());
 			result.put("companyId", invoice.getCompany_id());
 			String attachmentsMetadata = invoice.getAttachments_metadata();
-			if(StringUtils.isNotBlank(attachmentsMetadata)){
+			if (StringUtils.isNotBlank(attachmentsMetadata)) {
 				JSONObject attachmentsMetdataObj = new JSONObject(attachmentsMetadata);
-				if(CommonUtils.isValidJSON(attachmentsMetdataObj)){
+				if (CommonUtils.isValidJSON(attachmentsMetdataObj)) {
 					result.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
 				}
 			}
@@ -923,7 +927,7 @@ public class InvoiceControllerImpl {
 		} catch (WebApplicationException e) {
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error("error getMailJson invoice: " + invoice,e);
+			LOGGER.error("error getMailJson invoice: " + invoice, e);
 			throw e;
 		} finally {
 			LOGGER.debug("exited getMailJson invoice: " + invoice);
@@ -1020,119 +1024,180 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited get box values userID:" + userID + " companyID:" + companyID);
 		}
 	}
-	
-	public static InvoiceCommission createInvoiceCommissions(String userID, String companyID,String invoiceID, InvoiceCommission invoiceCommission) {
-		Connection connection = null;
-		try{
-			LOGGER.debug("entered createInvoiceCommission(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID+", InvoiceCommission invoiceCommission:"+invoiceCommission);
-			invoiceCommission.setUser_id(userID);
-			invoiceCommission.setCompany_id(companyID);
-			invoiceCommission.setInvoice_id(invoiceID);
-			InvoiceParser.createInvoiceCommisionsBills(invoiceCommission, companyID, userID, false);
-			connection = DatabaseUtilities.getReadWriteConnection();
-			return MySQLManager.getInvoiceDAOInstance().createInvoiceCommission(connection, invoiceCommission);
-		} catch (WebApplicationException e) {
-			LOGGER.error("error creating createInvoiceCommissions",e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse().getStatus()));
-		} catch (Exception e) {
-			LOGGER.error("error creating createInvoiceCommissions",e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
-		} finally {
-			LOGGER.debug("exited createInvoiceCommission(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID+", InvoiceCommission invoiceCommission:"+invoiceCommission);
-			DatabaseUtilities.closeConnection(connection);
-		}
-	}
-	
-	
-	public static List<InvoiceCommission> getInvoiceCommissions(String userID, String companyID,String invoiceID) {
-		Connection connection = null;
-		try{
-			LOGGER.debug("entered getInvoiceCommissions(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID);
-			connection = DatabaseUtilities.getReadWriteConnection();
-			InvoiceCommission invoiceCommission = new InvoiceCommission();
-			invoiceCommission.setInvoice_id(invoiceID);
-			return MySQLManager.getInvoiceDAOInstance().getInvoiceCommissionLst(connection, invoiceCommission, false);
-		} catch (WebApplicationException e) {
-			LOGGER.error("error retriving InvoiceCommissions",e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse().getStatus()));
-		} catch (Exception e) {
-			LOGGER.error("error retriving InvoiceCommissions",e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
-		} finally {
-			LOGGER.debug("exited getInvoiceCommissions(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID);
-			DatabaseUtilities.closeConnection(connection);
-		}
-	}
-	
-	
-//	public static InvoiceCommission updateInvoiceCommissions(String userID, String companyID,String invoiceID, InvoiceCommission invoiceCommission) {
-//		Connection connection = null;
-//		try{
-//			LOGGER.debug("entered updateInvoiceCommissions(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID+", InvoiceCommission invoiceCommissionLst:"+invoiceCommission);
-//			String billId = null;
-//			if(invoiceCommission!=null && !invoiceCommission.isEmpty()){
-//				billId = invoiceCommission.get(0).getBill_id();
-//			}
-//			if(StringUtils.isBlank(billId)){
-//				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.billID"),412);
-//			}
-//			InvoiceParser.createOrUpdateInvoiceCommisionsBills(invoiceCommission, companyID, userID, billId);
-//			connection = DatabaseUtilities.getReadWriteConnection();
-//			InvoiceDAO invoiceDAO = MySQLManager.getInvoiceDAOInstance();
-//			InvoiceCommission invoiceCommission = new InvoiceCommission();
-//			invoiceCommission.setInvoice_id(invoiceID);
-//			connection.setAutoCommit(false);
-//			invoiceCommission = invoiceDAO.deleteInvoiceCommission(connection, invoiceCommission);
-//			List<InvoiceCommission> result = null;
-//			if(invoiceCommission!=null){
-//				result = MySQLManager.getInvoiceDAOInstance().createInvoiceCommissionLst(connection, invoiceCommission, invoiceID);
-//				if(result==null || result.isEmpty()){
-//					throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "error updating invoice commission", Status.EXPECTATION_FAILED));
-//				}else{
-//					connection.commit();
-//				}
-//			}
-//			return result;
-//		} catch (WebApplicationException e) {
-//			LOGGER.error("error updateInvoiceCommissions",e);
-//			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse().getStatus()));
-//		} catch (Exception e) {
-//			LOGGER.error("error updateInvoiceCommissions",e);
-//			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
-//		} finally {
-//			LOGGER.debug("exited updateInvoiceCommissions(String user:"+userID+"ID, String companyID:"+companyID+",String invoiceID:"+invoiceID+", InvoiceCommission invoiceCommissionLst:"+invoiceCommission);
-//			DatabaseUtilities.closeConnection(connection);
-//		}
-//	}
-	
-	public static InvoiceCommission deleteInvoiceCommission(String userID, String companyID,String invoiceID, String billId) {
-		Connection connection = null;
-		try{
-			LOGGER.debug("entered deleteInvoiceCommission(String user:"+userID+"ID, String companyID:"+companyID+",String billId:"+billId);
-			if(StringUtils.isBlank(billId)){
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.billID"),412);
-			}
-			connection = DatabaseUtilities.getReadWriteConnection();
-			InvoiceDAO invoiceDAO = MySQLManager.getInvoiceDAOInstance();
-			InvoiceCommission invoiceCommission = new InvoiceCommission();
-			invoiceCommission.setInvoice_id(invoiceID);
-			invoiceCommission = invoiceDAO.deleteInvoiceCommission(connection, invoiceCommission);
-			if(invoiceCommission!=null){
-				boolean isBillDeleted = InvoiceParser.deleteInvoivceCommissionBill(userID, companyID, invoiceID, billId);
-				if(isBillDeleted){
-					return invoiceCommission;
+
+	public static InvoiceCommission createInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) {
+		try {
+			LOGGER.debug("entered createInvoiceCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
+			if (invoiceCommission.isCreateBill()) {
+				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission, null);
+				if (!isInvoiceCommissionCreated) {
+					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 				}
 			}
-			return null;
+			InvoiceCommission result = MySQLManager.getInvoiceDAOInstance().createInvoiceCommission(connection, invoiceCommission);
+			return result;
 		} catch (WebApplicationException e) {
-			LOGGER.error("error deleteInvoiceCommission",e);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), e.getResponse().getStatus()));
+			LOGGER.error("error creating createInvoiceCommission", e);
+			throw e;
 		} catch (Exception e) {
-			LOGGER.error("error deleteInvoiceCommission",e);
+			LOGGER.error("error creating createInvoiceCommission", e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
-			LOGGER.debug("exited deleteInvoiceCommission(String user:"+userID+"ID, String companyID:"+companyID+",String billId:"+billId);
-			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited createInvoiceCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
 		}
+	}
+
+	public static InvoiceCommission createInvoicePaidCommission(Connection connection, InvoiceCommission invoiceCommission) {
+		try {
+			LOGGER.debug("entered createInvoicePaidCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
+			if (invoiceCommission.isCreateBill()) {
+				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission,invoiceCommission.getId());
+				if (!isInvoiceCommissionCreated) {
+					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+				}
+			}
+			InvoiceCommission result = MySQLManager.getInvoiceDAOInstance().updateInvoiceCommissionBillState(connection, invoiceCommission);
+			return result;
+		} catch (WebApplicationException e) {
+			LOGGER.error("error createInvoicePaidCommission", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error createInvoicePaidCommission", e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
+		} finally {
+			LOGGER.debug("exited createInvoicePaidCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
+		}
+	}
+
+	private static boolean createInvoiceCommissions(Connection connection, List<InvoiceCommission> commissions, String userId, String companyId, String invoiceId,
+			String invoiceNumber, double invoiceAmount, String currency) {
+		try {
+			LOGGER.debug("entered createInvoiceCommissions invoiceCommisions:" + commissions);
+			if (commissions != null && !commissions.isEmpty()) {
+				Iterator<InvoiceCommission> commissionsItr = commissions.iterator();
+				int invoiceNumberCounter = 1;
+				while (commissionsItr.hasNext()) {
+					InvoiceCommission commission = commissionsItr.next();
+					if (commission != null) {
+						String eventAt = commission.getEvent_at();
+						if (StringUtils.isBlank(eventAt)) {
+							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
+						}
+						if (!eventAt.equals(Constants.PAID)) {
+							commission.setCreateBill(true);
+						}
+						commission.setUser_id(userId);
+						commission.setCompany_id(companyId);
+						commission.setInvoice_id(invoiceId);
+						commission.setCurrency(currency);
+						commission.setInvoice_amount(invoiceAmount);
+						commission.setInvoice_number((invoiceNumberCounter++) + "_" + invoiceNumber);
+						if (createInvoiceCommission(connection, commission) == null) {
+							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+						}
+					}
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("WebApplicationException in createInvoiceCommissions", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error in createInvoiceCommissions", e);
+		} finally {
+			LOGGER.debug("exited createInvoiceCommissions invoiceCommisions:" + commissions);
+		}
+		return false;
+	}
+
+	public static boolean createInvoicePaidCommissions(Connection connection, List<InvoiceCommission> commissions, String userId, String companyId, String invoiceId,
+			double invoiceAmount, String currency) {
+		try {
+			LOGGER.debug("entered createInvoiceCommissions invoiceCommisions:" + commissions);
+			if (commissions != null && !commissions.isEmpty()) {
+				Iterator<InvoiceCommission> commissionsItr = commissions.iterator();
+				while (commissionsItr.hasNext()) {
+					InvoiceCommission commission = commissionsItr.next();
+					if (commission != null) {
+						String eventAt = commission.getEvent_at();
+						if (StringUtils.isBlank(eventAt)) {
+							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
+						}
+						if (eventAt.equals(Constants.PAID) && !commission.isBillCreated()) {
+							commission.setCreateBill(true);
+						}
+						commission.setUser_id(userId);
+						commission.setCompany_id(companyId);
+						commission.setInvoice_id(invoiceId);
+						commission.setCurrency(currency);
+						commission.setInvoice_amount(invoiceAmount);
+						if (createInvoicePaidCommission(connection, commission) == null) {
+							throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+						}
+					}
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("WebApplicationException in createInvoiceCommissions", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error in createInvoiceCommissions", e);
+		} finally {
+			LOGGER.debug("exited createInvoiceCommissions invoiceCommisions:" + commissions);
+		}
+		return false;
+	}
+
+	private static boolean updateInvoiceCommissions(Connection connection, List<InvoiceCommission> commissions, String userId, String companyId, String invoiceId,
+			String invoiceNumber, double invoiceAmount, String currency) {
+		try {
+			LOGGER.debug("entered updateInvoiceCommissions invoiceCommisions:" + commissions);
+			if (commissions != null && !commissions.isEmpty()) {
+				Iterator<InvoiceCommission> commissionsItr = commissions.iterator();
+				int invoiceNumberCounter = 1;
+				while (commissionsItr.hasNext()) {
+					InvoiceCommission commission = commissionsItr.next();
+					if (commission != null) {
+						if (commission.isUpdateBill()) {
+							String eventAt = commission.getEvent_at();
+							if (StringUtils.isBlank(eventAt)) {
+								throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
+							}
+							if (!eventAt.equals(Constants.PAID)) {
+								commission.setCreateBill(true);
+							}
+							commission.setUser_id(userId);
+							commission.setCompany_id(companyId);
+							commission.setInvoice_id(invoiceId);
+							commission.setCurrency(currency);
+							commission.setInvoice_amount(invoiceAmount);
+							String tempInvoiceNumber = StringUtils.isBlank(commission.getInvoice_number()) ? (invoiceNumberCounter++) + "_" + invoiceNumber
+									: commission.getInvoice_number();
+							commission.setInvoice_number(tempInvoiceNumber);
+							if (StringUtils.isNotBlank(commission.getBill_id())) {
+								if (StringUtils.isBlank(commission.getId())) {
+									// bill id and commission id are same
+									commission.setId(commission.getBill_id());
+								}
+								MySQLManager.getInvoiceDAOInstance().deleteInvoiceCommission(connection, commission);
+								InvoiceParser.deleteInvoivceCommissionBill(commission);
+							}
+							if (!commission.isDelete()) {
+								if (createInvoiceCommission(connection, commission) == null) {
+									throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("WebApplicationException in updateInvoiceCommissions", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error in updateInvoiceCommissions", e);
+		} finally {
+			LOGGER.debug("exited updateInvoiceCommissions invoiceCommisions:" + commissions);
+		}
+		return false;
 	}
 }

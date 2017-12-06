@@ -46,6 +46,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 			int rowCtr = 1;
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.INSERT_QRY);
+				pstmt.setBoolean(rowCtr++, invoicePreference.isDisplayCommission());
 				pstmt.setString(rowCtr++, invoicePreference.getId());
 				pstmt.setString(rowCtr++, invoicePreference.getCompanyId());
 				pstmt.setString(rowCtr++, invoicePreference.getTemplateType());
@@ -124,6 +125,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 				rset = pstmt.executeQuery();
 				// only 1 record because every company can have only one invoice setting at a time
 				if (rset != null && rset.next()) {
+					invoicePreference.setDisplayCommission(rset.getBoolean("display_commission"));
 					invoicePreference.setId(rset.getString("id"));
 					invoicePreference.setCompanyId(rset.getString("company_id"));
 					invoicePreference.setTemplateType(rset.getString("template_type"));
@@ -169,6 +171,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 			int rowCtr = 1;
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.UPDATE_QRY);
+				pstmt.setBoolean(rowCtr++, invoicePreference.isDisplayCommission());
 				pstmt.setString(rowCtr++, invoicePreference.getTemplateType());
 				pstmt.setString(rowCtr++, invoicePreference.getCompanyLogo());
 				pstmt.setBoolean(rowCtr++, invoicePreference.isDisplayLogo());

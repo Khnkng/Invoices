@@ -1,7 +1,5 @@
 package com.qount.invoice.model;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +13,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @version 1.0, 15 Nov 2017
  *
  */
+/**
+ * @author MateenAhmed
+ *
+ */
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class InvoiceCommission {
@@ -24,17 +26,97 @@ public class InvoiceCommission {
 	private double invoice_amount;
 	private String event_type;
 	private String event_at;
+	private String event_date;
 	private String bill_id;
 	private String company_id;
 	private String invoice_number;
 	private String currency;
 	private boolean billCreated;
 	private String user_id;
-	private List<InvoiceCommissionLines> lines;
-	private String created_at;
-	private String last_updated_at;
+	private long created_at;
+	private long last_updated_at;
 	private String last_updated_by;
 	private String vendor_id;
+	private boolean updateBill;
+	private boolean createBill;
+	private double amount;
+	private String item_name;
+	private String item_id;
+	private String amount_type;
+	private String billLineId;
+	private boolean delete;
+	 
+	public String getEvent_date() {
+		return event_date;
+	}
+
+	public void setEvent_date(String event_date) {
+		this.event_date = event_date;
+	}
+
+	public boolean isDelete() {
+		return delete;
+	}
+
+	public void setDelete(boolean delete) {
+		this.delete = delete;
+	}
+
+	public String getBillLineId() {
+		return billLineId;
+	}
+
+	public void setBillLineId(String billLineId) {
+		this.billLineId = billLineId;
+	}
+
+	public double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
+
+	public String getItem_name() {
+		return item_name;
+	}
+
+	public void setItem_name(String item_name) {
+		this.item_name = item_name;
+	}
+
+	public String getItem_id() {
+		return item_id;
+	}
+
+	public void setItem_id(String item_id) {
+		this.item_id = item_id;
+	}
+
+	public String getAmount_type() {
+		return amount_type;
+	}
+
+	public void setAmount_type(String amount_type) {
+		this.amount_type = amount_type;
+	}
+
+	public boolean isCreateBill() {
+		return createBill;
+	}
+
+	public void setCreateBill(boolean createBill) {
+		this.createBill = createBill;
+	}
+
+	public boolean isUpdateBill() {
+		return updateBill;
+	}
+
+	public void setUpdateBill(boolean updateBill) {
+		this.updateBill = updateBill;
+	}
 
 	public String getVendor_id() {
 		return vendor_id;
@@ -44,19 +126,11 @@ public class InvoiceCommission {
 		this.vendor_id = vendor_id;
 	}
 
-	public List<InvoiceCommissionLines> getLines() {
-		return lines;
-	}
-
-	public void setLines(List<InvoiceCommissionLines> lines) {
-		this.lines = lines;
-	}
-
-	public String getLast_updated_at() {
+	public long getLast_updated_at() {
 		return last_updated_at;
 	}
 
-	public void setLast_updated_at(String last_updated_at) {
+	public void setLast_updated_at(long last_updated_at) {
 		this.last_updated_at = last_updated_at;
 	}
 
@@ -76,11 +150,11 @@ public class InvoiceCommission {
 		this.user_id = user_id;
 	}
 
-	public String getCreated_at() {
+	public long getCreated_at() {
 		return created_at;
 	}
 
-	public void setCreated_at(String created_at) {
+	public void setCreated_at(long created_at) {
 		this.created_at = created_at;
 	}
 
