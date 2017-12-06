@@ -60,6 +60,15 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
+				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
+					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+					Date due_date = formatter.parse(invoice.getDue_date());
+					Date date = Calendar.getInstance().getTime();
+					if (due_date != null && due_date.before(date)) {
+						invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
+						invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
+					}
+				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
@@ -132,6 +141,15 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
+				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
+					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+					Date due_date = formatter.parse(invoice.getDue_date());
+					Date date = Calendar.getInstance().getTime();
+					if (due_date != null && due_date.before(date)) {
+						invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
+						invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
+					}
+				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
@@ -1407,4 +1425,50 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	
+	private double getLateFeeAmount(Connection connection, String lateFeeId, double invoiceAmount){
+		double result = 0.0;
+		if(StringUtils.isBlank(lateFeeId)){
+			return result;
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			LOGGER.debug("entered getLateFeeAmount lateFeeId:"+lateFeeId +" invoiceAmount:"+invoiceAmount);
+			if(connection!=null){
+				String query = "SELECT TYPE, VALUE FROM `late_fee` WHERE id = ?";
+				pstmt = connection.prepareStatement(query);
+				pstmt.setString(1, lateFeeId);
+				rs = pstmt.executeQuery();
+				if(rs.next()){
+					String type = rs.getString("type");
+					double value = rs.getDouble("value");
+					LOGGER.debug("result: type:"+type+" value:"+value);
+					if(StringUtils.isNotBlank(type)){
+						if(type.equals(Constants.FLAT_FEE)){
+							LOGGER.debug("lateFee Amount = "+value);
+							return value;
+						}else if(type.equals(Constants.PERCENTAGE)){
+							result = (invoiceAmount*(value/100));
+							LOGGER.debug("lateFee Amount = "+result);
+							return result;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("error in getLateFeeAmount lateFeeId:"+lateFeeId, e);
+		} finally{
+			LOGGER.debug("entered getLateFeeAmount lateFeeId:"+lateFeeId+ " invoiceAmount:"+invoiceAmount);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeResultSet(rs);
+		}
+		return result;
+	}
+	
+	public static void main(String[] args) {
+		double value = 100;
+		double percentage = 20;
+		double result = (value*(percentage/100));
+		System.out.println(result);
+	}
 }

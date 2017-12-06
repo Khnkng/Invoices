@@ -183,6 +183,7 @@ public class InvoiceParser {
 						invoice.setProcessing_fees(InvoiceParser.getTwoDecimalValue(invoice.getProcessing_fees()));
 						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getSub_total()));
 						invoice.setTax_amount(InvoiceParser.getTwoDecimalValue(invoice.getTax_amount()));
+						invoice.setLate_fee_amount(InvoiceParser.getTwoDecimalValue(invoice.getLate_fee_amount()));
 						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
 						if (invoiceLineIterator != null) {
 							while (invoiceLineIterator.hasNext()) {
@@ -241,6 +242,7 @@ public class InvoiceParser {
 				invoice.setProcessing_fees(getTwoDecimalValue(invoice.getProcessing_fees()));
 				invoice.setSub_total(getTwoDecimalValue(invoice.getSub_total()));
 				invoice.setTax_amount(getTwoDecimalValue(invoice.getTax_amount()));
+				invoice.setLate_fee_amount(getTwoDecimalValue(invoice.getLate_fee_amount()));
 				Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
 				if (invoiceLineIterator != null) {
 					while (invoiceLineIterator.hasNext()) {
