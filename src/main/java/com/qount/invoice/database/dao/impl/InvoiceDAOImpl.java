@@ -32,6 +32,7 @@ import com.qount.invoice.model.InvoiceCommission;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Item;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -60,7 +61,25 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
+				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
+				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
+					if(invoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || invoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID)){
+						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+						Date due_date = formatter.parse(invoice.getDue_date());
+						Date date = Calendar.getInstance().getTime();
+						if (due_date != null && due_date.before(date)) {
+							invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
+							invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
+							invoice.setAmount_due(invoice.getAmount());
+							invoice.setLate_fee_applied(true);
+							InvoiceParser.updateInvoiceAmountByDate(invoice);
+						} else{
+							invoice.setLate_fee_applied(false);
+						}
+					}
+				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
@@ -132,7 +151,25 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
+				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
+				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
+					if(invoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || invoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID) || invoice.getState().endsWith(Constants.INVOICE_STATE_PAID)){
+						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+						Date due_date = formatter.parse(invoice.getDue_date());
+						Date date = Calendar.getInstance().getTime();
+						if (due_date != null && due_date.before(date)) {
+							invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
+							invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
+							invoice.setAmount_due(invoice.getAmount()-invoice.getAmount_paid());
+							InvoiceParser.updateInvoiceAmountByDate(invoice);
+							invoice.setLate_fee_applied(true);
+						} else{
+							invoice.setLate_fee_applied(false);
+						}
+					}
+				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
@@ -387,6 +424,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
+							invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
 							invoice.setLate_fee_id(rset.getString("late_fee_id"));
 							invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
 							invoice.setId(rset.getString("id"));
@@ -649,6 +687,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setCustomer_id(rset.getString("customer_id"));
 						invoice.setId(rset.getString("id"));
 						invoice.setInvoice_date(rset.getString("invoice_date"));
+						invoice.setLate_fee_id(rset.getString("late_fee_id"));
+						invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
+						invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
 						invoice.setDue_date(rset.getString("due_date"));
 						invoice.setAmount(rset.getDouble("amount"));
 						invoice.setCurrency(rset.getString("currency"));
@@ -1407,4 +1448,85 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	
+	private double getLateFeeAmount(Connection connection, String lateFeeId, double invoiceAmount){
+		double result = 0.0;
+		if(StringUtils.isBlank(lateFeeId)){
+			return result;
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			LOGGER.debug("entered getLateFeeAmount lateFeeId:"+lateFeeId +" invoiceAmount:"+invoiceAmount);
+			if(connection!=null){
+				String query = "SELECT TYPE, VALUE FROM `late_fee` WHERE id = ?";
+				pstmt = connection.prepareStatement(query);
+				pstmt.setString(1, lateFeeId);
+				rs = pstmt.executeQuery();
+				if(rs.next()){
+					String type = rs.getString("type");
+					double value = rs.getDouble("value");
+					LOGGER.debug("result: type:"+type+" value:"+value);
+					if(StringUtils.isNotBlank(type)){
+						if(type.equals(Constants.FLAT_FEE)){
+							LOGGER.debug("lateFee Amount = "+value);
+							return value;
+						}else if(type.equals(Constants.PERCENTAGE)){
+							result = (invoiceAmount*(value/100));
+							LOGGER.debug("lateFee Amount = "+result);
+							return result;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("error in getLateFeeAmount lateFeeId:"+lateFeeId, e);
+		} finally{
+			LOGGER.debug("entered getLateFeeAmount lateFeeId:"+lateFeeId+ " invoiceAmount:"+invoiceAmount);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeResultSet(rs);
+		}
+		return result;
+	}
+	
+	
+	public List<Invoice> getUnmappedInvoiceList(String companyId, String customerID) {
+		LOGGER.debug("retrieves unmapped invoices companyId: [ " + companyId + " ] and customerID ["+ customerID +"] ");
+		List<Invoice> result = new ArrayList<Invoice>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection conn = DatabaseUtilities.getReadConnection();
+		try {
+			if (conn != null) {
+				pstmt = conn.prepareStatement(SqlQuerys.Invoice.GET_UNMAPPED_INVOICES_LIST);
+				pstmt.setString(1, companyId);
+				pstmt.setString(2, customerID);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					Invoice invoice = new Invoice();
+					invoice.setId(rset.getString("id"));
+					invoice.setNumber(rset.getString("number"));
+					invoice.setCustomer_id(rset.getString("customer_id"));
+					invoice.setDue_date(rset.getString("due_date"));
+					invoice.setAmount(rset.getDouble("amount"));
+					invoice.setState(rset.getString("state"));
+					invoice.setAmount_due(rset.getDouble("amount_due"));
+					result.add(invoice);
+				}
+				return result;
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving unmapped invoices", e);
+			throw new WebApplicationException("unable to get unmapped invoice", Constants.DATABASE_ERROR_STATUS);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(conn);
+		}
+		return result;
+	}
+	public static void main(String[] args) {
+		double value = 100;
+		double percentage = 20;
+		double result = (value*(percentage/100));
+		System.out.println(result);
+	}
 }

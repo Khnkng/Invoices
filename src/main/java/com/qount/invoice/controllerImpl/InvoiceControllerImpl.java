@@ -350,6 +350,10 @@ public class InvoiceControllerImpl {
 			if (StringUtils.isNotBlank(dbIinvoiceState) && !dbIinvoiceState.equals(Constants.INVOICE_STATE_DRAFT)) {
 				invoice.setState(dbIinvoiceState);
 			}
+			if(dbInvoice.isLate_fee_applied()){
+				invoiceObj.setExisting_late_fee_amount(dbInvoice.getLate_fee_amount());
+				invoiceObj.setExisting_late_fee_id(dbInvoice.getLate_fee_id());
+			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				InvoiceLine invoiceLine = new InvoiceLine();
