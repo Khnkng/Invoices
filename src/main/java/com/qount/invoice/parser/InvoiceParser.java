@@ -97,6 +97,16 @@ public class InvoiceParser {
 		return invoice;
 	}
 
+	
+	public static void updateInvoiceAmountByDate(Invoice invoice){
+		try {
+			UserCompany userCompany = CommonUtils.getCompany(invoice.getCompany_id());
+			setInvoiceAmountByDate(invoice, userCompany);
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+		}
+	}
+	
 	public static Timestamp convertStringToTimeStamp(String dateStr, SimpleDateFormat sdf) {
 		try {
 			return new Timestamp(sdf.parse(dateStr).getTime());

@@ -32,6 +32,7 @@ import com.qount.invoice.model.InvoiceCommission;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Item;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -70,8 +71,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
 							invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
 							invoice.setAmount_due(invoice.getAmount());
-							invoice.setAmount_by_date(invoice.getAmount_by_date()+invoice.getLate_fee_amount());
 							invoice.setLate_fee_applied(true);
+							InvoiceParser.updateInvoiceAmountByDate(invoice);
 						} else{
 							invoice.setLate_fee_applied(false);
 						}
@@ -160,7 +161,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
 							invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
 							invoice.setAmount_due(invoice.getAmount()-invoice.getAmount_paid());
-							invoice.setAmount_by_date(invoice.getAmount_by_date()+invoice.getLate_fee_amount());
+							InvoiceParser.updateInvoiceAmountByDate(invoice);
 							invoice.setLate_fee_applied(true);
 						} else{
 							invoice.setLate_fee_applied(false);
