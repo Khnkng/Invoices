@@ -70,6 +70,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
 							invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
 							invoice.setAmount_due(invoice.getAmount());
+							invoice.setAmount_by_date(invoice.getAmount_by_date()+invoice.getLate_fee_amount());
 							invoice.setLate_fee_applied(true);
 						} else{
 							invoice.setLate_fee_applied(false);
@@ -151,7 +152,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
-					if(invoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || invoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID)){
+					if(invoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || invoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID) || invoice.getState().endsWith(Constants.INVOICE_STATE_PAID)){
 						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 						Date due_date = formatter.parse(invoice.getDue_date());
 						Date date = Calendar.getInstance().getTime();
@@ -159,6 +160,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
 							invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
 							invoice.setAmount_due(invoice.getAmount()-invoice.getAmount_paid());
+							invoice.setAmount_by_date(invoice.getAmount_by_date()+invoice.getLate_fee_amount());
 							invoice.setLate_fee_applied(true);
 						} else{
 							invoice.setLate_fee_applied(false);
