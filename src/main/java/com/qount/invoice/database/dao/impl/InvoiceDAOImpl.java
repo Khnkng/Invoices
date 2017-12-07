@@ -1505,11 +1505,13 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					Invoice invoice = new Invoice();
 					invoice.setId(rset.getString("id"));
 					invoice.setNumber(rset.getString("number"));
-					invoice.setCustomer_id(rset.getString("customer_id"));
+					invoice.setCustomer_id(rset.getString("customerID"));
 					invoice.setDue_date(rset.getString("due_date"));
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setCurrency(rset.getString("currency"));
+					invoice.setCustomer_name(rset.getString("customer_name"));
 					result.add(invoice);
 				}
 				return result;
