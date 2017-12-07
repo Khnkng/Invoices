@@ -1506,7 +1506,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setId(rset.getString("id"));
 					invoice.setNumber(rset.getString("number"));
 					invoice.setCustomer_id(rset.getString("customerID"));
-					invoice.setDue_date(rset.getString("due_date"));
+					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.COMMISSION_BILLS_UI_DATE_FORMAT) );
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
