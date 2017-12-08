@@ -835,7 +835,7 @@ public class InvoiceControllerImpl {
 			.replace("{{customerLastNameFirstLetter}}", customerLastNameFirstLetter)
 			.replace("{{customerFirstName}}", customerFirstName)
 			.replace("{{customerLastName}}", customerLastName)
-			.replace("{{notes}}", invoice.getNotes());
+			.replace("{{notes}}", StringUtils.isBlank(invoice.getNotes())?"":invoice.getNotes());
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
