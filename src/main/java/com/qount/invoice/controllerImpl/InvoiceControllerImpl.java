@@ -208,7 +208,7 @@ public class InvoiceControllerImpl {
 					.replace("{{customerFirstNameFirstLetter}}", customerFirstNameFirstLetter)
 					.replace("{{customerLastNameLastLetter}}", customerLastNameFirstLetter)
 					.replace("{{customerFirstName}}", customerFirstName)
-					.replace("{{customerLlastName}}", customerLastName)
+					.replace("{{customerLastName}}", customerLastName)
 					.replace("{{notes}}", invoice.getNotes());
 			remainderJsonObject.put("mail_body", mail_body);
 			System.out.println(remainderJsonObject);
@@ -843,7 +843,7 @@ public class InvoiceControllerImpl {
 			.replace("{{customerFirstNameFirstLetter}}", customerFirstNameFirstLetter)
 			.replace("{{customerLastNameLastLetter}}", customerLastNameFirstLetter)
 			.replace("{{customerFirstName}}", customerFirstName)
-			.replace("{{customerLlastName}}", customerLastName)
+			.replace("{{customerLastName}}", customerLastName)
 			.replace("{{notes}}", invoice.getNotes());
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
