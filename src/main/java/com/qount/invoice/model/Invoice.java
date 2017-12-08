@@ -91,7 +91,16 @@ public class Invoice {
 	private double existing_late_fee_amount;
 	private String customer_first_name;
 	private String customer_last_name;
+	private String journal_job_id;
 	
+	public String getJournal_job_id() {
+		return journal_job_id;
+	}
+
+	public void setJournal_job_id(String journal_job_id) {
+		this.journal_job_id = journal_job_id;
+	}
+
 	public String getCustomer_first_name() {
 		return customer_first_name;
 	}

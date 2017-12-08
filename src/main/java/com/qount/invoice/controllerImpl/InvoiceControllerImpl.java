@@ -3,6 +3,8 @@ package com.qount.invoice.controllerImpl;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -74,6 +76,7 @@ public class InvoiceControllerImpl {
 			if (invoicePreference != null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())) {
 				invoice.setMailSubject(invoicePreference.getDefaultTitle());
 			}
+			invoice.setJournal_job_id(getJournalJobId(invoiceObj));
 			String base64StringOfAttachment = null;
 			if (invoice.getPdf_data() != null) {
 				String url = PropertyManager.getProperty("report.pdf.url");
@@ -246,6 +249,7 @@ public class InvoiceControllerImpl {
 			if (dbInvoice == null || StringUtils.isBlank(dbInvoice.getId())) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.not.found"), 412);
 			}
+
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, false);
 			invoiceObj.setId(invoiceID);
 			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
@@ -263,6 +267,7 @@ public class InvoiceControllerImpl {
 			if (StringUtils.isNotBlank(invoice.getState()) && !dbInvoice.getState().equals(invoice.getState())) {
 				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"), Constants.INVALID_INPUT_STATUS);
 			}
+			handleLateFeeJEChanges(dbInvoice, invoice);
 			invoice.setUser_id(userID);
 			invoice.setCompany_id(companyID);
 			String base64StringOfAttachment = null;
@@ -350,7 +355,7 @@ public class InvoiceControllerImpl {
 			if (StringUtils.isNotBlank(dbIinvoiceState) && !dbIinvoiceState.equals(Constants.INVOICE_STATE_DRAFT)) {
 				invoice.setState(dbIinvoiceState);
 			}
-			if(dbInvoice.isLate_fee_applied()){
+			if (dbInvoice.isLate_fee_applied()) {
 				invoiceObj.setExisting_late_fee_amount(dbInvoice.getLate_fee_amount());
 				invoiceObj.setExisting_late_fee_id(dbInvoice.getLate_fee_id());
 			}
@@ -577,8 +582,8 @@ public class InvoiceControllerImpl {
 				invoiceCommission.setInvoice_id(invoice.getId());
 				if (invoice.getAmount_due() == 0.0) {
 					List<InvoiceCommission> dbInvoiceCommissions = MySQLManager.getInvoiceDAOInstance().getInvoiceCommissions(invoiceCommission);
-					createInvoicePaidCommissions(connection, dbInvoiceCommissions, dbInvoice.getUser_id(), dbInvoice.getCompany_id(), dbInvoice.getId(),
-							dbInvoice.getAmount(), dbInvoice.getCurrency());
+					createInvoicePaidCommissions(connection, dbInvoiceCommissions, dbInvoice.getUser_id(), dbInvoice.getCompany_id(), dbInvoice.getId(), dbInvoice.getAmount(),
+							dbInvoice.getCurrency());
 				}
 				CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), invoice.getUser_id(),
 						invoice.getCompany_id());
@@ -792,7 +797,6 @@ public class InvoiceControllerImpl {
 			if (isSent) {
 				connection = DatabaseUtilities.getReadWriteConnection();
 				List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID, true, Constants.INVOICE_STATE_SENT);
-				connection = DatabaseUtilities.getReadWriteConnection();
 				MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
 				for (String invoiceID : ids) {
 					CommonUtils.createJournalAsync(new JSONObject().put("source", "invoice").put("sourceID", invoiceID).toString(), userID, companyID);
@@ -823,19 +827,16 @@ public class InvoiceControllerImpl {
 			String dueDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
 			String amount = getTwoDecimalNumberAsString(invoice.getAmount_due());
-			String customerFirstName=invoice.getCustomer_first_name();
-			String customerLastName=invoice.getCustomer_last_name();
-			String customerFirstNameFirstLetter=StringUtils.isNotBlank(customerFirstName)?customerFirstName.charAt(0)+"":"";
-			String customerLastNameFirstLetter=StringUtils.isNotBlank(customerLastName)?customerLastName.charAt(0)+"":"";
+			String customerFirstName = invoice.getCustomer_first_name();
+			String customerLastName = invoice.getCustomer_last_name();
+			String customerFirstNameFirstLetter = StringUtils.isNotBlank(customerFirstName) ? customerFirstName.charAt(0) + "" : "";
+			String customerLastNameFirstLetter = StringUtils.isNotBlank(customerLastName) ? customerLastName.charAt(0) + "" : "";
 			template = template.replace("{{invoice number}}", StringUtils.isBlank(invoice.getNumber()) ? "" : invoice.getNumber())
 					.replace("{{company name}}", StringUtils.isEmpty(invoice.getCompanyName()) ? "" : invoice.getCompanyName()).replace("{{amount}}", currency + amount)
 					.replace("{{due date}}", StringUtils.isEmpty(dueDate) ? "" : dueDate).replace("${invoiceLinkUrl}", invoiceLinkUrl)
-					.replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url"))
-			.replace("{{customerFirstNameFirstLetter}}", customerFirstNameFirstLetter)
-			.replace("{{customerLastNameFirstLetter}}", customerLastNameFirstLetter)
-			.replace("{{customerFirstName}}", customerFirstName)
-			.replace("{{customerLastName}}", customerLastName)
-			.replace("{{notes}}", invoice.getNotes());
+					.replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url")).replace("{{customerFirstNameFirstLetter}}", customerFirstNameFirstLetter)
+					.replace("{{customerLastNameFirstLetter}}", customerLastNameFirstLetter).replace("{{customerFirstName}}", customerFirstName)
+					.replace("{{customerLastName}}", customerLastName).replace("{{notes}}", StringUtils.isBlank(invoice.getNotes()) ? "" : invoice.getNotes());
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
@@ -1064,7 +1065,7 @@ public class InvoiceControllerImpl {
 		try {
 			LOGGER.debug("entered createInvoicePaidCommission(InvoiceCommission invoiceCommission:" + invoiceCommission);
 			if (invoiceCommission.isCreateBill()) {
-				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission,invoiceCommission.getId());
+				boolean isInvoiceCommissionCreated = InvoiceParser.createInvoiceCommisionBill(invoiceCommission, invoiceCommission.getId());
 				if (!isInvoiceCommissionCreated) {
 					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.creation"), Constants.EXPECTATION_FAILED);
 				}
@@ -1213,4 +1214,131 @@ public class InvoiceControllerImpl {
 		}
 		return false;
 	}
+
+	private static String getJournalJobId(Invoice invoice) {
+		try {
+			LOGGER.debug("entered getJournalJobId invoice:" + invoice);
+			if (StringUtils.isNotBlank(invoice.getLate_fee_id())) {
+				if (invoice.getState().equals(Constants.INVOICE_STATE_SENT) || invoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+					JSONObject journalJobPayloadObj = new JSONObject();
+					String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT,
+							Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+					if (StringUtils.isBlank(startDate)) {
+						throw new WebApplicationException(PropertyManager.getProperty("error.invoice.journal.startDate"), Constants.INVALID_INPUT);
+					}
+					journalJobPayloadObj.put("source", "invoiceLateFee");
+					journalJobPayloadObj.put("sourceID", invoice.getId());
+					journalJobPayloadObj.put("startDate", startDate);
+					journalJobPayloadObj.put("userID", invoice.getUser_id());
+					journalJobPayloadObj.put("companyID", invoice.getCompany_id());
+					journalJobPayloadObj.put("invoiceID", invoice.getId());
+					LOGGER.debug("journalJobPayloadObj:" + journalJobPayloadObj);
+					String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
+							PropertyManager.getProperty("remainder.service.docker.port"));
+					remainderServieUrl += "RemainderService/journal/schedule";
+					LOGGER.debug("remainderServieUrl::" + remainderServieUrl);
+					Object jobIdObj = HTTPClient.postObject(remainderServieUrl, journalJobPayloadObj.toString());
+					return jobIdObj.toString();
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("error creating journal job id", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error creating journal job id", e);
+		} finally {
+			LOGGER.debug("exited getJournalJobId invoice:" + invoice);
+		}
+		return null;
+	}
+
+	private static boolean deleteJournalJobId(String jobId) {
+		try {
+			LOGGER.debug("entered deleteJournalJobId jobId:" + jobId);
+			if (StringUtils.isEmpty(jobId)) {
+				return false;
+			}
+			LOGGER.debug("unscheduling job: " + jobId);
+			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
+					PropertyManager.getProperty("remainder.service.docker.port"));
+			LOGGER.debug("unscheduling job url:" + remainderServieUrl);
+			remainderServieUrl += "RemainderService/journal/unschedule/" + jobId;
+			String result = HTTPClient.delete(remainderServieUrl);
+			LOGGER.debug("unscheduling result:" + result);
+			if (StringUtils.isNotBlank(result) && result.trim().equalsIgnoreCase("true")) {
+				return true;
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("error deleteJournalJobId", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error deleteJournalJobId", e);
+		} finally {
+			LOGGER.debug("exited deleteJournalJobId jobId:" + jobId);
+		}
+		return false;
+	}
+
+	private static void handleLateFeeJEChanges(Invoice dbInvoice, Invoice invoiceObj) {
+		try {
+			LOGGER.debug("entered handleLateFeeJEChanges dbInvoice:" + dbInvoice + " UIinvoiceObj:" + invoiceObj);
+			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			Date due_date = formatter.parse(invoiceObj.getDue_date());
+			Date currentDate = Calendar.getInstance().getTime();
+			// late fee is applied only for sent and partially paid
+			if (dbInvoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || dbInvoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+				// creating journal if late fee removed
+				if (StringUtils.isNotEmpty(dbInvoice.getLate_fee_id()) && StringUtils.isBlank(invoiceObj.getLate_fee_id())) {
+					createLateFeeJournal(dbInvoice, invoiceObj, due_date, currentDate, true);
+				}
+				if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
+					// creating journal if late fee added
+					if (StringUtils.isBlank(dbInvoice.getLate_fee_id()) && StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
+						createLateFeeJournal(dbInvoice, invoiceObj, due_date, currentDate, false);
+					}
+					// if due date is changed
+					String dbDueDate = InvoiceParser.convertTimeStampToString(dbInvoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT,
+							Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+					if (!invoiceObj.getDue_date().equals(dbDueDate)) {
+						createLateFeeJournal(dbInvoice, invoiceObj, due_date, currentDate, true);
+					}
+					// if late fee is changed
+					if (!invoiceObj.getLate_fee_id().equals(dbInvoice.getLate_fee_id())) {
+						createLateFeeJournal(dbInvoice, invoiceObj, due_date, currentDate, true);
+					}
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("error handleLateFeeJEChanges", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error handleLateFeeJEChanges", e);
+		} finally {
+			LOGGER.debug("exited handleLateFeeJEChanges dbInvoice:" + dbInvoice + " UIinvoiceObj:" + invoiceObj);
+		}
+	}
+
+	private static void createLateFeeJournal(Invoice dbInvoice, Invoice invoiceObj, Date due_date, Date currentDate, boolean deleteJournalJob) {
+		try {
+			LOGGER.debug("entered createLateFeeJournal(Invoice dbInvoice:" + dbInvoice + ", Invoice invoiceObj:" + invoiceObj + ",  Date due_date:" + due_date
+					+ ", Date currentDate:" + currentDate + " deleteJournalJob:" + deleteJournalJob);
+			if (deleteJournalJob)
+				deleteJournalJobId(dbInvoice.getJournal_job_id());
+			if (due_date != null && due_date.after(currentDate)) {
+				invoiceObj.setJournal_job_id(getJournalJobId(invoiceObj));
+			} else {
+				CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoiceObj.getId()).toString(), invoiceObj.getUser_id(),
+						invoiceObj.getCompany_id());
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("error createLateFeeJournal", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error createLateFeeJournal", e);
+		} finally {
+			LOGGER.debug("exited createLateFeeJournal(Invoice dbInvoice:" + dbInvoice + ", Invoice invoiceObj:" + invoiceObj + ",  Date due_date:" + due_date
+					+ ", Date currentDate:" + currentDate + " deleteJournalJob:" + deleteJournalJob);
+		}
+	}
+
 }
