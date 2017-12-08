@@ -199,17 +199,8 @@ public class InvoiceControllerImpl {
 			String due_date = CommonUtils.convertDate(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			String invoiceLinkUrl = PropertyManager.getProperty("invoice.payment.link") + invoice.getId();
 			String currency = StringUtils.isEmpty(invoice.getCurrency()) ? "" : Utilities.getCurrencySymbol(invoice.getCurrency());
-			String customerFirstName=invoice.getCustomer_first_name();
-			String customerLastName=invoice.getCustomer_last_name();
-			String customerFirstNameFirstLetter=StringUtils.isNotBlank(customerFirstName)?customerFirstName.charAt(0)+"":"";
-			String customerLastNameFirstLetter=StringUtils.isNotBlank(customerLastName)?customerLastName.charAt(0)+"":"";
 			mail_body = mail_body.replace("{{invoice number}}", invoice.getNumber()).replace("{{amount}}", currency + amount_due).replace("{{dueDays}}", due_date)
-					.replace("${invoiceLinkUrl}", invoiceLinkUrl).replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url"))
-					.replace("{{customerFirstNameFirstLetter}}", customerFirstNameFirstLetter)
-					.replace("{{customerLastNameLastLetter}}", customerLastNameFirstLetter)
-					.replace("{{customerFirstName}}", customerFirstName)
-					.replace("{{customerLastName}}", customerLastName)
-					.replace("{{notes}}", invoice.getNotes());
+					.replace("${invoiceLinkUrl}", invoiceLinkUrl).replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url"));
 			remainderJsonObject.put("mail_body", mail_body);
 			System.out.println(remainderJsonObject);
 			if (StringUtils.isNotBlank(invoice.getAttachmentBase64())) {
@@ -841,7 +832,7 @@ public class InvoiceControllerImpl {
 					.replace("{{due date}}", StringUtils.isEmpty(dueDate) ? "" : dueDate).replace("${invoiceLinkUrl}", invoiceLinkUrl)
 					.replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url"))
 			.replace("{{customerFirstNameFirstLetter}}", customerFirstNameFirstLetter)
-			.replace("{{customerLastNameLastLetter}}", customerLastNameFirstLetter)
+			.replace("{{customerLastNameFirstLetter}}", customerLastNameFirstLetter)
 			.replace("{{customerFirstName}}", customerFirstName)
 			.replace("{{customerLastName}}", customerLastName)
 			.replace("{{notes}}", invoice.getNotes());
