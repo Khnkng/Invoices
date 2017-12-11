@@ -53,6 +53,10 @@ public class Payment {
 	
 	private String status;
 	
+	private boolean mapping;
+	
+	private String mappingID;
+	
 	
 	public String getId() {
 		return id;
@@ -173,5 +177,17 @@ public class Payment {
 		} catch (JsonProcessingException e) {
 		}
 		return super.toString();
+	}
+	public boolean isMapping() {
+		return mapping;
+	}
+	public void setMapping(boolean mapping) {
+		this.mapping = mapping;
+	}
+	public String getMappingID() {
+		return mappingID;
+	}
+	public void setMappingID(String mappingID) {
+		this.mappingID = mappingID;
 	}
 }

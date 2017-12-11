@@ -46,9 +46,9 @@ public class InvoicePaymentsController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Returns list of payments", notes = "Used to retreive list of payments against company", responseContainer = "java.lang.String")
-	public List<Payment> list(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @QueryParam("mapping") boolean mapping, @QueryParam("bankAccountID") String bankAccountID, @QueryParam("entityID") String entityID  ) {
+	public List<Payment> list(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @QueryParam("mapping") boolean mapping, @QueryParam("bankAccountID") String bankAccountID, @QueryParam("entityID") String entityID, @QueryParam("depositId") String depositId  ) {
 		if(!mapping && bankAccountID!= null){
-		return PaymentService.getInstance().getunmappedPayments(companyID, bankAccountID, entityID);
+		return PaymentService.getInstance().getunmappedPayments(companyID, bankAccountID, entityID, depositId);
 		}
 		else{
 			return PaymentService.getInstance().getList(companyID);
