@@ -63,7 +63,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
-					if(invoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || invoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID)){
+					if(invoice.getState().equals(Constants.INVOICE_STATE_SENT) || invoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)){
 						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 						Date due_date = formatter.parse(invoice.getDue_date());
 						Date date = Calendar.getInstance().getTime();
@@ -79,6 +79,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				pstmt.setString(ctr++, invoice.getJournal_job_id());
 				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
@@ -169,6 +170,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getJournal_job_id());
 				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
@@ -424,6 +426,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
+							invoice.setJournal_job_id(rset.getString("journal_job_id"));
 							invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
 							invoice.setLate_fee_id(rset.getString("late_fee_id"));
 							invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
@@ -1448,7 +1451,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	
-	private double getLateFeeAmount(Connection connection, String lateFeeId, double invoiceAmount){
+	@Override
+	public double getLateFeeAmount(Connection connection, String lateFeeId, double invoiceAmount){
 		double result = 0.0;
 		if(StringUtils.isBlank(lateFeeId)){
 			return result;

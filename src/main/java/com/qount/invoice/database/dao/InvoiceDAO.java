@@ -68,4 +68,6 @@ public interface InvoiceDAO {
 	public List<InvoiceCommission> getInvoiceCommissions(InvoiceCommission invoiceCommission) throws Exception;
 	
 	public InvoiceCommission updateInvoiceCommissionBillState(Connection connection, InvoiceCommission invoiceCommission) throws Exception;
+	
+	public double getLateFeeAmount(Connection connection, String lateFeeId, double invoiceAmount);
 }
