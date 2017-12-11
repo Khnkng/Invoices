@@ -370,7 +370,7 @@ public class PaymentDAOImpl implements paymentDAO {
 		return payments;
 	}
 
-	public List<Payment> getUnmappedPayment(String companyID, String bankAccountID) {
+	public List<Payment> getUnmappedPayment(String companyID, String bankAccountID, String depositId) {
 		LOGGER.debug("retrieving unmapped payments with companyID" + companyID + " and bank accountID " + bankAccountID);
 		ResultSet rset = null;
 		PreparedStatement pstmt = null;
@@ -384,6 +384,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_UNMAPPED_PAYMENTS);
 				pstmt.setString(1, companyID);
 				pstmt.setString(2, bankAccountID);
+				pstmt.setString(3, depositId);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					String paymentID = rset.getString("id");
@@ -395,6 +396,11 @@ public class PaymentDAOImpl implements paymentDAO {
 						invoicePayment.setDepositedTo(rset.getString("bank_account_id"));
 						invoicePayment.setPaymentDate(rset.getString("payment_date"));
 						invoicePayment.setAmountPaid(rset.getBigDecimal("amount"));
+						invoicePayment.setMappingID(rset.getString("mapping_id"));
+						if(invoicePayment.getMappingID() == null ){
+							invoicePayment.setMapping(false);
+						}else{
+							invoicePayment.setMapping(true);}
 						payments.add(invoicePayment);
 					} else {
 						invoicePayment.setAmountPaid(rset.getBigDecimal("amount").add(invoicePayment.getAmountPaid()));
@@ -411,7 +417,7 @@ public class PaymentDAOImpl implements paymentDAO {
 		return payments;
 	}
 
-	public List<Payment> getUnmappedPaymentWithEntityId(String companyID, String bankAccountID, String entityID) {
+	public List<Payment> getUnmappedPaymentWithEntityId(String companyID, String bankAccountID, String entityID, String depositId) {
 		LOGGER.debug("retrieving unmapped payments with companyID" + companyID + " and bank accountID " + bankAccountID + " and  entityID " + entityID);
 		ResultSet rset = null;
 		PreparedStatement pstmt = null;
@@ -426,6 +432,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(1, companyID);
 				pstmt.setString(2, bankAccountID);
 				pstmt.setString(3, entityID);
+				pstmt.setString(4, depositId);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					String paymentID = rset.getString("id");
@@ -437,6 +444,11 @@ public class PaymentDAOImpl implements paymentDAO {
 						invoicePayment.setDepositedTo(rset.getString("bank_account_id"));
 						invoicePayment.setPaymentDate(rset.getString("payment_date"));
 						invoicePayment.setAmountPaid(rset.getBigDecimal("amount"));
+						invoicePayment.setMappingID(rset.getString("mapping_id"));
+						if(invoicePayment.getMappingID() == null ){
+							invoicePayment.setMapping(false);
+						}else{
+							invoicePayment.setMapping(true);}
 						payments.add(invoicePayment);
 					} else {
 						invoicePayment.setAmountPaid(rset.getBigDecimal("amount").add(invoicePayment.getAmountPaid()));
