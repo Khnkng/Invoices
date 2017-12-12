@@ -92,7 +92,16 @@ public class Invoice {
 	private String customer_first_name;
 	private String customer_last_name;
 	private String journal_job_id;
+	private String email_notes;
 	
+	public String getEmail_notes() {
+		return email_notes;
+	}
+
+	public void setEmail_notes(String email_notes) {
+		this.email_notes = email_notes;
+	}
+
 	public String getJournal_job_id() {
 		return journal_job_id;
 	}

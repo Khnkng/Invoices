@@ -842,7 +842,7 @@ public class InvoiceControllerImpl {
 					.replace("{{due date}}", StringUtils.isEmpty(dueDate) ? "" : dueDate).replace("${invoiceLinkUrl}", invoiceLinkUrl)
 					.replace("${qountLinkUrl}", PropertyManager.getProperty("qount.url")).replace("{{customerFirstNameFirstLetter}}", customerFirstNameFirstLetter)
 					.replace("{{customerLastNameFirstLetter}}", customerLastNameFirstLetter).replace("{{customerFirstName}}", customerFirstName)
-					.replace("{{customerLastName}}", customerLastName).replace("{{notes}}", StringUtils.isBlank(invoice.getNotes()) ? "" : invoice.getNotes());
+					.replace("{{customerLastName}}", customerLastName).replace("{{notes}}", StringUtils.isBlank(invoice.getEmail_notes()) ? "" : invoice.getEmail_notes());
 			String hostName = PropertyManager.getProperty("half.service.docker.hostname");
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
