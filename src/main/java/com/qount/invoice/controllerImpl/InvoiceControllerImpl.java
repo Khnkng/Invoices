@@ -267,6 +267,12 @@ public class InvoiceControllerImpl {
 			if (StringUtils.isNotBlank(invoice.getState()) && !dbInvoice.getState().equals(invoice.getState())) {
 				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"), Constants.INVALID_INPUT_STATUS);
 			}
+			InvoicePreference invoicePreference = new InvoicePreference();
+			invoicePreference.setCompanyId(invoice.getCompany_id());
+			invoicePreference = MySQLManager.getInvoicePreferenceDAOInstance().getInvoiceByCompanyId(connection, invoicePreference);
+			if (invoicePreference != null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())) {
+				invoice.setMailSubject(invoicePreference.getDefaultTitle());
+			}
 			handleLateFeeJEChanges(dbInvoice, invoice);
 			invoice.setUser_id(userID);
 			invoice.setCompany_id(companyID);
@@ -1304,6 +1310,11 @@ public class InvoiceControllerImpl {
 					}
 					// if late fee is changed
 					if (!invoiceObj.getLate_fee_id().equals(dbInvoice.getLate_fee_id())) {
+						createLateFeeJournal(dbInvoice, invoiceObj, due_date, currentDate, true);
+					}
+					// if invoice amount is changed
+					double uiInvoiceAmount = invoiceObj.getSub_total()+invoiceObj.getTax_amount()+ invoiceObj.getLate_fee_amount();
+					if (uiInvoiceAmount != dbInvoice.getAmount()) {
 						createLateFeeJournal(dbInvoice, invoiceObj, due_date, currentDate, true);
 					}
 				}
