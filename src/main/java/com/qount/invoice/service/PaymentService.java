@@ -73,14 +73,14 @@ public class PaymentService {
 		return result;
 	}
 
-	public List<Payment> getunmappedPayments(String companyID, String bankAccountID, String entityID) {
+	public List<Payment> getunmappedPayments(String companyID, String bankAccountID, String entityID, String depositId) {
 		try {
 			LOGGER.debug("entered getunmappedPayments(String companyID:," + companyID + " String bankAccountID:" + bankAccountID + ", String entityID:" + entityID);
 			List<Payment> payments = new ArrayList<Payment>();
 			if (entityID == null || entityID.isEmpty()) {
-				payments = PaymentDAOImpl.getInstance().getUnmappedPayment(companyID, bankAccountID);
+				payments = PaymentDAOImpl.getInstance().getUnmappedPayment(companyID, bankAccountID, depositId);
 			} else {
-				payments = PaymentDAOImpl.getInstance().getUnmappedPaymentWithEntityId(companyID, bankAccountID, entityID);
+				payments = PaymentDAOImpl.getInstance().getUnmappedPaymentWithEntityId(companyID, bankAccountID, entityID, depositId);
 			}
 			return payments;
 		} catch (Exception e) {

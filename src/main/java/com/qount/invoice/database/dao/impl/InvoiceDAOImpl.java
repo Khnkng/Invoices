@@ -63,7 +63,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
-					if(invoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || invoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID)){
+					if(invoice.getState().equals(Constants.INVOICE_STATE_SENT) || invoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)){
 						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 						Date due_date = formatter.parse(invoice.getDue_date());
 						Date date = Calendar.getInstance().getTime();
@@ -79,6 +79,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				pstmt.setString(ctr++, invoice.getJournal_job_id());
 				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
@@ -169,6 +170,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getJournal_job_id());
 				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
@@ -424,6 +426,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
 							invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
+							invoice.setJournal_job_id(rset.getString("journal_job_id"));
 							invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
 							invoice.setLate_fee_id(rset.getString("late_fee_id"));
 							invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
@@ -1448,7 +1451,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	
-	private double getLateFeeAmount(Connection connection, String lateFeeId, double invoiceAmount){
+	@Override
+	public double getLateFeeAmount(Connection connection, String lateFeeId, double invoiceAmount){
 		double result = 0.0;
 		if(StringUtils.isBlank(lateFeeId)){
 			return result;
@@ -1505,11 +1509,13 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					Invoice invoice = new Invoice();
 					invoice.setId(rset.getString("id"));
 					invoice.setNumber(rset.getString("number"));
-					invoice.setCustomer_id(rset.getString("customer_id"));
-					invoice.setDue_date(rset.getString("due_date"));
+					invoice.setCustomer_id(rset.getString("customerID"));
+					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.COMMISSION_BILLS_UI_DATE_FORMAT) );
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setCurrency(rset.getString("currency"));
+					invoice.setCustomer_name(rset.getString("customer_name"));
 					result.add(invoice);
 				}
 				return result;

@@ -22,6 +22,18 @@ public class DateUtils {
 		return parsedDate;
 	}
 	
+	public static Date getDateFromString(String date, SimpleDateFormat dateFormat) {
+		Date parsedDate = null;
+		try {
+			if (StringUtils.isNoneBlank(date) && dateFormat!=null) {
+				parsedDate = dateFormat.parse(date);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error parsing date", e);
+		}
+		return parsedDate;
+	}
+	
 	public static String getCurrentDate(SimpleDateFormat sdf){
 		return sdf.format(new Date());
 	}

@@ -6,9 +6,11 @@ import java.util.List;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Payment {
 	
 	private String id;
@@ -52,6 +54,10 @@ public class Payment {
 	private String depositID;
 	
 	private String status;
+	
+	private Boolean mapping;
+	
+	private String mappingID;
 	
 	
 	public String getId() {
@@ -173,5 +179,17 @@ public class Payment {
 		} catch (JsonProcessingException e) {
 		}
 		return super.toString();
+	}
+	public String getMappingID() {
+		return mappingID;
+	}
+	public void setMappingID(String mappingID) {
+		this.mappingID = mappingID;
+	}
+	public Boolean getMapping() {
+		return mapping;
+	}
+	public void setMapping(Boolean mapping) {
+		this.mapping = mapping;
 	}
 }
