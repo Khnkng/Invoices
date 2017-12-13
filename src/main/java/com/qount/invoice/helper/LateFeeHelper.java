@@ -37,9 +37,7 @@ public class LateFeeHelper {
 						scheduleJournalForLateFee(invoiceObj);
 					}
 					// if due date is changed
-					String dbDueDate = InvoiceParser.convertTimeStampToString(dbInvoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT,
-							Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-					if (!invoiceObj.getDue_date().equals(dbDueDate)) {
+					if (!invoiceObj.getDue_date().equals(dbInvoice.getDue_date())) {
 						deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(), dbInvoice.getCompany_id());
 						deleteJournalJobId(dbInvoice.getJournal_job_id());
 						scheduleJournalForLateFee(invoiceObj);
@@ -119,7 +117,7 @@ public class LateFeeHelper {
 	public static String scheduleJournalForLateFee(Invoice invoice) throws Exception{
 		try {
 			LOGGER.debug("entered scheduleJournalForLateFee invoice:" + invoice);
-			String startDate = invoice.getDue_date();
+			String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			if (StringUtils.isBlank(startDate)) {
 				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.journal.startDate"), Constants.INVALID_INPUT);
 			}

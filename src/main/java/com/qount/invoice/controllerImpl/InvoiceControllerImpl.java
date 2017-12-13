@@ -365,7 +365,7 @@ public class InvoiceControllerImpl {
 				invoiceObj.setExisting_late_fee_id(dbInvoice.getLate_fee_id());
 			}
 			//late fee changes
-			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoice);
+			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoiceObj);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				InvoiceLine invoiceLine = new InvoiceLine();
