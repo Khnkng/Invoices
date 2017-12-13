@@ -386,6 +386,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 					pstmt.setString(ctr++, invoice_history.getCreated_at());
 					pstmt.setString(ctr++, invoice_history.getLast_updated_by());
 					pstmt.setString(ctr++, invoice_history.getLast_updated_at());
+					ctr = 1;
 					pstmt.addBatch();
 				}
 				int rowCount[] = pstmt.executeBatch();
