@@ -1,6 +1,6 @@
 package com.qount.invoice.helper;
 
-import java.util.Date;
+import java.text.ParseException;
 
 import javax.ws.rs.WebApplicationException;
 
@@ -14,7 +14,6 @@ import com.qount.invoice.model.Invoice;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
-import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.Utilities;
 
 public class LateFeeHelper {
@@ -117,7 +116,7 @@ public class LateFeeHelper {
 	public static String scheduleJournalForLateFee(Invoice invoice) throws Exception{
 		try {
 			LOGGER.debug("entered scheduleJournalForLateFee invoice:" + invoice);
-			String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.DB_DUE_DATE_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			if (StringUtils.isBlank(startDate)) {
 				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.journal.startDate"), Constants.INVALID_INPUT);
 			}
@@ -157,9 +156,15 @@ public class LateFeeHelper {
 		return (invoiceAmount*(lateFeeAmount/100));
 	}
 	
-	public static void main(String[] args) {
-		String date = "12/13/17";
-		Date result = DateUtils.getDateFromString(date, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+	public static void main(String[] args) throws ParseException {
+		String date = "2018-01-12 00:00:00.0";
+		String result = InvoiceParser.convertTimeStampToString(date, Constants.DB_DUE_DATE_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+//		SimpleDateFormat from = Constants.DB_DUE_DATE_FORMAT;
+//		SimpleDateFormat to = Constants.TIME_STATMP_TO_INVOICE_FORMAT;
+//		System.out.println(date);
+//		Date temp = from.parse(date);
+//		System.out.println(temp);
+//		String result = to.format(temp).toString();
 		System.out.println(result);
 	}
 }

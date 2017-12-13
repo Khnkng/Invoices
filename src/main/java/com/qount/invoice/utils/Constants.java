@@ -34,12 +34,14 @@ public class Constants {
 	public static final String DUE_DATE_FORMAT = "yyyy-MM-dd";
 
 	public static final String BILLS_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
+	public static final String DB_DUE_DATE_FORMAT_STR = "yyyy-dd-MM hh:mm:ss";
 	public static final String INVOICE_UI_DATE_FORMAT = "MM/dd/yy";
 	public static final String COMMISSION_BILLS_UI_DATE_FORMAT = "MM/dd/yyyy";
 	public static final String UI_DATE_TIME_FORMAT_STR = "MM/dd/yy HH:mm:ss";
 	public static final String PROPOSAL_UI_DATE_FORMAT = "MM/dd/yy";
 	public static final String INVOICE_MAIL_DATE_FORMAT = "MMM dd, yyyy";
 	public static final SimpleDateFormat TIME_STATMP_TO_BILLS_FORMAT = new SimpleDateFormat(BILLS_DATE_FORMAT);
+	public static final SimpleDateFormat DB_DUE_DATE_FORMAT = new SimpleDateFormat(DB_DUE_DATE_FORMAT_STR);
 	public static final SimpleDateFormat TIME_STATMP_TO_INVOICE_FORMAT = new SimpleDateFormat(INVOICE_UI_DATE_FORMAT);
 	public static final SimpleDateFormat UI_DATE_TIME_FORMAT = new SimpleDateFormat(UI_DATE_TIME_FORMAT_STR);
 	public static final SimpleDateFormat TIME_STATMP_TO_PROPOSAL_FORMAT = new SimpleDateFormat(PROPOSAL_UI_DATE_FORMAT);
