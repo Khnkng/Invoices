@@ -75,8 +75,6 @@ public class InvoiceControllerImpl {
 			if (invoicePreference != null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())) {
 				invoice.setMailSubject(invoicePreference.getDefaultTitle());
 			}
-			//creating late fee journal
-			invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoiceObj));
 			String base64StringOfAttachment = null;
 			if (invoice.getPdf_data() != null) {
 				String url = PropertyManager.getProperty("report.pdf.url");
@@ -114,8 +112,8 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
 			connection.setAutoCommit(false);
-			// creating remainder
-			// recurring if invoice has plan id
+			//creating late fee journal
+			invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoiceObj));
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
@@ -275,7 +273,6 @@ public class InvoiceControllerImpl {
 			if (invoicePreference != null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())) {
 				invoice.setMailSubject(invoicePreference.getDefaultTitle());
 			}
-			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoice);
 			invoice.setUser_id(userID);
 			invoice.setCompany_id(companyID);
 			String base64StringOfAttachment = null;
@@ -367,6 +364,8 @@ public class InvoiceControllerImpl {
 				invoiceObj.setExisting_late_fee_amount(dbInvoice.getLate_fee_amount());
 				invoiceObj.setExisting_late_fee_id(dbInvoice.getLate_fee_id());
 			}
+			//late fee changes
+			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoice);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				InvoiceLine invoiceLine = new InvoiceLine();
