@@ -116,7 +116,7 @@ public class LateFeeHelper {
 	public static String scheduleJournalForLateFee(Invoice invoice) throws Exception{
 		try {
 			LOGGER.debug("entered scheduleJournalForLateFee invoice:" + invoice);
-			String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.DB_DUE_DATE_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			if (StringUtils.isBlank(startDate)) {
 				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.journal.startDate"), Constants.INVALID_INPUT);
 			}
@@ -157,8 +157,8 @@ public class LateFeeHelper {
 	}
 	
 	public static void main(String[] args) throws ParseException {
-		String date = "2018-01-12 00:00:00.0";
-		String result = InvoiceParser.convertTimeStampToString(date, Constants.DB_DUE_DATE_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+		String date = "2017-12-01 00:00:00.0";
+		String result = InvoiceParser.convertTimeStampToString(date, Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 //		SimpleDateFormat from = Constants.DB_DUE_DATE_FORMAT;
 //		SimpleDateFormat to = Constants.TIME_STATMP_TO_INVOICE_FORMAT;
 //		System.out.println(date);
