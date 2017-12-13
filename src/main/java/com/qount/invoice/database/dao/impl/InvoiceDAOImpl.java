@@ -32,7 +32,6 @@ import com.qount.invoice.model.InvoiceCommission;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
 import com.qount.invoice.model.Item;
-import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -62,27 +61,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
-				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
-					if(invoice.getState().equals(Constants.INVOICE_STATE_SENT) || invoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)){
-						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-						Date due_date = formatter.parse(invoice.getDue_date());
-						Date date = Calendar.getInstance().getTime();
-						if (due_date != null && due_date.before(date)) {
-							invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
-							invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
-							invoice.setAmount_due(invoice.getAmount());
-							invoice.setLate_fee_applied(true);
-							InvoiceParser.updateInvoiceAmountByDate(invoice);
-						} else{
-							invoice.setLate_fee_applied(false);
-						}
-					}
-				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
-				pstmt.setString(ctr++, invoice.getJournal_job_id());
-				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
-				pstmt.setString(ctr++, invoice.getLate_fee_id());
-				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getId());
 				pstmt.setString(ctr++, invoice.getUser_id());
@@ -153,27 +132,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			if (connection != null) {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
-				if(StringUtils.isNotBlank(invoice.getLate_fee_id())){
-					if(invoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || invoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID) || invoice.getState().endsWith(Constants.INVOICE_STATE_PAID)){
-						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-						Date due_date = formatter.parse(invoice.getDue_date());
-						Date date = Calendar.getInstance().getTime();
-						if (due_date != null && due_date.before(date)) {
-							invoice.setLate_fee_amount(getLateFeeAmount(connection, invoice.getLate_fee_id(), invoice.getAmount()));
-							invoice.setAmount(invoice.getAmount()+invoice.getLate_fee_amount());
-							invoice.setAmount_due(invoice.getAmount()-invoice.getAmount_paid());
-							InvoiceParser.updateInvoiceAmountByDate(invoice);
-							invoice.setLate_fee_applied(true);
-						} else{
-							invoice.setLate_fee_applied(false);
-						}
-					}
-				}
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
-				pstmt.setString(ctr++, invoice.getJournal_job_id());
-				pstmt.setBoolean(ctr++, invoice.isLate_fee_applied());
-				pstmt.setString(ctr++, invoice.getLate_fee_id());
-				pstmt.setDouble(ctr++, invoice.getLate_fee_amount());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getRemainder_job_id());
 				pstmt.setString(ctr++, invoice.getRemainder_name());
