@@ -395,15 +395,13 @@ public class PaymentDAOImpl implements paymentDAO {
 						invoicePayment.setCustomerName(rset.getString("customer_name"));
 						invoicePayment.setDepositedTo(rset.getString("bank_account_id"));
 						invoicePayment.setPaymentDate(rset.getString("payment_date"));
-						invoicePayment.setAmountPaid(rset.getBigDecimal("amount"));
+						invoicePayment.setAmountPaid(rset.getBigDecimal("payment_amount"));
 						invoicePayment.setMappingID(rset.getString("mapping_id"));
 						if(invoicePayment.getMappingID() == null ){
 							invoicePayment.setMapping(false);
 						}else{
 							invoicePayment.setMapping(true);}
 						payments.add(invoicePayment);
-					} else {
-						invoicePayment.setAmountPaid(rset.getBigDecimal("amount").add(invoicePayment.getAmountPaid()));
 					}
 				}
 			}
@@ -443,15 +441,13 @@ public class PaymentDAOImpl implements paymentDAO {
 						invoicePayment.setCustomerName(rset.getString("customer_name"));
 						invoicePayment.setDepositedTo(rset.getString("bank_account_id"));
 						invoicePayment.setPaymentDate(rset.getString("payment_date"));
-						invoicePayment.setAmountPaid(rset.getBigDecimal("amount"));
+						invoicePayment.setAmountPaid(rset.getBigDecimal("payment_amount"));
 						invoicePayment.setMappingID(rset.getString("mapping_id"));
 						if(invoicePayment.getMappingID() == null ){
 							invoicePayment.setMapping(false);
 						}else{
 							invoicePayment.setMapping(true);}
 						payments.add(invoicePayment);
-					} else {
-						invoicePayment.setAmountPaid(rset.getBigDecimal("amount").add(invoicePayment.getAmountPaid()));
 					}
 				}
 			}
