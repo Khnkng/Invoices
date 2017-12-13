@@ -194,6 +194,9 @@ public class InvoiceParser {
 						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getSub_total()));
 						invoice.setTax_amount(InvoiceParser.getTwoDecimalValue(invoice.getTax_amount()));
 						invoice.setLate_fee_amount(InvoiceParser.getTwoDecimalValue(invoice.getLate_fee_amount()));
+						if(StringUtils.isNotBlank(invoice.getState()) && invoice.getState().equals(Constants.OPEN)){
+							invoice.setState(Constants.OPENED);
+						}
 						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
 						if (invoiceLineIterator != null) {
 							while (invoiceLineIterator.hasNext()) {
