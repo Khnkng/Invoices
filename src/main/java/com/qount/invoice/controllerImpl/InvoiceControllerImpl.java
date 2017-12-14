@@ -830,7 +830,7 @@ public class InvoiceControllerImpl {
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url + "HalfService/mails";
-			// url = "https://dev-services.qount.io/HalfService/mails";
+//			 url = "https://dev-services.qount.io/HalfService/mails";
 			JSONObject emailJson = getMailJson(invoice, template, PropertyManager.getProperty("mail.body.content.type"));
 			Object result = HTTPClient.postUrlAndGetStatus(url, emailJson.toString());
 			if (result != null) {
