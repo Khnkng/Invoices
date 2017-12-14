@@ -788,7 +788,7 @@ public class InvoiceControllerImpl {
 			Runnable task = () -> {
 				LOGGER.debug("entered deleteInvoiceJobsAsync jobIds:" + jobIds);
 				try {
-//					Utilities.unschduleInvoiceJobs(jobIds);
+					Utilities.unschduleInvoiceJobs(jobIds);
 				} catch (Exception e) {
 					LOGGER.error(CommonUtils.getErrorStackTrace(e));
 				}
