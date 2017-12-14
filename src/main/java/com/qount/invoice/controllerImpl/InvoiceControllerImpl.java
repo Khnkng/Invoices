@@ -368,10 +368,6 @@ public class InvoiceControllerImpl {
 			if (StringUtils.isNotBlank(dbIinvoiceState) && !dbIinvoiceState.equals(Constants.INVOICE_STATE_DRAFT)) {
 				invoice.setState(dbIinvoiceState);
 			}
-			if (dbInvoice.isLate_fee_applied()) {
-				invoiceObj.setExisting_late_fee_amount(dbInvoice.getLate_fee_amount());
-				invoiceObj.setExisting_late_fee_id(dbInvoice.getLate_fee_id());
-			}
 			// late fee changes
 			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoiceObj);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
@@ -386,7 +382,9 @@ public class InvoiceControllerImpl {
 						new InvoiceDimension().update(connection, companyID, invoiceObj.getInvoiceLines());
 						updateInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
 								invoice.getCurrency());
-						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
+						if(!invoiceObj.getState().equals(dbIinvoiceState)){
+							InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
+						}
 						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 						connection.commit();
 					}

@@ -30,7 +30,7 @@ public class LateFeeHelper {
 			// late fee is applied only for sent and partially paid
 			if (dbInvoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || dbInvoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 				// creating journal if late fee removed
-				if (StringUtils.isNotEmpty(dbInvoice.getLate_fee_id()) && StringUtils.isBlank(invoiceObj.getLate_fee_id())) {
+				if (StringUtils.isNotBlank(dbInvoice.getLate_fee_id()) && StringUtils.isBlank(invoiceObj.getLate_fee_id())) {
 					deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
 							dbInvoice.getCompany_id());
 					deleteJournalJobId(dbInvoice.getJournal_job_id());
@@ -40,7 +40,7 @@ public class LateFeeHelper {
 				}
 				if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
 					// creating journal if late fee added
-					if (StringUtils.isBlank(dbInvoice.getLate_fee_id()) && StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
+					if (StringUtils.isBlank(dbInvoice.getLate_fee_id())) {
 						scheduleJournalForLateFee(invoiceObj);
 						String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
 								StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
@@ -54,7 +54,7 @@ public class LateFeeHelper {
 						scheduleJournalForLateFee(invoiceObj);
 					}
 					// if late fee is changed
-					if (!invoiceObj.getLate_fee_id().equals(dbInvoice.getLate_fee_id())) {
+					if (StringUtils.isNotBlank(dbInvoice.getLate_fee_id()) && !invoiceObj.getLate_fee_id().equals(dbInvoice.getLate_fee_id())) {
 						deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
 								dbInvoice.getCompany_id());
 						deleteJournalJobId(dbInvoice.getJournal_job_id());
