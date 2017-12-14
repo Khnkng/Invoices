@@ -200,7 +200,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			if (conn != null) {
 				result = new ArrayList<InvoiceHistory>();
 				String query = SqlQuerys.Invoice_history.GET_ALL_BY_INVOICE_ID_WTIH_LIMITED_ACTION_QRY.replace("?", "'"+input.getInvoice_id()+"'");
-				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") ORDER BY `action_at_mills` ASC";
+				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") OR `action` LIKE '%Late fee%' ) ORDER BY `action_at_mills` ASC";
 				pstmt = conn.prepareStatement(query);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
