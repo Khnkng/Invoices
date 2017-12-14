@@ -113,11 +113,11 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
 			connection.setAutoCommit(false);
-			//creating late fee journal
+			// creating late fee journal
 			invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoiceObj));
-			if(StringUtils.isNotBlank(invoiceObj.getLate_fee_id())){
+			if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
 				String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
-					StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
+						StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
 				InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
 			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
@@ -370,7 +370,7 @@ public class InvoiceControllerImpl {
 				invoiceObj.setExisting_late_fee_amount(dbInvoice.getLate_fee_amount());
 				invoiceObj.setExisting_late_fee_id(dbInvoice.getLate_fee_id());
 			}
-			//late fee changes
+			// late fee changes
 			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoiceObj);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
@@ -412,6 +412,11 @@ public class InvoiceControllerImpl {
 
 	public static List<InvoiceHistory> createInvoiceHistory(Invoice invoice, String userID, String companyID, String jobId, Connection connection) {
 		try {
+
+			LOGGER.debug("CreateHistory():" + invoice.isCreateHistory());
+			if (invoice == null || !invoice.isCreateHistory()) {
+				return null;
+			}
 			LOGGER.debug(
 					"entered createInvoiceHistory(Invoice invoice:" + invoice + ",String userID:" + userID + ",String companyID:" + companyID + ",String jobId:" + jobId + ")");
 			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
@@ -430,9 +435,9 @@ public class InvoiceControllerImpl {
 			invoice_history.setTax_amount(invoice.getTax_amount());
 			invoice_history.setAction_at_mills(new Date().getTime());
 			List<InvoiceHistory> histories = null;
-			if(invoice.getHistories() == null){
+			if (invoice.getHistories() == null) {
 				histories = new ArrayList<InvoiceHistory>();
-			}else{
+			} else {
 				histories = invoice.getHistories();
 			}
 			histories.add(invoice_history);
