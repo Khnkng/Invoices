@@ -62,6 +62,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				pstmt.setString(ctr++, invoice.getLate_fee_name());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getId());
 				pstmt.setString(ctr++, invoice.getUser_id());
@@ -133,6 +134,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getLate_fee_name());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getRemainder_job_id());
 				pstmt.setString(ctr++, invoice.getRemainder_name());
@@ -384,6 +386,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (dimension != null)
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
+							invoice.setLate_fee_name(rset.getString("late_fee_name"));
 							invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
 							invoice.setJournal_job_id(rset.getString("journal_job_id"));
 							invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
