@@ -85,6 +85,7 @@ public class Invoice {
 	private String mailSubject;
 	private List<InvoiceCommission> commissions;
 	private String late_fee_id;
+	private String late_fee_name;
 	private double late_fee_amount;
 	private boolean late_fee_applied;
 	private String existing_late_fee_id;
@@ -93,7 +94,24 @@ public class Invoice {
 	private String customer_last_name;
 	private String journal_job_id;
 	private String email_notes;
+	private List<InvoiceHistory> histories;
 	
+	public String getLate_fee_name() {
+		return late_fee_name;
+	}
+
+	public void setLate_fee_name(String late_fee_name) {
+		this.late_fee_name = late_fee_name;
+	}
+
+	public List<InvoiceHistory> getHistories() {
+		return histories;
+	}
+
+	public void setHistories(List<InvoiceHistory> histories) {
+		this.histories = histories;
+	}
+
 	public String getEmail_notes() {
 		return email_notes;
 	}

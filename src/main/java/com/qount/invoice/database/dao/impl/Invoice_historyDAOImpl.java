@@ -390,6 +390,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 					pstmt.addBatch();
 				}
 				int rowCount[] = pstmt.executeBatch();
+				LOGGER.debug("result:"+Arrays.toString(rowCount));
 				if (rowCount == null || rowCount.length ==0) {
 					throw new WebApplicationException("no record inserted", Constants.EXPECTATION_FAILED);
 				}
