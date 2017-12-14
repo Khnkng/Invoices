@@ -26,6 +26,7 @@ import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.helper.InvoiceHistoryHelper;
 import com.qount.invoice.helper.LateFeeHelper;
 import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.Invoice;
@@ -112,20 +113,26 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
 			connection.setAutoCommit(false);
-			//creating late fee journal
+			// creating late fee journal
 			invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoiceObj));
+			if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
+				String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
+						StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
+				InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
+			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 				if (!invoiceLineResult.isEmpty()) {
-					// saving dimensions of journal lines
-					createInvoiceHistory(invoice, userID, companyID, jobId, connection);
+					InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
+					MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 					createInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
 							invoice.getCurrency());
 					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
 				if (invoice.isSendMail())
+					// saving dimensions of journal lines
 					CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 				Invoice result = InvoiceParser.convertTimeStampToString(invoiceObj);
 				LOGGER.debug("result:" + result);
@@ -315,7 +322,8 @@ public class InvoiceControllerImpl {
 					// if invoice is paid then sending email and returning
 					// response
 					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
-						createInvoiceHistory(invoice, userID, companyID, jobId, connection);
+						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
+						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 						return InvoiceParser.convertTimeStampToString(dbInvoice);
 					}
 					if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
@@ -360,11 +368,7 @@ public class InvoiceControllerImpl {
 			if (StringUtils.isNotBlank(dbIinvoiceState) && !dbIinvoiceState.equals(Constants.INVOICE_STATE_DRAFT)) {
 				invoice.setState(dbIinvoiceState);
 			}
-			if (dbInvoice.isLate_fee_applied()) {
-				invoiceObj.setExisting_late_fee_amount(dbInvoice.getLate_fee_amount());
-				invoiceObj.setExisting_late_fee_id(dbInvoice.getLate_fee_id());
-			}
-			//late fee changes
+			// late fee changes
 			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoiceObj);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
@@ -378,12 +382,15 @@ public class InvoiceControllerImpl {
 						new InvoiceDimension().update(connection, companyID, invoiceObj.getInvoiceLines());
 						updateInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
 								invoice.getCurrency());
+						if(!invoiceObj.getState().equals(dbIinvoiceState)){
+							InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
+						}
+						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 						connection.commit();
 					}
 					if (isJERequired) {
 						CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 					}
-					createInvoiceHistory(invoice, userID, companyID, jobId, connection);
 					return InvoiceParser.convertTimeStampToString(invoiceResult);
 				}
 			}
@@ -404,33 +411,6 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static InvoiceHistory createInvoiceHistory(Invoice invoice, String userID, String companyID, String jobId, Connection connection) {
-		try {
-			LOGGER.debug(
-					"entered createInvoiceHistory(Invoice invoice:" + invoice + ",String userID:" + userID + ",String companyID:" + companyID + ",String jobId:" + jobId + ")");
-			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
-			if (!invoice.isSendMail() && StringUtils.isNotBlank(jobId)) {
-				invoice_history.setDescription(PropertyManager.getProperty("invoice.history.desc.no.mail.but.job"));
-			}
-			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			invoice_history.setAction_at(timestamp.toString());
-			invoice_history.setEmail_to(toCommaSeparatedString(invoice.getRecepientsMails()));
-			invoice_history.setAmount(invoice.getAmount());
-			invoice_history.setCurrency(invoice.getCurrency());
-			invoice_history.setAmount_by_date(invoice.getAmount_by_date());
-			invoice_history.setAmount_due(invoice.getAmount_due());
-			invoice_history.setAmount_paid(invoice.getAmount_paid());
-			invoice_history.setSub_totoal(invoice.getSub_total());
-			invoice_history.setTax_amount(invoice.getTax_amount());
-			invoice_history.setAction_at_mills(new Date().getTime());
-			return MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
-		} catch (Exception e) {
-			LOGGER.error("", e);
-			throw e;
-		} finally {
-			LOGGER.debug("exited createInvoiceHistory(Invoice invoice:" + invoice + ",String userID:" + userID + ",String companyID:" + companyID + ",String jobId:" + jobId + ")");
-		}
-	}
 
 	public static String toCommaSeparatedString(List<String> strings) {
 		String result = null;
@@ -749,7 +729,7 @@ public class InvoiceControllerImpl {
 			CommonUtils.deleteJournalsAsync(userID, companyID, ids);
 			List<String> jobIds = MySQLManager.getInvoiceDAOInstance().getInvoiceJobsList(commaSeparatedLst);
 			deleteInvoiceJobsAsync(jobIds);
-			List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID, false, Constants.INVOICE_STATE_DELETE);
+			List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, userID, companyID, false, Constants.INVOICE_STATE_DELETE);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
@@ -805,7 +785,7 @@ public class InvoiceControllerImpl {
 			boolean isSent = MySQLManager.getInvoiceDAOInstance().updateStateAsSent(userID, companyID, commaSeparatedLst);
 			if (isSent) {
 				connection = DatabaseUtilities.getReadWriteConnection();
-				List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID, true, Constants.INVOICE_STATE_SENT);
+				List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, userID, companyID, true, Constants.INVOICE_STATE_SENT);
 				MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
 				for (String invoiceID : ids) {
 					CommonUtils.createJournalAsync(new JSONObject().put("source", "invoice").put("sourceID", invoiceID).toString(), userID, companyID);

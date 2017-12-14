@@ -200,7 +200,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			if (conn != null) {
 				result = new ArrayList<InvoiceHistory>();
 				String query = SqlQuerys.Invoice_history.GET_ALL_BY_INVOICE_ID_WTIH_LIMITED_ACTION_QRY.replace("?", "'"+input.getInvoice_id()+"'");
-				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") ORDER BY `action_at_mills` ASC";
+				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") OR `action` LIKE '%Late fee%' ) ORDER BY `action_at_mills` ASC";
 				pstmt = conn.prepareStatement(query);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -360,8 +360,8 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		try {
 			if (conn != null) {
 				int ctr = 1;
+				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 				for(int i=0;i<invoice_historys.size();i++){
-					pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 					InvoiceHistory invoice_history = invoice_historys.get(i);
 					pstmt.setLong(ctr++, invoice_history.getAction_at_mills());
 					pstmt.setString(ctr++, invoice_history.getCurrency());
@@ -386,8 +386,8 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 					pstmt.setString(ctr++, invoice_history.getCreated_at());
 					pstmt.setString(ctr++, invoice_history.getLast_updated_by());
 					pstmt.setString(ctr++, invoice_history.getLast_updated_at());
-					ctr = 1;
 					pstmt.addBatch();
+					ctr = 1;
 				}
 				int rowCount[] = pstmt.executeBatch();
 				if (rowCount == null || rowCount.length ==0) {

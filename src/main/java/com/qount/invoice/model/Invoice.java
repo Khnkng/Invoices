@@ -85,15 +85,40 @@ public class Invoice {
 	private String mailSubject;
 	private List<InvoiceCommission> commissions;
 	private String late_fee_id;
+	private String late_fee_name;
 	private double late_fee_amount;
 	private boolean late_fee_applied;
-	private String existing_late_fee_id;
-	private double existing_late_fee_amount;
 	private String customer_first_name;
 	private String customer_last_name;
 	private String journal_job_id;
 	private String email_notes;
+	private List<InvoiceHistory> histories;
+	private boolean createHistory;
 	
+	public boolean isCreateHistory() {
+		return createHistory;
+	}
+
+	public void setCreateHistory(boolean createHistory) {
+		this.createHistory = createHistory;
+	}
+
+	public String getLate_fee_name() {
+		return late_fee_name;
+	}
+
+	public void setLate_fee_name(String late_fee_name) {
+		this.late_fee_name = late_fee_name;
+	}
+
+	public List<InvoiceHistory> getHistories() {
+		return histories;
+	}
+
+	public void setHistories(List<InvoiceHistory> histories) {
+		this.histories = histories;
+	}
+
 	public String getEmail_notes() {
 		return email_notes;
 	}
@@ -124,22 +149,6 @@ public class Invoice {
 
 	public void setCustomer_last_name(String customer_last_name) {
 		this.customer_last_name = customer_last_name;
-	}
-
-	public String getExisting_late_fee_id() {
-		return existing_late_fee_id;
-	}
-
-	public void setExisting_late_fee_id(String existing_late_fee_id) {
-		this.existing_late_fee_id = existing_late_fee_id;
-	}
-
-	public double getExisting_late_fee_amount() {
-		return existing_late_fee_amount;
-	}
-
-	public void setExisting_late_fee_amount(double existing_late_fee_amount) {
-		this.existing_late_fee_amount = existing_late_fee_amount;
 	}
 
 	public boolean isLate_fee_applied() {

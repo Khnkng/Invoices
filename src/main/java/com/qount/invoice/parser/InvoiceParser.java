@@ -585,10 +585,10 @@ public class InvoiceParser {
 		return null;
 	}
 
-	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds, String id, String user_id, String companyId, boolean markAsSent, String state) {
+	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds, String user_id, String companyId, boolean markAsSent, String state) {
 		try {
 			List<InvoiceHistory> result = null;
-			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:" + invoiceIds + " String id:" + id + ", String user_id:" + user_id + ",String companyId:" + companyId
+			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:" + invoiceIds + ", String user_id:" + user_id + ",String companyId:" + companyId
 					+ " boolean markAsSent:" + markAsSent + ")");
 			if (invoiceIds != null && !invoiceIds.isEmpty()) {
 				result = new ArrayList<InvoiceHistory>();
@@ -604,7 +604,7 @@ public class InvoiceParser {
 					invoiceHistory.setEmail_from(null);
 					invoiceHistory.setEmail_subject(null);
 					invoiceHistory.setEmail_to(null);
-					invoiceHistory.setId(id);
+					invoiceHistory.setId(UUID.randomUUID().toString());
 					invoiceHistory.setInvoice_id(invoiceId);
 					invoiceHistory.setLast_updated_at(timestamp.toString());
 					invoiceHistory.setLast_updated_by(user_id);
@@ -621,7 +621,7 @@ public class InvoiceParser {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds" + invoiceIds + " String id:" + id + ", String user_id:" + user_id + ",String companyId:" + companyId
+			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds" + invoiceIds + ", String user_id:" + user_id + ",String companyId:" + companyId
 					+ " boolean markAsSent:" + markAsSent + ")");
 		}
 		return null;
