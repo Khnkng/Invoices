@@ -763,7 +763,7 @@ public class InvoiceControllerImpl {
 			CommonUtils.deleteJournalsAsync(userID, companyID, ids);
 			List<String> jobIds = MySQLManager.getInvoiceDAOInstance().getInvoiceJobsList(commaSeparatedLst);
 			deleteInvoiceJobsAsync(jobIds);
-			List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID, false, Constants.INVOICE_STATE_DELETE);
+			List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, userID, companyID, false, Constants.INVOICE_STATE_DELETE);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
@@ -788,7 +788,7 @@ public class InvoiceControllerImpl {
 			Runnable task = () -> {
 				LOGGER.debug("entered deleteInvoiceJobsAsync jobIds:" + jobIds);
 				try {
-					Utilities.unschduleInvoiceJobs(jobIds);
+//					Utilities.unschduleInvoiceJobs(jobIds);
 				} catch (Exception e) {
 					LOGGER.error(CommonUtils.getErrorStackTrace(e));
 				}
@@ -819,7 +819,7 @@ public class InvoiceControllerImpl {
 			boolean isSent = MySQLManager.getInvoiceDAOInstance().updateStateAsSent(userID, companyID, commaSeparatedLst);
 			if (isSent) {
 				connection = DatabaseUtilities.getReadWriteConnection();
-				List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, UUID.randomUUID().toString(), userID, companyID, true, Constants.INVOICE_STATE_SENT);
+				List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, userID, companyID, true, Constants.INVOICE_STATE_SENT);
 				MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
 				for (String invoiceID : ids) {
 					CommonUtils.createJournalAsync(new JSONObject().put("source", "invoice").put("sourceID", invoiceID).toString(), userID, companyID);
