@@ -360,8 +360,8 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		try {
 			if (conn != null) {
 				int ctr = 1;
+				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 				for(int i=0;i<invoice_historys.size();i++){
-					pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 					InvoiceHistory invoice_history = invoice_historys.get(i);
 					pstmt.setLong(ctr++, invoice_history.getAction_at_mills());
 					pstmt.setString(ctr++, invoice_history.getCurrency());
@@ -386,12 +386,10 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 					pstmt.setString(ctr++, invoice_history.getCreated_at());
 					pstmt.setString(ctr++, invoice_history.getLast_updated_by());
 					pstmt.setString(ctr++, invoice_history.getLast_updated_at());
-					ctr = 1;
 					pstmt.addBatch();
+					ctr = 1;
 				}
-				LOGGER.debug("pstmt:"+pstmt.toString());
 				int rowCount[] = pstmt.executeBatch();
-				LOGGER.debug("result:"+Arrays.toString(rowCount));
 				if (rowCount == null || rowCount.length ==0) {
 					throw new WebApplicationException("no record inserted", Constants.EXPECTATION_FAILED);
 				}
