@@ -26,6 +26,7 @@ import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.helper.InvoiceHistoryHelper;
 import com.qount.invoice.helper.LateFeeHelper;
 import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.Invoice;
@@ -114,6 +115,9 @@ public class InvoiceControllerImpl {
 			connection.setAutoCommit(false);
 			//creating late fee journal
 			invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoiceObj));
+			String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
+					StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
+			InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
@@ -404,7 +408,7 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static InvoiceHistory createInvoiceHistory(Invoice invoice, String userID, String companyID, String jobId, Connection connection) {
+	public static List<InvoiceHistory> createInvoiceHistory(Invoice invoice, String userID, String companyID, String jobId, Connection connection) {
 		try {
 			LOGGER.debug(
 					"entered createInvoiceHistory(Invoice invoice:" + invoice + ",String userID:" + userID + ",String companyID:" + companyID + ",String jobId:" + jobId + ")");
@@ -423,7 +427,15 @@ public class InvoiceControllerImpl {
 			invoice_history.setSub_totoal(invoice.getSub_total());
 			invoice_history.setTax_amount(invoice.getTax_amount());
 			invoice_history.setAction_at_mills(new Date().getTime());
-			return MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
+			List<InvoiceHistory> histories = null;
+			if(invoice.getHistories() == null){
+				histories = new ArrayList<InvoiceHistory>();
+			}else{
+				histories = invoice.getHistories();
+			}
+			histories.add(invoice_history);
+			invoice.setHistories(histories);
+			return MySQLManager.getInvoice_historyDAO().createList(connection, histories);
 		} catch (Exception e) {
 			LOGGER.error("", e);
 			throw e;
