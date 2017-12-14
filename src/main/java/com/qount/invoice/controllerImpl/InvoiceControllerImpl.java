@@ -115,9 +115,11 @@ public class InvoiceControllerImpl {
 			connection.setAutoCommit(false);
 			//creating late fee journal
 			invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoiceObj));
-			String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
+			if(StringUtils.isNotBlank(invoiceObj.getLate_fee_id())){
+				String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
 					StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
-			InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
+				InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
+			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
