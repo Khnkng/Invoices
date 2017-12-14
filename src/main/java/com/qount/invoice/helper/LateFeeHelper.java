@@ -60,7 +60,7 @@ public class LateFeeHelper {
 						deleteJournalJobId(dbInvoice.getJournal_job_id());
 						scheduleJournalForLateFee(invoiceObj);
 						String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.changed"),
-								StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name(),
+								StringUtils.isEmpty(dbInvoice.getLate_fee_name()) ? dbInvoice.getLate_fee_id() : dbInvoice.getLate_fee_name(),
 								StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
 						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
 					}

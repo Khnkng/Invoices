@@ -58,6 +58,7 @@ public class InvoiceHistoryHelper {
 				}
 				histories.add(invoiceHistory);
 				invoice.setHistories(histories);
+				invoice.setCreateHistory(true);
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));

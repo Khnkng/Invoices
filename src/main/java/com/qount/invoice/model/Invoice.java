@@ -95,7 +95,16 @@ public class Invoice {
 	private String journal_job_id;
 	private String email_notes;
 	private List<InvoiceHistory> histories;
+	private boolean createHistory;
 	
+	public boolean isCreateHistory() {
+		return createHistory;
+	}
+
+	public void setCreateHistory(boolean createHistory) {
+		this.createHistory = createHistory;
+	}
+
 	public String getLate_fee_name() {
 		return late_fee_name;
 	}
