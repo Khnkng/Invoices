@@ -389,6 +389,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 					ctr = 1;
 					pstmt.addBatch();
 				}
+				LOGGER.debug("pstmt:"+pstmt.toString());
 				int rowCount[] = pstmt.executeBatch();
 				LOGGER.debug("result:"+Arrays.toString(rowCount));
 				if (rowCount == null || rowCount.length ==0) {
