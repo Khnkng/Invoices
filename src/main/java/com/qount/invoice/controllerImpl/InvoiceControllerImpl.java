@@ -124,14 +124,15 @@ public class InvoiceControllerImpl {
 			if (invoiceResult != null) {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 				if (!invoiceLineResult.isEmpty()) {
-					// saving dimensions of journal lines
-					createInvoiceHistory(invoice, userID, companyID, jobId, connection);
+					InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
+					MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 					createInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
 							invoice.getCurrency());
 					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
 				if (invoice.isSendMail())
+					// saving dimensions of journal lines
 					CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 				Invoice result = InvoiceParser.convertTimeStampToString(invoiceObj);
 				LOGGER.debug("result:" + result);
@@ -321,7 +322,8 @@ public class InvoiceControllerImpl {
 					// if invoice is paid then sending email and returning
 					// response
 					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
-						createInvoiceHistory(invoice, userID, companyID, jobId, connection);
+						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
+						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 						return InvoiceParser.convertTimeStampToString(dbInvoice);
 					}
 					if (StringUtils.isBlank(invoice.getState()) || invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
@@ -384,7 +386,8 @@ public class InvoiceControllerImpl {
 						new InvoiceDimension().update(connection, companyID, invoiceObj.getInvoiceLines());
 						updateInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
 								invoice.getCurrency());
-						createInvoiceHistory(invoice, userID, companyID, jobId, connection);
+						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
+						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 						connection.commit();
 					}
 					if (isJERequired) {
@@ -410,46 +413,6 @@ public class InvoiceControllerImpl {
 		}
 	}
 
-	public static List<InvoiceHistory> createInvoiceHistory(Invoice invoice, String userID, String companyID, String jobId, Connection connection) {
-		try {
-
-			LOGGER.debug("CreateHistory():" + invoice.isCreateHistory());
-			if (invoice == null || !invoice.isCreateHistory()) {
-				return null;
-			}
-			LOGGER.debug(
-					"entered createInvoiceHistory(Invoice invoice:" + invoice + ",String userID:" + userID + ",String companyID:" + companyID + ",String jobId:" + jobId + ")");
-			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), userID, companyID);
-			if (!invoice.isSendMail() && StringUtils.isNotBlank(jobId)) {
-				invoice_history.setDescription(PropertyManager.getProperty("invoice.history.desc.no.mail.but.job"));
-			}
-			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			invoice_history.setAction_at(timestamp.toString());
-			invoice_history.setEmail_to(toCommaSeparatedString(invoice.getRecepientsMails()));
-			invoice_history.setAmount(invoice.getAmount());
-			invoice_history.setCurrency(invoice.getCurrency());
-			invoice_history.setAmount_by_date(invoice.getAmount_by_date());
-			invoice_history.setAmount_due(invoice.getAmount_due());
-			invoice_history.setAmount_paid(invoice.getAmount_paid());
-			invoice_history.setSub_totoal(invoice.getSub_total());
-			invoice_history.setTax_amount(invoice.getTax_amount());
-			invoice_history.setAction_at_mills(new Date().getTime());
-			List<InvoiceHistory> histories = null;
-			if (invoice.getHistories() == null) {
-				histories = new ArrayList<InvoiceHistory>();
-			} else {
-				histories = invoice.getHistories();
-			}
-			histories.add(invoice_history);
-			invoice.setHistories(histories);
-			return MySQLManager.getInvoice_historyDAO().createList(connection, histories);
-		} catch (Exception e) {
-			LOGGER.error("", e);
-			throw e;
-		} finally {
-			LOGGER.debug("exited createInvoiceHistory(Invoice invoice:" + invoice + ",String userID:" + userID + ",String companyID:" + companyID + ",String jobId:" + jobId + ")");
-		}
-	}
 
 	public static String toCommaSeparatedString(List<String> strings) {
 		String result = null;
