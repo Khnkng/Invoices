@@ -384,12 +384,12 @@ public class InvoiceControllerImpl {
 						new InvoiceDimension().update(connection, companyID, invoiceObj.getInvoiceLines());
 						updateInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
 								invoice.getCurrency());
+						createInvoiceHistory(invoice, userID, companyID, jobId, connection);
 						connection.commit();
 					}
 					if (isJERequired) {
 						CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 					}
-					createInvoiceHistory(invoice, userID, companyID, jobId, connection);
 					return InvoiceParser.convertTimeStampToString(invoiceResult);
 				}
 			}
