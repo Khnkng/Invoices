@@ -1203,5 +1203,33 @@ public class InvoiceControllerImpl {
 		}
 		return false;
 	}
+	
+	public static List<Invoice> getInvoiceListForPayEvent(String userID, String companyID,String customerID, String billId) {
+		List<Invoice> invoiceList = new ArrayList<>();
+		try {
+			LOGGER.debug("entered InvoiceControllerImpl.getInvoiceListForPayEvent");
+			if (StringUtils.isAnyBlank(userID, companyID)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			InvoiceDAO invoiceDAO = InvoiceDAOImpl.getInvoiceDAOImpl();
+			if (billId == null || billId.isEmpty()) {
+				invoiceList = invoiceDAO.getUnmappedInvoiceList(companyID, customerID);
+			}else{
+				invoiceList = invoiceDAO.getMappedUnmappedInvoiceList(companyID, customerID, billId);	}
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if (e.getResponse().getStatus() == 412) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), Status.PRECONDITION_FAILED));
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(), e.getResponse().getStatus()));
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
+		} finally {
+			LOGGER.debug("exited InvoiceControllerImpl.getInvoiceListForPayEvent");
+		}
+		return invoiceList;
+	}
 
 }

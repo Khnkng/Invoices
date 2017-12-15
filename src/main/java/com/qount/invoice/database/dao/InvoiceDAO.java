@@ -70,4 +70,8 @@ public interface InvoiceDAO {
 	public InvoiceCommission updateInvoiceCommissionBillState(Connection connection, InvoiceCommission invoiceCommission) throws Exception;
 	
 	public double getLateFeeAmount(Connection connection, String lateFeeId, double invoiceAmount);
+
+	List<Invoice> getUnmappedInvoiceList(String companyId, String customerID);
+
+	List<Invoice> getMappedUnmappedInvoiceList(String companyId, String customerID, String billId);
 }
