@@ -370,7 +370,7 @@ public class InvoiceControllerImpl {
 				invoice.setState(dbIinvoiceState);
 			}
 			// late fee changes
-			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoiceObj);
+			LateFeeHelper.handleLateFeeJEChangesAsync(dbInvoice, invoiceObj);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				InvoiceLine invoiceLine = new InvoiceLine();
