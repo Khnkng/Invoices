@@ -94,6 +94,7 @@ public class Invoice {
 	private String email_notes;
 	private List<InvoiceHistory> histories;
 	private boolean createHistory;
+	private boolean mapping;
 	
 	public boolean isCreateHistory() {
 		return createHistory;
@@ -726,6 +727,14 @@ public class Invoice {
 
 	public void setPdf_data(PdfData pdf_data) {
 		this.pdf_data = pdf_data;
+	}
+
+	public boolean isMapping() {
+		return mapping;
+	}
+
+	public void setMapping(boolean mapping) {
+		this.mapping = mapping;
 	}
 	
 }

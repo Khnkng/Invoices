@@ -1454,20 +1454,23 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return result;
 	}
 	
-	
+	@Override
 	public List<Invoice> getUnmappedInvoiceList(String companyId, String customerID) {
 		LOGGER.debug("retrieves unmapped invoices companyId: [ " + companyId + " ] and customerID ["+ customerID +"] ");
 		List<Invoice> result = new ArrayList<Invoice>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Connection conn = DatabaseUtilities.getReadConnection();
+		String payEventID = null;
 		try {
 			if (conn != null) {
 				pstmt = conn.prepareStatement(SqlQuerys.Invoice.GET_UNMAPPED_INVOICES_LIST);
 				pstmt.setString(1, companyId);
 				pstmt.setString(2, customerID);
 				rset = pstmt.executeQuery();
-				while (rset.next()) {
+				while(rset.next()) {
+					payEventID = rset.getString("event_id");
+					if (payEventID == null) {
 					Invoice invoice = new Invoice();
 					invoice.setId(rset.getString("id"));
 					invoice.setNumber(rset.getString("number"));
@@ -1478,7 +1481,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setAmount_due(rset.getDouble("amount_due"));
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setCustomer_name(rset.getString("customer_name"));
-					result.add(invoice);
+					result.add(invoice);}
 				}
 				return result;
 			}
@@ -1491,6 +1494,57 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return result;
 	}
+	
+	@Override
+	public List<Invoice> getMappedUnmappedInvoiceList(String companyId, String customerID, String billID) {
+		LOGGER.debug("retrieves mapped and unmapped invoices companyId: [ " + companyId + " ] and customerID ["+ customerID +"] ");
+		List<Invoice> result = new ArrayList<Invoice>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection conn = DatabaseUtilities.getReadConnection();
+		try {
+			if (conn != null) {
+				pstmt = conn.prepareStatement(SqlQuerys.Invoice.GET_MAPPED_UNMAPPED_INVOICES_LIST);
+				pstmt.setString(1, companyId);
+				pstmt.setString(2, customerID);
+				pstmt.setString(3, billID);
+				rset = pstmt.executeQuery();
+				while(rset.next()) {
+					Invoice invoice = new Invoice();
+					invoice.setId(rset.getString("id"));
+					invoice.setNumber(rset.getString("number"));
+					invoice.setCustomer_id(rset.getString("customerID"));
+					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.COMMISSION_BILLS_UI_DATE_FORMAT) );
+					invoice.setAmount(rset.getDouble("amount"));
+					invoice.setState(rset.getString("state"));
+					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setCurrency(rset.getString("currency"));
+					invoice.setCustomer_name(rset.getString("customer_name"));
+					String billId = rset.getString("bill_id");
+					if(billId == null){
+						billId = "";
+					}if (billId.equals(billID) && !billId.isEmpty()) {
+						invoice.setMapping(true);
+					}else{
+						invoice.setMapping(false);
+					}
+					result.add(invoice);
+					 if (!billId.equals(billID) && !billId.isEmpty()) {
+						result.remove(invoice);
+					} 
+				}
+				return result;
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving mapped and unmapped invoices", e);
+			throw new WebApplicationException("unable to get mapped and unmapped invoice", Constants.DATABASE_ERROR_STATUS);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(conn);
+		}
+		return result;
+	}
+	
 	public static void main(String[] args) {
 		double value = 100;
 		double percentage = 20;

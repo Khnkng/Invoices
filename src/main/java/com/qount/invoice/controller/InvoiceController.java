@@ -17,7 +17,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.qount.invoice.controllerImpl.InvoiceControllerImpl;
-import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.model.Invoice;
 
 import io.swagger.annotations.Api;
@@ -137,8 +136,8 @@ public class InvoiceController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(notes = "Used to get unmapped invoice", value = "retieves unmapped  invoice", responseContainer = "java.lang.String")
-	public List<Invoice> getUnmappedInvoiceList(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("customerID") @NotNull String customerID) {
+	public List<Invoice> getUnmappedInvoiceList(@PathParam("userID") @NotNull String userID, @PathParam("companyID") @NotNull String companyID, @PathParam("customerID") @NotNull String customerID, @QueryParam("billId") String billId) {
 		
-		return InvoiceDAOImpl.getInvoiceDAOImpl().getUnmappedInvoiceList(companyID, customerID);
+		return InvoiceControllerImpl.getInvoiceListForPayEvent(userID, companyID, customerID, billId);
 	}
 }
