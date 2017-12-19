@@ -652,7 +652,7 @@ public class Invoice {
 
 	public String prepareJSParemeters() {
 		StringBuilder journalParmBuilder = new StringBuilder();
-		journalParmBuilder.append(this.customer_id).append(this.due_date).append(this.currency).append(this.number).append(this.amount);
+		journalParmBuilder.append(this.customer_id).append(this.invoice_date).append(this.currency).append(this.number).append(this.amount);
 		if (this.invoiceLines != null) {
 			for (InvoiceLine line : invoiceLines) {
 				journalParmBuilder.append(line.prepareJSParemeters());

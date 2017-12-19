@@ -358,11 +358,11 @@ public class InvoiceControllerImpl {
 				if (invoice.isSendMail()) {
 					isJERequired = true;
 				} else if (!Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState())) {
-					String tempDueDate = invoiceObj.getDue_date();
-					invoiceObj.setDue_date(InvoiceParser.convertTimeStampToString(invoiceObj.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT,
+					String tempDueDate = invoiceObj.getInvoice_date();
+					invoiceObj.setInvoice_date(InvoiceParser.convertTimeStampToString(invoiceObj.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT,
 							Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
-					invoiceObj.setDue_date(tempDueDate);
+					invoiceObj.setInvoice_date(tempDueDate);
 				}
 			}
 			if (connection == null) {
