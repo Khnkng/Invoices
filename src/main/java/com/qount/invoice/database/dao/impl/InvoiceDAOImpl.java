@@ -693,7 +693,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice = invoiceLst.get(index);
 					}
 					String journalID = rset.getString("journal_id");
-					if (StringUtils.isNoneBlank(journalID) && rset.getBoolean("isActive")) {
+					if (StringUtils.isNoneBlank(journalID) && rset.getBoolean("isActive") && "invoice".equalsIgnoreCase(rset.getString("sourceType"))) {
 						invoice.setJournalID(journalID);
 					}
 				}
