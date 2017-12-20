@@ -134,6 +134,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setString(ctr++, invoice.getLate_fee_name());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getRemainder_job_id());
@@ -693,7 +694,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice = invoiceLst.get(index);
 					}
 					String journalID = rset.getString("journal_id");
-					if (StringUtils.isNoneBlank(journalID) && rset.getBoolean("isActive")) {
+					if (StringUtils.isNoneBlank(journalID) && rset.getBoolean("isActive") && "invoice".equalsIgnoreCase(rset.getString("sourceType"))) {
 						invoice.setJournalID(journalID);
 					}
 				}

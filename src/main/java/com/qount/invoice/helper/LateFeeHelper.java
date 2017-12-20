@@ -24,62 +24,69 @@ public class LateFeeHelper {
 
 	private static final Logger LOGGER = Logger.getLogger(LateFeeHelper.class);
 
-	public static void handleLateFeeJEChanges(Invoice dbInvoice, Invoice invoiceObj) {
-		try {
-			LOGGER.debug("entered handleLateFeeJEChanges dbInvoice:" + dbInvoice + " UIinvoiceObj:" + invoiceObj);
-			// late fee is applied only for sent and partially paid
-			if (dbInvoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || dbInvoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
-				// creating journal if late fee removed
-				if (StringUtils.isNotBlank(dbInvoice.getLate_fee_id()) && StringUtils.isBlank(invoiceObj.getLate_fee_id())) {
-					deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
-							dbInvoice.getCompany_id());
-					deleteJournalJobId(dbInvoice.getJournal_job_id());
-					String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.removed"),
-							StringUtils.isEmpty(dbInvoice.getLate_fee_name()) ? dbInvoice.getLate_fee_id() : dbInvoice.getLate_fee_name());
-					InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
-				}
-				if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
-					// creating journal if late fee added
-					if (StringUtils.isBlank(dbInvoice.getLate_fee_id())) {
-						scheduleJournalForLateFee(invoiceObj);
-						String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
-								StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
-						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
+	public static void handleLateFeeJEChangesAsync(Invoice dbInvoice, Invoice invoiceObj) {
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					LOGGER.debug("entered handleLateFeeJEChanges dbInvoice:" + dbInvoice + " UIinvoiceObj:" + invoiceObj);
+					// late fee is applied only for sent and partially paid
+					if (dbInvoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || dbInvoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+						// creating journal if late fee removed
+						if (StringUtils.isNotBlank(dbInvoice.getLate_fee_id()) && StringUtils.isBlank(invoiceObj.getLate_fee_id())) {
+							deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
+									dbInvoice.getCompany_id());
+							deleteJournalJobId(dbInvoice.getJournal_job_id());
+							String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.removed"),
+									StringUtils.isEmpty(dbInvoice.getLate_fee_name()) ? dbInvoice.getLate_fee_id() : dbInvoice.getLate_fee_name());
+							InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
+						}
+						if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
+							// creating journal if late fee added
+							if (StringUtils.isBlank(dbInvoice.getLate_fee_id())) {
+								scheduleJournalForLateFee(invoiceObj);
+								String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
+										StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
+								InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
+							}
+							// if due date is changed
+							String dueDateTemp = InvoiceParser.convertTimeStampToString(invoiceObj.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT,
+									Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+							if (!dueDateTemp.equals(dbInvoice.getDue_date())) {
+								deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
+										dbInvoice.getCompany_id());
+								deleteJournalJobId(dbInvoice.getJournal_job_id());
+								scheduleJournalForLateFee(invoiceObj);
+							}
+							// if late fee is changed
+							if (StringUtils.isNotBlank(dbInvoice.getLate_fee_id()) && !invoiceObj.getLate_fee_id().equals(dbInvoice.getLate_fee_id())) {
+								deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
+										dbInvoice.getCompany_id());
+								deleteJournalJobId(dbInvoice.getJournal_job_id());
+								scheduleJournalForLateFee(invoiceObj);
+								String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.changed"),
+										StringUtils.isEmpty(dbInvoice.getLate_fee_name()) ? dbInvoice.getLate_fee_id() : dbInvoice.getLate_fee_name(),
+										StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
+								InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
+							}
+							// if invoice amount is changed
+							double uiInvoiceAmount = invoiceObj.getSub_total() + invoiceObj.getTax_amount() + invoiceObj.getLate_fee_amount();
+							if (uiInvoiceAmount != dbInvoice.getAmount()) {
+								deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
+										dbInvoice.getCompany_id());
+							}
+						}
 					}
-					// if due date is changed
-					if (!invoiceObj.getDue_date().equals(dbInvoice.getDue_date())) {
-						deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
-								dbInvoice.getCompany_id());
-						deleteJournalJobId(dbInvoice.getJournal_job_id());
-						scheduleJournalForLateFee(invoiceObj);
-					}
-					// if late fee is changed
-					if (StringUtils.isNotBlank(dbInvoice.getLate_fee_id()) && !invoiceObj.getLate_fee_id().equals(dbInvoice.getLate_fee_id())) {
-						deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
-								dbInvoice.getCompany_id());
-						deleteJournalJobId(dbInvoice.getJournal_job_id());
-						scheduleJournalForLateFee(invoiceObj);
-						String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.changed"),
-								StringUtils.isEmpty(dbInvoice.getLate_fee_name()) ? dbInvoice.getLate_fee_id() : dbInvoice.getLate_fee_name(),
-								StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
-						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
-					}
-					// if invoice amount is changed
-					double uiInvoiceAmount = invoiceObj.getSub_total() + invoiceObj.getTax_amount() + invoiceObj.getLate_fee_amount();
-					if (uiInvoiceAmount != dbInvoice.getAmount()) {
-						deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
-								dbInvoice.getCompany_id());
-					}
+				} catch (WebApplicationException e) {
+					LOGGER.error("error handleLateFeeJEChanges", e);
+				} catch (Exception e) {
+					LOGGER.error("error handleLateFeeJEChanges", e);
+				} finally {
+					LOGGER.debug("exited handleLateFeeJEChanges dbInvoice:" + dbInvoice + " UIinvoiceObj:" + invoiceObj);
 				}
 			}
-		} catch (WebApplicationException e) {
-			LOGGER.error("error handleLateFeeJEChanges", e);
-			throw e;
-		} catch (Exception e) {
-			LOGGER.error("error handleLateFeeJEChanges", e);
-		} finally {
-			LOGGER.debug("exited handleLateFeeJEChanges dbInvoice:" + dbInvoice + " UIinvoiceObj:" + invoiceObj);
-		}
+		}.start();
+
 	}
 
 	public static void deleteLateFeeJournal(String source, String sourceID, String lateFeeId, double lateFeeAmount, String userId, String companyId) {
@@ -153,7 +160,7 @@ public class LateFeeHelper {
 					LOGGER.debug("journalJobPayloadObj:" + journalJobPayloadObj);
 					String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
 							PropertyManager.getProperty("remainder.service.docker.port"));
-//					remainderServieUrl = "https://dev-services.qount.io/";
+					// remainderServieUrl = "https://dev-services.qount.io/";
 					remainderServieUrl += "RemainderService/journal/schedule";
 					LOGGER.debug("remainderServieUrl::" + remainderServieUrl);
 					Object jobIdObj = HTTPClient.postObject(remainderServieUrl, journalJobPayloadObj.toString());
@@ -180,9 +187,8 @@ public class LateFeeHelper {
 		Invoice invoiceObj = new Invoice();
 		invoiceObj.setLate_fee_id("123");
 		String historyAction = String.format("Late fee changed from: %s to: %s",
-				StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name(),
-				"asdf");
+				StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name(), "asdf");
 		System.out.println(historyAction);
-		
+
 	}
 }

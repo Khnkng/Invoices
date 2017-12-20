@@ -41,6 +41,7 @@ import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.service.InvoiceDimension;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
+import com.qount.invoice.utils.CurrencyConverter;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.ResponseUtil;
@@ -358,7 +359,11 @@ public class InvoiceControllerImpl {
 				if (invoice.isSendMail()) {
 					isJERequired = true;
 				} else if (!Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState())) {
+					String tempDueDate = invoiceObj.getInvoice_date();
+					invoiceObj.setInvoice_date(InvoiceParser.convertTimeStampToString(invoiceObj.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT,
+							Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 					isJERequired = !invoice.prepareJSParemeters().equals(dbInvoice.prepareJSParemeters());
+					invoiceObj.setInvoice_date(tempDueDate);
 				}
 			}
 			if (connection == null) {
@@ -370,7 +375,7 @@ public class InvoiceControllerImpl {
 				invoice.setState(dbIinvoiceState);
 			}
 			// late fee changes
-			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoiceObj);
+			LateFeeHelper.handleLateFeeJEChangesAsync(dbInvoice, invoiceObj);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				InvoiceLine invoiceLine = new InvoiceLine();
@@ -1003,15 +1008,19 @@ public class InvoiceControllerImpl {
 	}
 
 	public static Response getInvoiceMetrics(String userID, String companyID) {
+		InvoiceMetrics convertedInvoiceMetrics = null;
 		try {
 			LOGGER.debug("entered get box values userID:" + userID + " companyID:" + companyID);
 			if (StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
+			Company2 company2 = CommonUtils.retrieveCompany(userID, companyID);
 			InvoiceDAO invoiceDAO = InvoiceDAOImpl.getInvoiceDAOImpl();
-			InvoiceMetrics invoiceMetrics = invoiceDAO.getInvoiceMetrics(companyID);
-			if (invoiceMetrics != null) {
-				return Response.status(200).entity(invoiceMetrics).build();
+			InvoiceMetrics InvoiceMetrics = invoiceDAO.getInvoiceMetrics(companyID);
+			if (InvoiceMetrics != null) {
+				CurrencyConverter currencyConverter = new CurrencyConverter();
+				convertedInvoiceMetrics = currencyConverter.converterValues(InvoiceMetrics, company2);
+				return Response.status(200).entity(convertedInvoiceMetrics).build();
 			}
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, Constants.UNEXPECTED_ERROR_STATUS_STR, Status.EXPECTATION_FAILED));
 		} catch (WebApplicationException e) {
