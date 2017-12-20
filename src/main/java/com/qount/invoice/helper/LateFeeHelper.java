@@ -25,7 +25,7 @@ public class LateFeeHelper {
 	private static final Logger LOGGER = Logger.getLogger(LateFeeHelper.class);
 
 	public static void handleLateFeeJEChangesAsync(Invoice dbInvoice, Invoice invoiceObj) {
-		new Runnable() {
+		new Thread() {
 			@Override
 			public void run() {
 				try {
@@ -85,7 +85,7 @@ public class LateFeeHelper {
 					LOGGER.debug("exited handleLateFeeJEChanges dbInvoice:" + dbInvoice + " UIinvoiceObj:" + invoiceObj);
 				}
 			}
-		};
+		}.start();
 
 	}
 
