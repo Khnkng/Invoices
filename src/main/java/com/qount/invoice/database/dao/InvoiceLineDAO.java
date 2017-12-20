@@ -16,12 +16,12 @@ public interface InvoiceLineDAO {
 
 	public List<InvoiceLine> getByInvoiceId(Connection connection, InvoiceLine invoiceLine);
 
-	public List<InvoiceLine> save(Connection connection, List<InvoiceLine> invoiceLines) throws Exception;
+	public List<InvoiceLine> save(Connection connection, List<InvoiceLine> invoiceLines);
 	
-	public InvoiceLine update(Connection connection, InvoiceLine invoiceLine) throws Exception;
+	public InvoiceLine update(Connection connection, InvoiceLine invoiceLine);
 
-	public InvoiceLine deleteByInvoiceId(Connection connection,InvoiceLine invoiceLines) throws Exception;
+	public InvoiceLine deleteByInvoiceId(Connection connection,InvoiceLine invoiceLines);
 
-	public InvoiceLine deleteInvoiceLine(InvoiceLine invoiceLines) throws Exception;
+	public InvoiceLine deleteInvoiceLine(InvoiceLine invoiceLines);
 
 }
