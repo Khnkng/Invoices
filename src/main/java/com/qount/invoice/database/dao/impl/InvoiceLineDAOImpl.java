@@ -77,7 +77,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	@Override
-	public List<InvoiceLine> save(Connection connection, List<InvoiceLine> invoiceLines) {
+	public List<InvoiceLine> save(Connection connection, List<InvoiceLine> invoiceLines) throws Exception{
 		LOGGER.debug("entered invoiceLine save:" + invoiceLines);
 		if (invoiceLines == null || invoiceLines.size() == 0) {
 			return invoiceLines;
@@ -118,6 +118,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
 		} finally {
 			LOGGER.debug("exited invoiceLine save:" + invoiceLines);
 			DatabaseUtilities.closeStatement(pstmt);
@@ -126,7 +127,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 	}
 
 	@Override
-	public InvoiceLine update(Connection connection, InvoiceLine invoiceLine) {
+	public InvoiceLine update(Connection connection, InvoiceLine invoiceLine) throws Exception{
 		if (invoiceLine == null) {
 			return invoiceLine;
 		}
@@ -156,6 +157,7 @@ public class InvoiceLineDAOImpl implements InvoiceLineDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}

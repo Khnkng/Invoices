@@ -128,6 +128,7 @@ public class InvoiceControllerImpl {
 					MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 					createInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
 							invoice.getCurrency());
+					new InvoiceDimension().create(connection, companyID, invoiceObj.getInvoiceLines());
 					connection.commit();
 				}
 				// journal should not be created for draft state invoice.
