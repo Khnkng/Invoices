@@ -12,6 +12,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.qount.invoice.model.Company2;
+import com.qount.invoice.model.InvoiceMetrics;
+
 public class CurrencyConverter {
 
 	private static final Logger LOGGER = Logger.getLogger(CurrencyConverter.class);
@@ -55,7 +58,32 @@ public class CurrencyConverter {
 		coversionRateMappings.put(currencyFrom + currencyTo + date, value);
 		return value;
 	}
+	
+	public String convertToDashboardCurrency(Double value, Company2 company) {
+        Double customizedValue = value;
+        if (company.getReportCurrency() != null && !"".equals(company.getReportCurrency()) && !(company.getConversionValue() <= 0)) {
+            customizedValue = customizedValue * company.getConversionValue();
+        }
+        return customizedValue.toString();
+    }
 
+	public InvoiceMetrics converterValues(InvoiceMetrics invoiceMetrics, Company2 company){
+		CurrencyConverter currencyConverter = new CurrencyConverter();
+		double value = Double.parseDouble(invoiceMetrics.getAvgOutstandingAmount());
+		invoiceMetrics.setAvgOutstandingAmount(currencyConverter.convertToDashboardCurrency(value, company));
+		
+		double value1 = Double.parseDouble(invoiceMetrics.getTotalPastDueAmount());
+		invoiceMetrics.setTotalPastDueAmount(currencyConverter.convertToDashboardCurrency(value1, company));
+		
+		double value2 = Double.parseDouble(invoiceMetrics.getTotalReceivableAmount());
+		invoiceMetrics.setTotalReceivableAmount(currencyConverter.convertToDashboardCurrency(value2, company));
+		
+		double value3 = Double.parseDouble(invoiceMetrics.getTotalReceivedLast30Days());
+		invoiceMetrics.setTotalReceivedLast30Days(currencyConverter.convertToDashboardCurrency(value3, company));
+		
+		return invoiceMetrics;
+		
+	}
 	public static void main(String[] args) {
 		CurrencyConverter ycc = new CurrencyConverter();
 		try {
