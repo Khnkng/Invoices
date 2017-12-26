@@ -410,6 +410,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLast_updated_at(rset.getString("last_updated_at"));
 							invoice.setState(rset.getString("state"));
 							invoice.setDue_date(rset.getString("due_date"));
+							invoice.setPostId(rset.getString("post_id"));
+							
 //updated state from past_due to a new field to avoid invalid data manipulation
 							String due_date_Str = rset.getString("due_date");
 							if (due_date_Str != null) {
