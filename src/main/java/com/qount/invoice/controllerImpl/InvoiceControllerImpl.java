@@ -28,6 +28,7 @@ import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.helper.InvoiceHistoryHelper;
 import com.qount.invoice.helper.LateFeeHelper;
+import com.qount.invoice.helper.PostHelper;
 import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
@@ -123,6 +124,8 @@ public class InvoiceControllerImpl {
 			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
+				if(invoice.isSendMail())
+				PostHelper.createPost(userID, companyID, invoice.getId());
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 				if (!invoiceLineResult.isEmpty()) {
 					InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
@@ -357,6 +360,7 @@ public class InvoiceControllerImpl {
 			if (invoice != null) {
 				invoice.setId(invoiceID);
 				if (invoice.isSendMail()) {
+					PostHelper.createPost(userID, companyID, invoice.getId());
 					isJERequired = true;
 				} else if (!Constants.INVOICE_STATE_DRAFT.equalsIgnoreCase(dbInvoice.getState())) {
 					String tempDueDate = invoiceObj.getInvoice_date();
