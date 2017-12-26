@@ -95,6 +95,7 @@ public class Invoice {
 	private List<InvoiceHistory> histories;
 	private boolean createHistory;
 	private boolean mapping;
+	private String postId;
 	
 	public boolean isCreateHistory() {
 		return createHistory;
@@ -735,6 +736,14 @@ public class Invoice {
 
 	public void setMapping(boolean mapping) {
 		this.mapping = mapping;
+	}
+
+	public String getPostId() {
+		return postId;
+	}
+
+	public void setPostId(String postId) {
+		this.postId = postId;
 	}
 	
 }
