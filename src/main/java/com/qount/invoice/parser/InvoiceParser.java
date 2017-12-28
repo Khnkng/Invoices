@@ -122,6 +122,7 @@ public class InvoiceParser {
 				return to.format(from.parse(dateStr)).toString();
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			e.printStackTrace();
 		}
 		return null;
 	}

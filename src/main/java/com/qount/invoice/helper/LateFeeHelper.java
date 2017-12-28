@@ -85,9 +85,8 @@ public class LateFeeHelper {
 	public static String deleteLateFeeJournal(Invoice invoice) throws Exception{
 		try {
 			LOGGER.debug("entered deleteLateFeeJournal invoice:" + invoice);
-			String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			if (StringUtils.isBlank(startDate)) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.journal.startDate"), Constants.INVALID_INPUT);
+			if(invoice==null){
+				throw new WebApplicationException(Constants.PRECONDITION_FAILED_STR, Constants.INVALID_INPUT);
 			}
 			if (StringUtils.isNotBlank(invoice.getLate_fee_id())) {
 				if (invoice.getState().equals(Constants.INVOICE_STATE_SENT) || invoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
@@ -167,11 +166,10 @@ public class LateFeeHelper {
 	}
 
 	public static void main(String[] args) throws ParseException {
-		Invoice invoiceObj = new Invoice();
-		invoiceObj.setLate_fee_id("123");
-		String historyAction = String.format("Late fee changed from: %s to: %s",
-				StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name(), "asdf");
-		System.out.println(historyAction);
+		Invoice invoice = new Invoice();
+		invoice.setDue_date("12/18/17");
+		String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+		System.out.println(startDate);
 
 	}
 }
