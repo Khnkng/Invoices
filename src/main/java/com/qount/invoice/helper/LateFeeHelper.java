@@ -130,7 +130,10 @@ public class LateFeeHelper {
 			LOGGER.debug("entered scheduleJournalForLateFee invoice:" + invoice);
 			String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			if (StringUtils.isBlank(startDate)) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.journal.startDate"), Constants.INVALID_INPUT);
+				startDate = invoice.getDue_date();
+				if (StringUtils.isBlank(startDate)) {
+					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.journal.startDate"), Constants.INVALID_INPUT);
+				}
 			}
 			if (StringUtils.isNotBlank(invoice.getLate_fee_id())) {
 				if (invoice.getState().equals(Constants.INVOICE_STATE_SENT) || invoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
