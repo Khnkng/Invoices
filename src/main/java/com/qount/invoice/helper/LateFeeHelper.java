@@ -99,6 +99,7 @@ public class LateFeeHelper {
 					journalJobPayloadObj.put("lateFeeID", invoice.getLate_fee_id());
 					journalJobPayloadObj.put("lateFeeAmount", invoice.getLate_fee_amount());
 					journalJobPayloadObj.put("late_fee_journal_id", invoice.getLate_fee_journal_id());
+					journalJobPayloadObj.put("amount_due", invoice.getAmount_due());
 					LOGGER.debug("journalJobPayloadObj:" + journalJobPayloadObj);
 					String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
 							PropertyManager.getProperty("remainder.service.docker.port"));
@@ -121,32 +122,6 @@ public class LateFeeHelper {
 		return null;
 	}
 
-//	public static boolean deleteJournalJobId(String jobId) {
-//		try {
-//			LOGGER.debug("entered deleteJournalJobId jobId:" + jobId);
-//			if (StringUtils.isEmpty(jobId)) {
-//				return false;
-//			}
-//			LOGGER.debug("unscheduling job: " + jobId);
-//			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
-//					PropertyManager.getProperty("remainder.service.docker.port"));
-//			LOGGER.debug("unscheduling job url:" + remainderServieUrl);
-//			remainderServieUrl += "RemainderService/journal/unschedule/" + jobId;
-//			String result = HTTPClient.delete(remainderServieUrl);
-//			LOGGER.debug("unscheduling result:" + result);
-//			if (StringUtils.isNotBlank(result) && result.trim().equalsIgnoreCase("true")) {
-//				return true;
-//			}
-//		} catch (WebApplicationException e) {
-//			LOGGER.error("error deleteJournalJobId", e);
-//			throw e;
-//		} catch (Exception e) {
-//			LOGGER.error("error deleteJournalJobId", e);
-//		} finally {
-//			LOGGER.debug("exited deleteJournalJobId jobId:" + jobId);
-//		}
-//		return false;
-//	}
 
 	public static String scheduleJournalForLateFee(Invoice invoice) throws Exception {
 		try {
@@ -164,6 +139,7 @@ public class LateFeeHelper {
 					journalJobPayloadObj.put("invoiceID", invoice.getId());
 					journalJobPayloadObj.put("lateFeeID", invoice.getLate_fee_id());
 					journalJobPayloadObj.put("invoiceAmount", invoice.getAmount());
+					journalJobPayloadObj.put("amount_due", invoice.getAmount_due());
 					LOGGER.debug("journalJobPayloadObj:" + journalJobPayloadObj);
 					String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
 							PropertyManager.getProperty("remainder.service.docker.port"));
