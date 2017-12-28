@@ -99,6 +99,9 @@ public class LateFeeHelper {
 					journalJobPayloadObj.put("lateFeeAmount", invoice.getLate_fee_amount());
 					journalJobPayloadObj.put("late_fee_journal_id", invoice.getLate_fee_journal_id());
 					journalJobPayloadObj.put("amount_due", invoice.getAmount_due());
+					journalJobPayloadObj.put("invoiceAmount", invoice.getAmount());
+					journalJobPayloadObj.put("sub_totoal", invoice.getSub_total());
+					journalJobPayloadObj.put("tax_amount", invoice.getTax_amount());
 					LOGGER.debug("journalJobPayloadObj:" + journalJobPayloadObj);
 					String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
 							PropertyManager.getProperty("remainder.service.docker.port"));
@@ -166,10 +169,10 @@ public class LateFeeHelper {
 	}
 
 	public static void main(String[] args) throws ParseException {
-		Invoice invoice = new Invoice();
-		invoice.setDue_date("12/18/17");
-		String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-		System.out.println(startDate);
+		JSONObject journalJobPayloadObj = new JSONObject();
+		String asdf = null;
+		journalJobPayloadObj.put("jobId",asdf);
+		System.out.println(journalJobPayloadObj);
 
 	}
 }
