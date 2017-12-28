@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * @version 1.0, 30 Nov 2016
  *
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @XmlRootElement
 public class Invoice {
 
@@ -67,7 +67,7 @@ public class Invoice {
 	private CustomerContactDetails customerContactDetails;
 	private double tax_amount;
 	private String journalID;
-	private String payment_type;//Credit Card || Bank
+	private String payment_type;// Credit Card || Bank
 	private String proposal_id;
 	private String customer_name;
 	private String reference_number;
@@ -96,7 +96,16 @@ public class Invoice {
 	private boolean createHistory;
 	private boolean mapping;
 	private String postId;
-	
+	private String late_fee_journal_id;
+
+	public String getLate_fee_journal_id() {
+		return late_fee_journal_id;
+	}
+
+	public void setLate_fee_journal_id(String late_fee_journal_id) {
+		this.late_fee_journal_id = late_fee_journal_id;
+	}
+
 	public boolean isCreateHistory() {
 		return createHistory;
 	}
@@ -170,7 +179,7 @@ public class Invoice {
 	}
 
 	public String getLate_fee_id() {
-		return StringUtils.isBlank(late_fee_id)?null:late_fee_id;
+		return StringUtils.isBlank(late_fee_id) ? null : late_fee_id;
 	}
 
 	public void setLate_fee_id(String late_fee_id) {
@@ -272,6 +281,7 @@ public class Invoice {
 	public void setProposal_id(String proposal_id) {
 		this.proposal_id = proposal_id;
 	}
+
 	public String getPayment_type() {
 		return payment_type;
 	}
@@ -663,13 +673,13 @@ public class Invoice {
 	}
 
 	@Override
-    public boolean equals(Object obj) {
-        if (obj != null) {
-            Invoice invoice = (Invoice) obj;
-            return invoice.getId().equalsIgnoreCase(this.id);
-        }
-        return false;
-    }
+	public boolean equals(Object obj) {
+		if (obj != null) {
+			Invoice invoice = (Invoice) obj;
+			return invoice.getId().equalsIgnoreCase(this.id);
+		}
+		return false;
+	}
 
 	@Override
 	public String toString() {
@@ -745,5 +755,5 @@ public class Invoice {
 	public void setPostId(String postId) {
 		this.postId = postId;
 	}
-	
+
 }

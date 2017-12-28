@@ -387,6 +387,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (dimension != null)
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
+							invoice.setLate_fee_journal_id(rset.getString("late_fee_journal_id"));
 							invoice.setLate_fee_name(rset.getString("late_fee_name"));
 							invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
 							invoice.setJournal_job_id(rset.getString("journal_job_id"));

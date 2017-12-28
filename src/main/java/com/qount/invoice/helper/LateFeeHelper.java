@@ -12,7 +12,6 @@ import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.parser.InvoiceParser;
-import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.Utilities;
 
@@ -34,9 +33,7 @@ public class LateFeeHelper {
 					if (dbInvoice.getState().endsWith(Constants.INVOICE_STATE_SENT) || dbInvoice.getState().endsWith(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 						// creating journal if late fee removed
 						if (StringUtils.isNotBlank(dbInvoice.getLate_fee_id()) && StringUtils.isBlank(invoiceObj.getLate_fee_id())) {
-							deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
-									dbInvoice.getCompany_id());
-							deleteJournalJobId(dbInvoice.getJournal_job_id());
+							deleteLateFeeJournal(dbInvoice);
 							String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.removed"),
 									StringUtils.isEmpty(dbInvoice.getLate_fee_name()) ? dbInvoice.getLate_fee_id() : dbInvoice.getLate_fee_name());
 							InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
@@ -53,16 +50,12 @@ public class LateFeeHelper {
 							String dueDateTemp = InvoiceParser.convertTimeStampToString(invoiceObj.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT,
 									Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 							if (!dueDateTemp.equals(dbInvoice.getDue_date())) {
-								deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
-										dbInvoice.getCompany_id());
-								deleteJournalJobId(dbInvoice.getJournal_job_id());
+								deleteLateFeeJournal(dbInvoice);
 								scheduleJournalForLateFee(invoiceObj);
 							}
 							// if late fee is changed
 							if (StringUtils.isNotBlank(dbInvoice.getLate_fee_id()) && !invoiceObj.getLate_fee_id().equals(dbInvoice.getLate_fee_id())) {
-								deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
-										dbInvoice.getCompany_id());
-								deleteJournalJobId(dbInvoice.getJournal_job_id());
+								deleteLateFeeJournal(dbInvoice);
 								scheduleJournalForLateFee(invoiceObj);
 								String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.changed"),
 										StringUtils.isEmpty(dbInvoice.getLate_fee_name()) ? dbInvoice.getLate_fee_id() : dbInvoice.getLate_fee_name(),
@@ -72,8 +65,8 @@ public class LateFeeHelper {
 							// if invoice amount is changed
 							double uiInvoiceAmount = invoiceObj.getSub_total() + invoiceObj.getTax_amount() + invoiceObj.getLate_fee_amount();
 							if (uiInvoiceAmount != dbInvoice.getAmount()) {
-								deleteLateFeeJournal(Constants.INVOICE, dbInvoice.getId(), dbInvoice.getLate_fee_id(), dbInvoice.getLate_fee_amount(), dbInvoice.getUser_id(),
-										dbInvoice.getCompany_id());
+								deleteLateFeeJournal(dbInvoice);
+								scheduleJournalForLateFee(invoiceObj);
 							}
 						}
 					}
@@ -89,55 +82,71 @@ public class LateFeeHelper {
 
 	}
 
-	public static void deleteLateFeeJournal(String source, String sourceID, String lateFeeId, double lateFeeAmount, String userId, String companyId) {
+	public static String deleteLateFeeJournal(Invoice invoice) throws Exception{
 		try {
-			LOGGER.debug("entered deleteLateFeeJournal(String source:" + source + ", String sourceID:" + sourceID + ", String lateFeeId:" + lateFeeId + ", String lateFeeAmount:"
-					+ lateFeeAmount + ", String userID:" + userId + ", String companyId:" + companyId);
-			JSONObject journalObj = new JSONObject();
-			JSONObject journalLateFeeObj = new JSONObject();
-			journalObj.put("source", source);
-			journalObj.put("sourceID", sourceID);
-			journalLateFeeObj.put("id", lateFeeId);
-			journalLateFeeObj.put("amount", lateFeeAmount);
-			journalObj.put("lateFee", journalLateFeeObj);
-			CommonUtils.createJournal(journalObj.toString(), userId, companyId);
+			LOGGER.debug("entered deleteLateFeeJournal invoice:" + invoice);
+			String startDate = InvoiceParser.convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			if (StringUtils.isBlank(startDate)) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.journal.startDate"), Constants.INVALID_INPUT);
+			}
+			if (StringUtils.isNotBlank(invoice.getLate_fee_id())) {
+				if (invoice.getState().equals(Constants.INVOICE_STATE_SENT) || invoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+					JSONObject journalJobPayloadObj = new JSONObject();
+					journalJobPayloadObj.put("jobId", invoice.getJournal_job_id());
+					journalJobPayloadObj.put("userID", invoice.getUser_id());
+					journalJobPayloadObj.put("companyID", invoice.getCompany_id());
+					journalJobPayloadObj.put("invoiceID", invoice.getId());
+					journalJobPayloadObj.put("lateFeeID", invoice.getLate_fee_id());
+					journalJobPayloadObj.put("lateFeeAmount", invoice.getLate_fee_amount());
+					journalJobPayloadObj.put("late_fee_journal_id", invoice.getLate_fee_journal_id());
+					LOGGER.debug("journalJobPayloadObj:" + journalJobPayloadObj);
+					String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
+							PropertyManager.getProperty("remainder.service.docker.port"));
+					// remainderServieUrl = "https://dev-services.qount.io/";
+					remainderServieUrl += "RemainderService/journal/unschedule";
+					LOGGER.debug("remainderServieUrl::" + remainderServieUrl);
+					Object jobIdObj = HTTPClient.postObject(remainderServieUrl, journalJobPayloadObj.toString());
+					return jobIdObj.toString();
+				}
+			}
 		} catch (WebApplicationException e) {
-			LOGGER.error("error deleteLateFeeJournal", e);
+			LOGGER.error("error scheduleJournalForLateFee", e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error("error deleteLateFeeJournal", e);
+			LOGGER.error("error scheduleJournalForLateFee", e);
+			throw e;
 		} finally {
-			LOGGER.debug("exited deleteLateFeeJournal(String source:" + source + ", String sourceID:" + sourceID + ", String lateFeeId:" + lateFeeId + ", String lateFeeAmount:"
-					+ lateFeeAmount + ", String userID:" + userId + ", String companyId:" + companyId);
+			LOGGER.debug("exited scheduleJournalForLateFee invoice:" + invoice);
 		}
+		return null;
 	}
 
-	public static boolean deleteJournalJobId(String jobId) {
-		try {
-			LOGGER.debug("entered deleteJournalJobId jobId:" + jobId);
-			if (StringUtils.isEmpty(jobId)) {
-				return false;
-			}
-			LOGGER.debug("unscheduling job: " + jobId);
-			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
-					PropertyManager.getProperty("remainder.service.docker.port"));
-			LOGGER.debug("unscheduling job url:" + remainderServieUrl);
-			remainderServieUrl += "RemainderService/journal/unschedule/" + jobId;
-			String result = HTTPClient.delete(remainderServieUrl);
-			LOGGER.debug("unscheduling result:" + result);
-			if (StringUtils.isNotBlank(result) && result.trim().equalsIgnoreCase("true")) {
-				return true;
-			}
-		} catch (WebApplicationException e) {
-			LOGGER.error("error deleteJournalJobId", e);
-			throw e;
-		} catch (Exception e) {
-			LOGGER.error("error deleteJournalJobId", e);
-		} finally {
-			LOGGER.debug("exited deleteJournalJobId jobId:" + jobId);
-		}
-		return false;
-	}
+//	public static boolean deleteJournalJobId(String jobId) {
+//		try {
+//			LOGGER.debug("entered deleteJournalJobId jobId:" + jobId);
+//			if (StringUtils.isEmpty(jobId)) {
+//				return false;
+//			}
+//			LOGGER.debug("unscheduling job: " + jobId);
+//			String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
+//					PropertyManager.getProperty("remainder.service.docker.port"));
+//			LOGGER.debug("unscheduling job url:" + remainderServieUrl);
+//			remainderServieUrl += "RemainderService/journal/unschedule/" + jobId;
+//			String result = HTTPClient.delete(remainderServieUrl);
+//			LOGGER.debug("unscheduling result:" + result);
+//			if (StringUtils.isNotBlank(result) && result.trim().equalsIgnoreCase("true")) {
+//				return true;
+//			}
+//		} catch (WebApplicationException e) {
+//			LOGGER.error("error deleteJournalJobId", e);
+//			throw e;
+//		} catch (Exception e) {
+//			LOGGER.error("error deleteJournalJobId", e);
+//		} finally {
+//			LOGGER.debug("exited deleteJournalJobId jobId:" + jobId);
+//		}
+//		return false;
+//	}
 
 	public static String scheduleJournalForLateFee(Invoice invoice) throws Exception {
 		try {
@@ -149,8 +158,6 @@ public class LateFeeHelper {
 			if (StringUtils.isNotBlank(invoice.getLate_fee_id())) {
 				if (invoice.getState().equals(Constants.INVOICE_STATE_SENT) || invoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 					JSONObject journalJobPayloadObj = new JSONObject();
-					journalJobPayloadObj.put("source", "invoiceLateFee");
-					journalJobPayloadObj.put("sourceID", invoice.getId());
 					journalJobPayloadObj.put("startDate", startDate);
 					journalJobPayloadObj.put("userID", invoice.getUser_id());
 					journalJobPayloadObj.put("companyID", invoice.getCompany_id());
