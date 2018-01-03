@@ -693,7 +693,7 @@ public class Invoice {
 				+ recepientsMailsArr + ", payment_options=" + payment_options + ", send_to=" + send_to + ", email_state=" + email_state + ", payment_method=" + payment_method
 				+ ", tax_amount=" + tax_amount + ", journalID=" + journalID + ", payment_type=" + payment_type + ", proposal_id=" + proposal_id + ", customer_name=" + customer_name
 				+ ", reference_number=" + reference_number + ", payment_date=" + payment_date + ", bank_account_id=" + bank_account_id + ", remainder_job_id=" + remainder_job_id
-				+ ", remainder_name=" + remainder_name + "]";
+				+ ", remainder_name=" + remainder_name + ", late_fee_amount=" + late_fee_amount + ", late_fee_name=" + late_fee_name+ ", late_fee_journal_id=" + late_fee_journal_id + ", late_fee_id=" + late_fee_id + "]";
 	}
 
 	public static void main(String[] args) {
