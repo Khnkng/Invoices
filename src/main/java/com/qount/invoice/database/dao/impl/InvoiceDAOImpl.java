@@ -133,7 +133,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
-				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
+				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount()+invoice.getLate_fee_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setString(ctr++, invoice.getLate_fee_name());
