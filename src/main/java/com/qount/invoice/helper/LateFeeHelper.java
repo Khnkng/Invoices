@@ -136,6 +136,7 @@ public class LateFeeHelper {
 					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.journal.startDate"), Constants.INVALID_INPUT);
 				}
 			}
+			LOGGER.debug("late_fee_id:"+invoice.getLate_fee_id());
 			if (StringUtils.isNotBlank(invoice.getLate_fee_id())) {
 				if (invoice.getState().equals(Constants.INVOICE_STATE_SENT) || invoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 					JSONObject journalJobPayloadObj = new JSONObject();
