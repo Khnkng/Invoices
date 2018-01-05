@@ -62,7 +62,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
-				pstmt.setString(ctr++, invoice.getJournal_job_id());
 				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setString(ctr++, invoice.getLate_fee_name());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
