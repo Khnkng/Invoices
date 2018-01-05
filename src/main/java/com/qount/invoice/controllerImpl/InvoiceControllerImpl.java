@@ -115,13 +115,6 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
 			connection.setAutoCommit(false);
-			// creating late fee journal
-			invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoiceObj));
-			if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
-				String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
-						StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
-				InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
-			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				if(invoice.isSendMail())
@@ -129,11 +122,19 @@ public class InvoiceControllerImpl {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection, invoiceObj.getInvoiceLines());
 				if (!invoiceLineResult.isEmpty()) {
 					InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
-					MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 					createInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID, invoice.getId(), invoice.getNumber(), invoice.getAmount(),
 							invoice.getCurrency());
 					new InvoiceDimension().create(connection, companyID, invoiceObj.getInvoiceLines());
 					connection.commit();
+					connection.setAutoCommit(true);
+					// creating late fee journal
+					invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoiceObj));
+					if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
+						String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
+								StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
+						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
+					}
+					MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 				}
 				// journal should not be created for draft state invoice.
 				if (invoice.isSendMail())
@@ -378,8 +379,6 @@ public class InvoiceControllerImpl {
 			if (StringUtils.isNotBlank(dbIinvoiceState) && !dbIinvoiceState.equals(Constants.INVOICE_STATE_DRAFT)) {
 				invoice.setState(dbIinvoiceState);
 			}
-			// late fee changes
-			LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoiceObj);
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				InvoiceLine invoiceLine = new InvoiceLine();
@@ -395,8 +394,11 @@ public class InvoiceControllerImpl {
 						if(!invoiceObj.getState().equals(dbIinvoiceState)){
 							InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
 						}
-						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 						connection.commit();
+						connection.setAutoCommit(true);
+						// late fee changes
+						LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoiceObj);
+						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 					}
 					if (isJERequired) {
 						CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
@@ -840,7 +842,7 @@ public class InvoiceControllerImpl {
 			String portName = PropertyManager.getProperty("half.service.docker.port");
 			String url = Utilities.getLtmUrl(hostName, portName);
 			url = url + "HalfService/mails";
-//			 url = "https://dev-services.qount.io/HalfService/mails";
+			 url = "https://dev-services.qount.io/HalfService/mails";
 			JSONObject emailJson = getMailJson(invoice, template, PropertyManager.getProperty("mail.body.content.type"));
 			Object result = HTTPClient.postUrlAndGetStatus(url, emailJson.toString());
 			if (result != null) {

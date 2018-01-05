@@ -148,7 +148,7 @@ public class LateFeeHelper {
 					LOGGER.debug("journalJobPayloadObj:" + journalJobPayloadObj);
 					String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
 							PropertyManager.getProperty("remainder.service.docker.port"));
-					// remainderServieUrl = "https://dev-services.qount.io/";
+					 remainderServieUrl = "https://dev-services.qount.io/";
 					remainderServieUrl += "RemainderService/journal/schedule";
 					LOGGER.debug("remainderServieUrl::" + remainderServieUrl);
 					Object jobIdObj = HTTPClient.postObject(remainderServieUrl, journalJobPayloadObj.toString());
