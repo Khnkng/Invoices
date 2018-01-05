@@ -145,6 +145,7 @@ public class LateFeeHelper {
 					journalJobPayloadObj.put("lateFeeID", invoice.getLate_fee_id());
 					journalJobPayloadObj.put("invoiceAmount", invoice.getAmount());
 					journalJobPayloadObj.put("amount_due", invoice.getAmount_due());
+					journalJobPayloadObj.put("sub_totoal", invoice.getSub_total());
 					LOGGER.debug("journalJobPayloadObj:" + journalJobPayloadObj);
 					String remainderServieUrl = Utilities.getLtmUrl(PropertyManager.getProperty("remainder.service.docker.hostname"),
 							PropertyManager.getProperty("remainder.service.docker.port"));
