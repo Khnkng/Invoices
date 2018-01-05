@@ -165,7 +165,7 @@ public class SqlQuerys {
 		public static final String GET_ALL_QRY = "SELECT `amount`, `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM invoice_history where created_by = ? and company_id = ?;";
 		public static final String GET_ALL_BY_INVOICE_ID_QRY = "SELECT `action_at_mills`,`amount`,`webhook_event_id`,`description`, `id`, `invoice_id`, `user_id`, `action`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM `invoice_history` WHERE `invoice_id` = ? ORDER BY `action_at_mills` ASC;";
 		public static final String GET_ALL_BY_INVOICE_ID_WTIH_LIMITED_ACTION_QRY = "SELECT CASE WHEN `action`='open' THEN 'opened' ELSE `action` END AS `action`, `action_at_mills`,`currency`, `sub_totoal`, `amount_by_date`, `amount_paid`, `tax_amount`, `amount_due`, `amount`,`webhook_event_id`,`description`, `id`, `invoice_id`, `user_id`, `action_at`, `company_id`, `email_to`, `email_subject`, `email_from`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at`  FROM `invoice_history` WHERE `invoice_id` = ? AND (`action` IN (";
-		public static final String LIMITED_ACTIONS = "'draft','sent','partially_paid','paid','delivered','dropped','deferred','bounce','open','click'";
+		public static final String LIMITED_ACTIONS = "'Mark as sent','draft','sent','partially_paid','paid','delivered','dropped','deferred','bounce','open','click'";
 	}
 	
 	public final class InvoiceCommission {
