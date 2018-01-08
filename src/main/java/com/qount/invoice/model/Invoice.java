@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * @version 1.0, 30 Nov 2016
  *
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @XmlRootElement
 public class Invoice {
 
@@ -67,7 +67,7 @@ public class Invoice {
 	private CustomerContactDetails customerContactDetails;
 	private double tax_amount;
 	private String journalID;
-	private String payment_type;//Credit Card || Bank
+	private String payment_type;// Credit Card || Bank
 	private String proposal_id;
 	private String customer_name;
 	private String reference_number;
@@ -95,7 +95,44 @@ public class Invoice {
 	private List<InvoiceHistory> histories;
 	private boolean createHistory;
 	private boolean mapping;
-	
+	private String postId;
+	private String late_fee_journal_id;
+	private String billing_to;
+	private String billing_from;
+	private String remit_payments_to;
+
+	public String getRemit_payments_to() {
+		return remit_payments_to;
+	}
+
+	public void setRemit_payments_to(String remit_payments_to) {
+		this.remit_payments_to = remit_payments_to;
+	}
+
+	public String getBilling_to() {
+		return billing_to;
+	}
+
+	public void setBilling_to(String billing_to) {
+		this.billing_to = billing_to;
+	}
+
+	public String getBilling_from() {
+		return billing_from;
+	}
+
+	public void setBilling_from(String billing_from) {
+		this.billing_from = billing_from;
+	}
+
+	public String getLate_fee_journal_id() {
+		return late_fee_journal_id;
+	}
+
+	public void setLate_fee_journal_id(String late_fee_journal_id) {
+		this.late_fee_journal_id = late_fee_journal_id;
+	}
+
 	public boolean isCreateHistory() {
 		return createHistory;
 	}
@@ -169,7 +206,7 @@ public class Invoice {
 	}
 
 	public String getLate_fee_id() {
-		return StringUtils.isBlank(late_fee_id)?null:late_fee_id;
+		return StringUtils.isBlank(late_fee_id) ? null : late_fee_id;
 	}
 
 	public void setLate_fee_id(String late_fee_id) {
@@ -271,6 +308,7 @@ public class Invoice {
 	public void setProposal_id(String proposal_id) {
 		this.proposal_id = proposal_id;
 	}
+
 	public String getPayment_type() {
 		return payment_type;
 	}
@@ -662,13 +700,13 @@ public class Invoice {
 	}
 
 	@Override
-    public boolean equals(Object obj) {
-        if (obj != null) {
-            Invoice invoice = (Invoice) obj;
-            return invoice.getId().equalsIgnoreCase(this.id);
-        }
-        return false;
-    }
+	public boolean equals(Object obj) {
+		if (obj != null) {
+			Invoice invoice = (Invoice) obj;
+			return invoice.getId().equalsIgnoreCase(this.id);
+		}
+		return false;
+	}
 
 	@Override
 	public String toString() {
@@ -682,7 +720,7 @@ public class Invoice {
 				+ recepientsMailsArr + ", payment_options=" + payment_options + ", send_to=" + send_to + ", email_state=" + email_state + ", payment_method=" + payment_method
 				+ ", tax_amount=" + tax_amount + ", journalID=" + journalID + ", payment_type=" + payment_type + ", proposal_id=" + proposal_id + ", customer_name=" + customer_name
 				+ ", reference_number=" + reference_number + ", payment_date=" + payment_date + ", bank_account_id=" + bank_account_id + ", remainder_job_id=" + remainder_job_id
-				+ ", remainder_name=" + remainder_name + "]";
+				+ ", remainder_name=" + remainder_name + ", late_fee_amount=" + late_fee_amount + ", late_fee_name=" + late_fee_name+ ", late_fee_journal_id=" + late_fee_journal_id + ", late_fee_id=" + late_fee_id + "]";
 	}
 
 	public static void main(String[] args) {
@@ -736,5 +774,13 @@ public class Invoice {
 	public void setMapping(boolean mapping) {
 		this.mapping = mapping;
 	}
-	
+
+	public String getPostId() {
+		return postId;
+	}
+
+	public void setPostId(String postId) {
+		this.postId = postId;
+	}
+
 }

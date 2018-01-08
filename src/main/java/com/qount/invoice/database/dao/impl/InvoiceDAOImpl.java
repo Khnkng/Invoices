@@ -62,6 +62,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				pstmt.setString(ctr++, invoice.getBilling_from());
+				pstmt.setString(ctr++, invoice.getBilling_to());
+				pstmt.setString(ctr++, invoice.getRemit_payments_to());
+				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setString(ctr++, invoice.getLate_fee_name());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getId());
@@ -132,8 +136,12 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			if (connection != null) {
 				int ctr = 1;
-				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
+				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount()+invoice.getLate_fee_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getBilling_from());
+				pstmt.setString(ctr++, invoice.getBilling_to());
+				pstmt.setString(ctr++, invoice.getRemit_payments_to());
+				pstmt.setString(ctr++, invoice.getLate_fee_id());
 				pstmt.setString(ctr++, invoice.getLate_fee_name());
 				pstmt.setString(ctr++, invoice.getAttachments_metadata());
 				pstmt.setString(ctr++, invoice.getRemainder_job_id());
@@ -386,6 +394,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (dimension != null)
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
+							invoice.setBilling_from(rset.getString("billing_from"));
+							invoice.setBilling_to(rset.getString("billing_to"));
+							invoice.setRemit_payments_to(rset.getString("remit_payments_to"));
+							invoice.setLate_fee_journal_id(rset.getString("late_fee_journal_id"));
 							invoice.setLate_fee_name(rset.getString("late_fee_name"));
 							invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
 							invoice.setJournal_job_id(rset.getString("journal_job_id"));
@@ -409,6 +421,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setLast_updated_at(rset.getString("last_updated_at"));
 							invoice.setState(rset.getString("state"));
 							invoice.setDue_date(rset.getString("due_date"));
+							invoice.setPostId(rset.getString("post_id"));
+							
 //updated state from past_due to a new field to avoid invalid data manipulation
 							String due_date_Str = rset.getString("due_date");
 							if (due_date_Str != null) {
@@ -693,7 +707,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice = invoiceLst.get(index);
 					}
 					String journalID = rset.getString("journal_id");
-					if (StringUtils.isNoneBlank(journalID) && rset.getBoolean("isActive")) {
+					if (StringUtils.isNoneBlank(journalID) && rset.getBoolean("isActive") && "invoice".equalsIgnoreCase(rset.getString("sourceType"))) {
 						invoice.setJournalID(journalID);
 					}
 				}
