@@ -97,6 +97,33 @@ public class Invoice {
 	private boolean mapping;
 	private String postId;
 	private String late_fee_journal_id;
+	private String billing_to;
+	private String billing_from;
+	private String remit_payments_to;
+
+	public String getRemit_payments_to() {
+		return remit_payments_to;
+	}
+
+	public void setRemit_payments_to(String remit_payments_to) {
+		this.remit_payments_to = remit_payments_to;
+	}
+
+	public String getBilling_to() {
+		return billing_to;
+	}
+
+	public void setBilling_to(String billing_to) {
+		this.billing_to = billing_to;
+	}
+
+	public String getBilling_from() {
+		return billing_from;
+	}
+
+	public void setBilling_from(String billing_from) {
+		this.billing_from = billing_from;
+	}
 
 	public String getLate_fee_journal_id() {
 		return late_fee_journal_id;
