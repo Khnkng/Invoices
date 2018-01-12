@@ -100,6 +100,8 @@ public class Invoice {
 	private String billing_to;
 	private String billing_from;
 	private String remit_payments_to;
+	private String recurringFrequency;
+	private String recurringEnddate;
 
 	public String getRemit_payments_to() {
 		return remit_payments_to;
@@ -781,6 +783,22 @@ public class Invoice {
 
 	public void setPostId(String postId) {
 		this.postId = postId;
+	}
+
+	public String getRecurringFrequency() {
+		return recurringFrequency;
+	}
+
+	public void setRecurringFrequency(String recurringFrequency) {
+		this.recurringFrequency = recurringFrequency;
+	}
+
+	public String getRecurringEnddate() {
+		return recurringEnddate;
+	}
+
+	public void setRecurringEnddate(String recurringEnddate) {
+		this.recurringEnddate = recurringEnddate;
 	}
 
 }
