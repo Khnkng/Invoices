@@ -1,7 +1,6 @@
 package com.qount.invoice.utils;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,6 +57,24 @@ public class DateUtils {
 		return timestamp;
 
 	}
+	
+	public static Timestamp getTimestampFromString(String date, String format) {
+		Timestamp timestamp = null;
+		if (date != null) {
+			try {
+				SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+				Date parsedDate = dateFormat.parse(date);
+				timestamp = new java.sql.Timestamp(parsedDate.getTime());
+			} catch (Exception e) {// this generic but you can control another
+									// types of exception look the origin of
+									// exception
+				LOGGER.error("Error while formating", e);
+			}
+		}
+
+		return timestamp;
+
+	}
 
 	public static String formatToString(Timestamp timestamp) {
 		String formatedDate = null;
@@ -77,13 +94,7 @@ public class DateUtils {
 	}
 	
 	public static void main(String[] args) throws ParseException {
-		String str_date = "11/01/18";
-		
-		 DateFormat formatter;
-	      formatter = new SimpleDateFormat("yyyy-MM-dd");
-	       // you can change format of date
-	      Date date = formatter.parse(str_date);
-	      java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
-	      System.out.println(timeStampDate);
+		System.out.println(getTimestampFromString("2017-11-08 11:07:40", "yyyy-MM-dd hh:mm:ss"));
+		getTimestampFromString(null);
 	}
 }
