@@ -103,6 +103,24 @@ public class Invoice {
 	private String po_number;
 	private String project_name;
 	private String billing_cycle;
+	private String recurringFrequency;
+	private String recurringEnddate;
+
+	public String getRecurringFrequency() {
+		return recurringFrequency;
+	}
+
+	public void setRecurringFrequency(String recurringFrequency) {
+		this.recurringFrequency = recurringFrequency;
+	}
+
+	public String getRecurringEnddate() {
+		return recurringEnddate;
+	}
+
+	public void setRecurringEnddate(String recurringEnddate) {
+		this.recurringEnddate = recurringEnddate;
+	}
 
 	public String getPo_number() {
 		return po_number;
