@@ -73,6 +73,11 @@ public class InvoiceControllerImpl {
 			if (invoiceExists) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
+			
+			if(!"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
+				BeanUtils.copyProperties(invoiceRecurring, invoice);
+			}
+			
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			InvoicePreference invoicePreference = new InvoicePreference();
 			invoicePreference.setCompanyId(invoice.getCompany_id());
@@ -146,7 +151,7 @@ public class InvoiceControllerImpl {
 				
 				if(!"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
 					BeanUtils.copyProperties(invoiceRecurring, invoice);
-					new Thread(() -> {createRecurringInvoice(invoiceRecurring, userID);;}).start();
+					new Thread(() -> {createRecurringInvoice(invoiceRecurring, userID);}).start();
 					
 				}
 				
@@ -1273,7 +1278,7 @@ public class InvoiceControllerImpl {
 			int i=1;
 			String invoiceNumber= invoice.getNumber();
 			String recurrance = invoice.getRecurringFrequency();
-			Date invoiceDate = DateUtils.getTimestampFromString(invoice.getInvoice_date(),Constants.BILLS_DATE_FORMAT );
+			Date invoiceDate = DateUtils.getTimestampFromString(invoice.getInvoice_date(),Constants.SIMPLE_DATE_FORMAT );
 			Date endDate = DateUtils.getTimestampFromString(invoice.getRecurringEnddate());
 			System.out.println("invoiceDate Before calc="+invoiceDate);
 			switch (recurrance) {
@@ -1282,13 +1287,14 @@ public class InvoiceControllerImpl {
 			case "quarterly":  invoiceDate = org.apache.commons.lang3.time.DateUtils.addMonths(invoiceDate, 3);break; 
 			}
 			System.out.println("billDate After calc="+invoiceDate);
-			while(invoiceDate.compareTo(endDate) < 0) {
+			while(invoiceDate.compareTo(endDate) <= 0) {
 				invoice.setRecurringFrequency("onlyonce");
 				invoice.setNumber(invoiceNumber+"_"+i);
-				invoice.setInvoice_date(Constants.TIME_STATMP_TO_INVOICE_FORMAT.format(invoiceDate)); 
-				invoice.setDue_date(DateUtils.formatToString(DateUtils.getTimestampFromString(invoice.getDue_date(), Constants.BILLS_DATE_FORMAT)));
+				invoice.setInvoice_date(Constants.SIMPLE_DATE_FORMAT_FORMAT.format(invoiceDate)); 
+				invoice.setDue_date(DateUtils.formatToString(DateUtils.getTimestampFromString(invoice.getDue_date(), Constants.SIMPLE_DATE_FORMAT)));
 				invoice.setRecurringEnddate(null);
-				invoice.setId("");
+//				invoice.setHistories(null);
+//				invoice.setId("");
 			Invoice response = createInvoice(userID, invoice.getCompany_id(), invoice);
 			System.out.println("Status invoiceRequestRecurring="+new JSONObject(invoice)+"    Response="+response);
 			LOGGER.info("Status invoiceRequestRecurring="+new JSONObject(invoice)+"    Response="+response);
