@@ -1290,7 +1290,7 @@ public class InvoiceControllerImpl {
 			while(invoiceDate.compareTo(endDate) <= 0) {
 				invoice.setRecurringFrequency("onlyonce");
 				invoice.setNumber(invoiceNumber+"_"+i);
-				invoice.setInvoice_date(Constants.SIMPLE_DATE_FORMAT_FORMAT.format(invoiceDate)); 
+				invoice.setInvoice_date(Constants.DATE_TO_INVOICE_FORMAT.format(invoiceDate)); 
 				invoice.setDue_date(DateUtils.formatToString(DateUtils.getTimestampFromString(invoice.getDue_date(), Constants.SIMPLE_DATE_FORMAT)));
 				invoice.setRecurringEnddate(null);
 //				invoice.setHistories(null);
