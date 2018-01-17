@@ -62,6 +62,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				pstmt.setString(ctr++, invoice.getPo_number());
+				pstmt.setString(ctr++, invoice.getProject_name());
+				pstmt.setString(ctr++, invoice.getBilling_cycle());
 				pstmt.setString(ctr++, invoice.getBilling_from());
 				pstmt.setString(ctr++, invoice.getBilling_to());
 				pstmt.setString(ctr++, invoice.getRemit_payments_to());
@@ -138,6 +141,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount()+invoice.getLate_fee_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getPo_number());
+				pstmt.setString(ctr++, invoice.getProject_name());
+				pstmt.setString(ctr++, invoice.getBilling_cycle());
 				pstmt.setString(ctr++, invoice.getBilling_from());
 				pstmt.setString(ctr++, invoice.getBilling_to());
 				pstmt.setString(ctr++, invoice.getRemit_payments_to());
@@ -394,6 +400,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (dimension != null)
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
+							invoice.setPo_number(rset.getString("po_number"));
+							invoice.setProject_name(rset.getString("project_name"));
+							invoice.setBilling_cycle(rset.getString("billing_cycle"));
 							invoice.setBilling_from(rset.getString("billing_from"));
 							invoice.setBilling_to(rset.getString("billing_to"));
 							invoice.setRemit_payments_to(rset.getString("remit_payments_to"));
