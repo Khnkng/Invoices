@@ -150,7 +150,6 @@ public class InvoiceControllerImpl {
 					CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 				
 				if(!"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
-					BeanUtils.copyProperties(invoiceRecurring, invoice);
 					new Thread(() -> {createRecurringInvoice(invoiceRecurring, userID);}).start();
 					
 				}
@@ -1291,10 +1290,10 @@ public class InvoiceControllerImpl {
 				invoice.setRecurringFrequency("onlyonce");
 				invoice.setNumber(invoiceNumber+"_"+i);
 				invoice.setInvoice_date(Constants.DATE_TO_INVOICE_FORMAT.format(invoiceDate)); 
-				invoice.setDue_date(DateUtils.formatToString(DateUtils.getTimestampFromString(invoice.getDue_date(), Constants.SIMPLE_DATE_FORMAT)));
+//				invoice.setDue_date(DateUtils.formatToString(DateUtils.getTimestampFromString(invoice.getDue_date(), Constants.SIMPLE_DATE_FORMAT)));
 				invoice.setRecurringEnddate(null);
-//				invoice.setHistories(null);
-//				invoice.setId("");
+				invoice.setHistories(null);
+				invoice.setId("");
 			Invoice response = createInvoice(userID, invoice.getCompany_id(), invoice);
 			System.out.println("Status invoiceRequestRecurring="+new JSONObject(invoice)+"    Response="+response);
 			LOGGER.info("Status invoiceRequestRecurring="+new JSONObject(invoice)+"    Response="+response);
