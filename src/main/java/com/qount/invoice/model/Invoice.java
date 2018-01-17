@@ -100,6 +100,51 @@ public class Invoice {
 	private String billing_to;
 	private String billing_from;
 	private String remit_payments_to;
+	private String po_number;
+	private String project_name;
+	private String billing_cycle;
+	private String recurringFrequency;
+	private String recurringEnddate;
+
+	public String getRecurringFrequency() {
+		return recurringFrequency;
+	}
+
+	public void setRecurringFrequency(String recurringFrequency) {
+		this.recurringFrequency = recurringFrequency;
+	}
+
+	public String getRecurringEnddate() {
+		return recurringEnddate;
+	}
+
+	public void setRecurringEnddate(String recurringEnddate) {
+		this.recurringEnddate = recurringEnddate;
+	}
+
+	public String getPo_number() {
+		return po_number;
+	}
+
+	public void setPo_number(String po_number) {
+		this.po_number = po_number;
+	}
+
+	public String getProject_name() {
+		return project_name;
+	}
+
+	public void setProject_name(String project_name) {
+		this.project_name = project_name;
+	}
+
+	public String getBilling_cycle() {
+		return billing_cycle;
+	}
+
+	public void setBilling_cycle(String billing_cycle) {
+		this.billing_cycle = billing_cycle;
+	}
 
 	public String getRemit_payments_to() {
 		return remit_payments_to;

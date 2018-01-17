@@ -15,6 +15,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -60,6 +61,7 @@ public class InvoiceControllerImpl {
 	public static Invoice createInvoice(String userID, String companyID, Invoice invoice) {
 		LOGGER.debug("entered createInvoice(String userID:" + userID + ",companyID:" + companyID + " Invoice invoice)" + invoice);
 		Connection connection = null;
+		Invoice invoiceRecurring = new Invoice();
 		try {
 			if (invoice == null || StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
@@ -71,6 +73,11 @@ public class InvoiceControllerImpl {
 			if (invoiceExists) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
+			
+			if(!"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
+				BeanUtils.copyProperties(invoiceRecurring, invoice);
+			}
+			
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, true);
 			InvoicePreference invoicePreference = new InvoicePreference();
 			invoicePreference.setCompanyId(invoice.getCompany_id());
@@ -115,7 +122,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.EXPECTATION_FAILED));
 			}
 			connection.setAutoCommit(false);
-			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
+  			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().save(connection, invoice);
 			if (invoiceResult != null) {
 				if(invoice.isSendMail())
 				PostHelper.createPost(userID, companyID, invoice.getId());
@@ -136,10 +143,17 @@ public class InvoiceControllerImpl {
 					}
 					MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 				}
+				
 				// journal should not be created for draft state invoice.
 				if (invoice.isSendMail())
 					// saving dimensions of journal lines
 					CommonUtils.createJournal(new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
+				
+				if(!"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
+					new Thread(() -> {createRecurringInvoice(invoiceRecurring, userID);}).start();
+					
+				}
+				
 				Invoice result = InvoiceParser.convertTimeStampToString(invoiceObj);
 				LOGGER.debug("result:" + result);
 				return result;
@@ -1254,6 +1268,49 @@ public class InvoiceControllerImpl {
 			LOGGER.debug("exited InvoiceControllerImpl.getInvoiceListForPayEvent");
 		}
 		return invoiceList;
+	}
+	
+	public static void createRecurringInvoice(Invoice invoice, String userID){
+		System.out.println("Initialization createRecurringInvoices : "+new JSONObject(invoice));
+		LOGGER.info("Initialization createRecurringInvoices : "+new JSONObject(invoice));
+		try {
+			int i=1;
+			String invoiceNumber= invoice.getNumber();
+			String recurrance = invoice.getRecurringFrequency();
+			Date invoiceDate = DateUtils.getTimestampFromString(invoice.getInvoice_date(),Constants.SIMPLE_DATE_FORMAT );
+			Date endDate = DateUtils.getTimestampFromString(invoice.getRecurringEnddate());
+			System.out.println("invoiceDate Before calc="+invoiceDate);
+			switch (recurrance) {
+			case "weekly":  invoiceDate =org.apache.commons.lang3.time.DateUtils.addWeeks(invoiceDate, 1);break;
+			case "monthly":  invoiceDate = org.apache.commons.lang3.time.DateUtils.addMonths(invoiceDate, 1);break;
+			case "quarterly":  invoiceDate = org.apache.commons.lang3.time.DateUtils.addMonths(invoiceDate, 3);break; 
+			}
+			System.out.println("billDate After calc="+invoiceDate);
+			while(invoiceDate.compareTo(endDate) <= 0) {
+				invoice.setRecurringFrequency("onlyonce");
+				invoice.setNumber(invoiceNumber+"_"+i);
+				invoice.setInvoice_date(Constants.DATE_TO_INVOICE_FORMAT.format(invoiceDate)); 
+//				invoice.setDue_date(DateUtils.formatToString(DateUtils.getTimestampFromString(invoice.getDue_date(), Constants.SIMPLE_DATE_FORMAT)));
+				invoice.setRecurringEnddate(null);
+				invoice.setHistories(null);
+				invoice.setId("");
+			Invoice response = createInvoice(userID, invoice.getCompany_id(), invoice);
+			System.out.println("Status invoiceRequestRecurring="+new JSONObject(invoice)+"    Response="+response);
+			LOGGER.info("Status invoiceRequestRecurring="+new JSONObject(invoice)+"    Response="+response);
+			System.out.println("invoiceDate Before calc="+invoiceDate);
+			switch (recurrance) {
+			case "weekly":  invoiceDate =org.apache.commons.lang3.time.DateUtils.addWeeks(invoiceDate, 1);break;
+			case "monthly":  invoiceDate = org.apache.commons.lang3.time.DateUtils.addMonths(invoiceDate, 1);break;
+			case "quarterly":  invoiceDate = org.apache.commons.lang3.time.DateUtils.addMonths(invoiceDate, 3);break; 
+			}
+			System.out.println("invoiceDate After calc="+invoiceDate);
+			i++;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
 	}
 
 }

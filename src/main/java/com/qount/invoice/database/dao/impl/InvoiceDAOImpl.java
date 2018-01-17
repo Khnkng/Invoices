@@ -35,6 +35,7 @@ import com.qount.invoice.model.Item;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.SqlQuerys;
 
 public class InvoiceDAOImpl implements InvoiceDAO {
@@ -62,6 +63,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.INSERT_QRY);
+				pstmt.setString(ctr++, invoice.getPo_number());
+				pstmt.setString(ctr++, invoice.getProject_name());
+				pstmt.setString(ctr++, invoice.getBilling_cycle());
 				pstmt.setString(ctr++, invoice.getBilling_from());
 				pstmt.setString(ctr++, invoice.getBilling_to());
 				pstmt.setString(ctr++, invoice.getRemit_payments_to());
@@ -107,6 +111,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getProposal_id());
 				pstmt.setString(ctr++, invoice.getRemainder_job_id());
 				pstmt.setString(ctr++, invoice.getRemainder_name());
+				pstmt.setString(ctr++, invoice.getRecurringFrequency());
+				pstmt.setTimestamp(ctr++, DateUtils.getTimestampFromString(invoice.getRecurringEnddate()));
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException(
@@ -138,6 +144,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int ctr = 1;
 				invoice.setAmount(invoice.getSub_total()+invoice.getTax_amount()+invoice.getLate_fee_amount());
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_QRY);
+				pstmt.setString(ctr++, invoice.getPo_number());
+				pstmt.setString(ctr++, invoice.getProject_name());
+				pstmt.setString(ctr++, invoice.getBilling_cycle());
 				pstmt.setString(ctr++, invoice.getBilling_from());
 				pstmt.setString(ctr++, invoice.getBilling_to());
 				pstmt.setString(ctr++, invoice.getRemit_payments_to());
@@ -177,6 +186,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getSend_to());
 				pstmt.setString(ctr++, invoice.getPayment_method());
 				pstmt.setDouble(ctr++, invoice.getTax_amount());
+				pstmt.setString(ctr++, invoice.getRecurringFrequency());
+				pstmt.setTimestamp(ctr++, DateUtils.getTimestampFromString(invoice.getRecurringEnddate()));
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
@@ -394,6 +405,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (dimension != null)
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
+							invoice.setPo_number(rset.getString("po_number"));
+							invoice.setProject_name(rset.getString("project_name"));
+							invoice.setBilling_cycle(rset.getString("billing_cycle"));
 							invoice.setBilling_from(rset.getString("billing_from"));
 							invoice.setBilling_to(rset.getString("billing_to"));
 							invoice.setRemit_payments_to(rset.getString("remit_payments_to"));
@@ -422,6 +436,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							invoice.setState(rset.getString("state"));
 							invoice.setDue_date(rset.getString("due_date"));
 							invoice.setPostId(rset.getString("post_id"));
+							invoice.setRecurringFrequency(rset.getString("recurring_frequency"));
+							invoice.setRecurringEnddate(DateUtils.formatToString(rset.getTimestamp("recurring_end_date")));
 							
 //updated state from past_due to a new field to avoid invalid data manipulation
 							String due_date_Str = rset.getString("due_date");
