@@ -103,18 +103,27 @@ public class InvoiceDetailControllerImpl {
 						if (invoice_discounts.getType().equals(Constants.FLAT_FEE)) {
 							if (invoice.getAmount() == inputInvoice.getAmount() + invoice_discounts.getValue()) {
 								paymentLine.setDiscount(invoice_discounts.getValue());
+								if ((inputInvoice.getAmount() + paymentLine.getDiscount()) > invoice.getAmount()) {
+									throw new WebApplicationException(
+											PropertyManager.getProperty("invoice.amount.greater.than.error"));
+								}
 							}
 						} else if (invoice_discounts.getType().equals(Constants.PERCENTAGE)) {
 							double discount = invoice.getAmount() * (invoice_discounts.getValue() / 100);
 							if (invoice.getAmount() == inputInvoice.getAmount() + discount) {
 								paymentLine.setDiscount(discount);
+								if ((inputInvoice.getAmount() + paymentLine.getDiscount()) > invoice.getAmount()) {
+									throw new WebApplicationException(
+											PropertyManager.getProperty("invoice.amount.greater.than.error"));
+								}
 							}
 						}
-//						// 100 100 10
-//						if (!(invoice.getAmount() <= inputInvoice.getAmount() + paymentLine.getDiscount())) {
-//							throw new WebApplicationException(
-//									PropertyManager.getProperty("invoice.discount.payment.error"));
-//						}
+						// // 100 100 10
+						// if (!(invoice.getAmount() <= inputInvoice.getAmount() +
+						// paymentLine.getDiscount())) {
+						// throw new WebApplicationException(
+						// PropertyManager.getProperty("invoice.discount.payment.error"));
+						// }
 					}
 				}
 			}
