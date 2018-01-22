@@ -33,6 +33,7 @@ import com.qount.invoice.helper.PostHelper;
 import com.qount.invoice.model.Company2;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
+import com.qount.invoice.model.InvoiceDiscounts;
 import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
@@ -563,6 +564,28 @@ public class InvoiceControllerImpl {
 		try {
 			LOGGER.debug("entered markAsPaid invoice:" + invoice);
 			connection.setAutoCommit(false);
+			PaymentLine line = new PaymentLine();
+			List<PaymentLine> payments = new ArrayList<PaymentLine>();
+			InvoiceDiscounts invoice_discounts = null;
+			if(dbInvoice.getAmount_paid() == 0) {
+				// new payment 
+				if(StringUtils.isNotBlank(dbInvoice.getDiscount_id())) {
+					//having discount
+					invoice_discounts = new InvoiceDiscounts();
+					invoice_discounts.setId(dbInvoice.getDiscount_id());
+					invoice_discounts = MySQLManager.getInvoiceDiscountsDAO().get(connection, invoice_discounts);
+					long daysDifference = InvoiceParser.getDateDifference(new Date(), DateUtils.getDateFromString(dbInvoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+//														10				10
+					boolean isDiscountApplicable = daysDifference >= invoice_discounts.getDays();
+					if(isDiscountApplicable) {
+						if(invoice_discounts.getType().equals(Constants.FLAT_FEE)) {
+							line.setDiscount(invoice_discounts.getValue());
+						} else if(invoice_discounts.getType().equals(Constants.PERCENTAGE)) {
+							line.setDiscount(dbInvoice.getAmount() * (invoice_discounts.getValue()/100));
+						}
+					}
+				}
+			}
 			Payment payment = new Payment();
 			payment.setCompanyId(invoice.getCompany_id());
 			payment.setCurrencyCode(invoice.getCurrency());
@@ -576,14 +599,13 @@ public class InvoiceControllerImpl {
 			payment.setType(invoice.getPayment_method());
 			Timestamp invoice_date = InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
-			PaymentLine line = new PaymentLine();
 			line.setId(UUID.randomUUID().toString());
 			line.setInvoiceId(invoice.getId());
 			line.setAmount(new BigDecimal(invoice.getAmount()));
-			List<PaymentLine> payments = new ArrayList<PaymentLine>();
 			payments.add(line);
 			payment.setPaymentLines(payments);
-			invoice.setAmount_due(dbInvoice.getAmount() - (dbInvoice.getAmount_paid() + invoice.getAmount()));
+//									100							0							90					10
+			invoice.setAmount_due(dbInvoice.getAmount() - (dbInvoice.getAmount_paid() + invoice.getAmount() + invoice.getDiscount()));
 			LOGGER.debug("*********************************************");
 			LOGGER.debug("invoice due amount::" + invoice.getAmount_due());
 			LOGGER.debug("dbInvoice::" + dbInvoice);

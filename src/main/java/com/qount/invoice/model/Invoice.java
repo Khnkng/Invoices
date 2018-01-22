@@ -105,6 +105,9 @@ public class Invoice {
 	private String billing_cycle;
 	private String recurringFrequency;
 	private String recurringEnddate;
+	private String job_date;
+	private boolean is_discount_applied;
+	private String discount_id;
 
 	public String getRecurringFrequency() {
 		return recurringFrequency;
@@ -827,5 +830,31 @@ public class Invoice {
 	public void setPostId(String postId) {
 		this.postId = postId;
 	}
+
+	public String getJob_date() {
+		return job_date;
+	}
+
+	public void setJob_date(String job_date) {
+		this.job_date = job_date;
+	}
+
+	public boolean isIs_discount_applied() {
+		return is_discount_applied;
+	}
+
+	public void setIs_discount_applied(boolean is_discount_applied) {
+		this.is_discount_applied = is_discount_applied;
+	}
+
+	public String getDiscount_id() {
+		return discount_id;
+	}
+
+	public void setDiscount_id(String discount_id) {
+		this.discount_id = discount_id;
+	}
+	
+	
 
 }

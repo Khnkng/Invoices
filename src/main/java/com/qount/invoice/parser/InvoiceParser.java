@@ -50,7 +50,8 @@ public class InvoiceParser {
 			if (invoice == null || StringUtils.isAnyBlank(userId, companyID, invoice.getCurrency())) {
 				throw new WebApplicationException("userId, companyId, currency are mandatory", Constants.INVALID_INPUT);
 			}
-			if (StringUtils.isNotBlank(invoice.getState()) && !Constants.INVOICE_STATE_MAP.keySet().contains(invoice.getState())) {
+			if (StringUtils.isNotBlank(invoice.getState())
+					&& !Constants.INVOICE_STATE_MAP.keySet().contains(invoice.getState())) {
 				throw new WebApplicationException("Invalid invoice state", Constants.INVALID_INPUT);
 			}
 			UserCompany userCompany = null;
@@ -60,14 +61,19 @@ public class InvoiceParser {
 			invoice.setCompanyName(userCompany.getName());
 
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(),
+					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(),
+					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+			Timestamp job_date = convertStringToTimeStamp(invoice.getJob_date(),
+					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 			invoice.setUser_id(userId);
 			if (createFlag) {
 				invoice.setId(UUID.randomUUID().toString());
 			}
 			invoice.setInvoice_date(invoice_date != null ? invoice_date.toString() : null);
 			invoice.setDue_date(due_date != null ? due_date.toString() : null);
+			invoice.setJob_date(job_date != null ? job_date.toString() : null);
 			invoice.setLast_updated_at(timestamp != null ? timestamp.toString() : null);
 			invoice.setLast_updated_by(userId);
 			if (createFlag) {
@@ -97,8 +103,7 @@ public class InvoiceParser {
 		return invoice;
 	}
 
-	
-	public static void updateInvoiceAmountByDate(Invoice invoice){
+	public static void updateInvoiceAmountByDate(Invoice invoice) {
 		try {
 			UserCompany userCompany = CommonUtils.getCompany(invoice.getCompany_id());
 			setInvoiceAmountByDate(invoice, userCompany);
@@ -106,7 +111,7 @@ public class InvoiceParser {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 		}
 	}
-	
+
 	public static Timestamp convertStringToTimeStamp(String dateStr, SimpleDateFormat sdf) {
 		try {
 			return new Timestamp(sdf.parse(dateStr).getTime());
@@ -129,8 +134,10 @@ public class InvoiceParser {
 	public static Invoice convertTimeStampToString(Invoice invoice) {
 		try {
 			if (invoice != null) {
-				invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-				invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+				invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(),
+						Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+				invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(),
+						Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -158,7 +165,9 @@ public class InvoiceParser {
 						invoice.setProcessing_fees(InvoiceParser.getTwoDecimalValue(invoice.getProcessing_fees()));
 						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getSub_total()));
 						invoice.setTax_amount(InvoiceParser.getTwoDecimalValue(invoice.getTax_amount()));
-						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
+						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null
+								? invoice.getInvoiceLines().iterator()
+								: null;
 						if (invoiceLineIterator != null) {
 							while (invoiceLineIterator.hasNext()) {
 								InvoiceLine invoiceLine = invoiceLineIterator.next();
@@ -181,10 +190,12 @@ public class InvoiceParser {
 				for (int i = 0; i < invoiceLst.size(); i++) {
 					Invoice invoice = invoiceLst.get(i);
 					if (invoice != null) {
-						invoice.setInvoice_date(
-								convertTimeStampToString(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-						invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(), new SimpleDateFormat("yyyy-MM-dd"), Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setInvoice_date(convertTimeStampToString(invoice.getInvoice_date(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						invoice.setPayment_date(convertTimeStampToString(invoice.getPayment_date(),
+								new SimpleDateFormat("yyyy-MM-dd"), Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 						invoice.setAmount(InvoiceParser.getTwoDecimalValue(invoice.getAmount()));
 						invoice.setAmount_by_date(InvoiceParser.getTwoDecimalValue(invoice.getAmount_by_date()));
 						invoice.setAmount_due(InvoiceParser.getTwoDecimalValue(invoice.getAmount_due()));
@@ -194,10 +205,16 @@ public class InvoiceParser {
 						invoice.setSub_total(InvoiceParser.getTwoDecimalValue(invoice.getSub_total()));
 						invoice.setTax_amount(InvoiceParser.getTwoDecimalValue(invoice.getTax_amount()));
 						invoice.setLate_fee_amount(InvoiceParser.getTwoDecimalValue(invoice.getLate_fee_amount()));
-						if(StringUtils.isNotBlank(invoice.getState()) && invoice.getState().equals(Constants.OPEN)){
+						if (StringUtils.isNoneBlank(invoice.getJob_date())) {
+							invoice.setJob_date(convertTimeStampToString(invoice.getJob_date(),
+									Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+						}
+						if (StringUtils.isNotBlank(invoice.getState()) && invoice.getState().equals(Constants.OPEN)) {
 							invoice.setState(Constants.OPENED);
 						}
-						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
+						Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null
+								? invoice.getInvoiceLines().iterator()
+								: null;
 						if (invoiceLineIterator != null) {
 							while (invoiceLineIterator.hasNext()) {
 								InvoiceLine invoiceLine = invoiceLineIterator.next();
@@ -224,7 +241,8 @@ public class InvoiceParser {
 				for (int i = 0; i < invoiceHistoryLst.size(); i++) {
 					InvoiceHistory invoiceHistory = invoiceHistoryLst.get(i);
 					if (invoiceHistory != null) {
-						invoiceHistory.setAction_at(convertTimeStampToString(invoiceHistory.getAction_at(), Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.UI_DATE_TIME_FORMAT));
+						invoiceHistory.setAction_at(convertTimeStampToString(invoiceHistory.getAction_at(),
+								Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.UI_DATE_TIME_FORMAT));
 						String action = StringUtils.capitalize(invoiceHistory.getAction());
 						if (StringUtils.isNoneBlank(action)) {
 							action = action.replace("_", " ");
@@ -256,7 +274,9 @@ public class InvoiceParser {
 				invoice.setSub_total(getTwoDecimalValue(invoice.getSub_total()));
 				invoice.setTax_amount(getTwoDecimalValue(invoice.getTax_amount()));
 				invoice.setLate_fee_amount(getTwoDecimalValue(invoice.getLate_fee_amount()));
-				Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null ? invoice.getInvoiceLines().iterator() : null;
+				Iterator<InvoiceLine> invoiceLineIterator = invoice.getInvoiceLines() != null
+						? invoice.getInvoiceLines().iterator()
+						: null;
 				if (invoiceLineIterator != null) {
 					while (invoiceLineIterator.hasNext()) {
 						InvoiceLine invoiceLine = invoiceLineIterator.next();
@@ -284,7 +304,8 @@ public class InvoiceParser {
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			// throw new WebApplicationException(e.getLocalizedMessage(), 500);
-			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					e.getLocalizedMessage(), Status.INTERNAL_SERVER_ERROR));
 		}
 	}
 
@@ -339,7 +360,8 @@ public class InvoiceParser {
 			Company company = new Company();
 			company.setId(invoice.getCompany_id());
 			Customer customer = new Customer();
-			String customerId = invoice.getCustomer() == null ? invoice.getCustomer_id() : invoice.getCustomer().getCustomer_id();
+			String customerId = invoice.getCustomer() == null ? invoice.getCustomer_id()
+					: invoice.getCustomer().getCustomer_id();
 			customer.setCustomer_id(customerId);
 			invoiceReference.setCompany(company);
 			invoiceReference.setCustomer(customer);
@@ -445,9 +467,11 @@ public class InvoiceParser {
 				Iterator<Invoice> invoicesItr = invoices.iterator();
 				while (invoicesItr.hasNext()) {
 					Invoice invoice = invoicesItr.next();
-					String state = invoice != null && StringUtils.isNotBlank(invoice.getState()) ? invoice.getState() : null;
+					String state = invoice != null && StringUtils.isNotBlank(invoice.getState()) ? invoice.getState()
+							: null;
 					if (StringUtils.isNotBlank(state)) {
-						if (state.equals(Constants.INVOICE_STATE_PAID) || state.equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+						if (state.equals(Constants.INVOICE_STATE_PAID)
+								|| state.equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
 							return true;
 						}
 					}
@@ -473,12 +497,16 @@ public class InvoiceParser {
 				Invoice invoice = invoiceLstItr.next();
 				Invoice invoiceResponse = new Invoice();
 
-				Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-				Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(),
+						Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				Timestamp due_date = convertStringToTimeStamp(invoice.getDue_date(),
+						Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 
-				Timestamp created_at = convertStringToTimeStamp(invoice.getCreated_at(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				Timestamp created_at = convertStringToTimeStamp(invoice.getCreated_at(),
+						Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 
-				Timestamp last_updated_at = convertStringToTimeStamp(invoice.getLast_updated_at(), Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				Timestamp last_updated_at = convertStringToTimeStamp(invoice.getLast_updated_at(),
+						Constants.TIME_STATMP_TO_INVOICE_FORMAT);
 
 				invoiceResponse.setInvoice_date(invoice_date.toString());
 				invoiceResponse.setDue_date(due_date.toString());
@@ -514,7 +542,8 @@ public class InvoiceParser {
 
 	public static InvoiceHistory getInvoice_history(Invoice invoice, String id, String user_id, String companyId) {
 		try {
-			LOGGER.debug("entered getInvoice_history(Invoice invoice:" + invoice + " String id:" + id + ", String user_id:" + user_id + ",String companyId:" + companyId + ")");
+			LOGGER.debug("entered getInvoice_history(Invoice invoice:" + invoice + " String id:" + id
+					+ ", String user_id:" + user_id + ",String companyId:" + companyId + ")");
 			if (invoice != null) {
 				InvoiceHistory invoiceHistory = new InvoiceHistory();
 				invoiceHistory.setAction(invoice.getState());
@@ -547,15 +576,18 @@ public class InvoiceParser {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("exited getInvoice_history(Invoice invoice" + invoice + " String id:" + id + ", String user_id:" + user_id + ",String companyId:" + companyId + ")");
+			LOGGER.debug("exited getInvoice_history(Invoice invoice" + invoice + " String id:" + id
+					+ ", String user_id:" + user_id + ",String companyId:" + companyId + ")");
 		}
 		return null;
 	}
 
-	public static InvoiceHistory getInvoice_history(Invoice invoice, String id, String user_id, String companyId, String emailState, String email) {
+	public static InvoiceHistory getInvoice_history(Invoice invoice, String id, String user_id, String companyId,
+			String emailState, String email) {
 		try {
-			LOGGER.debug("entered getInvoice_history(Invoice invoice:" + invoice + " String id:" + id + ", String user_id:" + user_id + ",String companyId:" + companyId
-					+ " String emailState:" + emailState + " String email:" + email + ")");
+			LOGGER.debug("entered getInvoice_history(Invoice invoice:" + invoice + " String id:" + id
+					+ ", String user_id:" + user_id + ",String companyId:" + companyId + " String emailState:"
+					+ emailState + " String email:" + email + ")");
 			if (invoice != null) {
 				InvoiceHistory invoiceHistory = new InvoiceHistory();
 				invoiceHistory.setAction(emailState);
@@ -579,17 +611,19 @@ public class InvoiceParser {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("exited getInvoice_history(Invoice invoice" + invoice + " String id:" + id + ", String user_id:" + user_id + ",String companyId:" + companyId
-					+ " String emailState:" + emailState + " String email:" + email + ")");
+			LOGGER.debug("exited getInvoice_history(Invoice invoice" + invoice + " String id:" + id
+					+ ", String user_id:" + user_id + ",String companyId:" + companyId + " String emailState:"
+					+ emailState + " String email:" + email + ")");
 		}
 		return null;
 	}
 
-	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds, String user_id, String companyId, boolean markAsSent, String state) {
+	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds, String user_id, String companyId,
+			boolean markAsSent, String state) {
 		try {
 			List<InvoiceHistory> result = null;
-			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:" + invoiceIds + ", String user_id:" + user_id + ",String companyId:" + companyId
-					+ " boolean markAsSent:" + markAsSent + ")");
+			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:" + invoiceIds + ", String user_id:"
+					+ user_id + ",String companyId:" + companyId + " boolean markAsSent:" + markAsSent + ")");
 			if (invoiceIds != null && !invoiceIds.isEmpty()) {
 				result = new ArrayList<InvoiceHistory>();
 				for (int i = 0; i < invoiceIds.size(); i++) {
@@ -621,8 +655,8 @@ public class InvoiceParser {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw e;
 		} finally {
-			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds" + invoiceIds + ", String user_id:" + user_id + ",String companyId:" + companyId
-					+ " boolean markAsSent:" + markAsSent + ")");
+			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds" + invoiceIds + ", String user_id:"
+					+ user_id + ",String companyId:" + companyId + " boolean markAsSent:" + markAsSent + ")");
 		}
 		return null;
 	}
@@ -630,17 +664,22 @@ public class InvoiceParser {
 	public static boolean deleteInvoivceCommissionBill(InvoiceCommission invoiceCommission) throws Exception {
 		try {
 			LOGGER.debug("entered deleteInvoivceCommissionBill(invoiceCommission:" + invoiceCommission);
-			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname", "half.service.docker.apservice.port");
+			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname",
+					"half.service.docker.apservice.port");
 			if (StringUtils.isBlank(apServiceUrl)) {
 				LOGGER.fatal("ltm invoice->apserivce not present ltm url:" + apServiceUrl);
 				return false;
 			}
-//			 apServiceUrl = "https://dev-services.qount.io/";
-			if (StringUtils.isAnyBlank(invoiceCommission.getUser_id(), invoiceCommission.getCompany_id(), invoiceCommission.getBill_id())) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.delete.billl.empty.userid.companyid.billId"), Constants.INVALID_INPUT);
+			// apServiceUrl = "https://dev-services.qount.io/";
+			if (StringUtils.isAnyBlank(invoiceCommission.getUser_id(), invoiceCommission.getCompany_id(),
+					invoiceCommission.getBill_id())) {
+				throw new WebApplicationException(
+						PropertyManager
+								.getProperty("error.invoice.commission.delete.billl.empty.userid.companyid.billId"),
+						Constants.INVALID_INPUT);
 			}
-			apServiceUrl += "BigPayServices/user/" + invoiceCommission.getUser_id() + "/companies/" + invoiceCommission.getCompany_id() + "/bills/"
-					+ invoiceCommission.getBill_id();
+			apServiceUrl += "BigPayServices/user/" + invoiceCommission.getUser_id() + "/companies/"
+					+ invoiceCommission.getCompany_id() + "/bills/" + invoiceCommission.getBill_id();
 			String result = HTTPClient.delete(apServiceUrl);
 			if (StringUtils.isNotBlank(result)) {
 				JSONObject resultObj = new JSONObject(result);
@@ -660,17 +699,19 @@ public class InvoiceParser {
 		return false;
 	}
 
-	public static boolean createInvoiceCommisionBill(InvoiceCommission invoiceCommission,String id) {
+	public static boolean createInvoiceCommisionBill(InvoiceCommission invoiceCommission, String id) {
 		try {
 			LOGGER.debug("entered createInvoiceCommisionBill invoiceCommission:" + invoiceCommission);
-			JSONObject billsJson = getInvoiceCommissionJson(invoiceCommission,id);
-			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname", "half.service.docker.apservice.port");
+			JSONObject billsJson = getInvoiceCommissionJson(invoiceCommission, id);
+			String apServiceUrl = LTMUtils.getHostAddress("half.service.docker.apservice.hostname",
+					"half.service.docker.apservice.port");
 			if (StringUtils.isBlank(apServiceUrl)) {
 				LOGGER.fatal("ltm invoice->apserivce not present ltm url:" + apServiceUrl);
 				return false;
 			}
-//			 apServiceUrl = "https://dev-services.qount.io/";
-			apServiceUrl += "BigPayServices/user/" + invoiceCommission.getUser_id() + "/companies/" + invoiceCommission.getCompany_id() + "/bills";
+			// apServiceUrl = "https://dev-services.qount.io/";
+			apServiceUrl += "BigPayServices/user/" + invoiceCommission.getUser_id() + "/companies/"
+					+ invoiceCommission.getCompany_id() + "/bills";
 			JSONObject result = HTTPClient.post(apServiceUrl, billsJson.toString());
 			if (CommonUtils.isValidJSON(result)) {
 				String status = result.optString("status");
@@ -696,53 +737,71 @@ public class InvoiceParser {
 		try {
 			LOGGER.debug("entered getInvoiceCommissionJson invoiceCommision:" + invoiceCommision);
 			if (invoiceCommision == null) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty"),
+						Constants.INVALID_INPUT);
 			}
 			if (StringUtils.isAnyBlank(invoiceCommision.getUser_id(), invoiceCommision.getCompany_id())) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.userid.companyid"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(
+						PropertyManager.getProperty("error.invoice.commission.userid.companyid"),
+						Constants.INVALID_INPUT);
 			}
 			String eventType = invoiceCommision.getEvent_type();
 			if (StringUtils.isBlank(eventType)) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.event.type"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.event.type"),
+						Constants.INVALID_INPUT);
 			}
 			if (!eventType.equals(Constants.STRING) && !eventType.equals(Constants.DATE)) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.event.type.value"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(
+						PropertyManager.getProperty("error.invoice.commission.event.type.value"),
+						Constants.INVALID_INPUT);
 			}
 			String eventAt = invoiceCommision.getEvent_at();
 			if (StringUtils.isBlank(eventAt)) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventAt"),
+						Constants.INVALID_INPUT);
 			}
 			if (invoiceCommision.getInvoice_amount() <= 0.0) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.invoice.amount"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(
+						PropertyManager.getProperty("error.invoice.commission.invoice.amount"),
+						Constants.INVALID_INPUT);
 			}
 			if (StringUtils.isBlank(invoiceCommision.getInvoice_number())) {
 				// invoice number will be used for bill number
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.number"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.number"),
+						Constants.INVALID_INPUT);
 			}
-			String title = String.format(PropertyManager.getProperty("invoice.commission.bill.title"), invoiceCommision.getInvoice_number());
-			id = StringUtils.isNotBlank(id)?id:UUID.randomUUID().toString();
+			String title = String.format(PropertyManager.getProperty("invoice.commission.bill.title"),
+					invoiceCommision.getInvoice_number());
+			id = StringUtils.isNotBlank(id) ? id : UUID.randomUUID().toString();
 			invoiceCommision.setId(id);
 			invoiceCommision.setBill_id(id);
-			//every invoice commission will have bill with only one line 
+			// every invoice commission will have bill with only one line
 			invoiceCommision.setBillLineId(id);
 			String currentDate = DateUtils.getCurrentDate(Constants.DATE_TO_COMMISSION_BILLS_UI_DATE_FORMAT);
 			JSONArray lines = new JSONArray();
 			JSONObject lineObj = new JSONObject();
 			String itemName = invoiceCommision.getItem_name();
 			if (StringUtils.isEmpty(itemName)) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.itemname"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(
+						PropertyManager.getProperty("error.invoice.commission.empty.itemname"),
+						Constants.INVALID_INPUT);
 			}
 			lines.put(lineObj);
 			lineObj.put("quantity", 1);
 			String amountType = invoiceCommision.getAmount_type();
 			if (StringUtils.isEmpty(amountType)) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.amountType"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(
+						PropertyManager.getProperty("error.invoice.commission.empty.amountType"),
+						Constants.INVALID_INPUT);
 			}
 			if (!amountType.equals(Constants.PERCENTAGE) && !amountType.equals(Constants.FLAT_FEE)) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.invalid.amountType"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(
+						PropertyManager.getProperty("error.invoice.commission.invalid.amountType"),
+						Constants.INVALID_INPUT);
 			}
 			if (invoiceCommision.getAmount() <= 0.0) {
-				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.percentage"), Constants.INVALID_INPUT);
+				throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.percentage"),
+						Constants.INVALID_INPUT);
 			}
 			double invoiceCommissionAmount = 0.0;
 			if (invoiceCommision.getAmount_type().equals(Constants.PERCENTAGE)) {
@@ -763,7 +822,9 @@ public class InvoiceParser {
 			if (eventType.equals(Constants.DATE)) {
 				String eventDate = invoiceCommision.getEvent_date();
 				if (StringUtils.isBlank(eventDate)) {
-					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.commission.empty.eventDate"), Constants.INVALID_INPUT);
+					throw new WebApplicationException(
+							PropertyManager.getProperty("error.invoice.commission.empty.eventDate"),
+							Constants.INVALID_INPUT);
 				}
 				apServiceInputJson.put("dueDate", eventDate);
 			} else {
@@ -786,6 +847,15 @@ public class InvoiceParser {
 			LOGGER.debug("exited getInvoiceCommissionJson invoiceCommision:" + invoiceCommision);
 		}
 		return null;
+	}
+
+	public static long getDateDifference(Date startDate, Date endDate) {
+		try {
+			return (endDate.getTime() - startDate.getTime()) / Constants.DAYS_IN_MILLIS;
+		} catch (Exception e) {
+			LOGGER.error("error in getDateDifference(Date startDate, Date endDate):", e);
+		}
+		return -1;
 	}
 
 }

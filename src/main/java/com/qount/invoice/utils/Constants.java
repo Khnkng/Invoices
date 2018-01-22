@@ -164,4 +164,5 @@ public class Constants {
 	public static final String PERCENTAGE = "percentage";
 	public static final String FLAT_FEE = "flat_fee";
 	public static final String OPENED = "opened";
+	public static int DAYS_IN_MILLIS = 86400000;
 }
