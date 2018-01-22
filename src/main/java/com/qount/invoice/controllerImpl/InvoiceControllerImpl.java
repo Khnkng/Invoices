@@ -579,14 +579,19 @@ public class InvoiceControllerImpl {
 					boolean isDiscountApplicable = daysDifference >= invoice_discounts.getDays();
 					if(isDiscountApplicable) {
 						if(invoice_discounts.getType().equals(Constants.FLAT_FEE)) {
-							line.setDiscount(invoice_discounts.getValue());
+							if(dbInvoice.getAmount()==invoice.getAmount()+invoice_discounts.getValue()) {
+								line.setDiscount(invoice_discounts.getValue());
+							}
 						} else if(invoice_discounts.getType().equals(Constants.PERCENTAGE)) {
-							line.setDiscount(dbInvoice.getAmount() * (invoice_discounts.getValue()/100));
+							double discount = dbInvoice.getAmount() * (invoice_discounts.getValue()/100);
+							if(dbInvoice.getAmount()==invoice.getAmount()+discount) {
+								line.setDiscount(discount);
+							}
 						}
 //								200								200				10
-						if(!(dbInvoice.getAmount()<invoice.getAmount()+line.getDiscount())) {
-							throw new WebApplicationException(PropertyManager.getProperty("invoice.discount.payment.error"));
-						}
+//						if(!(dbInvoice.getAmount()<=invoice.getAmount()+line.getDiscount())) {
+//							throw new WebApplicationException(PropertyManager.getProperty("invoice.discount.payment.error"));
+//						}
 					}
 				}
 			}
