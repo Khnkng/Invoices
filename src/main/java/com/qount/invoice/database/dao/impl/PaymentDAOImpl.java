@@ -138,8 +138,8 @@ public class PaymentDAOImpl implements paymentDAO {
 						amountPaid = paymentLine.getAmount().doubleValue();
 					}
 				}
-				invoice.setAmount_paid(invoice.getAmount_paid() + amountPaid);
-				invoice.setAmount_due(invoice.getAmount_due() - amountPaid);
+				invoice.setAmount_paid(invoice.getAmount_paid() + amountPaid );
+				invoice.setAmount_due(invoice.getAmount_due() - amountPaid - paymentLine.getDiscount() );
 				invoice.setDiscount(paymentLine.getDiscount());
 			} else if (checkInvoiceAmountFlag) {
 				// 			100									10								100
