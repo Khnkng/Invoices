@@ -20,8 +20,10 @@ import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
+import com.qount.invoice.model.InvoiceDiscounts;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -79,11 +81,36 @@ public class InvoiceDetailControllerImpl {
 			String state = null;
 			Payment payment = new Payment();
 			PaymentLine paymentLine = new PaymentLine();
-			if (amountToPay > invoice.getAmount_due()) {
+			InvoiceDiscounts invoice_discounts = null;
+			if(invoice.getAmount_paid() == 0) {
+				// new payment 
+				if(StringUtils.isNotBlank(invoice.getDiscount_id())) {
+					//having discount
+					invoice_discounts = new InvoiceDiscounts();
+					invoice_discounts.setId(invoice.getDiscount_id());
+					invoice_discounts = MySQLManager.getInvoiceDiscountsDAO().get(connection, invoice_discounts);
+					long daysDifference = InvoiceParser.getDateDifference(new Date(), DateUtils.getDateFromString(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+//														10				10
+					boolean isDiscountApplicable = daysDifference >= invoice_discounts.getDays();
+					if(isDiscountApplicable) {
+						if(invoice_discounts.getType().equals(Constants.FLAT_FEE)) {
+							paymentLine.setDiscount(invoice_discounts.getValue());
+						} else if(invoice_discounts.getType().equals(Constants.PERCENTAGE)) {
+							paymentLine.setDiscount(invoice.getAmount() * (invoice_discounts.getValue()/100));
+						}
+//							100						100							10
+//						if(invoice.getAmount()<inputInvoice.getAmountToPay()+paymentLine.getDiscount()) {
+//							throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
+//						}
+					}
+				}
+			}
+//						90				100							10
+			if (amountToPay > invoice.getAmount_due() - paymentLine.getDiscount()) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
-			} else if (amountToPay == invoice.getAmount_due()) {
+			} else if (amountToPay == invoice.getAmount_due() - paymentLine.getDiscount()) {
 				state = Constants.INVOICE_STATE_PAID;
-			} else if (amountToPay < invoice.getAmount_due()) {
+			} else if (amountToPay < invoice.getAmount_due() - paymentLine.getDiscount()) {
 				state = Constants.INVOICE_STATE_PARTIALLY_PAID;
 			}
 			paymentLine.setId(UUID.randomUUID().toString());
@@ -160,7 +187,7 @@ public class InvoiceDetailControllerImpl {
 			payments.add(paymentLine);
 			payment.setPaymentLines(payments);
 			invoice.setAmount_paid(invoice.getAmount_paid() + amountPaidInDollar);
-			if (invoice.getAmount_paid() == invoice.getAmount()) {
+			if (invoice.getAmount_paid() + paymentLine.getDiscount() == invoice.getAmount()) {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
 				Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
 				invoice.setAmount_due(0);

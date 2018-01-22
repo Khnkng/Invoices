@@ -123,10 +123,11 @@ public class PaymentDAOImpl implements paymentDAO {
 				return;
 			}
 			if (!checkInvoiceAmountFlag) {
-				if (paymentLine.getAmount().doubleValue() > invoice.getAmount_due()) {
+				if ((paymentLine.getAmount().doubleValue() + paymentLine.getDiscount()) > invoice.getAmount_due()) {
 					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 				}
-				if (invoice.getAmount_due() == paymentLine.getAmount().doubleValue()) {
+				//		100								90										10
+				if (invoice.getAmount_due() == ( paymentLine.getAmount().doubleValue() + paymentLine.getDiscount())) {
 					invoice.setState(Constants.INVOICE_STATE_PAID);
 					amountPaid = paymentLine.getAmount().doubleValue();
 				} else {
@@ -139,11 +140,14 @@ public class PaymentDAOImpl implements paymentDAO {
 				}
 				invoice.setAmount_paid(invoice.getAmount_paid() + amountPaid);
 				invoice.setAmount_due(invoice.getAmount_due() - amountPaid);
+				invoice.setDiscount(paymentLine.getDiscount());
 			} else if (checkInvoiceAmountFlag) {
-				if (paymentLine.getAmount().doubleValue() > invoice.getAmount()) {
+				// 			100									10								100
+				if ((paymentLine.getAmount().doubleValue() + paymentLine.getDiscount()) > invoice.getAmount()) {
 					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 				}
-				if (invoice.getAmount() == paymentLine.getAmount().doubleValue()) {
+				//	100							90										10
+				if (invoice.getAmount() == (paymentLine.getAmount().doubleValue() + paymentLine.getDiscount())) {
 					invoice.setState(Constants.INVOICE_STATE_PAID);
 					amountPaid = paymentLine.getAmount().doubleValue();
 				} else {
@@ -157,6 +161,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				}
 				invoice.setAmount_paid(amountPaid);
 				invoice.setAmount_due(invoice.getAmount() - amountPaid);
+				invoice.setDiscount(paymentLine.getDiscount());
 			} else {
 				throw new WebApplicationException("unable to perform invoice amount validation", Constants.EXPECTATION_FAILED);
 			}
@@ -211,6 +216,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				}
 				pstmt.setDouble(ctr++, amt);
 				pstmt.setString(ctr++, paymentId);
+				pstmt.setDouble(ctr++, paymentLine.getDiscount());
 				int affectedRows = pstmt.executeUpdate();
 				if (affectedRows == 0) {
 					throw new SQLException("");
