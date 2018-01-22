@@ -101,20 +101,31 @@ public class InvoiceDetailControllerImpl {
 					boolean isDiscountApplicable = daysDifference >= invoice_discounts.getDays();
 					if (isDiscountApplicable) {
 						if (invoice_discounts.getType().equals(Constants.FLAT_FEE)) {
-							if (invoice.getAmount() == inputInvoice.getAmount() + invoice_discounts.getValue()) {
-								paymentLine.setDiscount(invoice_discounts.getValue());
+							if (inputInvoice.getAmount() + invoice_discounts.getValue() <= invoice.getAmount()) {
+								if (invoice.getAmount() == inputInvoice.getAmount() + invoice_discounts.getValue()) {
+									paymentLine.setDiscount(invoice_discounts.getValue());
+								}
+							} else {
+								throw new WebApplicationException(
+										PropertyManager.getProperty("invoice.amount.greater.than.error"));
 							}
 						} else if (invoice_discounts.getType().equals(Constants.PERCENTAGE)) {
 							double discount = invoice.getAmount() * (invoice_discounts.getValue() / 100);
-							if (invoice.getAmount() == inputInvoice.getAmount() + discount) {
-								paymentLine.setDiscount(discount);
+							if (inputInvoice.getAmount() + discount <= invoice.getAmount()) {
+								if (invoice.getAmount() == inputInvoice.getAmount() + discount) {
+									paymentLine.setDiscount(discount);
+								}
+							} else {
+								throw new WebApplicationException(
+										PropertyManager.getProperty("invoice.amount.greater.than.error"));
 							}
 						}
-//						// 100 100 10
-//						if (!(invoice.getAmount() <= inputInvoice.getAmount() + paymentLine.getDiscount())) {
-//							throw new WebApplicationException(
-//									PropertyManager.getProperty("invoice.discount.payment.error"));
-//						}
+						// // 100 100 10
+						// if (!(invoice.getAmount() <= inputInvoice.getAmount() +
+						// paymentLine.getDiscount())) {
+						// throw new WebApplicationException(
+						// PropertyManager.getProperty("invoice.discount.payment.error"));
+						// }
 					}
 				}
 			}
@@ -254,7 +265,9 @@ public class InvoiceDetailControllerImpl {
 				throw new WebApplicationException("payment done but not saved in qount db");
 				// TODO refund payment
 			}
-		} catch (WebApplicationException e) {
+		} catch (
+
+		WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(
 					ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getMessage(),
