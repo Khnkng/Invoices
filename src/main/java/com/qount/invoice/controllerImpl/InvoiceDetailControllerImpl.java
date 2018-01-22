@@ -82,7 +82,7 @@ public class InvoiceDetailControllerImpl {
 			Payment payment = new Payment();
 			PaymentLine paymentLine = new PaymentLine();
 			InvoiceDiscounts invoice_discounts = null;
-			if(invoice.getAmount_paid() == 0 && amountToPay == invoice.getAmount_due()) {
+			if(invoice.getAmount_paid() == 0) {
 				// new payment 
 				if(StringUtils.isNotBlank(invoice.getDiscount_id())) {
 					//having discount
