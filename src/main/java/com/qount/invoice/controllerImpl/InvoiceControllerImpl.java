@@ -567,7 +567,7 @@ public class InvoiceControllerImpl {
 			PaymentLine line = new PaymentLine();
 			List<PaymentLine> payments = new ArrayList<PaymentLine>();
 			InvoiceDiscounts invoice_discounts = null;
-			if(dbInvoice.getAmount_paid() == 0) {
+			if(dbInvoice.getAmount_paid() == 0 && invoice.getAmountToPay() == dbInvoice.getAmount_due()) {
 				// new payment 
 				if(StringUtils.isNotBlank(dbInvoice.getDiscount_id())) {
 					//having discount
