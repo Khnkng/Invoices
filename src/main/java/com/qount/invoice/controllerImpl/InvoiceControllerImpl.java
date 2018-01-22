@@ -583,6 +583,10 @@ public class InvoiceControllerImpl {
 						} else if(invoice_discounts.getType().equals(Constants.PERCENTAGE)) {
 							line.setDiscount(dbInvoice.getAmount() * (invoice_discounts.getValue()/100));
 						}
+//								200								200				10
+						if(dbInvoice.getAmount()<invoice.getAmountToPay()+line.getDiscount()) {
+							throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
+						}
 					}
 				}
 			}
