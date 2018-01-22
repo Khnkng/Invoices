@@ -99,8 +99,8 @@ public class InvoiceDetailControllerImpl {
 							paymentLine.setDiscount(invoice.getAmount() * (invoice_discounts.getValue()/100));
 						}
 //							100						100							10
-						if(invoice.getAmount()<inputInvoice.getAmountToPay()+paymentLine.getDiscount()) {
-							throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
+						if(!(invoice.getAmount()<inputInvoice.getAmount()+paymentLine.getDiscount())) {
+							throw new WebApplicationException(PropertyManager.getProperty("invoice.discount.payment.error"));
 						}
 					}
 				}

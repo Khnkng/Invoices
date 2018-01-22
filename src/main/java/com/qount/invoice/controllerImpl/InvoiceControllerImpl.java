@@ -584,8 +584,8 @@ public class InvoiceControllerImpl {
 							line.setDiscount(dbInvoice.getAmount() * (invoice_discounts.getValue()/100));
 						}
 //								200								200				10
-						if(dbInvoice.getAmount()<invoice.getAmountToPay()+line.getDiscount()) {
-							throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
+						if(!(dbInvoice.getAmount()<invoice.getAmount()+line.getDiscount())) {
+							throw new WebApplicationException(PropertyManager.getProperty("invoice.discount.payment.error"));
 						}
 					}
 				}
