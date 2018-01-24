@@ -183,11 +183,22 @@ public class SqlQuerys {
 
 	public final class InvoiceDiscounts {
 
-		public static final String INSERT_QRY = "INSERT INTO invoice_discounts ( `id`, `name`, `description`, `type`, `value`, `company_id`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at`,`days` ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );";
-		public static final String UPDATE_QRY = "UPDATE invoice_discounts SET `name` = ?, `description` = ?, `type` = ?, `value` = ?, `company_id` = ?, `last_updated_by` = ?, `last_updated_at` = ?,`days` = ? WHERE `id` = ?;";
+		public static final String INSERT_QRY = "INSERT INTO invoice_discounts ( `id`, `name`, `description`, `type`, `company_id`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ? );";
+		public static final String UPDATE_QRY = "UPDATE invoice_discounts SET `name` = ?, `description` = ?, `type` = ?, `company_id` = ?, `last_updated_by` = ?, `last_updated_at` = ? WHERE `id` = ?;";
 		public static final String DELETE_QRY = "DELETE FROM invoice_discounts WHERE `id` = ?;";
 		public static final String DELETE_BY_COMPANY_ID_QRY = "DELETE FROM invoice_discounts WHERE `company_id` = ?";
-		public static final String GET_QRY = "SELECT `id`, `name`, `description`, `type`, `value`, `company_id`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at`,`days` FROM `invoice_discounts` WHERE `id` = ?;";
-		public static final String GET_ALL_QRY = "SELECT `id`, `name`, `description`, `type`, `value`, `company_id`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at`,`days` FROM invoice_discounts where created_by = ? and company_id = ?;";
+		public static final String GET_QRY = "SELECT ids.`id`,ids.`name`,ids.`description`,ids.`type`,ids.`company_id`,ids.`created_at`,ids.`created_by`,ids.`last_updated_at`,ids.`last_updated_by`,dsr.`id` AS range_id,dsr.`discount_id`,dsr.`fromDay`,dsr.`toDay`,dsr.`value` FROM invoice_discounts ids LEFT JOIN discounts_ranges dsr ON ids.`id` = dsr.`discount_id` WHERE ids.id = ?;";
+		public static final String GET_ALL_QRY = "SELECT `id`, `name`, `description`, `type`, `company_id`, `created_by`, `created_at`, `last_updated_by`, `last_updated_at` FROM invoice_discounts where created_by = ? and company_id = ?;";
 	}
+	
+	public final class DiscountsRanges{
+
+		public static final String INSERT_QRY = "INSERT INTO discounts_ranges ( `id`, `discount_id`,`fromDay`, `toDay`, `value` ) VALUES( ?,?, ?, ?, ? );";
+		public static final String UPDATE_QRY = "UPDATE discounts_ranges SET `fromDay` = ?, `toDay` = ?, `value` = ? ,`discount_id` = ? WHERE `id` = ?;";
+		public static final String DELETE_QRY = "DELETE FROM discounts_ranges WHERE `discount_id` = ?;";
+		public static final String DELETE_BY_IDS_QRY = "DELETE FROM discounts_ranges WHERE `id` IN (";
+		public static final String GET_QRY = "SELECT `id`,`discount_id`, `fromDay`, `toDay`, `value` FROM `discounts_ranges` WHERE `id` = ? AND `discount_id` = ?;";
+		public static final String GET_ALL_QRY = "SELECT `id`,`discount_id`, `fromDay`, `toDay`, `value` FROM discounts_ranges where `discount_id` = ?";
+	}
+
 }

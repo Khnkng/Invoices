@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -851,11 +852,38 @@ public class InvoiceParser {
 
 	public static long getDateDifference(Date startDate, Date endDate) {
 		try {
-			return (endDate.getTime() - startDate.getTime()) / Constants.DAYS_IN_MILLIS;
+			long diff = endDate.getTime() - startDate.getTime();
+			long result = (diff) / Constants.DAYS_IN_MILLIS;
+			return result;
 		} catch (Exception e) {
 			LOGGER.error("error in getDateDifference(Date startDate, Date endDate):", e);
 		}
 		return -1;
+	}
+
+	public static void main(String[] args) {
+		Date d1 = new Date();
+		Date d2 = new Date();
+		Calendar cl = Calendar.getInstance();
+		cl.set(Calendar.MONTH, 0);
+		cl.set(Calendar.DATE, 31);
+		cl.set(Calendar.MILLISECOND, 0);
+		cl.set(Calendar.SECOND, 0);
+		cl.set(Calendar.MINUTE, 0);
+		cl.set(Calendar.HOUR, 0);
+		d2.setTime(cl.getTimeInMillis());
+		
+		Calendar c2 = Calendar.getInstance();
+		c2.set(Calendar.MILLISECOND, 0);
+		c2.set(Calendar.SECOND, 0);
+		c2.set(Calendar.MINUTE, 0);
+		c2.set(Calendar.HOUR, 0);
+		d1.setTime(c2.getTimeInMillis());
+		
+		
+		System.out.println(d1);
+		System.out.println(d2);
+		System.err.println(getDateDifference(d2, d1));
 	}
 
 }

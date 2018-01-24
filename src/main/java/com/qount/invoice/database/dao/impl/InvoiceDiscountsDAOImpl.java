@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.qount.invoice.database.dao.InvoiceDiscountsDAO;
+import com.qount.invoice.model.DiscountsRanges;
 import com.qount.invoice.model.InvoiceDiscounts;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -38,25 +39,36 @@ public class InvoiceDiscountsDAOImpl implements InvoiceDiscountsDAO {
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
-		InvoiceDiscounts invoice_discounts_result = null;
+		InvoiceDiscounts invoice_discounts_result = new InvoiceDiscounts();
+		List<DiscountsRanges> discountsRanges = null;
 		try {
 			if (conn != null) {
 				pstmt = conn.prepareStatement(SqlQuerys.InvoiceDiscounts.GET_QRY);
 				pstmt.setString(1, invoice_discounts.getId());
 				rset = pstmt.executeQuery();
+				discountsRanges = new ArrayList<>();
+				invoice_discounts_result.setDiscountsRanges(discountsRanges);
 				while (rset.next()) {
-					invoice_discounts_result = new InvoiceDiscounts();
+					DiscountsRanges discountsRange = new DiscountsRanges();
+					discountsRange.setId(rset.getString("range_id"));
+					if(!discountsRanges.contains(discountsRange)) {
+						discountsRange.setDiscount_id(rset.getString("discount_id"));
+						discountsRange.setFromDay(rset.getInt("fromDay"));
+						discountsRange.setToDay(rset.getInt("toDay"));
+						discountsRange.setValue(rset.getDouble("value"));
+						discountsRanges.add(discountsRange);
+					}
 					invoice_discounts_result.setId(rset.getString("id"));
 					invoice_discounts_result.setName(rset.getString("name"));
 					invoice_discounts_result.setDescription(rset.getString("description"));
 					invoice_discounts_result.setType(rset.getString("type"));
-					invoice_discounts_result.setValue(rset.getLong("value"));
 					invoice_discounts_result.setCompany_id(rset.getString("company_id"));
 					invoice_discounts_result.setCreated_by(rset.getString("created_by"));
 					invoice_discounts_result.setCreated_at(rset.getString("created_at"));
 					invoice_discounts_result.setLast_updated_by(rset.getString("last_updated_by"));
 					invoice_discounts_result.setLast_updated_at(rset.getString("last_updated_at"));
-					invoice_discounts_result.setDays(rset.getLong("days"));
+
+
 				}
 			}
 		} catch (Exception e) {
@@ -89,13 +101,11 @@ public class InvoiceDiscountsDAOImpl implements InvoiceDiscountsDAO {
 					invoiceDiscounts.setName(rset.getString("name"));
 					invoiceDiscounts.setDescription(rset.getString("description"));
 					invoiceDiscounts.setType(rset.getString("type"));
-					invoiceDiscounts.setValue(rset.getLong("value"));
 					invoiceDiscounts.setCompany_id(rset.getString("company_id"));
 					invoiceDiscounts.setCreated_by(rset.getString("created_by"));
 					invoiceDiscounts.setCreated_at(rset.getString("created_at"));
 					invoiceDiscounts.setLast_updated_by(rset.getString("last_updated_by"));
 					invoiceDiscounts.setLast_updated_at(rset.getString("last_updated_at"));
-					invoiceDiscounts.setDays(rset.getLong("days"));
 					result.add(invoiceDiscounts);
 				}
 			}
@@ -180,13 +190,11 @@ public class InvoiceDiscountsDAOImpl implements InvoiceDiscountsDAO {
 				pstmt.setString(ctr++, invoiceDiscounts.getName());
 				pstmt.setString(ctr++, invoiceDiscounts.getDescription());
 				pstmt.setString(ctr++, invoiceDiscounts.getType());
-				pstmt.setLong(ctr++, invoiceDiscounts.getValue());
 				pstmt.setString(ctr++, invoiceDiscounts.getCompany_id());
 				pstmt.setString(ctr++, invoiceDiscounts.getCreated_by());
 				pstmt.setString(ctr++, invoiceDiscounts.getCreated_at());
 				pstmt.setString(ctr++, invoiceDiscounts.getLast_updated_by());
 				pstmt.setString(ctr++, invoiceDiscounts.getLast_updated_at());
-				pstmt.setLong(ctr++, invoiceDiscounts.getDays());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					throw new WebApplicationException("no record inserted", Constants.EXPECTATION_FAILED);
@@ -216,11 +224,9 @@ public class InvoiceDiscountsDAOImpl implements InvoiceDiscountsDAO {
 				pstmt.setString(ctr++, invoiceDiscounts.getName());
 				pstmt.setString(ctr++, invoiceDiscounts.getDescription());
 				pstmt.setString(ctr++, invoiceDiscounts.getType());
-				pstmt.setLong(ctr++, invoiceDiscounts.getValue());
 				pstmt.setString(ctr++, invoiceDiscounts.getCompany_id());
 				pstmt.setString(ctr++, invoiceDiscounts.getLast_updated_by());
 				pstmt.setString(ctr++, invoiceDiscounts.getLast_updated_at());
-				pstmt.setLong(ctr++, invoiceDiscounts.getDays());
 				pstmt.setString(ctr++, invoiceDiscounts.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {

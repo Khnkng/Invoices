@@ -1,5 +1,7 @@
 package com.qount.invoice.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class InvoiceDiscounts {
@@ -7,20 +9,19 @@ public class InvoiceDiscounts {
 	private String name;
 	private String description;
 	private String type;
-	private long value;
 	private String company_id;
 	private String created_by;
 	private String created_at;
 	private String last_updated_by;
 	private String last_updated_at;
-	private long days;
-	
-	public long getDays() {
-		return days;
+	private List<DiscountsRanges> discountsRanges;
+
+	public List<DiscountsRanges> getDiscountsRanges() {
+		return discountsRanges;
 	}
 
-	public void setDays(long days) {
-		this.days = days;
+	public void setDiscountsRanges(List<DiscountsRanges> discountsRanges) {
+		this.discountsRanges = discountsRanges;
 	}
 
 	public String getId() {
@@ -37,10 +38,6 @@ public class InvoiceDiscounts {
 
 	public String getType() {
 		return type;
-	}
-
-	public long getValue() {
-		return value;
 	}
 
 	public String getCompany_id() {
@@ -77,10 +74,6 @@ public class InvoiceDiscounts {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public void setValue(long value) {
-		this.value = value;
 	}
 
 	public void setCompany_id(String company_id) {
