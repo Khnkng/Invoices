@@ -20,10 +20,8 @@ import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
-import com.qount.invoice.model.InvoiceDiscounts;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
-import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -87,45 +85,28 @@ public class InvoiceDetailControllerImpl {
 			String state = null;
 			Payment payment = new Payment();
 			PaymentLine paymentLine = new PaymentLine();
-			InvoiceDiscounts invoice_discounts = null;
 			if (invoice.getAmount_paid() == 0) {
 				// new payment
 				if (StringUtils.isNotBlank(invoice.getDiscount_id())) {
+					double discount = inputInvoice.getDiscount();
 					// having discount
-					invoice_discounts = new InvoiceDiscounts();
-					invoice_discounts.setId(invoice.getDiscount_id());
-					invoice_discounts = MySQLManager.getInvoiceDiscountsDAO().get(connection, invoice_discounts);
-					long daysDifference = InvoiceParser.getDateDifference(new Date(), DateUtils
-							.getDateFromString(invoice.getDue_date(), Constants.TIME_STATMP_TO_INVOICE_FORMAT));
-					// 10 10
-					boolean isDiscountApplicable = daysDifference >= invoice_discounts.getDays();
-					if (isDiscountApplicable) {
-						if (invoice_discounts.getType().equals(Constants.FLAT_FEE)) {
-							if (amountToPay + invoice_discounts.getValue() <= invoice.getAmount()) {
-								if (invoice.getAmount() == amountToPay + invoice_discounts.getValue()) {
-									paymentLine.setDiscount(invoice_discounts.getValue());
-								}
-							} else {
-								throw new WebApplicationException(
-										PropertyManager.getProperty("invoice.amount.greater.than.error"));
-							}
-						} else if (invoice_discounts.getType().equals(Constants.PERCENTAGE)) {
-							double discount = invoice.getAmount() * (invoice_discounts.getValue() / 100);
-							if (inputInvoice.getAmount() + discount <= invoice.getAmount()) {
-								if (invoice.getAmount() == inputInvoice.getAmount() + discount) {
-									paymentLine.setDiscount(discount);
-								}
-							} else {
-								throw new WebApplicationException(
-										PropertyManager.getProperty("invoice.amount.greater.than.error"));
-							}
+					// invoice_discounts = new InvoiceDiscounts();
+					// invoice_discounts.setId(dbInvoice.getDiscount_id());
+					// invoice_discounts = MySQLManager.getInvoiceDiscountsDAO().get(connection,
+					// invoice_discounts);
+					// long daysDifference = InvoiceParser.getDateDifference(new Date(), DateUtils
+					// .getDateFromString(dbInvoice.getDue_date(),
+					// Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+					// // 10 10
+					// boolean isDiscountApplicable = daysDifference >= invoice_discounts.getDays();
+					// if (isDiscountApplicable) {
+					if (inputInvoice.getAmount() + discount <= invoice.getAmount()) {
+						if (invoice.getAmount() == inputInvoice.getAmount() + discount) {
+							paymentLine.setDiscount(discount);
 						}
-						// // 100 100 10
-						// if (!(invoice.getAmount() <= inputInvoice.getAmount() +
-						// paymentLine.getDiscount())) {
-						// throw new WebApplicationException(
-						// PropertyManager.getProperty("invoice.discount.payment.error"));
-						// }
+					} else {
+						throw new WebApplicationException(
+								PropertyManager.getProperty("invoice.amount.greater.than.error"));
 					}
 				}
 			}

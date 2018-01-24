@@ -3,6 +3,7 @@ package com.qount.invoice.controller;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -56,20 +57,11 @@ public class InvoiceDiscountsController {
 	}
 
 	@POST
-	@Path("/delete")
-	@ApiOperation(value = "Delete Invoice_discounts", notes = "Deletes Invoice_discounts by ids", responseContainer = "java.lang.String")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteInvoice_discountss(@NotNull @PathParam("userId") String userId,
-			@NotNull @PathParam("companyId") String companyId) {
-		return InvoiceDiscountsControllerImpl.deleteAllDiscounts(userId, companyId);
-	}
-
-	@POST
 	@ApiOperation(value = "Create Invoice_discounts", notes = "Used to create Invoice_discounts", responseContainer = "java.lang.String")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createInvoice_discounts(@NotNull @PathParam("userId") String userId,
-			@NotNull @PathParam("companyId") String companyId, InvoiceDiscounts invoiceDiscounts) {
-		return InvoiceDiscountsControllerImpl.createInvoice_discounts(userId, companyId, invoiceDiscounts);
+			@NotNull @PathParam("companyId") String companyId, InvoiceDiscounts invoiceDiscount) {
+		return InvoiceDiscountsControllerImpl.createInvoice_discount(userId, companyId, invoiceDiscount);
 	}
 
 	@PUT
@@ -78,8 +70,19 @@ public class InvoiceDiscountsController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response updateInvoice_discounts(@NotNull @PathParam("userId") String userId,
 			@NotNull @PathParam("companyId") String companyId, @NotNull @PathParam("id") String id,
-			InvoiceDiscounts invoiceDiscounts) {
-		return InvoiceDiscountsControllerImpl.updateInvoice_discounts(userId, companyId, id, invoiceDiscounts);
+			InvoiceDiscounts invoiceDiscount) {
+		return InvoiceDiscountsControllerImpl.updateInvoice_discount(userId, companyId, id, invoiceDiscount);
 	}
+
+	@POST
+	@Path("/{id}/discountedAmount")
+	@ApiOperation(value = "get Invoice discount amount", notes = "get invoice amount after applying discount", responseContainer = "java.lang.String")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response get_discount_amount(@NotNull @PathParam("userId") String userId,
+			@NotNull @PathParam("companyId") String companyId, @NotNull @PathParam("id") String id, String payload) {
+		return InvoiceDiscountsControllerImpl.get_discount_amount(companyId, id, payload);
+	}
+
 
 }
