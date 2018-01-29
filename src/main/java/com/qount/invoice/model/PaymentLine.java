@@ -19,6 +19,8 @@ public class PaymentLine {
 	@Min(value=0, message="please provide non negitive amount")
 	private BigDecimal amount;
 	
+	private double discount;
+	
 	private String invoiceDate;
 	
 	private String term;
@@ -27,6 +29,12 @@ public class PaymentLine {
 	
 	private String state;
 	
+	public double getDiscount() {
+		return discount;
+	}
+	public void setDiscount(double discount) {
+		this.discount = discount;
+	}
 	public String getState() {
 		return state;
 	}
