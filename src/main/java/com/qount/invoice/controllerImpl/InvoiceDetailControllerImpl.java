@@ -100,8 +100,8 @@ public class InvoiceDetailControllerImpl {
 					// // 10 10
 					// boolean isDiscountApplicable = daysDifference >= invoice_discounts.getDays();
 					// if (isDiscountApplicable) {
-					if (inputInvoice.getAmount() + discount <= invoice.getAmount()) {
-						if (invoice.getAmount() == inputInvoice.getAmount() + discount) {
+					if (amountToPay + discount <= invoice.getAmount()) {
+						if (invoice.getAmount() == amountToPay + discount) {
 							paymentLine.setDiscount(discount);
 						}
 					} else {

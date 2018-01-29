@@ -139,6 +139,8 @@ public class InvoiceParser {
 						Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 				invoice.setDue_date(convertTimeStampToString(invoice.getDue_date(),
 						Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
+				invoice.setJob_date(convertTimeStampToString(invoice.getJob_date(),
+						Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT));
 			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
