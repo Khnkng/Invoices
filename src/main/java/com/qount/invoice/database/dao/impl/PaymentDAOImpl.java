@@ -29,6 +29,7 @@ import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
+import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.SqlQuerys;
 
 public class PaymentDAOImpl implements paymentDAO {
@@ -403,6 +404,8 @@ public class PaymentDAOImpl implements paymentDAO {
 						invoicePayment.setPaymentDate(rset.getString("payment_date"));
 						invoicePayment.setAmountPaid(rset.getBigDecimal("payment_amount"));
 						invoicePayment.setMappingID(rset.getString("mapping_id"));
+						invoicePayment.setInvoiceDate(DateUtils.formatToString(rset.getTimestamp("invoice_date")));
+						invoicePayment.setInvoiceNumber(rset.getString("number"));
 						if(invoicePayment.getMappingID() == null ){
 							invoicePayment.setMapping(false);
 						}else{
@@ -448,6 +451,8 @@ public class PaymentDAOImpl implements paymentDAO {
 						invoicePayment.setDepositedTo(rset.getString("bank_account_id"));
 						invoicePayment.setPaymentDate(rset.getString("payment_date"));
 						invoicePayment.setAmountPaid(rset.getBigDecimal("payment_amount"));
+						invoicePayment.setInvoiceDate(DateUtils.formatToString(rset.getTimestamp("invoice_date")));
+						invoicePayment.setInvoiceNumber(rset.getString("number"));
 						invoicePayment.setMappingID(rset.getString("mapping_id"));
 						if(invoicePayment.getMappingID() == null ){
 							invoicePayment.setMapping(false);

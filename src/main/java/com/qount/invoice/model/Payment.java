@@ -59,6 +59,10 @@ public class Payment {
 	
 	private String mappingID;
 	
+	private String invoiceNumber;
+	
+	private String invoiceDate;
+	
 	
 	public String getId() {
 		return id;
@@ -191,5 +195,17 @@ public class Payment {
 	}
 	public void setMapping(Boolean mapping) {
 		this.mapping = mapping;
+	}
+	public String getInvoiceNumber() {
+		return invoiceNumber;
+	}
+	public void setInvoiceNumber(String invoiceNumber) {
+		this.invoiceNumber = invoiceNumber;
+	}
+	public String getInvoiceDate() {
+		return invoiceDate;
+	}
+	public void setInvoiceDate(String invoiceDate) {
+		this.invoiceDate = invoiceDate;
 	}
 }
