@@ -108,7 +108,7 @@ public class Invoice {
 	private String job_date;
 	private boolean is_discount_applied;
 	private String discount_id;
-
+	
 	public String getRecurringFrequency() {
 		return recurringFrequency;
 	}
