@@ -411,6 +411,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						if (dimension != null)
 							invoiceLine.getDimensions().add(dimension);
 						if (StringUtils.isBlank(invoice.getId())) {
+							invoice.setPayment_date(rset.getString("payment_date"));
 							invoice.setPo_number(rset.getString("po_number"));
 							invoice.setProject_name(rset.getString("project_name"));
 							invoice.setBilling_cycle(rset.getString("billing_cycle"));
