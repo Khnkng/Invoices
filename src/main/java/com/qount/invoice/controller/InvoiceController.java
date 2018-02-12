@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 
 import com.qount.invoice.controllerImpl.InvoiceControllerImpl;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceFilter;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,6 +42,18 @@ public class InvoiceController {
 			+ "</div>", responseContainer = "java.lang.String")
 	public Invoice createInvoice(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @Valid Invoice invoice) {
 		return InvoiceControllerImpl.createInvoice(userID, companyID, invoice);
+	}
+	
+	@POST
+	@Path("/search")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@NotNull(message = "Invalid Request")
+	@ApiOperation(value = "Search Invoices based on the filters", notes = "Used to Search Invoices based on the filters" + "<span class='bolder'>Sample Request:</span>" + "<div class='sample_response'>"
+			+ "json = "
+			+ "</div>", responseContainer = "java.lang.String")
+	public String searchInvoice(@PathParam("userID") String userID, @PathParam("companyID") @NotNull String companyID, @Valid InvoiceFilter invoiceFilter) {
+		return InvoiceControllerImpl.searchInvoices(userID, companyID, invoiceFilter);
 	}
 
 	@Path("/{invoiceID}")

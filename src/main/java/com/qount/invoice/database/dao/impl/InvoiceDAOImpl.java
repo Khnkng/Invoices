@@ -4,6 +4,7 @@ import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -20,6 +21,8 @@ import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.qount.invoice.database.dao.InvoiceDAO;
 import com.qount.invoice.model.Coa;
@@ -1615,5 +1618,108 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		double percentage = 20;
 		double result = (value * (percentage / 100));
 		System.out.println(result);
+	}
+
+	@Override
+	public JSONArray getInvoiceListByFilter(Connection connection, String userID, String companyID, String query, String asOfDate)
+			throws Exception {
+
+		LOGGER.debug("InvoiceDAOImpl : entered getInvoiceList userID:" + userID + " companyID:" + companyID );
+		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
+			throw new WebApplicationException("userID or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
+		}
+		Statement stmt = null;
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		ResultSet rset2 = null;
+		JSONArray invoices = new JSONArray();
+		long startTime = System.currentTimeMillis();
+		String testquery = null;
+		try {
+			if (connection != null) {
+				stmt = connection.createStatement();
+				pstmt = connection.prepareStatement(SqlQuerys.Company.GET_QRY);
+				rset = stmt.executeQuery(query);
+				pstmt.setString(1, companyID);
+				testquery = pstmt.toString();
+				rset2 = pstmt.executeQuery();
+				String companyCurrency = "";
+				Calendar today = Calendar.getInstance();
+				Date date = today.getTime();
+				while (rset.next()) {
+//					invoice.put("id", rset.getString("id"));
+//					invoice.put("number", rset.getString("number"));
+//					invoice.put("invoiceCurrency", rset.getString("currency"));
+//					invoice.put("amount", rset.getDouble("amount"));
+//					invoice.put("dueDate", new SimpleDateFormat("MM/dd/yyyy").format(rset.getTimestamp("due_date")));
+//					invoice.put("state", rset.getString("state")); 
+
+					Invoice invoice = new Invoice();
+					invoice.setId(rset.getString("id")); 
+						invoice.setNumber(rset.getString("number"));
+						invoice.setCustomer_id(rset.getString("customer_id"));
+						invoice.setId(rset.getString("id"));
+						invoice.setInvoice_date(rset.getString("invoice_date"));
+						invoice.setLate_fee_id(rset.getString("late_fee_id"));
+						invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
+						invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
+						invoice.setDue_date(rset.getString("due_date"));
+						invoice.setAmount(rset.getDouble("amount"));
+						invoice.setCurrency(rset.getString("currency"));
+						invoice.setState(rset.getString("state"));
+						String due_date_Str = rset.getString("due_date");
+						if (due_date_Str != null) {
+							DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+							Date due_date = formatter.parse(due_date_Str);
+							String state1 = rset.getString("state");
+							String email_state = rset.getString("email_state");
+							if (StringUtils.isNotEmpty(state1)) {
+								String calculatedState = "";
+								if ((state1.equals("partially_paid") || state1.equals("sent"))) {
+									if (due_date != null && due_date.before(date)) {
+										calculatedState = "past_due";
+									}
+									if (StringUtils.isBlank(calculatedState) && state1.equals("sent")) {
+										if (StringUtils.isNotBlank(email_state)) {
+											if (email_state.trim().equalsIgnoreCase(Constants.DELIVERED)) {
+												calculatedState = Constants.DELIVERED.toLowerCase();
+											} else if (email_state.trim().equalsIgnoreCase(Constants.OPEN)
+													|| email_state.trim().equalsIgnoreCase(Constants.CLICK)) {
+												calculatedState = Constants.OPEN.toLowerCase();
+											}
+										}
+									}
+									if (StringUtils.isNotBlank(calculatedState)) {
+										invoice.setState(calculatedState);
+									}
+								}
+							}
+						}
+						invoice.setAmount_due(rset.getDouble("amount_due"));
+						invoice.setCustomer_name(rset.getString("customer_name"));
+						invoice.setJob_date(rset.getString("job_date"));
+						invoice.setIs_discount_applied(rset.getBoolean("is_discount_applied"));
+						invoice.setDiscount_id(rset.getString("discount_id"));
+						JSONObject invoiceObject = new JSONObject(invoice);
+						invoiceObject.put("companyName", rset.getString("company_name"));
+						invoiceObject.put("customerName", rset.getString("customer_name"));
+						invoiceObject.put("aging", DateUtils.getDatesDifference(rset.getString("due_date"), Constants.DUE_DATE_FORMAT, asOfDate, Constants.SIMPLE_DATE_FORMAT));
+						if (StringUtils.isBlank(companyCurrency) && rset2.next()) {
+							companyCurrency = rset2.getString("currency");
+							invoiceObject.put("companyCurrency", companyCurrency);
+						} 
+						
+						invoices.put(invoiceObject); 
+				}
+			}
+
+		} catch (Exception e) {
+			LOGGER.error("Error executing aging report query [ " + query + " ]", e);
+		} finally {
+//			DatabaseUtilities.closeResources(rset, stmt, connection);
+			LOGGER.debug("execution time of InvoiceDAOImpl.getInvoiceListByFilter = " + (System.currentTimeMillis() - startTime) + " in mili seconds with query:" + testquery);
+			System.out.println("execution time of InvoiceDAOImpl.getInvoiceListByFilter : " + (System.currentTimeMillis() - startTime) + testquery);
+		}
+		return invoices;  	
 	}
 }
