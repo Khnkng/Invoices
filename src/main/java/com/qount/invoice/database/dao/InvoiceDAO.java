@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
 import com.qount.invoice.model.InvoiceMetrics;
@@ -34,7 +36,7 @@ public interface InvoiceDAO {
 	public Map<String, String> getCount(String userID, String companyID) throws Exception;;
 
 	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception;;
-
+	
 	public List<Invoice> getInvoiceListByClientId(String userID, String companyID, String clientID) throws Exception;;
 
 	public Invoice delete(Invoice invoice) throws Exception;
@@ -74,4 +76,7 @@ public interface InvoiceDAO {
 	List<Invoice> getUnmappedInvoiceList(String companyId, String customerID);
 
 	List<Invoice> getMappedUnmappedInvoiceList(String companyId, String customerID, String billId);
+
+	JSONArray getInvoiceListByFilter(Connection connection, String userID, String companyID, String query,
+			String asOfDate) throws Exception;
 }

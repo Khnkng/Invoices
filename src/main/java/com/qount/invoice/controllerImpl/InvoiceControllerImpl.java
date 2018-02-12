@@ -31,8 +31,10 @@ import com.qount.invoice.helper.InvoiceHistoryHelper;
 import com.qount.invoice.helper.LateFeeHelper;
 import com.qount.invoice.helper.PostHelper;
 import com.qount.invoice.model.Company2;
+import com.qount.invoice.model.FilterModel;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
+import com.qount.invoice.model.InvoiceFilter;
 import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMetrics;
@@ -47,6 +49,7 @@ import com.qount.invoice.utils.CurrencyConverter;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.ResponseUtil;
+import com.qount.invoice.utils.SqlQuerys;
 import com.qount.invoice.utils.Utilities;
 
 /**
@@ -1517,5 +1520,92 @@ public class InvoiceControllerImpl {
 		}
 
 	}
+
+	public static String searchInvoices(String userID, String companyID, InvoiceFilter invoiceFilter) {
+		JSONArray invoiceLst = null;
+		Connection conn = null;
+		try {
+			LOGGER.debug("entered searchInvoices userID:" + userID + " companyID:" + companyID );
+			if (StringUtils.isAnyBlank(userID, companyID)) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			conn = DatabaseUtilities.getReadConnection();
+			
+			String query = SqlQuerys.Invoice.GET_INVOICE_BY_FILTERS + prepareQuery(invoiceFilter) + " AND invoice.company_id= '"+companyID+"'";
+			invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByFilter(conn, userID, companyID,query,invoiceFilter.getAsOfDate()); 
+		} catch (WebApplicationException e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			if (e.getResponse().getStatus() == 412) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						e.getMessage(), Status.PRECONDITION_FAILED));
+			} else {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						e.getMessage(), e.getResponse().getStatus()));
+			}
+		} catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+					e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
+		} finally {
+			LOGGER.debug("exited searchInvoices userID:" + userID + " companyID:" + companyID  );
+			DatabaseUtilities.closeConnection(conn);
+		}
+//		if (invoiceLst == null) {
+//			invoiceLst = new ArrayList<>();
+//		}
+//		return Response.status(Status.OK).entity(new JSONObject(invoiceLst).toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+		return invoiceLst.toString();
+	}
+	
+	private static String prepareQuery(InvoiceFilter invoiceFilter) {
+
+		StringBuilder query = new StringBuilder();
+		for (FilterModel filter : invoiceFilter.getFilters()) {
+			System.out.println(filter.getFilterName());
+			if (filter.getFilterName().equals("customerName")) {
+				filter.getValues();
+				query.append("invoice.customer_id IN (SELECT customer_id FROM company_customers WHERE customer_name IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")) AND ");
+			} else if (filter.getFilterName().equals("invoiceDate")) {
+				System.out.println("filter.getValues()" + filter.getValues().get(0));
+				query.append("invoice.invoice_date BETWEEN '" + filter.getValues().get(0) + "' AND '" + filter.getValues().get(1) + "' AND ");
+			} else if (filter.getFilterName().equals("currentState")) {
+				query.append(" invoice.state" + ("!=".equalsIgnoreCase(filter.getOperator()) ? " NOT " : "" ) + " IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")");
+			}
+		}
+
+		return query.toString();
+	}
+	
+	/**
+	 * helper method used in query generation
+	 * @param list
+	 * @param isQuoteApplied
+	 * @return
+	 */
+	public static String getCommaSeparatedStringFromList(List<String> list,boolean isQuoteApplied){
+		String result = "";
+		try {
+			if(list!=null && !list.isEmpty()){
+				String item = null;
+				for(int i=0;i<list.size();i++){
+					item = list.get(i).toString();
+					if(isQuoteApplied){
+						result +="'"+item+"',";
+					}else{
+						result +=item+",";
+					}
+				}
+				if(!StringUtils.isEmpty(result)){
+					result = result.substring(0, result.length()-1);
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return result;
+	}
+	
+	
 
 }
