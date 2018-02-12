@@ -3,8 +3,8 @@ package com.qount.invoice.utils;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
@@ -179,15 +179,6 @@ public class Utilities {
 		return null;
 	}
 
-	public static void main(String[] args) {
-		List<String> list = new ArrayList<>();
-		list.add("asdf");
-		list.add("asdf1");
-		list.add("asdf2");
-		JSONArray listArr = new JSONArray(list);
-		System.out.println(listArr.toString());
-	}
-
 	public static void deleteFileAsync(File file) {
 		new Thread() {
 			@Override
@@ -221,5 +212,39 @@ public class Utilities {
 		PrintWriter pw = new PrintWriter(sw);
 		th.printStackTrace(pw);
 		return sw.toString();
+	}
+	
+	/**
+	 * 
+	 * @param df
+	 * @param dateInput1
+	 * @param dateInput2
+	 * @return
+	 */
+	public static String getLatestDate(SimpleDateFormat df, String dateInput1, String dateInput2){
+		try {
+			LOGGER.debug("entered getLatestDate(DateFormat df, String dateInput1, String dateInput2)");
+			if(StringUtils.isBlank(dateInput1)){
+				return dateInput2;
+			} else if(StringUtils.isBlank(dateInput2)){
+				return dateInput1;
+			}
+			if(df.parse(dateInput1).compareTo(df.parse(dateInput2))<0){
+				return dateInput2;
+			}else{
+				return dateInput1;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("error getLatestDate(DateFormat df, String dateInput1, String dateInput2)",e);
+		} finally{
+			LOGGER.debug("exited getLatestDate(DateFormat df, String dateInput1, String dateInput2)");
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) throws ParseException {
+//		SimpleDateFormat TIME_STATMP_TO_BILLS_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+		System.out.println(getLatestDate(Constants.PAYMENT_DATE_FORMAT, "2017-01-25", "2017-02-25"));
 	}
 }

@@ -32,6 +32,7 @@ public class Constants {
 	public static final String URL_DOMAIN = "signup.activation.link.domain";
 	public static final Gson GSON = new Gson();
 	public static final String DUE_DATE_FORMAT = "yyyy-MM-dd";
+	public static final String PAYMENT_DATE_FORMAT_STR = "yyyy-MM-dd";
 	
 	public static final String SIMPLE_DATE_FORMAT = "MM/dd/yyyy";
 	public static final String BILLS_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
@@ -42,7 +43,7 @@ public class Constants {
 	public static final String UI_DATE_TIME_FORMAT_STR = "MM/dd/yy HH:mm:ss";
 	public static final String PROPOSAL_UI_DATE_FORMAT = "MM/dd/yy";
 	public static final String INVOICE_MAIL_DATE_FORMAT = "MMM dd, yyyy";
-//	public static final SimpleDateFormat SIMPLE_DATE_FORMAT_FORMAT = new SimpleDateFormat(SIMPLE_DATE_FORMAT);
+	public static final SimpleDateFormat PAYMENT_DATE_FORMAT = new SimpleDateFormat(PAYMENT_DATE_FORMAT_STR);
 	public static final SimpleDateFormat TIME_STATMP_TO_BILLS_FORMAT = new SimpleDateFormat(BILLS_DATE_FORMAT);
 	public static final SimpleDateFormat DB_DUE_DATE_FORMAT = new SimpleDateFormat(DB_DUE_DATE_FORMAT_STR);
 //	public static final SimpleDateFormat TIME_STATMP_TO_INVOICE_FORMAT = new SimpleDateFormat(INVOICE_UI_DATE_FORMAT);

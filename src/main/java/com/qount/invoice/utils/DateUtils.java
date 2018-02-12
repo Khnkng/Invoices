@@ -7,6 +7,8 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 public class DateUtils {
 	private static final Logger LOGGER = Logger.getLogger(DateUtils.class);
@@ -35,7 +37,18 @@ public class DateUtils {
 		}
 		return parsedDate;
 	}
-	
+	public static Long getDatesDifference(String date1, String dateFormat1, String date2, String dateFormat2) {
+		Long difference = null;
+		try {
+			DateTime d1 = new DateTime(getDateFromString(date1, dateFormat1));
+			DateTime d2 = new DateTime(getDateFromString(date2, dateFormat2));
+			difference = new Interval(d1.getMillis(), d2.getMillis()).toDuration().getStandardDays();
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return difference;
+
+	}
 	public static String getCurrentDate(SimpleDateFormat sdf){
 		return sdf.format(new Date());
 	}
