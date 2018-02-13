@@ -50,6 +50,8 @@ public class Post {
 	private String metadata;
 	
 	private boolean isLikedByUser;
+	
+	private User user;
 
 	public String getId() {
 		return id;
@@ -204,6 +206,14 @@ public class Post {
 
 	public void setLikedByUser(boolean isLikedByUser) {
 		this.isLikedByUser = isLikedByUser;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	@Override

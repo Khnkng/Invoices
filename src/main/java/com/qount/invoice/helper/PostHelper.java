@@ -35,12 +35,14 @@ public class PostHelper {
 			new Thread(new Runnable() {
 				public void run() {
 					User user = getUser(userId);
+					user.setId(userId);
 					if (user != null) {
 						Post post = new Post();
 						post.setId(UUID.randomUUID().toString());
 						post.setEntityID(invoiceId);
 						post.setEntityType("invoice");
 						post.setMessage("Invoice sent by " + user.getFirstName() + " " + user.getLastName());
+						post.setUser(user);
 						String response = createPost(userId, companyId, post);
 						if (response != null) {
 							savePostIdInInvoice(invoiceId, post.getId());
@@ -111,7 +113,7 @@ public class PostHelper {
 			path = path + "CollaborationServices/users/" + userId + "/companies/" + companyId + "/posts";
 			LOGGER.debug("path = " + path);
 			LOGGER.debug("payload = " + payload);
-			Response responseEntity = ClientBuilder.newClient().target(path).request().accept(MediaType.APPLICATION_JSON)
+			Response responseEntity = ClientBuilder.newClient().target(path).request().header("version", "1").accept(MediaType.APPLICATION_JSON)
 					.post(Entity.entity(payload, MediaType.APPLICATION_JSON));
 			response = responseEntity.readEntity(String.class);
 			System.out.println("response " + response);
