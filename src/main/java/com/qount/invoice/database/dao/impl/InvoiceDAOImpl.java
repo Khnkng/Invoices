@@ -1682,7 +1682,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 				}
 				for(Invoice invoice : invoicesMap.values()){
-					invoices.put(invoice);
+					JSONObject invoiceObject = new JSONObject(invoice);
+					invoices.put(invoiceObject);
 				}
 			}
 
