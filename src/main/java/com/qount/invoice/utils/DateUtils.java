@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+
 public class DateUtils {
 	private static final Logger LOGGER = Logger.getLogger(DateUtils.class);
 
@@ -36,6 +37,15 @@ public class DateUtils {
 			LOGGER.error("Error parsing date", e);
 		}
 		return parsedDate;
+	}
+	
+	public static String getStringDateFromSQLDate(java.sql.Date date) {
+		String formattedDate = null;
+		if (date != null) {
+			java.util.Date utilDate = new java.util.Date(date.getTime());
+			formattedDate = DateUtils.getStringFromDate(utilDate, "MM/dd/yyyy");
+		}
+		return formattedDate;
 	}
 
 	public static String getStringFromDate(Date date, String format) {
