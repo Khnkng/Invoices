@@ -37,6 +37,19 @@ public class DateUtils {
 		}
 		return parsedDate;
 	}
+
+	public static String getStringFromDate(Date date, String format) {
+		String formattedDate = null;
+		if (date != null) {
+			try {
+				SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+				formattedDate = dateFormat.format(date);
+			} catch (Exception e) {
+				LOGGER.error("Error formating date", e);
+			}
+		}
+		return formattedDate;
+	}
 	public static Long getDatesDifference(String date1, String dateFormat1, String date2, String dateFormat2) {
 		Long difference = null;
 		try {
