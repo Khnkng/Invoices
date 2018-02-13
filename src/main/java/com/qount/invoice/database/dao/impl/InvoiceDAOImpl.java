@@ -1681,7 +1681,9 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 
 				}
-				invoices.put(invoicesMap.values());
+				for(Invoice invoice : invoicesMap.values()){
+					invoices.put(invoice);
+				}
 			}
 
 		} catch (Exception e) {
