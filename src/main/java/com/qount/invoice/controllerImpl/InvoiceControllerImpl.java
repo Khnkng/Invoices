@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -49,7 +50,6 @@ import com.qount.invoice.utils.CurrencyConverter;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.ResponseUtil;
-import com.qount.invoice.utils.SqlQuerys;
 import com.qount.invoice.utils.Utilities;
 
 /**
@@ -1532,7 +1532,8 @@ public class InvoiceControllerImpl {
 			}
 			conn = DatabaseUtilities.getReadConnection();
 			
-			String query = SqlQuerys.Invoice.GET_INVOICE_BY_FILTERS + prepareQuery(invoiceFilter) + " AND invoice.company_id= '"+companyID+"'";
+//			String query = SqlQuerys.Invoice.GET_INVOICE_BY_FILTERS + prepareQuery(invoiceFilter, companyID) ;
+			String query =   prepareQuery(invoiceFilter, companyID) ;
 			invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByFilter(conn, userID, companyID,query,invoiceFilter.getAsOfDate()); 
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -1558,23 +1559,53 @@ public class InvoiceControllerImpl {
 		return invoiceLst.toString();
 	}
 	
-	private static String prepareQuery(InvoiceFilter invoiceFilter) {
-
+	private static String prepareQuery(InvoiceFilter invoiceFilter, String companyID) {
+		
+		DateTime asOfDate = new DateTime(DateUtils.getDateFromString(invoiceFilter.getAsOfDate(), Constants.SIMPLE_DATE_FORMAT));
+		String asOfDateString = DateUtils.getStringFromDate(asOfDate.toDate(), Constants.DUE_DATE_FORMAT);
+		String qryString = "SELECT invoice.due_date,invoice.`late_fee_id`, invoice.`late_fee_amount`, invoice.`late_fee_applied`, invoice.`email_state`,invoice.`customer_id`,"
+				+ "invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,invoice.`amount_due`,"
+				+ "invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`, company.name AS company_name,`company_customers`.`customer_name`  "
+				+ "FROM invoice JOIN company ON invoice.`company_id` = company.`id` JOIN `company_customers` ON invoice.`customer_id` = company_customers.`customer_id` "
+				+ "WHERE invoice.company_id='"+companyID+"'  AND invoice.invoice_date <='"+asOfDateString+"'  ";
+		
 		StringBuilder query = new StringBuilder();
+		
+//		query.append("SELECT invoice.`late_fee_id`, invoice.`late_fee_amount`, invoice.`late_fee_applied`, invoice.`email_state`,invoice.`customer_id`,invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,invoice.`amount_due`,invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`, company.name AS company_name,`company_customers`.`customer_name`  FROM invoice JOIN company ON invoice.`company_id` = company.`id` JOIN `company_customers` ON invoice.`customer_id` = company_customers.`customer_id` WHERE   ");
+		
 		for (FilterModel filter : invoiceFilter.getFilters()) {
 			System.out.println(filter.getFilterName());
 			if (filter.getFilterName().equals("customerName")) {
 				filter.getValues();
-				query.append("invoice.customer_id IN (SELECT customer_id FROM company_customers WHERE customer_name IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")) AND ");
+				query.append(" AND company_customers.customer_name IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")  ");
 			} else if (filter.getFilterName().equals("invoiceDate")) {
-				System.out.println("filter.getValues()" + filter.getValues().get(0));
-				query.append("invoice.invoice_date BETWEEN '" + filter.getValues().get(0) + "' AND '" + filter.getValues().get(1) + "' AND ");
+				query.append(" AND  invoice.due_date BETWEEN '" + filter.getValues().get(0) + "' AND '" + filter.getValues().get(1) + "'   ");
 			} else if (filter.getFilterName().equals("currentState")) {
-				query.append(" invoice.state" + ("!=".equalsIgnoreCase(filter.getOperator()) ? " NOT " : "" ) + " IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")");
+				query.append(" AND  invoice.state" + ("!=".equalsIgnoreCase(filter.getOperator()) ? " NOT " : "" ) + " IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")");
 			}
 		}
 
-		return query.toString();
+		qryString += query.toString();
+		
+		StringBuilder query2 = new StringBuilder();
+		
+		for (FilterModel filter : invoiceFilter.getFilters()) {
+			System.out.println(filter.getFilterName());
+			if (filter.getFilterName().equals("customerName")) {
+				filter.getValues();
+				query2.append(" AND  company_customers.customer_name IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")   ");
+			} else if (filter.getFilterName().equals("invoiceDate")) {
+				query2.append(" AND  invoice.due_date BETWEEN '" + filter.getValues().get(0) + "' AND '" + filter.getValues().get(1) + "'  ");
+			}  
+		}
+
+		
+		qryString +=  "  UNION ALL (SELECT invoice.due_date,invoice.`late_fee_id`, invoice.`late_fee_amount`, invoice.`late_fee_applied`, invoice.`email_state`,invoice.`customer_id`,invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,SUM(invoice_payments.payment_amount) AS `amount_due`,invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`, company.name AS company_name,`company_customers`.`customer_name`      "
+				+ "  FROM `invoice_payments`  JOIN invoice_payments_lines ON invoice_payments_lines.payment_id = invoice_payments.id "
+				+ "JOIN invoice ON invoice.id =invoice_payments_lines.invoice_id  JOIN company ON invoice.`company_id` = company.`id` JOIN `company_customers`  ON company_customers.`customer_id` = invoice_payments.`received_from`    "
+				+ "AND invoice_payments.company_id = '"+companyID+"'   "+query2.toString() +"  AND invoice.invoice_date <='"+asOfDateString+"'   GROUP BY invoice.id  )   ORDER BY 1 DESC ";
+
+		return qryString ;
 	}
 	
 	/**
