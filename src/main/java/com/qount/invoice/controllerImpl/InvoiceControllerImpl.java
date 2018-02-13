@@ -1559,6 +1559,7 @@ public class InvoiceControllerImpl {
 		return invoiceLst.toString();
 	}
 	
+	
 	private static String prepareQuery(InvoiceFilter invoiceFilter, String companyID) {
 		
 		DateTime asOfDate = new DateTime(DateUtils.getDateFromString(invoiceFilter.getAsOfDate(), Constants.SIMPLE_DATE_FORMAT));
@@ -1603,7 +1604,7 @@ public class InvoiceControllerImpl {
 		qryString +=  "  UNION ALL (SELECT invoice.due_date,invoice.`late_fee_id`, invoice.`late_fee_amount`, invoice.`late_fee_applied`, invoice.`email_state`,invoice.`customer_id`,invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,SUM(invoice_payments.payment_amount) AS `amount_due`,invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`, company.name AS company_name,`company_customers`.`customer_name`      "
 				+ "  FROM `invoice_payments`  JOIN invoice_payments_lines ON invoice_payments_lines.payment_id = invoice_payments.id "
 				+ "JOIN invoice ON invoice.id =invoice_payments_lines.invoice_id  JOIN company ON invoice.`company_id` = company.`id` JOIN `company_customers`  ON company_customers.`customer_id` = invoice_payments.`received_from`    "
-				+ "AND invoice_payments.company_id = '"+companyID+"'   "+query2.toString() +"  AND invoice.invoice_date <='"+asOfDateString+"'   GROUP BY invoice.id  )   ORDER BY 1 DESC ";
+				+ "AND invoice_payments.company_id = '"+companyID+"'   "+query2.toString() +"  AND invoice_payments.payment_date <='"+asOfDateString+"'   GROUP BY invoice.id  )   ORDER BY 1 DESC ";
 
 		return qryString ;
 	}
