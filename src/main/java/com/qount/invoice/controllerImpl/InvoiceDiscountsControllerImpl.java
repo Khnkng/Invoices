@@ -237,7 +237,7 @@ public class InvoiceDiscountsControllerImpl {
 							long fromDay = discountsRange.getFromDay();
 							long toDay = discountsRange.getToDay();
 							if (fromDay <= daysDifference && toDay >= daysDifference) {
-								if (type.equals(Constants.FLAT_FEE)) {
+								if (type.equals(Constants.FLAT_DISCOUNT)) {
 									discount_amount = discountsRange.getValue();
 									result.put("discount_amount", discount_amount);
 								} else if (type.equals(Constants.PERCENTAGE)) {
@@ -245,7 +245,7 @@ public class InvoiceDiscountsControllerImpl {
 									result.put("discount_amount", discount_amount);
 								} else {
 									throw new WebApplicationException(
-											"Discount range type is neither flat_fee not percentage",
+											"Discount range type is neither flat_discount not percentage",
 											Constants.EXPECTATION_FAILED);
 								}
 							}
