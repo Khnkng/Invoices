@@ -268,6 +268,68 @@ public class InvoiceDiscountsControllerImpl {
 		}
 		return Response.ok(new JSONObject().put("discount_amount", 0).toString()).build();
 	}
+	
+	public static Response get_discount_amount(String discount_id, String payload) {
+		Connection conn = null;
+		JSONObject json = CommonUtils.getJsonFromString(payload);
+		double discount_amount = 0.0d;
+		JSONObject result = new JSONObject();
+		try {
+			conn = DatabaseUtilities.getReadWriteConnection();
+			if (conn != null) {
+				InvoiceDiscounts invoice_discounts = new InvoiceDiscounts();
+				invoice_discounts.setId(discount_id);
+				invoice_discounts = MySQLManager.getInvoiceDiscountsDAO().get(conn, invoice_discounts);
+				if (invoice_discounts != null && CommonUtils.isValidJSON(json)) {
+					String type = invoice_discounts.getType();
+					List<DiscountsRanges> discountsRanges = invoice_discounts.getDiscountsRanges();
+					if (discountsRanges != null && !discountsRanges.isEmpty()) {
+						java.util.Date currentDate = new java.util.Date();
+						currentDate = getDate(currentDate);
+						LOGGER.debug("current date" + currentDate);
+						java.util.Date endDate = DateUtils.getDateFromString(json.optString("due_date"),
+								Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+						endDate = getDate(endDate);
+						LOGGER.debug("endDate" + endDate);
+						long daysDifference = InvoiceParser.getDateDifference(currentDate, endDate);
+						LOGGER.debug("daysDifference" + daysDifference);
+						Iterator<DiscountsRanges> discountsRangesItr = discountsRanges.iterator();
+						while (discountsRangesItr.hasNext()) {
+							DiscountsRanges discountsRange = discountsRangesItr.next();
+							long fromDay = discountsRange.getFromDay();
+							long toDay = discountsRange.getToDay();
+							if (fromDay <= daysDifference && toDay >= daysDifference) {
+								if (type.equals(Constants.FLAT_DISCOUNT)) {
+									discount_amount = discountsRange.getValue();
+									result.put("discount_amount", discount_amount);
+								} else if (type.equals(Constants.PERCENTAGE)) {
+									discount_amount = json.optDouble("amount") * (discountsRange.getValue() / 100);
+									result.put("discount_amount", discount_amount);
+								} else {
+									throw new WebApplicationException(
+											"Discount range type is neither flat_discount not percentage",
+											Constants.EXPECTATION_FAILED);
+								}
+							}
+							if (!result.isNull("discount_amount")) {
+								return Response.ok(result.toString()).build();
+							}
+						}
+					}
+				}
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("updateInvoice_discounts", e);
+			throw new WebApplicationException(Utilities.constructResponse(e.getMessage(), e.getResponse().getStatus()));
+		} catch (Exception e) {
+			LOGGER.error("updateInvoice_discounts", e);
+			throw new WebApplicationException(
+					Utilities.constructResponse(e.getMessage(), Constants.EXPECTATION_FAILED));
+		} finally {
+			DatabaseUtilities.closeConnection(conn);
+		}
+		return Response.ok(new JSONObject().put("discount_amount", 0).toString()).build();
+	}
 
 	private static java.util.Date getDate(java.util.Date d) {
 
