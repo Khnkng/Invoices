@@ -772,6 +772,12 @@ public class InvoiceControllerImpl {
 			Company2 company2 = CommonUtils.retrieveCompany(result.getUser_id(), result.getCompany_id());
 			result.setCompany(company2);
 			InvoiceParser.convertAmountToDecimal(result);
+			if(result.getState().equals(Constants.INVOICE_STATE_SENT)){
+				JSONObject payLoadObject = new JSONObject();
+				payLoadObject.put("due_date", result.getDue_date());
+				payLoadObject.put("amount", result.getAmount());
+				result.setDiscount(InvoiceDiscountsControllerImpl.getDiscountAmount(result.getCompany_id(), result.getDiscount_id(), payLoadObject.toString()));
+			}
 			LOGGER.debug("getInvoice result:" + result);
 			return result;
 		} catch (WebApplicationException e) {

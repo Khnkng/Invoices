@@ -269,11 +269,10 @@ public class InvoiceDiscountsControllerImpl {
 		return Response.ok(new JSONObject().put("discount_amount", 0).toString()).build();
 	}
 	
-	public static Response get_discount_amount(String discount_id, String payload) {
+	public static double getDiscountAmount(String company_id, String discount_id, String payload) {
 		Connection conn = null;
 		JSONObject json = CommonUtils.getJsonFromString(payload);
 		double discount_amount = 0.0d;
-		JSONObject result = new JSONObject();
 		try {
 			conn = DatabaseUtilities.getReadWriteConnection();
 			if (conn != null) {
@@ -301,19 +300,15 @@ public class InvoiceDiscountsControllerImpl {
 							if (fromDay <= daysDifference && toDay >= daysDifference) {
 								if (type.equals(Constants.FLAT_DISCOUNT)) {
 									discount_amount = discountsRange.getValue();
-									result.put("discount_amount", discount_amount);
 								} else if (type.equals(Constants.PERCENTAGE)) {
 									discount_amount = json.optDouble("amount") * (discountsRange.getValue() / 100);
-									result.put("discount_amount", discount_amount);
 								} else {
 									throw new WebApplicationException(
 											"Discount range type is neither flat_discount not percentage",
 											Constants.EXPECTATION_FAILED);
 								}
 							}
-							if (!result.isNull("discount_amount")) {
-								return Response.ok(result.toString()).build();
-							}
+							return discount_amount;
 						}
 					}
 				}
@@ -328,9 +323,9 @@ public class InvoiceDiscountsControllerImpl {
 		} finally {
 			DatabaseUtilities.closeConnection(conn);
 		}
-		return Response.ok(new JSONObject().put("discount_amount", 0).toString()).build();
+		return discount_amount;
 	}
-
+	
 	private static java.util.Date getDate(java.util.Date d) {
 
 		Calendar cl = Calendar.getInstance();
