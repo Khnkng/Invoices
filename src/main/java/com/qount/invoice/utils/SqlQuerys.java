@@ -134,6 +134,8 @@ public class SqlQuerys {
 		public static final String INSERT_QRY = "INSERT INTO invoice_payments_lines ( `id`,`invoice_id`,`amount`,`payment_id`, `discount`) VALUES(?, ?, ?, ?, ?);";
 		public static final String DELETE_QRY = "DELETE FROM invoice_payments_lines WHERE `payment_id` = ?;";
 		public static final String GET_LIST_QRY = "SELECT pl.invoice_id, inv.amount, inv.invoice_date, inv.term, inv.state, pl.amount AS payment_amount FROM invoice_payments_lines AS pl, invoice AS inv WHERE pl.invoice_id = inv.id AND pl.payment_id = ?;";
+		public static final String GET_PAID_AMOUNT_LIST_QRY = "SELECT payment_id,SUM(amount) applied_amount FROM invoice_payments_lines WHERE payment_id IN( ";
+		public static final String GET_PAID_AMOUNT_LIST_QRY_2 = ") AND amount >0 GROUP BY payment_id";
 	}
 
 	public final class Currencies {
