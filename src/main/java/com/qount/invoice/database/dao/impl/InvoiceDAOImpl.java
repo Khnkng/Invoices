@@ -369,18 +369,111 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setCustomer(customer);
 						invoice.setInvoiceLines(invoiceLines);
 						invoice.setCustomerContactDetails(customerContactDetails);
+
+						String payment_date = rset.getString("payment_date");
+						invoice.setPayment_date(
+								Utilities.getLatestDate(Constants.PAYMENT_DATE_FORMAT, payment_date, invoice.getPayment_date()));
+						invoice.setPo_number(rset.getString("po_number"));
+						invoice.setProject_name(rset.getString("project_name"));
+						invoice.setBilling_cycle(rset.getString("billing_cycle"));
+						invoice.setBilling_from(rset.getString("billing_from"));
+						invoice.setBilling_to(rset.getString("billing_to"));
+						invoice.setRemit_payments_to(rset.getString("remit_payments_to"));
+						invoice.setLate_fee_journal_id(rset.getString("late_fee_journal_id"));
+						invoice.setLate_fee_name(rset.getString("late_fee_name"));
+						invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
+						invoice.setJournal_job_id(rset.getString("journal_job_id"));
+						invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
+						invoice.setLate_fee_id(rset.getString("late_fee_id"));
+						invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
+						invoice.setId(rset.getString("id"));
+						invoice.setRemainder_name(rset.getString("remainder_name"));
+						invoice.setRemainder_job_id(rset.getString("remainder_job_id"));
+						invoice.setTax_amount(rset.getDouble("tax_amount"));
+						invoice.setPayment_method(rset.getString("payment_method"));
+						invoice.setIs_recurring(rset.getBoolean("is_recurring"));
+						invoice.setUser_id(rset.getString("user_id"));
+						invoice.setCompany_id(rset.getString("company_id"));
+						invoice.setCustomer_id(rset.getString("customer_id"));
+						invoice.setAmount(rset.getDouble("amount"));
+						invoice.setCurrency(rset.getString("currency"));
+						invoice.setDescription(rset.getString("description"));
+						invoice.setObjectives(rset.getString("objectives"));
+						invoice.setLast_updated_by(rset.getString("last_updated_by"));
+						invoice.setLast_updated_at(rset.getString("last_updated_at"));
+						invoice.setState(rset.getString("state"));
+						invoice.setDue_date(rset.getString("due_date"));
+						invoice.setPostId(rset.getString("post_id"));
+						invoice.setRecurringFrequency(rset.getString("recurring_frequency"));
+						invoice.setRecurringEnddate(DateUtils.formatToString(rset.getTimestamp("recurring_end_date")));
+
+						// updated state from past_due to a new field to
+						// avoid invalid data manipulation
+						String due_date_Str = rset.getString("due_date");
+						if (due_date_Str != null) {
+							DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+							Date due_date = formatter.parse(due_date_Str);
+							String state1 = rset.getString("state");
+							if (StringUtils.isNotEmpty(state1) && (state1.equals("partially_paid") || state1.equals("sent"))) {
+								if (due_date != null && due_date.before(date)) {
+									invoice.setIs_past_due(true);
+								}
+							}
+						}
+						invoice.setJob_date(rset.getString("job_date"));
+						invoice.setDiscount_id(rset.getString("discount_id"));
+						invoice.setIs_discount_applied(rset.getBoolean("is_discount_applied"));
+						invoice.setInvoice_date(rset.getString("invoice_date"));
+						invoice.setNotes(rset.getString("notes"));
+						invoice.setDiscount(rset.getLong("discount"));
+						invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
+						invoice.setProcessing_fees(rset.getDouble("processing_fees"));
+						invoice.setNumber(rset.getString("number"));
+						invoice.setDocument_id(rset.getString("document_id"));
+						invoice.setAmount_due(rset.getDouble("amount_due"));
+						invoice.setSub_total(rset.getDouble("sub_totoal"));
+						invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
+						invoice.setCreated_at(rset.getString("created_at"));
+						invoice.setAmount_paid(rset.getDouble("amount_paid"));
+						invoice.setTerm(rset.getString("term"));
+						invoice.setRecepientsMails(CommonUtils.getListString(rset.getString("recepients_mails")));
+						invoice.setPlan_id(rset.getString("plan_id"));
+						invoice.setIs_recurring(rset.getBoolean("is_recurring"));
+						invoice.setPayment_options(rset.getString("payment_options"));
+						invoice.setEmail_state(rset.getString("email_state"));
+						invoice.setSend_to(rset.getString("send_to"));
+						customer.setCustomer_id(rset.getString("customer_id"));
+						customer.setPayment_spring_id(rset.getString("payment_spring_id"));
+						customer.setCustomer_name(rset.getString("customer_name"));
+						customer.setCard_name(rset.getString("card_name"));
+						customer.setCustomer_address(rset.getString("customer_address"));
+						customer.setCustomer_city(rset.getString("customer_city"));
+						customer.setCustomer_country(rset.getString("customer_country"));
+						customer.setCustomer_state(rset.getString("customer_state"));
+						customer.setCustomer_ein(rset.getString("customer_ein"));
+						customer.setCustomer_zipcode(rset.getString("customer_zipcode"));
+						customer.setPhone_number(rset.getString("phone_number"));
+						customer.setCoa(rset.getString("coa"));
+						customer.setTerm(rset.getString("term"));
+						customer.setFax(rset.getString("fax"));
+						customer.setStreet_1(rset.getString("street_1"));
+						customer.setStreet_2(rset.getString("street_2"));
+						Currencies currencies_2 = new Currencies();
+						currencies_2.setCode(rset.getString("code"));
+						currencies_2.setName(rset.getString("name"));
+						currencies_2.setHtml_symbol(rset.getString("html_symbol"));
+						currencies_2.setJava_symbol(rset.getString("java_symbol"));
+						customerContactDetails.setId(rset.getString("ccd_id"));
+						customerContactDetails.setCustomer_id(rset.getString("ccd_customer_id"));
+						customerContactDetails.setFirst_name(rset.getString("ccd_first_name"));
+						customerContactDetails.setLast_name(rset.getString("ccd_last_name"));
+						customerContactDetails.setMobile(rset.getString("ccd_mobile"));
+						customerContactDetails.setEmail(rset.getString("ccd_email"));
+						customerContactDetails.setOther(rset.getString("ccd_other"));
+						invoice.setCurrencies(currencies_2);
 					}
 					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("il_id"));
-					String dimensionName = rset.getString("dimensionName");
-					Dimension dimension = null;
-					String dimensionValue = null;
-					if (StringUtils.isNotBlank(dimensionName)) {
-						dimension = new Dimension();
-						dimension.setName(dimensionName);
-						dimensionValue = rset.getString("dimensionValue");
-						dimension.getValues().add(dimensionValue);
-					}
 					int invoiceLineIndex = invoice.getInvoiceLines().indexOf(invoiceLine);
 					if (invoiceLineIndex == -1) {
 						invoiceLine.setRank(rset.getInt("il_rank"));
@@ -405,123 +498,22 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoiceLine.setNotes(rset.getString("il_notes"));
 						invoiceLine.setType(rset.getString("il_type"));
 						invoice.getInvoiceLines().add(invoiceLine);
-						if (dimension != null)
-							invoiceLine.getDimensions().add(dimension);
-						if (StringUtils.isBlank(invoice.getId())) {
-							String payment_date = rset.getString("payment_date");
-							invoice.setPayment_date(
-									Utilities.getLatestDate(Constants.PAYMENT_DATE_FORMAT, payment_date, invoice.getPayment_date()));
-							invoice.setPo_number(rset.getString("po_number"));
-							invoice.setProject_name(rset.getString("project_name"));
-							invoice.setBilling_cycle(rset.getString("billing_cycle"));
-							invoice.setBilling_from(rset.getString("billing_from"));
-							invoice.setBilling_to(rset.getString("billing_to"));
-							invoice.setRemit_payments_to(rset.getString("remit_payments_to"));
-							invoice.setLate_fee_journal_id(rset.getString("late_fee_journal_id"));
-							invoice.setLate_fee_name(rset.getString("late_fee_name"));
-							invoice.setAttachments_metadata(rset.getString("attachments_metadata"));
-							invoice.setJournal_job_id(rset.getString("journal_job_id"));
-							invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
-							invoice.setLate_fee_id(rset.getString("late_fee_id"));
-							invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
-							invoice.setId(rset.getString("id"));
-							invoice.setRemainder_name(rset.getString("remainder_name"));
-							invoice.setRemainder_job_id(rset.getString("remainder_job_id"));
-							invoice.setTax_amount(rset.getDouble("tax_amount"));
-							invoice.setPayment_method(rset.getString("payment_method"));
-							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
-							invoice.setUser_id(rset.getString("user_id"));
-							invoice.setCompany_id(rset.getString("company_id"));
-							invoice.setCustomer_id(rset.getString("customer_id"));
-							invoice.setAmount(rset.getDouble("amount"));
-							invoice.setCurrency(rset.getString("currency"));
-							invoice.setDescription(rset.getString("description"));
-							invoice.setObjectives(rset.getString("objectives"));
-							invoice.setLast_updated_by(rset.getString("last_updated_by"));
-							invoice.setLast_updated_at(rset.getString("last_updated_at"));
-							invoice.setState(rset.getString("state"));
-							invoice.setDue_date(rset.getString("due_date"));
-							invoice.setPostId(rset.getString("post_id"));
-							invoice.setRecurringFrequency(rset.getString("recurring_frequency"));
-							invoice.setRecurringEnddate(DateUtils.formatToString(rset.getTimestamp("recurring_end_date")));
-
-							// updated state from past_due to a new field to
-							// avoid invalid data manipulation
-							String due_date_Str = rset.getString("due_date");
-							if (due_date_Str != null) {
-								DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-								Date due_date = formatter.parse(due_date_Str);
-								String state1 = rset.getString("state");
-								if (StringUtils.isNotEmpty(state1) && (state1.equals("partially_paid") || state1.equals("sent"))) {
-									if (due_date != null && due_date.before(date)) {
-										invoice.setIs_past_due(true);
-									}
-								}
-							}
-							invoice.setJob_date(rset.getString("job_date"));
-							invoice.setDiscount_id(rset.getString("discount_id"));
-							invoice.setIs_discount_applied(rset.getBoolean("is_discount_applied"));
-							invoice.setInvoice_date(rset.getString("invoice_date"));
-							invoice.setNotes(rset.getString("notes"));
-							invoice.setDiscount(rset.getLong("discount"));
-							invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
-							invoice.setProcessing_fees(rset.getDouble("processing_fees"));
-							invoice.setNumber(rset.getString("number"));
-							invoice.setDocument_id(rset.getString("document_id"));
-							invoice.setAmount_due(rset.getDouble("amount_due"));
-							invoice.setSub_total(rset.getDouble("sub_totoal"));
-							invoice.setAmount_by_date(rset.getDouble("amount_by_date"));
-							invoice.setCreated_at(rset.getString("created_at"));
-							invoice.setAmount_paid(rset.getDouble("amount_paid"));
-							invoice.setTerm(rset.getString("term"));
-							invoice.setRecepientsMails(CommonUtils.getListString(rset.getString("recepients_mails")));
-							invoice.setPlan_id(rset.getString("plan_id"));
-							invoice.setIs_recurring(rset.getBoolean("is_recurring"));
-							invoice.setPayment_options(rset.getString("payment_options"));
-							invoice.setEmail_state(rset.getString("email_state"));
-							invoice.setSend_to(rset.getString("send_to"));
-							customer.setCustomer_id(rset.getString("customer_id"));
-							customer.setPayment_spring_id(rset.getString("payment_spring_id"));
-							customer.setCustomer_name(rset.getString("customer_name"));
-							customer.setCard_name(rset.getString("card_name"));
-							customer.setCustomer_address(rset.getString("customer_address"));
-							customer.setCustomer_city(rset.getString("customer_city"));
-							customer.setCustomer_country(rset.getString("customer_country"));
-							customer.setCustomer_state(rset.getString("customer_state"));
-							customer.setCustomer_ein(rset.getString("customer_ein"));
-							customer.setCustomer_zipcode(rset.getString("customer_zipcode"));
-							customer.setPhone_number(rset.getString("phone_number"));
-							customer.setCoa(rset.getString("coa"));
-							customer.setTerm(rset.getString("term"));
-							customer.setFax(rset.getString("fax"));
-							customer.setStreet_1(rset.getString("street_1"));
-							customer.setStreet_2(rset.getString("street_2"));
-							Currencies currencies_2 = new Currencies();
-							currencies_2.setCode(rset.getString("code"));
-							currencies_2.setName(rset.getString("name"));
-							currencies_2.setHtml_symbol(rset.getString("html_symbol"));
-							currencies_2.setJava_symbol(rset.getString("java_symbol"));
-							customerContactDetails.setId(rset.getString("ccd_id"));
-							customerContactDetails.setCustomer_id(rset.getString("ccd_customer_id"));
-							customerContactDetails.setFirst_name(rset.getString("ccd_first_name"));
-							customerContactDetails.setLast_name(rset.getString("ccd_last_name"));
-							customerContactDetails.setMobile(rset.getString("ccd_mobile"));
-							customerContactDetails.setEmail(rset.getString("ccd_email"));
-							customerContactDetails.setOther(rset.getString("ccd_other"));
-							invoice.setCurrencies(currencies_2);
-
-						}
 					} else {
 						invoiceLine = invoice.getInvoiceLines().get(invoiceLineIndex);
-						if (dimension != null) {
-							int dimensionIndex = invoiceLine.getDimensions().indexOf(dimension);
-							if (dimensionIndex != -1) {
-								dimension = invoiceLine.getDimensions().get(dimensionIndex);
-								dimension.getValues().add(dimensionValue);
-							} else {
-								invoiceLine.getDimensions().add(dimension);
-							}
+					}
+					String dimensionName = rset.getString("dimensionName");
+					if (StringUtils.isNotBlank(dimensionName)) {
+						Dimension dimension = new Dimension();
+						dimension.setName(dimensionName);
+						int dimensionIndex = invoiceLine.getDimensions().indexOf(dimension);
+						if(dimensionIndex != -1){
+							dimension = invoiceLine.getDimensions().get(dimensionIndex);
+						} else {
+							invoiceLine.getDimensions().add(dimension);
 						}
+						String dimensionValue = rset.getString("dimensionValue");
+						if(!dimension.getValues().contains(dimensionValue))
+						dimension.getValues().add(dimensionValue);
 					}
 				}
 			}
