@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
@@ -15,6 +16,7 @@ import org.json.JSONObject;
 
 import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
 import com.qount.invoice.model.Payment;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -65,6 +67,9 @@ public class PaymentService {
 		try {
 			LOGGER.debug("entered getList(String companyId :" + companyId);
 			result = PaymentDAOImpl.getInstance().list(companyId);
+			String paymentIds = InvoiceParser.getCommaSeparatedIds(result);
+			Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
+			InvoiceParser.mergePayments(result, paidAmountMap);
 		} catch (Exception e) {
 			LOGGER.error("error in getList(String companyId :" + companyId, e);
 		} finally {

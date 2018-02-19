@@ -8,7 +8,9 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
@@ -320,6 +322,37 @@ public class PaymentDAOImpl implements paymentDAO {
 			}
 		}
 		return lines;
+	}
+	
+	public Map<String, Double> getPaidAmountMap(String paymentIds) {
+		LOGGER.debug("entered getPaidAmountMap(String paymentId:"+paymentIds);
+		if(StringUtils.isBlank(paymentIds)){
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = DatabaseUtilities.getReadConnection();
+		if (connection != null) {
+			try {
+				Map<String, Double> paidAmountMap = new HashMap<>();
+				String query = SqlQuerys.PaymentsLines.GET_PAID_AMOUNT_LIST_QRY;
+				query += paymentIds+SqlQuerys.PaymentsLines.GET_PAID_AMOUNT_LIST_QRY_2;
+				pstmt = connection.prepareStatement(query);
+				LOGGER.debug("amount paid query: "+pstmt.toString());
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					paidAmountMap.put(rset.getString("payment_id"),rset.getDouble("applied_amount"));
+				}
+				return paidAmountMap;
+			} catch (SQLException e) {
+				LOGGER.error("error in getPaidAmountMap(String paymentIds:"+paymentIds,e);
+				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(rset, pstmt, connection);
+				LOGGER.debug("exited getPaidAmountMap(String paymentIds:"+paymentIds);
+			}
+		}
+		return null;
 	}
 
 	@Override
