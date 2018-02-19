@@ -189,6 +189,11 @@ public class InvoiceLine {
 	public String prepareJSParemeters(){
 		StringBuilder journalParmBuilder = new StringBuilder();
 		journalParmBuilder.append(this.amount + this.price + this.quantity + this.tax_id + this.item_id);
+		if (this.dimensions != null) {
+			for (Dimension dimension : this.dimensions) {
+				journalParmBuilder.append(dimension.prepareJSParemeters());
+			}
+		}
 		return journalParmBuilder.toString();
 	}
 

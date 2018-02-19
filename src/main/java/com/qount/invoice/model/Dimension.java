@@ -116,6 +116,12 @@ public class Dimension {
 	public void setInvoiceLineID(String invoiceLineID) {
 		this.invoiceLineID = invoiceLineID;
 	}
+	
+	public String prepareJSParemeters(){
+		StringBuilder journalParmBuilder = new StringBuilder();
+		journalParmBuilder.append(this.name + this.value);
+		return journalParmBuilder.toString();
+	}
 
 	@Override
 	public boolean equals(Object obj) {
