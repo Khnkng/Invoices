@@ -425,7 +425,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setIs_discount_applied(rset.getBoolean("is_discount_applied"));
 						invoice.setInvoice_date(rset.getString("invoice_date"));
 						invoice.setNotes(rset.getString("notes"));
-						invoice.setDiscount(rset.getLong("discount"));
+//						invoice.setDiscount(rset.getLong("discount"));
+						invoice.setDiscount(rset.getDouble("discount"));
 						invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
 						invoice.setProcessing_fees(rset.getDouble("processing_fees"));
 						invoice.setNumber(rset.getString("number"));
