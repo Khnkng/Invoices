@@ -29,6 +29,7 @@ import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.model.InvoicePreference;
+import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentSpringPlan;
 import com.qount.invoice.model.UserCompany;
 import com.qount.invoice.pdf.InvoiceReference;
@@ -891,6 +892,51 @@ public class InvoiceParser {
 		System.out.println(d1);
 		System.out.println(d2);
 		System.err.println(getDateDifference(d2, d1));
+	}
+	
+	public static String getCommaSeparatedIds(List<Payment> payments){
+		try {
+			LOGGER.debug("entered getCommaSeparatedIds(List<Payment> payments:"+payments);
+			if(payments!=null && !payments.isEmpty()){
+				String result = "";
+				Iterator<Payment> paymentsItr = payments.iterator();
+				while(paymentsItr.hasNext()){
+					Payment payment = paymentsItr.next();
+					if(payment!=null && StringUtils.isNotBlank(payment.getId())){
+						result+="'"+payment.getId()+"',";
+					}
+				}
+				if(StringUtils.isNotBlank(result)){
+					result = result.substring(0, result.length()-1);
+					return result;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("error getCommaSeparatedIds(List<Payment> payments:"+payments,e);
+		} finally{
+			LOGGER.debug("exited getCommaSeparatedIds(List<Payment> payments:"+payments);
+		}
+		return null;
+	}
+	
+	public static void mergePayments(List<Payment> payments, Map<String, Double> paidAmountMap){
+		try {
+			LOGGER.debug("entered mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap);
+			if(payments==null || payments.isEmpty() || paidAmountMap==null || paidAmountMap.isEmpty()){
+				return;
+			}
+			Iterator<Payment> paymentsItr = payments.iterator();
+			while(paymentsItr.hasNext()){
+				Payment payment = paymentsItr.next();
+				if(payment!=null && StringUtils.isNotBlank(payment.getId())){
+					payment.setPayment_applied_amount(paidAmountMap.get(payment.getId()));
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("error mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap,e);
+		} finally{
+			LOGGER.debug("exited mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap);
+		}
 	}
 
 }

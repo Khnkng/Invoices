@@ -63,7 +63,14 @@ public class Payment {
 	
 	private String invoiceDate;
 	
+	private double payment_applied_amount;
 	
+	public double getPayment_applied_amount() {
+		return payment_applied_amount;
+	}
+	public void setPayment_applied_amount(double payment_applied_amount) {
+		this.payment_applied_amount = payment_applied_amount;
+	}
 	public String getId() {
 		return id;
 	}
