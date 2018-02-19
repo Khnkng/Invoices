@@ -119,7 +119,7 @@ public class Dimension {
 	
 	public String prepareJSParemeters(){
 		StringBuilder journalParmBuilder = new StringBuilder();
-		journalParmBuilder.append(this.name + this.value);
+		journalParmBuilder.append(this.name + this.values);
 		return journalParmBuilder.toString();
 	}
 
