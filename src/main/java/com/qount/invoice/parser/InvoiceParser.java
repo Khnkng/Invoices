@@ -97,6 +97,9 @@ public class InvoiceParser {
 			invoice.setCreated_at(timestamp.toString());
 			invoice.setRecepientsMailsArr(CommonUtils.getJsonArrayFromList(invoice.getRecepientsMails()));
 			convertAmountToDecimal(invoice);
+			if(StringUtils.isEmpty(invoice.getDiscount_id())) {
+				invoice.setDiscount_id(null);
+			}
 		} catch (Exception e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			throw new WebApplicationException(e.getLocalizedMessage(), 500);
