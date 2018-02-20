@@ -78,10 +78,10 @@ public class PaymentService {
 		return result;
 	}
 	
-	public List<Payment> getListByFilter(String invoiceId, boolean unapplied) {
+	public List<Payment> getListByInvoice(String invoiceId, boolean unapplied) {
 		List<Payment> result = null;
 		try {
-			LOGGER.debug("entered getInvoiceList(String invoiceId :" + invoiceId +" unapplied:"+unapplied);
+			LOGGER.debug("entered getListByInvoice(String invoiceId :" + invoiceId +" unapplied:"+unapplied);
 			if(StringUtils.isBlank(invoiceId)){
 				return result;
 			}
@@ -90,9 +90,9 @@ public class PaymentService {
 			Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
 			InvoiceParser.mergePayments(result, paidAmountMap,unapplied);
 		} catch (Exception e) {
-			LOGGER.error("error in getInvoiceList(String invoiceId :" + invoiceId +" unapplied:"+unapplied, e);
+			LOGGER.error("error in getListByInvoice(String invoiceId :" + invoiceId +" unapplied:"+unapplied, e);
 		} finally {
-			LOGGER.debug("exited getInvoiceList(String invoiceId :" + invoiceId +" unapplied:"+unapplied);
+			LOGGER.debug("exited getListByInvoice(String invoiceId :" + invoiceId +" unapplied:"+unapplied);
 		}
 		return result;
 	}
