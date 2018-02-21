@@ -929,11 +929,17 @@ public class InvoiceParser {
 			while(paymentsItr.hasNext()){
 				Payment payment = paymentsItr.next();
 				if(payment!=null && StringUtils.isNotBlank(payment.getId())){
-					double assignedAmount = paidAmountMap.get(payment.getId());
+					 if (paidAmountMap.get(payment.getId()) == null) {
+						 payment.setPayment_applied_amount(0.0);
+					} else{
+					Double assignedAmount = paidAmountMap.get(payment.getId());
+					payment.setPayment_applied_amount(assignedAmount);}
 					if(unapplied){
-						payment.setPayment_unapplied_amount(payment.getPaymentAmount()!=null?(payment.getPaymentAmount().doubleValue()-assignedAmount):0);
+						payment.setPayment_unapplied_amount(payment.getPaymentAmount()!=null?(payment.getPaymentAmount().doubleValue()-payment.getPayment_applied_amount()):0);
+					  if(payment.getPaymentAmount().doubleValue()==(payment.getPayment_unapplied_amount())){
+						  paymentsItr.remove();
+					  }
 					}
-					payment.setPayment_applied_amount(assignedAmount);
 				}
 			}
 		} catch (Exception e) {
