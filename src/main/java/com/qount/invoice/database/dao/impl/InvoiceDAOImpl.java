@@ -1692,4 +1692,38 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoices;
 	}
+	
+	@Override
+	public int getUnappliedPaymentsCount(String userID, String companyID) throws Exception {
+		LOGGER.debug("entered get count of Unapplied Payments: userID" + userID + " companyID" + companyID);
+		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
+			throw new WebApplicationException("userID or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		int unappliedCount = 0;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UNAPPLIED_COUNT_QRY);
+				pstmt.setString(1, companyID);
+				pstmt.setString(2, companyID);
+				rset = pstmt.executeQuery();
+				if (rset != null && rset.next()) {
+					unappliedCount= rset.getInt("unapplied_count");
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error fetching count of Unapplied Payments: userID" + userID + " companyID" + companyID, e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited get count of Unapplied Payments: userID" + userID + " companyID" + companyID);
+		}
+		return unappliedCount;
+
+	}
 }

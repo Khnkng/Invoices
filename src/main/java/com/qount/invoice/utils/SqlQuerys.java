@@ -20,9 +20,8 @@ public class SqlQuerys {
 		public final static String MARK_AS_PAID_QRY = "UPDATE invoice SET amount_paid=?,amount_due=?,refrence_number=?,state=? WHERE id=?;";
 		public final static String GET_INVOICE_BY_NUMBER = "SELECT count(id) as count FROM invoice WHERE number=? AND company_id=?;";
 		public final static String GET_INVOICE_BY_NUMBER_AND_ID = "SELECT count(id) as count FROM invoice WHERE number=? AND company_id=? AND id!=?;";
-		
+		public final static String UNAPPLIED_COUNT_QRY ="SELECT COUNT(*) unapplied_count FROM (SELECT id, payment_amount FROM invoice_payments WHERE company_id= ?)payments, (SELECT payment_id, SUM(amount) applied_amount FROM invoice_payments ip, invoice_payments_lines ipl WHERE ip.company_id= ? AND ip.id=ipl.payment_id GROUP BY payment_id)payment_lines WHERE payments.id=payment_lines.payment_id AND payment_amount <> applied_amount";
 		public final static String GET_INVOICE_BY_FILTERS = "SELECT invoice.`late_fee_id`, invoice.`late_fee_amount`, invoice.`late_fee_applied`, invoice.`email_state`,invoice.`customer_id`,invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,invoice.`amount_due`,invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`, company.name AS company_name,`company_customers`.`customer_name`  FROM invoice JOIN company ON invoice.`company_id` = company.`id` JOIN `company_customers` ON invoice.`customer_id` = company_customers.`customer_id` WHERE ";
-		
 		
 		// public final static String UPDATE_INVOICE_AS_PAID_STATE_QRY = "UPDATE invoice
 		// SET refrence_number=?,invoice_date=?,payment_method=?,state='paid' WHERE
