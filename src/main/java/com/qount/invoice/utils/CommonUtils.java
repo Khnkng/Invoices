@@ -353,6 +353,34 @@ public class CommonUtils {
 		};
 		new Thread(task2).start();
 	}
+	
+	public static enum SubStates {
+		draft("Draft"),  paid("Paid"), sent("Sent"), partially_paid("Partially Paid"), open("Open"), click("Click");
+
+		private String value;
+
+		private SubStates(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return this.value;
+		}
+	}
+	
+	public static String getSubState(String name){
+		if(StringUtils.isBlank(name)){
+			return name;
+		}
+		String value = null;
+		try {
+			value = SubStates.valueOf(name.toLowerCase()).getValue();
+		} catch (Exception e) {
+			LOGGER.error("Invalid name [ " + name + " ]",e);
+			value = name;
+		}
+		return value;
+	}
 
 	public static void deleteJournal(String userID, String companyID, String source) {
 		try {
