@@ -64,7 +64,14 @@ public class Payment {
 	private String invoiceDate;
 	
 	private double payment_applied_amount;
+	private double payment_unapplied_amount;
 	
+	public double getPayment_unapplied_amount() {
+		return payment_unapplied_amount;
+	}
+	public void setPayment_unapplied_amount(double payment_unapplied_amount) {
+		this.payment_unapplied_amount = payment_unapplied_amount;
+	}
 	public double getPayment_applied_amount() {
 		return payment_applied_amount;
 	}

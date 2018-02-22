@@ -1659,6 +1659,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setJob_date(rset.getString("job_date"));
 						invoice.setIs_discount_applied(rset.getBoolean("is_discount_applied"));
 						invoice.setDiscount_id(rset.getString("discount_id"));
+						invoice.setState(CommonUtils.getSubState(invoice.getState()));
 						JSONObject invoiceObject = new JSONObject(invoice);
 						invoiceObject.put("companyName", rset.getString("company_name"));
 						invoiceObject.put("customerName", rset.getString("customer_name"));

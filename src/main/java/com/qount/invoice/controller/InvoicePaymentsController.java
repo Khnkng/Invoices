@@ -14,6 +14,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.service.PaymentService;
 
@@ -46,14 +48,15 @@ public class InvoicePaymentsController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Returns list of payments", notes = "Used to retreive list of payments against company", responseContainer = "java.lang.String")
-	public List<Payment> list(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @QueryParam("mapping") boolean mapping, @QueryParam("bankAccountID") String bankAccountID, @QueryParam("entityID") String entityID, @QueryParam("depositId") String depositId  ) {
-		if(!mapping && bankAccountID!= null){
-		return PaymentService.getInstance().getunmappedPayments(companyID, bankAccountID, entityID, depositId);
+	public List<Payment> list(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @QueryParam("mapping") boolean mapping, @QueryParam("bankAccountID") String bankAccountID, @QueryParam("entityID") String entityID, @QueryParam("depositId") String depositId, @QueryParam("invoiceId") String invoiceId, @QueryParam("unapplied") boolean unapplied) {
+		if(StringUtils.isNotBlank(invoiceId)){
+			return PaymentService.getInstance().getListByInvoice(invoiceId,unapplied);
+		}else  if(!mapping && bankAccountID!= null){
+			return PaymentService.getInstance().getunmappedPayments(companyID, bankAccountID, entityID, depositId);
+		} else{
+			return PaymentService.getInstance().getList(companyID,unapplied);
 		}
-		else{
-			return PaymentService.getInstance().getList(companyID);
-		}
-		}
+	}
 	
 	@Path("/{paymentID}")
 	@GET

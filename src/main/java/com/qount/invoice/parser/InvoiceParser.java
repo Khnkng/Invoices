@@ -919,9 +919,9 @@ public class InvoiceParser {
 		return null;
 	}
 	
-	public static void mergePayments(List<Payment> payments, Map<String, Double> paidAmountMap){
+	public static void mergePayments(List<Payment> payments, Map<String, Double> paidAmountMap, boolean unapplied){
 		try {
-			LOGGER.debug("entered mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap);
+			LOGGER.debug("entered mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied);
 			if(payments==null || payments.isEmpty() || paidAmountMap==null || paidAmountMap.isEmpty()){
 				return;
 			}
@@ -929,13 +929,23 @@ public class InvoiceParser {
 			while(paymentsItr.hasNext()){
 				Payment payment = paymentsItr.next();
 				if(payment!=null && StringUtils.isNotBlank(payment.getId())){
-					payment.setPayment_applied_amount(paidAmountMap.get(payment.getId()));
+					 if (paidAmountMap.get(payment.getId()) == null) {
+						 payment.setPayment_applied_amount(0.0);
+					} else{
+					Double assignedAmount = paidAmountMap.get(payment.getId());
+					payment.setPayment_applied_amount(assignedAmount);}
+					if(unapplied){
+						payment.setPayment_unapplied_amount(payment.getPaymentAmount()!=null?(payment.getPaymentAmount().doubleValue()-payment.getPayment_applied_amount()):0);
+					  if(payment.getPaymentAmount().doubleValue()==(payment.getPayment_applied_amount())){
+						  paymentsItr.remove();
+					  }
+					}
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("error mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap,e);
+			LOGGER.error("error mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied,e);
 		} finally{
-			LOGGER.debug("exited mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap);
+			LOGGER.debug("exited mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied);
 		}
 	}
 

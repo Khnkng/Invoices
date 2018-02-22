@@ -324,6 +324,39 @@ public class PaymentDAOImpl implements paymentDAO {
 		return lines;
 	}
 	
+	public List<PaymentLine> getLinesByInvoiceId(String invoiceId) {
+		LOGGER.debug("entered getLines(String invoiceId:"+invoiceId);
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		List<PaymentLine> lines = new ArrayList<PaymentLine>();
+		Connection connection = DatabaseUtilities.getReadConnection();
+		if (connection != null) {
+			int ctr = 1;
+			try {
+				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.GET_LIST_QRY);
+				pstmt.setString(ctr++, invoiceId);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					PaymentLine line = new PaymentLine();
+					line.setInvoiceId(rset.getString("invoice_id"));
+					line.setAmount(new BigDecimal(rset.getString("payment_amount")));
+					line.setInvoiceDate(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					line.setTerm(rset.getString("term"));
+					line.setState(rset.getString("state"));
+					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
+					lines.add(line);
+				}
+			} catch (SQLException e) {
+				LOGGER.error("error in getLines(String invoiceId:"+invoiceId,e);
+				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(rset, pstmt, null);
+				LOGGER.debug("exited getLines(String invoiceId:"+invoiceId);
+			}
+		}
+		return lines;
+	}
+	
 	public Map<String, Double> getPaidAmountMap(String paymentIds) {
 		LOGGER.debug("entered getPaidAmountMap(String paymentId:"+paymentIds);
 		if(StringUtils.isBlank(paymentIds)){
@@ -405,6 +438,61 @@ public class PaymentDAOImpl implements paymentDAO {
 			} finally {
 				DatabaseUtilities.closeResources(rset, pstmt, connection);
 				LOGGER.debug("exited list(String companyId:"+companyId);
+			}
+		}
+		return payments;
+	}
+	
+	@Override
+	public List<Payment> listByInvoiceId(String invoiceId) {
+		LOGGER.debug("entered listByInvoiceId(String invoiceId:"+invoiceId);
+		Connection connection = DatabaseUtilities.getReadWriteConnection();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		List<Payment> payments = new ArrayList<Payment>();
+
+		if (connection != null) {
+			int ctr = 1;
+			try {
+				pstmt = connection.prepareStatement(SqlQuerys.Payments.RETRIEVE_BY_INVOICE_QRY);
+				pstmt.setString(ctr++, invoiceId);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					Payment payment = new Payment();
+					payment.setId(rset.getString("id"));
+					int index = payments.indexOf(payment);
+					if (index == -1) {
+						payment.setReceivedFrom(rset.getString("received_from"));
+						payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
+						payment.setCurrencyCode(rset.getString("currency_code"));
+						payment.setReferenceNo(rset.getString("reference_no"));
+						payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
+						payment.setMemo(rset.getString("memo"));
+						payment.setType(rset.getString("type"));
+						payment.setPaymentNote(rset.getString("payment_notes"));
+						payment.setDepositedTo(rset.getString("bank_account_id"));
+						payment.setCustomerName(rset.getString("customer_name"));
+						payment.setPaymentLines(getLines(payment.getId()));
+						String depositID = rset.getString("deposit_id");
+						payment.setDepositID(depositID);
+						if (depositID != null) {
+							payment.setStatus("mapped");
+						}
+						payments.add(payment);
+					} else {
+						payment = payments.get(index);
+					}
+					String journalID = rset.getString("journal_id");
+					if (StringUtils.isNotBlank(journalID) && rset.getBoolean("isActive")) {
+						payment.setJournalID(journalID);
+					}
+				}
+			} catch (SQLException e) {
+				LOGGER.error("error listByInvoiceId(String invoiceId:"+invoiceId,e);
+				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(rset, pstmt, connection);
+				LOGGER.debug("exited listByInvoiceId(String invoiceId:"+invoiceId);
 			}
 		}
 		return payments;

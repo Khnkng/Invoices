@@ -62,18 +62,37 @@ public class PaymentService {
 		return pymt;
 	}
 
-	public List<Payment> getList(String companyId) {
+	public List<Payment> getList(String companyId,boolean unapplied) {
 		List<Payment> result = null;
 		try {
-			LOGGER.debug("entered getList(String companyId :" + companyId);
+			LOGGER.debug("entered getList(String companyId :" + companyId+ "unapplied:"+unapplied);
 			result = PaymentDAOImpl.getInstance().list(companyId);
 			String paymentIds = InvoiceParser.getCommaSeparatedIds(result);
 			Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
-			InvoiceParser.mergePayments(result, paidAmountMap);
+			InvoiceParser.mergePayments(result, paidAmountMap, unapplied);
 		} catch (Exception e) {
-			LOGGER.error("error in getList(String companyId :" + companyId, e);
+			LOGGER.error("error in getList(String companyId :" + companyId+" unapplied:"+unapplied, e);
 		} finally {
-			LOGGER.debug("exited getList(String companyId :" + companyId);
+			LOGGER.debug("exited getList(String companyId :" + companyId+" unapplied:"+unapplied);
+		}
+		return result;
+	}
+	
+	public List<Payment> getListByInvoice(String invoiceId, boolean unapplied) {
+		List<Payment> result = null;
+		try {
+			LOGGER.debug("entered getListByInvoice(String invoiceId :" + invoiceId +" unapplied:"+unapplied);
+			if(StringUtils.isBlank(invoiceId)){
+				return result;
+			}
+			result = PaymentDAOImpl.getInstance().listByInvoiceId(invoiceId);
+			String paymentIds = InvoiceParser.getCommaSeparatedIds(result);
+			Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
+			InvoiceParser.mergePayments(result, paidAmountMap,unapplied);
+		} catch (Exception e) {
+			LOGGER.error("error in getListByInvoice(String invoiceId :" + invoiceId +" unapplied:"+unapplied, e);
+		} finally {
+			LOGGER.debug("exited getListByInvoice(String invoiceId :" + invoiceId +" unapplied:"+unapplied);
 		}
 		return result;
 	}
