@@ -1180,6 +1180,8 @@ public class InvoiceControllerImpl {
 			}
 			Map<String, String> badges = MySQLManager.getInvoiceDAOInstance().getCount(userID, companyID);
 			JSONObject result = InvoiceParser.formatBadges(badges);
+			int unappliedCount = InvoiceDAOImpl.getInvoiceDAOImpl().getUnappliedPaymentsCount(userID, companyID);
+			result.optJSONObject("badges").put("unappliedPaymentsCount", unappliedCount);
 			return Response.status(200).entity(result.toString()).build();
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));

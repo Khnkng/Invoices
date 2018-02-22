@@ -79,4 +79,6 @@ public interface InvoiceDAO {
 
 	JSONArray getInvoiceListByFilter(Connection connection, String userID, String companyID, String query,
 			String asOfDate) throws Exception;
+
+	public int getUnappliedPaymentsCount(String userID, String companyID) throws Exception;
 }
