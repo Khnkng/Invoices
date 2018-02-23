@@ -127,7 +127,9 @@ public class InvoiceDetailControllerImpl {
 			payment.setCompanyId(invoice.getCompany_id());
 			payment.setCurrencyCode(invoice.getCurrency());
 			payment.setId(UUID.randomUUID().toString());
-			payment.setPaymentDate(DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT));
+			String  paymentDate = DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT);
+			payment.setPaymentDate(paymentDate);
+			invoice.setPayment_date(paymentDate);
 			payment.setReceivedFrom(invoice.getCustomer_id());
 			payment.setType(payment_type);
 			float convertionValue = getConversionValue(invoice.getCurrency(), Constants.DEFAULT_INVOICE_CURRENCY);
@@ -568,7 +570,7 @@ public class InvoiceDetailControllerImpl {
 	public static void main(String[] args) {
 		String payment_spring_id = "9864d1";
 		String companyId = "495a05f7-4b01-421d-9f64-16d73618a38d";
-		System.out.println(getPaymentSpringCustomer(payment_spring_id, companyId));
+		System.out.println(DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT));
 	}
 
 }
