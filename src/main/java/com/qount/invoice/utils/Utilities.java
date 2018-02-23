@@ -235,7 +235,6 @@ public class Utilities {
 				return dateInput1;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("error getLatestDate(DateFormat df, String dateInput1, String dateInput2)",e);
 		} finally{
 			LOGGER.debug("exited getLatestDate(DateFormat df, String dateInput1, String dateInput2)");
