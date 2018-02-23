@@ -1437,6 +1437,8 @@ public class InvoiceControllerImpl {
 		}
 		return false;
 	}
+	
+	
 
 	public static List<Invoice> getInvoiceListForPayEvent(String userID, String companyID, String customerID,
 			String billId) {
@@ -1495,10 +1497,27 @@ public class InvoiceControllerImpl {
 				break;
 			}
 			System.out.println("billDate After calc=" + invoiceDate);
+			Date invoiceDueDate = DateUtils.getTimestampFromString(invoice.getDue_date(), Constants.SIMPLE_DATE_FORMAT); 
+			String terms = invoice.getTerm();
+			int netTermCount = 0;
+			switch (terms) {
+			case "net30": netTermCount = 30 ; break;
+			case "net45": netTermCount = 45 ; break;
+			case "net60": netTermCount = 60 ; break;
+			case "net90": netTermCount = 90 ; break;
+			case "custom": netTermCount = getDifferenceDays(invoiceDate, invoiceDueDate) ; break;
+			default:
+				break;
+			}
+			
 			while (invoiceDate.compareTo(endDate) <= 0) {
 				invoice.setRecurringFrequency("onlyonce");
 				invoice.setNumber(invoiceNumber + "_" + i);
 				invoice.setInvoice_date(Constants.DATE_TO_INVOICE_FORMAT.format(invoiceDate));
+				invoiceDueDate = org.apache.commons.lang3.time.DateUtils.addDays(invoiceDate, netTermCount) ;
+				
+				invoice.setDue_date(Constants.DATE_TO_INVOICE_FORMAT.format(invoiceDueDate));
+				
 				// invoice.setDue_date(DateUtils.formatToString(DateUtils.getTimestampFromString(invoice.getDue_date(),
 				// Constants.SIMPLE_DATE_FORMAT)));
 				invoice.setRecurringEnddate(null);
@@ -1528,7 +1547,13 @@ public class InvoiceControllerImpl {
 		}
 
 	}
-
+	public static  int getDifferenceDays(Date d1, Date d2) {
+	    int daysdiff = 0;
+	    long diff = d2.getTime() - d1.getTime();
+	    long diffDays = diff / (24 * 60 * 60 * 1000) + 1;
+	    daysdiff = (int) diffDays;
+	    return daysdiff;
+	}
 	public static String searchInvoices(String userID, String companyID, InvoiceFilter invoiceFilter) {
 		JSONArray invoiceLst = null;
 		Connection conn = null;
