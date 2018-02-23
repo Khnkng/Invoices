@@ -1483,6 +1483,8 @@ public class InvoiceControllerImpl {
 			String recurrance = invoice.getRecurringFrequency();
 			Date invoiceDate = DateUtils.getTimestampFromString(invoice.getInvoice_date(),
 					Constants.SIMPLE_DATE_FORMAT);
+			Date maininvoiceDate = DateUtils.getTimestampFromString(invoice.getInvoice_date(),
+					Constants.SIMPLE_DATE_FORMAT);
 			Date endDate = DateUtils.getTimestampFromString(invoice.getRecurringEnddate());
 			System.out.println("invoiceDate Before calc=" + invoiceDate);
 			switch (recurrance) {
@@ -1505,7 +1507,7 @@ public class InvoiceControllerImpl {
 			case "net45": netTermCount = 45 ; break;
 			case "net60": netTermCount = 60 ; break;
 			case "net90": netTermCount = 90 ; break;
-			case "custom": netTermCount = getDifferenceDays(invoiceDate, invoiceDueDate) ; break;
+			case "custom": netTermCount = getDifferenceDays(maininvoiceDate, invoiceDueDate) ; break;
 			default:
 				break;
 			}
@@ -1552,7 +1554,7 @@ public class InvoiceControllerImpl {
 	    long diff = d2.getTime() - d1.getTime();
 	    long diffDays = diff / (24 * 60 * 60 * 1000) + 1;
 	    daysdiff = (int) diffDays;
-	    return daysdiff;
+	    return daysdiff-1;//we need exclude one day for current date
 	}
 	public static String searchInvoices(String userID, String companyID, InvoiceFilter invoiceFilter) {
 		JSONArray invoiceLst = null;
