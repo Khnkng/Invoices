@@ -369,10 +369,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setCustomer(customer);
 						invoice.setInvoiceLines(invoiceLines);
 						invoice.setCustomerContactDetails(customerContactDetails);
-
-						String payment_date = rset.getString("payment_date");
-						invoice.setPayment_date(
-								Utilities.getLatestDate(Constants.PAYMENT_DATE_FORMAT, payment_date, invoice.getPayment_date()));
 						invoice.setPo_number(rset.getString("po_number"));
 						invoice.setProject_name(rset.getString("project_name"));
 						invoice.setBilling_cycle(rset.getString("billing_cycle"));
@@ -475,6 +471,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("il_id"));
+					String payment_date = rset.getString("payment_date");
+					invoice.setPayment_date(Utilities.getLatestDate(Constants.PAYMENT_DATE_FORMAT, payment_date, invoice.getPayment_date()));
 					int invoiceLineIndex = invoice.getInvoiceLines().indexOf(invoiceLine);
 					if (invoiceLineIndex == -1) {
 						invoiceLine.setRank(rset.getInt("il_rank"));
