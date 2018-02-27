@@ -81,4 +81,6 @@ public interface InvoiceDAO {
 			String asOfDate) throws Exception;
 
 	public int getUnappliedPaymentsCount(String userID, String companyID) throws Exception;
+	
+	public boolean deleteRemainderJobId(Connection connection, String invoiceId, String remainderJobId) throws Exception;;
 }
