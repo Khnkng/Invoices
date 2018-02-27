@@ -42,6 +42,7 @@ public class InvoiceDetailControllerImpl {
 	public static boolean makeInvoicePayment(Invoice invoice, String invoiceID, Invoice inputInvoice) {
 		Connection connection = null;
 		try {
+			boolean isJobDeleted = false;
 			LOGGER.debug("entered makeInvoicePayment dbInvoice:" + invoice + "uiInvoice" + inputInvoice);
 			connection = DatabaseUtilities.getReadWriteConnection();
 			String dbInvoiceState = invoice.getState();
@@ -198,7 +199,11 @@ public class InvoiceDetailControllerImpl {
 			invoice.setAmount_paid(invoice.getAmount_paid() + amountPaidInDollar);
 			if (invoice.getAmount_paid() + paymentLine.getDiscount() == invoice.getAmount()) {
 				invoice.setState(Constants.INVOICE_STATE_PAID);
-				Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
+				String isJobDeletedStr = Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
+				if(StringUtils.isNotBlank(isJobDeletedStr) && isJobDeletedStr.equals("true")){
+					//delete remainder job id
+					isJobDeleted = true;
+				}
 				invoice.setAmount_due(0);
 			} else {
 				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
@@ -234,6 +239,10 @@ public class InvoiceDetailControllerImpl {
 					InvoiceControllerImpl.createInvoicePaidCommissions(connection, dbInvoiceCommissions,
 							invoice.getUser_id(), invoice.getCompany_id(), invoice.getId(), invoice.getAmount(),
 							invoice.getCurrency());
+				}
+				if(isJobDeleted){
+					//updating remainder job id as null
+					MySQLManager.getInvoiceDAOInstance().deleteRemainderJobId(connection, invoiceID, null);
 				}
 				connection.commit();
 				CommonUtils.createJournal(
@@ -565,12 +574,6 @@ public class InvoiceDetailControllerImpl {
 					+ companyId);
 		}
 		return null;
-	}
-
-	public static void main(String[] args) {
-		String payment_spring_id = "9864d1";
-		String companyId = "495a05f7-4b01-421d-9f64-16d73618a38d";
-		System.out.println(DateUtils.getCurrentDate(Constants.DATE_TO_INVOICE_FORMAT));
 	}
 
 }

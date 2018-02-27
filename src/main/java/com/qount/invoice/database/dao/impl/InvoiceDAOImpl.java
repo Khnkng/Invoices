@@ -213,6 +213,35 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 	}
+	
+	@Override
+	public boolean deleteRemainderJobId(Connection connection, String invoiceId, String remainderJobId) throws Exception {
+		LOGGER.debug("entered invoice deleteRemainderJobId:" + invoiceId +" remainderJobId:"+remainderJobId);
+		if (StringUtils.isBlank(invoiceId)) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				int ctr = 1;
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.UPDATE_REMAINDER_JOB_ID_QRY);
+				pstmt.setString(ctr++, remainderJobId);
+				pstmt.setString(ctr++, invoiceId);
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount > 0) {
+					return true;
+				}else if (rowCount == 0) {
+					LOGGER.fatal("invoice remainder_job_id did not updated");
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("error invoice deleteRemainderJobId:" + invoiceId +" remainderJobId:"+remainderJobId, e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited invoice deleteRemainderJobId:" + invoiceId +" remainderJobId:"+remainderJobId);
+		}
+		return false;
+	}
 
 	@Override
 	public Invoice updateEmailState(Connection connection, Invoice invoice) throws Exception {
