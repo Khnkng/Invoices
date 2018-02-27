@@ -303,33 +303,12 @@ public class InvoiceControllerImpl {
 		try {
 			// journal should not be created for draft state invoice.
 			Invoice dbInvoice = getInvoice(invoiceID);
-			if (dbInvoice == null || StringUtils.isBlank(dbInvoice.getId())) {
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.not.found"), 412);
-			}
-
 			Invoice invoiceObj = InvoiceParser.getInvoiceObj(userID, invoice, companyID, false);
 			invoiceObj.setId(invoiceID);
-			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceID)) {
-				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
-						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
-			}
-			if (StringUtils.isNotBlank(invoice.getState()) && !invoice.getState().equals(dbInvoice.getState())) {
-				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"), 412);
-			}
-			// remainder for paid invoice
-			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
-				if (StringUtils.isBlank(dbInvoice.getRemainder_name())
-						&& StringUtils.isNotBlank(invoice.getRemainder_name())) {
-					throw new WebApplicationException(
-							PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), 412);
-				}
-			}
-			if (StringUtils.isNotBlank(invoice.getState()) && !dbInvoice.getState().equals(invoice.getState())) {
-				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"),
-						Constants.INVALID_INPUT_STATUS);
-			}
+			validateInvoiceEdit(dbInvoice, invoiceObj, userID, companyID);
 			InvoicePreference invoicePreference = new InvoicePreference();
 			invoicePreference.setCompanyId(invoice.getCompany_id());
+			connection = DatabaseUtilities.getReadWriteConnection();
 			invoicePreference = MySQLManager.getInvoicePreferenceDAOInstance().getInvoiceByCompanyId(connection,
 					invoicePreference);
 			if (invoicePreference != null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())) {
@@ -378,12 +357,9 @@ public class InvoiceControllerImpl {
 			}
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					// if invoice is paid then sending email and returning
-					// response
 					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
 						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
-						return InvoiceParser.convertTimeStampToString(dbInvoice);
 					}
 					if (StringUtils.isBlank(invoice.getState())
 							|| invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
@@ -399,16 +375,6 @@ public class InvoiceControllerImpl {
 					invoice.setState(Constants.INVOICE_STATE_DRAFT);
 				}
 			}
-			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.paid.edit.error.msg"), 412);
-			}
-			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
-				if (invoice.getAmount() < dbInvoice.getAmount_paid()) {
-					throw new WebApplicationException(
-							PropertyManager.getProperty("invoice.amount.less.than.paid.amount"), 412);
-				}
-			}
-			connection = DatabaseUtilities.getReadWriteConnection();
 			boolean invoiceExists = MySQLManager.getInvoiceDAOInstance().invoiceExists(connection, invoice.getNumber(),
 					companyID, invoiceID);
 			LOGGER.debug("invoiceExists:" + invoiceExists);
@@ -461,9 +427,7 @@ public class InvoiceControllerImpl {
 						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 					}
 					if (isJERequired) {
-						CommonUtils.createJournal(
-								new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(),
-								userID, companyID);
+						CommonUtils.createJournal( new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
 					}
 					return InvoiceParser.convertTimeStampToString(invoiceResult);
 				}
@@ -1673,6 +1637,74 @@ public class InvoiceControllerImpl {
 		return result;
 	}
 	
-	
+
+	private static void validateInvoiceEdit(Invoice dbInvoice, Invoice invoiceObj, String userID, String companyID){
+		try {
+			LOGGER.debug("entered validateInvoiceEdit(Invoice dbInvoice:"+dbInvoice+", Invoice invoiceObj:"+invoiceObj+", String userID:"+userID+", String companyID:"+companyID);
+			if (dbInvoice == null || StringUtils.isBlank(dbInvoice.getId())) {
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.not.found"), 412);
+			}
+			if (StringUtils.isNotBlank(invoiceObj.getState()) && !dbInvoice.getState().equals(invoiceObj.getState())) {
+				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"),
+						Constants.INVALID_INPUT_STATUS);
+			}
+			if (invoiceObj == null || StringUtils.isAnyBlank(userID, companyID, invoiceObj.getId())) {
+				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
+						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
+			}
+			if (StringUtils.isNotBlank(invoiceObj.getState()) && !invoiceObj.getState().equals(dbInvoice.getState())) {
+				throw new WebApplicationException(PropertyManager.getProperty("invalid.invoice.state"), 412);
+			}
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
+				validatePaidInvoiceEdit(dbInvoice, invoiceObj);
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.debug("error validateInvoiceEdit(Invoice dbInvoice:"+dbInvoice+", Invoice invoiceObj:"+invoiceObj+", String userID:"+userID+", String companyID:"+companyID, e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.debug("error validateInvoiceEdit(Invoice dbInvoice:"+dbInvoice+", Invoice invoiceObj:"+invoiceObj+", String userID:"+userID+", String companyID:"+companyID, e);
+		} finally {
+			LOGGER.debug("exited validateInvoiceEdit(Invoice dbInvoice:"+dbInvoice+", Invoice invoiceObj:"+invoiceObj+", String userID:"+userID+", String companyID:"+companyID);
+		}
+	}
+	private static void validatePaidInvoiceEdit(Invoice dbInvoice, Invoice invoice){
+		try {
+			LOGGER.debug("entered in validatePaidInvoiceEdit Invoice dbInvoice:"+dbInvoice+", Invoice invoice:"+invoice);
+			if (StringUtils.isBlank(dbInvoice.getRemainder_name())
+					&& StringUtils.isNotBlank(invoice.getRemainder_name())) {
+				// remainder for paid invoice cannot be changed
+				throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), Constants.INVALID_INPUT_STATUS);
+			}
+			// remainder for paid invoice cannot be changed
+			if(dbInvoice.getSub_total()!=invoice.getSub_total()){
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.subtotal"), Constants.INVALID_INPUT_STATUS);
+			}
+			if(dbInvoice.getAmount_due()!=invoice.getAmount_due()){
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.due.amount"), Constants.INVALID_INPUT_STATUS);
+			}
+			if(dbInvoice.getDiscount()!=invoice.getDiscount()){
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.discount"), Constants.INVALID_INPUT_STATUS);
+			}
+			if(!dbInvoice.getDiscount_id().equals(invoice.getDiscount_id())){
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.discount.id"), Constants.INVALID_INPUT_STATUS);
+			}
+			if(dbInvoice.getLate_fee_amount()!=invoice.getLate_fee_amount()){
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.latefee.amount"), Constants.INVALID_INPUT_STATUS);
+			}
+			if(!dbInvoice.getLate_fee_id().equals(invoice.getLate_fee_id())){
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.latefee.id"), Constants.INVALID_INPUT_STATUS);
+			}
+			if(dbInvoice.getTax_amount()!=invoice.getTax_amount()){
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.tax.amount"), Constants.INVALID_INPUT_STATUS);
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("error in validatePaidInvoiceEdit Invoice dbInvoice:"+dbInvoice+", Invoice invoice:"+invoice,e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("error in validatePaidInvoiceEdit Invoice dbInvoice:"+dbInvoice+", Invoice invoice:"+invoice,e);
+		} finally {
+			LOGGER.debug("exited in validatePaidInvoiceEdit Invoice dbInvoice:"+dbInvoice+", Invoice invoice:"+invoice);
+		}
+	}
 
 }
