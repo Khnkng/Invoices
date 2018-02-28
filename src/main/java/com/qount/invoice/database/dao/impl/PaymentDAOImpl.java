@@ -125,7 +125,7 @@ public class PaymentDAOImpl implements paymentDAO {
 			if (invoice.getState() != null && invoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				return;
 			}
-			if (!checkInvoiceAmountFlag) {
+//			if (!checkInvoiceAmountFlag) {
 				if ((paymentLine.getAmount().doubleValue() + paymentLine.getDiscount()) > invoice.getAmount_due()) {
 					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
 				}
@@ -144,30 +144,30 @@ public class PaymentDAOImpl implements paymentDAO {
 				invoice.setAmount_paid(invoice.getAmount_paid() + amountPaid );
 				invoice.setAmount_due(invoice.getAmount_due() - amountPaid - paymentLine.getDiscount() );
 				invoice.setDiscount(paymentLine.getDiscount());
-			} else if (checkInvoiceAmountFlag) {
-				// 			100									10								100
-				if ((paymentLine.getAmount().doubleValue() + paymentLine.getDiscount()) > invoice.getAmount()) {
-					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
-				}
-				//	100							90										10
-				if (invoice.getAmount() == (paymentLine.getAmount().doubleValue() + paymentLine.getDiscount())) {
-					invoice.setState(Constants.INVOICE_STATE_PAID);
-					amountPaid = paymentLine.getAmount().doubleValue();
-				} else {
-					invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
-					// if(lineFromDb != null) {
-					// amountPaid = paymentLine.getAmount().doubleValue() -
-					// lineFromDb.getAmount().doubleValue();
-					// } else {
-					// }
-					amountPaid = paymentLine.getAmount().doubleValue();
-				}
-				invoice.setAmount_paid(amountPaid);
-				invoice.setAmount_due(invoice.getAmount() - amountPaid);
-				invoice.setDiscount(paymentLine.getDiscount());
-			} else {
-				throw new WebApplicationException("unable to perform invoice amount validation", Constants.EXPECTATION_FAILED);
-			}
+//			} else if (checkInvoiceAmountFlag) {
+//				// 			100									10								100
+//				if ((paymentLine.getAmount().doubleValue() + paymentLine.getDiscount()) > invoice.getAmount()) {
+//					throw new WebApplicationException(PropertyManager.getProperty("invoice.amount.greater.than.error"));
+//				}
+//				//	100							90										10
+//				if (invoice.getAmount() == (paymentLine.getAmount().doubleValue() + paymentLine.getDiscount())) {
+//					invoice.setState(Constants.INVOICE_STATE_PAID);
+//					amountPaid = paymentLine.getAmount().doubleValue();
+//				} else {
+//					invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);
+//					// if(lineFromDb != null) {
+//					// amountPaid = paymentLine.getAmount().doubleValue() -
+//					// lineFromDb.getAmount().doubleValue();
+//					// } else {
+//					// }
+//					amountPaid = paymentLine.getAmount().doubleValue();
+//				}
+//				invoice.setAmount_paid(amountPaid);
+//				invoice.setAmount_due(invoice.getAmount() - amountPaid);
+//				invoice.setDiscount(paymentLine.getDiscount());
+//			} else {
+//				throw new WebApplicationException("unable to perform invoice amount validation", Constants.EXPECTATION_FAILED);
+//			}
 			invoiceDAOImpl.update(connection, invoice);
 			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(), invoice.getUser_id(), invoice.getCompany_id());
 			MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
