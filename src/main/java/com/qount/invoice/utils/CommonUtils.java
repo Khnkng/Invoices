@@ -355,7 +355,7 @@ public class CommonUtils {
 	}
 	
 	public static enum SubStates {
-		draft("Draft"),  paid("Paid"), sent("Sent"), partially_paid("Partially Paid"), open("Open"), click("Click"), delivered("Delivered");
+		draft("Draft"),  paid("Paid"), sent("Sent"), partially_paid("Partially Paid"), open("Open"), click("Click"), delivered("Delivered"), past_due("Past Due");
 
 		private String value;
 
