@@ -69,7 +69,7 @@ public class PaymentService {
 			result = PaymentDAOImpl.getInstance().list(companyId);
 			String paymentIds = InvoiceParser.getCommaSeparatedIds(result);
 			Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
-			InvoiceParser.mergePayments(result, paidAmountMap, unapplied);
+			InvoiceParser.mergePayments(result, paidAmountMap, unapplied, false);
 		} catch (Exception e) {
 			LOGGER.error("error in getList(String companyId :" + companyId+" unapplied:"+unapplied, e);
 		} finally {
@@ -88,7 +88,7 @@ public class PaymentService {
 			result = PaymentDAOImpl.getInstance().listByInvoiceId(invoiceId);
 			String paymentIds = InvoiceParser.getCommaSeparatedIds(result);
 			Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
-			InvoiceParser.mergePayments(result, paidAmountMap,unapplied);
+			InvoiceParser.mergePayments(result, paidAmountMap, unapplied, true);
 		} catch (Exception e) {
 			LOGGER.error("error in getListByInvoice(String invoiceId :" + invoiceId +" unapplied:"+unapplied, e);
 		} finally {

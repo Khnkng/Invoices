@@ -919,9 +919,9 @@ public class InvoiceParser {
 		return null;
 	}
 	
-	public static void mergePayments(List<Payment> payments, Map<String, Double> paidAmountMap, boolean unapplied){
+	public static void mergePayments(List<Payment> payments, Map<String, Double> paidAmountMap, boolean unapplied, boolean invoiceFlag){
 		try {
-			LOGGER.debug("entered mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied);
+			LOGGER.debug("entered mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied+ "invoiceFlag:"+invoiceFlag);
 			if(payments==null || payments.isEmpty() || paidAmountMap==null || paidAmountMap.isEmpty()){
 				return;
 			}
@@ -936,16 +936,18 @@ public class InvoiceParser {
 					payment.setPayment_applied_amount(assignedAmount);}
 					if(unapplied){
 						payment.setPayment_unapplied_amount(payment.getPaymentAmount()!=null?(payment.getPaymentAmount().doubleValue()-payment.getPayment_applied_amount()):0);
-					  if(payment.getPaymentAmount().doubleValue()==(payment.getPayment_applied_amount())){
-						  paymentsItr.remove();
-					  }
+						if(invoiceFlag) {
+							if(payment.getPaymentAmount().doubleValue()==(payment.getPayment_applied_amount())){
+							  paymentsItr.remove();
+						  }
+						}
 					}
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("error mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied,e);
+			LOGGER.error("error mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied+ "invoiceFlag:"+invoiceFlag,e);
 		} finally{
-			LOGGER.debug("exited mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied);
+			LOGGER.debug("exited mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied+ "invoiceFlag:"+invoiceFlag);
 		}
 	}
 
