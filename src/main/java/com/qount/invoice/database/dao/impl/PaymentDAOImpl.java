@@ -56,6 +56,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				LOGGER.debug("entered invoice payment save:" + payment);
 				List<PaymentLine> lines = getLines(payment.getId(), connection);
 				pstmt = connection.prepareStatement(SqlQuerys.Payments.INSERT_QRY);
+				pstmt.setString(ctr++, payment.getPayment_status());
 				pstmt.setString(ctr++, payment.getId());
 				pstmt.setString(ctr++, payment.getReceivedFrom());
 				double amt = 0;
@@ -82,6 +83,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, payment.getType());
 				pstmt.setString(ctr++, payment.getPaymentNote());
 				pstmt.setString(ctr++, payment.getDepositedTo());
+				pstmt.setString(ctr++, payment.getPayment_status());
 				int affectedRows = pstmt.executeUpdate();
 				if (affectedRows == 0) {
 					throw new SQLException("");
@@ -609,6 +611,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, paymentId);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
+					payment.setPayment_status(rset.getString("payment_status"));
 					payment.setId(rset.getString("id"));
 					payment.setReceivedFrom(rset.getString("received_from"));
 					payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
