@@ -48,6 +48,7 @@ public class PaymentService {
 			if (StringUtils.isBlank(payment.getId())) {
 				payment.setId(UUID.randomUUID().toString());
 			}
+			InvoiceParser.calculateCollectionPaymentStatus(payment);
 			pymt = PaymentDAOImpl.getInstance().save(payment, connection, true);
 			connection.commit();
 			CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), userID, companyId);

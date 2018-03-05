@@ -66,6 +66,14 @@ public class Payment {
 	private double payment_applied_amount;
 	private double payment_unapplied_amount;
 	
+	private String payment_status;
+	
+	public String getPayment_status() {
+		return payment_status;
+	}
+	public void setPayment_status(String payment_status) {
+		this.payment_status = payment_status;
+	}
 	public double getPayment_unapplied_amount() {
 		return payment_unapplied_amount;
 	}
