@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
+import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
@@ -124,6 +125,18 @@ public class PaymentService {
 			LOGGER.debug("error in getById(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
 		} finally {
 			LOGGER.debug("exited getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
+		}
+		return null;
+	}
+	
+	public List<Invoice> getIvoicesByPaymentID(String companyId, String paymentId) {
+		try {
+			LOGGER.debug("entered getIvoicesByPaymentID(String companyId:" + companyId + ", String paymentId:" + paymentId);
+			return PaymentDAOImpl.getInstance().getIvoicesByPaymentID(paymentId);
+		} catch (Exception e) {
+			LOGGER.debug("error in getIvoicesByPaymentID(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
+		} finally {
+			LOGGER.debug("exited getIvoicesByPaymentID(String companyId:" + companyId + ", String paymentId:" + paymentId);
 		}
 		return null;
 	}
