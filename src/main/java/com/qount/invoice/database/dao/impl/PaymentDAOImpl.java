@@ -627,7 +627,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, paymentId);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
-					payment.setPayment_status(rset.getString("payment_status"));
+//					payment.setPayment_status(rset.getString("payment_status"));
 					payment.setId(rset.getString("id"));
 					payment.setReceivedFrom(rset.getString("received_from"));
 					payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
