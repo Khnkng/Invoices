@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -425,14 +426,14 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setId(rset.getString("id"));
 					int index = payments.indexOf(payment);
 					if (index == -1) {
-						payment.setPayment_status(rset.getString("payment_status"));
+						payment.setPayment_status(WordUtils.capitalize(rset.getString("payment_status")));
 						payment.setReceivedFrom(rset.getString("received_from"));
 						payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
 						payment.setCurrencyCode(rset.getString("currency_code"));
 						payment.setReferenceNo(rset.getString("reference_no"));
 						payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
 						payment.setMemo(rset.getString("memo"));
-						payment.setType(rset.getString("type"));
+						payment.setType(WordUtils.capitalize(rset.getString("type")));
 						payment.setPaymentNote(rset.getString("payment_notes"));
 						payment.setDepositedTo(rset.getString("bank_account_id"));
 						payment.setCustomerName(rset.getString("customer_name"));
