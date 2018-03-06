@@ -653,4 +653,39 @@ public class PaymentDAOImpl implements paymentDAO {
 		return payment;
 	}
 
+	@Override
+	public List<Invoice> getIvoicesByPaymentID(String paymentId) {
+		LOGGER.debug("entered getIvoicesByPaymentID paymentId:"+paymentId);
+		Connection connection = DatabaseUtilities.getReadWriteConnection();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		List<Invoice> invoices = new ArrayList<Invoice>();
+		Invoice invoice = null;
+		if (connection != null) {
+			int ctr = 1;
+			try {
+				pstmt = connection.prepareStatement(SqlQuerys.Payments.RETRIEVE_INVOICES_BY_PAYMENTID);
+				pstmt.setString(ctr++, paymentId);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					invoice = new Invoice();
+					invoice.setId(rset.getString("invoice_id"));
+					invoice.setNumber(rset.getString("number"));
+					invoice.setAmount(rset.getDouble("amount"));
+					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setInvoice_date(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setState(rset.getString("state"));
+					invoices.add(invoice);
+				}
+			} catch (SQLException e) {
+				LOGGER.error("error in getIvoicesByPaymentID paymentId:"+paymentId, e);
+				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(rset, pstmt, connection);
+				LOGGER.debug("closed connection in getIvoicesByPaymentID: " +paymentId);
+			}
+		}
+		return invoices;
+	}
 }
