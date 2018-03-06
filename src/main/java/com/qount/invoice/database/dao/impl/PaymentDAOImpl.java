@@ -308,32 +308,6 @@ public class PaymentDAOImpl implements paymentDAO {
 		}
 		return null;
 	}
-	
-	private String getDepositId(Connection connection, String mappingId) {
-		LOGGER.debug("entered getDepositId(String mappingId:" + mappingId);
-		PreparedStatement pstmt = null;
-		ResultSet rset = null;
-		String depositId = null;
-		try {
-			if (StringUtils.isBlank(mappingId) || connection == null) {
-				return null;
-			}
-			pstmt = connection.prepareStatement(SqlQuerys.Payments.RETRIEVE_DEPOSIT_BY_MAPPING_QRY);
-			pstmt.setString(1, mappingId);
-			rset = pstmt.executeQuery();
-			if (rset.next()) {
-				depositId = rset.getString("id");
-				LOGGER.debug("depositId:"+depositId);
-			}
-		} catch (Exception e) {
-			LOGGER.error("error getDepositId(String mappingId:" + mappingId, e);
-		} finally {
-			DatabaseUtilities.closeStatement(pstmt);
-			DatabaseUtilities.closeResultSet(rset);
-			LOGGER.debug("exited getDepositId(String mappingId:" + mappingId);
-		}
-		return depositId;
-	}
 
 	private List<PaymentLine> getLines(String paymentId, Connection connection) {
 		LOGGER.debug("entered getLines(String paymentId:"+paymentId+", Connection connection)");
@@ -451,6 +425,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setId(rset.getString("id"));
 					int index = payments.indexOf(payment);
 					if (index == -1) {
+						payment.setPayment_status(rset.getString("payment_status"));
 						payment.setReceivedFrom(rset.getString("received_from"));
 						payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
 						payment.setCurrencyCode(rset.getString("currency_code"));
@@ -652,7 +627,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, paymentId);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
-					payment.setPayment_status(rset.getString("payment_status"));
+//					payment.setPayment_status(rset.getString("payment_status"));
 					payment.setId(rset.getString("id"));
 					payment.setReceivedFrom(rset.getString("received_from"));
 					payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
@@ -664,7 +639,6 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setPaymentNote(rset.getString("payment_notes"));
 					payment.setMapping_id(rset.getString("mapping_id"));
 					payment.setDepositedTo(rset.getString("bank_account_id"));
-					payment.setDeposit_id(getDepositId(connection, payment.getMapping_id()));
 					payment.setPaymentLines(getLines(connection ,payment.getId()));
 				}
 			} catch (SQLException e) {
