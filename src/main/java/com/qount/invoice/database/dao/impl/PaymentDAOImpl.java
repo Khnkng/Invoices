@@ -292,6 +292,48 @@ public class PaymentDAOImpl implements paymentDAO {
 		LOGGER.debug("entered getLines(String paymentId:" + paymentId);
 		return null;
 	}
+	
+	private List<PaymentLine> getLines(Connection connection, String paymentId) {
+		LOGGER.debug("entered getLines(String paymentId:" + paymentId);
+		try {
+			List<PaymentLine> lines = new ArrayList<PaymentLine>();
+			if (connection != null) {
+				lines = getLines(paymentId, connection);
+			}
+			return lines;
+		} catch (Exception e) {
+			LOGGER.error("error in getLines(String paymentId:" + paymentId, e);
+		} finally{
+			LOGGER.debug("exited getLines(String paymentId:" + paymentId);
+		}
+		return null;
+	}
+	
+	private String getDepositId(Connection connection, String mappingId) {
+		LOGGER.debug("entered getDepositId(String mappingId:" + mappingId);
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		String depositId = null;
+		try {
+			if (StringUtils.isBlank(mappingId) || connection == null) {
+				return null;
+			}
+			pstmt = connection.prepareStatement(SqlQuerys.Payments.RETRIEVE_DEPOSIT_BY_MAPPING_QRY);
+			pstmt.setString(1, mappingId);
+			rset = pstmt.executeQuery();
+			if (rset.next()) {
+				depositId = rset.getString("id");
+				LOGGER.debug("depositId:"+depositId);
+			}
+		} catch (Exception e) {
+			LOGGER.error("error getDepositId(String mappingId:" + mappingId, e);
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeResultSet(rset);
+			LOGGER.debug("exited getDepositId(String mappingId:" + mappingId);
+		}
+		return depositId;
+	}
 
 	private List<PaymentLine> getLines(String paymentId, Connection connection) {
 		LOGGER.debug("entered getLines(String paymentId:"+paymentId+", Connection connection)");
@@ -603,7 +645,6 @@ public class PaymentDAOImpl implements paymentDAO {
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Payment payment = new Payment();
-
 		if (connection != null) {
 			int ctr = 1;
 			try {
@@ -621,8 +662,10 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setMemo(rset.getString("memo"));
 					payment.setType(rset.getString("type"));
 					payment.setPaymentNote(rset.getString("payment_notes"));
+					payment.setMapping_id(rset.getString("mapping_id"));
 					payment.setDepositedTo(rset.getString("bank_account_id"));
-					payment.setPaymentLines(getLines(payment.getId()));
+					payment.setDeposit_id(getDepositId(connection, payment.getMapping_id()));
+					payment.setPaymentLines(getLines(connection ,payment.getId()));
 				}
 			} catch (SQLException e) {
 				LOGGER.error("error in getById(String paymentId:"+paymentId, e);
