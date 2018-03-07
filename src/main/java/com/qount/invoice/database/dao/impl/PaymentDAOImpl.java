@@ -273,26 +273,6 @@ public class PaymentDAOImpl implements paymentDAO {
 		}
 		return dateStr;
 	}
-
-	private List<PaymentLine> getLines(String paymentId) {
-		LOGGER.debug("entered getLines(String paymentId:" + paymentId);
-		Connection connection = null;
-		try {
-			connection = DatabaseUtilities.getReadWriteConnection();
-			List<PaymentLine> lines = new ArrayList<PaymentLine>();
-
-			if (connection != null) {
-				lines = getLines(paymentId, connection);
-			}
-			return lines;
-		} catch (Exception e) {
-			LOGGER.error("error in getLines(String paymentId:" + paymentId, e);
-		} finally{
-			DatabaseUtilities.closeResources(null, null, connection);
-		}
-		LOGGER.debug("entered getLines(String paymentId:" + paymentId);
-		return null;
-	}
 	
 	private List<PaymentLine> getLines(Connection connection, String paymentId) {
 		LOGGER.debug("entered getLines(String paymentId:" + paymentId);
@@ -328,7 +308,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setAmount(new BigDecimal(rset.getString("payment_amount")));
 					line.setInvoiceDate(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					line.setTerm(rset.getString("term"));
-					line.setState(rset.getString("state"));
+					line.setState(WordUtils.capitalize(rset.getString("state")));
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
 					lines.add(line);
 				}
@@ -437,7 +417,7 @@ public class PaymentDAOImpl implements paymentDAO {
 						payment.setPaymentNote(rset.getString("payment_notes"));
 						payment.setDepositedTo(rset.getString("bank_account_id"));
 						payment.setCustomerName(rset.getString("customer_name"));
-						payment.setPaymentLines(getLines(payment.getId()));
+						payment.setPaymentLines(getLines(connection, payment.getId()));
 						String depositID = rset.getString("deposit_id");
 						payment.setDepositID(depositID);
 						if (depositID != null) {
@@ -488,11 +468,11 @@ public class PaymentDAOImpl implements paymentDAO {
 						payment.setReferenceNo(rset.getString("reference_no"));
 						payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
 						payment.setMemo(rset.getString("memo"));
-						payment.setType(rset.getString("type"));
+						payment.setType(WordUtils.capitalize(rset.getString("type")));
 						payment.setPaymentNote(rset.getString("payment_notes"));
 						payment.setDepositedTo(rset.getString("bank_account_id"));
 						payment.setCustomerName(rset.getString("customer_name"));
-						payment.setPaymentLines(getLines(payment.getId()));
+						payment.setPaymentLines(getLines(connection, payment.getId()));
 						String depositID = rset.getString("deposit_id");
 						payment.setDepositID(depositID);
 						if (depositID != null) {
@@ -636,7 +616,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setReferenceNo(rset.getString("reference_no"));
 					payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					payment.setMemo(rset.getString("memo"));
-					payment.setType(rset.getString("type"));
+					payment.setType(WordUtils.capitalize(rset.getString("type")));
 					payment.setPaymentNote(rset.getString("payment_notes"));
 					payment.setMapping_id(rset.getString("mapping_id"));
 					payment.setDepositedTo(rset.getString("bank_account_id"));
