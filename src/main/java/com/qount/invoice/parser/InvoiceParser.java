@@ -628,49 +628,6 @@ public class InvoiceParser {
 		return null;
 	}
 
-	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds, String user_id, String companyId,
-			boolean markAsSent, String state) {
-		try {
-			List<InvoiceHistory> result = null;
-			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:" + invoiceIds + ", String user_id:"
-					+ user_id + ",String companyId:" + companyId + " boolean markAsSent:" + markAsSent + ")");
-			if (invoiceIds != null && !invoiceIds.isEmpty()) {
-				result = new ArrayList<InvoiceHistory>();
-				for (int i = 0; i < invoiceIds.size(); i++) {
-					String invoiceId = invoiceIds.get(i);
-					InvoiceHistory invoiceHistory = new InvoiceHistory();
-					invoiceHistory.setAction(state);
-					Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-					invoiceHistory.setAction_at(timestamp.toString());
-					invoiceHistory.setCompany_id(companyId);
-					invoiceHistory.setCreated_at(timestamp.toString());
-					invoiceHistory.setCreated_by(user_id);
-					invoiceHistory.setEmail_from(null);
-					invoiceHistory.setEmail_subject(null);
-					invoiceHistory.setEmail_to(null);
-					invoiceHistory.setId(UUID.randomUUID().toString());
-					invoiceHistory.setInvoice_id(invoiceId);
-					invoiceHistory.setLast_updated_at(timestamp.toString());
-					invoiceHistory.setLast_updated_by(user_id);
-					invoiceHistory.setUser_id(user_id);
-					invoiceHistory.setAction_at_mills(new Date().getTime());
-					if (markAsSent) {
-						invoiceHistory.setDescription(PropertyManager.getProperty("invoice.history.mark.as.sent"));
-					}
-					result.add(invoiceHistory);
-				}
-				return result;
-			}
-		} catch (Exception e) {
-			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw e;
-		} finally {
-			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds" + invoiceIds + ", String user_id:"
-					+ user_id + ",String companyId:" + companyId + " boolean markAsSent:" + markAsSent + ")");
-		}
-		return null;
-	}
-
 	public static boolean deleteInvoivceCommissionBill(InvoiceCommission invoiceCommission) throws Exception {
 		try {
 			LOGGER.debug("entered deleteInvoivceCommissionBill(invoiceCommission:" + invoiceCommission);

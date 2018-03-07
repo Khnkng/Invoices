@@ -32,18 +32,12 @@ public class LateFeeHelper {
 				if (StringUtils.isNotBlank(dbInvoice.getLate_fee_id()) && StringUtils.isBlank(invoiceObj.getLate_fee_id())) {
 					LOGGER.debug("late fee removed:");
 					deleteLateFeeJournal(dbInvoice);
-					String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.removed"),
-							StringUtils.isEmpty(dbInvoice.getLate_fee_name()) ? dbInvoice.getLate_fee_id() : dbInvoice.getLate_fee_name());
-					InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
 				}
 				if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
 					// creating journal if late fee added
 					if (StringUtils.isBlank(dbInvoice.getLate_fee_id())) {
 						LOGGER.debug("late fee added:");
 						scheduleJournalForLateFee(invoiceObj);
-						String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.added"),
-								StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
-						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
 					}
 					// if due date is changed
 					String dueDateTemp = InvoiceParser.convertTimeStampToString(invoiceObj.getDue_date(), Constants.TIME_STATMP_TO_BILLS_FORMAT,
@@ -58,10 +52,6 @@ public class LateFeeHelper {
 						LOGGER.debug("late fee changed:");
 						deleteLateFeeJournal(dbInvoice);
 						scheduleJournalForLateFee(invoiceObj);
-						String historyAction = String.format(PropertyManager.getProperty("invoice.history.latefee.changed"),
-								StringUtils.isEmpty(dbInvoice.getLate_fee_name()) ? dbInvoice.getLate_fee_id() : dbInvoice.getLate_fee_name(),
-								StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id() : invoiceObj.getLate_fee_name());
-						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
 					}
 					// if invoice amount is changed
 					double uiInvoiceAmount = invoiceObj.getSub_total() + invoiceObj.getTax_amount() + invoiceObj.getLate_fee_amount();
