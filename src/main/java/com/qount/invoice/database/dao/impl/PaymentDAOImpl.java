@@ -462,6 +462,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setId(rset.getString("id"));
 					int index = payments.indexOf(payment);
 					if (index == -1) {
+						payment.setPayment_status(WordUtils.capitalize(rset.getString("payment_status")));
 						payment.setReceivedFrom(rset.getString("received_from"));
 						payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
 						payment.setCurrencyCode(rset.getString("currency_code"));
@@ -608,7 +609,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, paymentId);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
-//					payment.setPayment_status(rset.getString("payment_status"));
+					payment.setPayment_status(WordUtils.capitalize(rset.getString("payment_status")));
 					payment.setId(rset.getString("id"));
 					payment.setReceivedFrom(rset.getString("received_from"));
 					payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
