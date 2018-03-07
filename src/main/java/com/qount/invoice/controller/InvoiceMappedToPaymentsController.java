@@ -20,11 +20,11 @@ import io.swagger.annotations.ApiOperation;
 
 public class InvoiceMappedToPaymentsController {
 	
-	@Path("/payment/{paymentID}/invoice")
+	@Path("/payment/{paymentID}/invoices")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
-	@ApiOperation(value = "Returns list of payments by id", notes = "Used to retreive list of payments against company", responseContainer = "java.lang.String")
+	@ApiOperation(value = "Returns list of invoice in a payment", notes = "Used to retreive list  of invoice in a payments", responseContainer = "java.lang.String")
 	public List<Invoice> getIvoicesByPaymentID(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @PathParam("paymentID") String paymentID) {
 		return PaymentService.getInstance().getIvoicesByPaymentID(companyID, paymentID);
 	}

@@ -676,6 +676,8 @@ public class PaymentDAOImpl implements paymentDAO {
 					invoice.setInvoice_date(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					invoice.setState(rset.getString("state"));
+					invoice.setCustomer_name(rset.getString("customer_name"));
+					invoice.setCurrency(rset.getString("currency"));
 					invoices.add(invoice);
 				}
 			} catch (SQLException e) {
