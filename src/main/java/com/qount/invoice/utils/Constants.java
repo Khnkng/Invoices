@@ -167,4 +167,7 @@ public class Constants {
 	public static final String FLAT_DISCOUNT = "flat_discount";
 	public static final String OPENED = "opened";
 	public static int DAYS_IN_MILLIS = 86400000;
+	public static final String APPLIED = "Applied";
+	public static final String PARTIALLY_APPLIED = "Partially Applied";
+	public static final String UNAPPLIED = "Unapplied";
 }

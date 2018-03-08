@@ -66,6 +66,30 @@ public class Payment {
 	private double payment_applied_amount;
 	private double payment_unapplied_amount;
 	
+	private String payment_status;
+	
+	private String mapping_id;
+	
+	private String deposit_id;
+	
+	public String getDeposit_id() {
+		return deposit_id;
+	}
+	public void setDeposit_id(String deposit_id) {
+		this.deposit_id = deposit_id;
+	}
+	public String getMapping_id() {
+		return mapping_id;
+	}
+	public void setMapping_id(String mapping_id) {
+		this.mapping_id = mapping_id;
+	}
+	public String getPayment_status() {
+		return payment_status;
+	}
+	public void setPayment_status(String payment_status) {
+		this.payment_status = payment_status;
+	}
 	public double getPayment_unapplied_amount() {
 		return payment_unapplied_amount;
 	}

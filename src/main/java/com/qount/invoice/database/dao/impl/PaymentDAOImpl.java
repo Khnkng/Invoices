@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -56,6 +57,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				LOGGER.debug("entered invoice payment save:" + payment);
 				List<PaymentLine> lines = getLines(payment.getId(), connection);
 				pstmt = connection.prepareStatement(SqlQuerys.Payments.INSERT_QRY);
+				pstmt.setString(ctr++, payment.getPayment_status());
 				pstmt.setString(ctr++, payment.getId());
 				pstmt.setString(ctr++, payment.getReceivedFrom());
 				double amt = 0;
@@ -82,6 +84,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, payment.getType());
 				pstmt.setString(ctr++, payment.getPaymentNote());
 				pstmt.setString(ctr++, payment.getDepositedTo());
+				pstmt.setString(ctr++, payment.getPayment_status());
 				int affectedRows = pstmt.executeUpdate();
 				if (affectedRows == 0) {
 					throw new SQLException("");
@@ -270,14 +273,11 @@ public class PaymentDAOImpl implements paymentDAO {
 		}
 		return dateStr;
 	}
-
-	private List<PaymentLine> getLines(String paymentId) {
+	
+	private List<PaymentLine> getLines(Connection connection, String paymentId) {
 		LOGGER.debug("entered getLines(String paymentId:" + paymentId);
-		Connection connection = null;
 		try {
-			connection = DatabaseUtilities.getReadWriteConnection();
 			List<PaymentLine> lines = new ArrayList<PaymentLine>();
-
 			if (connection != null) {
 				lines = getLines(paymentId, connection);
 			}
@@ -285,9 +285,8 @@ public class PaymentDAOImpl implements paymentDAO {
 		} catch (Exception e) {
 			LOGGER.error("error in getLines(String paymentId:" + paymentId, e);
 		} finally{
-			DatabaseUtilities.closeResources(null, null, connection);
+			LOGGER.debug("exited getLines(String paymentId:" + paymentId);
 		}
-		LOGGER.debug("entered getLines(String paymentId:" + paymentId);
 		return null;
 	}
 
@@ -309,7 +308,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setAmount(new BigDecimal(rset.getString("payment_amount")));
 					line.setInvoiceDate(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					line.setTerm(rset.getString("term"));
-					line.setState(rset.getString("state"));
+					line.setState(WordUtils.capitalize(rset.getString("state")));
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
 					lines.add(line);
 				}
@@ -407,17 +406,18 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setId(rset.getString("id"));
 					int index = payments.indexOf(payment);
 					if (index == -1) {
+						payment.setPayment_status(WordUtils.capitalize(rset.getString("payment_status")));
 						payment.setReceivedFrom(rset.getString("received_from"));
 						payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
 						payment.setCurrencyCode(rset.getString("currency_code"));
 						payment.setReferenceNo(rset.getString("reference_no"));
 						payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
 						payment.setMemo(rset.getString("memo"));
-						payment.setType(rset.getString("type"));
+						payment.setType(WordUtils.capitalize(rset.getString("type")));
 						payment.setPaymentNote(rset.getString("payment_notes"));
 						payment.setDepositedTo(rset.getString("bank_account_id"));
 						payment.setCustomerName(rset.getString("customer_name"));
-						payment.setPaymentLines(getLines(payment.getId()));
+						payment.setPaymentLines(getLines(connection, payment.getId()));
 						String depositID = rset.getString("deposit_id");
 						payment.setDepositID(depositID);
 						if (depositID != null) {
@@ -462,17 +462,18 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setId(rset.getString("id"));
 					int index = payments.indexOf(payment);
 					if (index == -1) {
+						payment.setPayment_status(WordUtils.capitalize(rset.getString("payment_status")));
 						payment.setReceivedFrom(rset.getString("received_from"));
 						payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
 						payment.setCurrencyCode(rset.getString("currency_code"));
 						payment.setReferenceNo(rset.getString("reference_no"));
 						payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
 						payment.setMemo(rset.getString("memo"));
-						payment.setType(rset.getString("type"));
+						payment.setType(WordUtils.capitalize(rset.getString("type")));
 						payment.setPaymentNote(rset.getString("payment_notes"));
 						payment.setDepositedTo(rset.getString("bank_account_id"));
 						payment.setCustomerName(rset.getString("customer_name"));
-						payment.setPaymentLines(getLines(payment.getId()));
+						payment.setPaymentLines(getLines(connection, payment.getId()));
 						String depositID = rset.getString("deposit_id");
 						payment.setDepositID(depositID);
 						if (depositID != null) {
@@ -601,7 +602,6 @@ public class PaymentDAOImpl implements paymentDAO {
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		Payment payment = new Payment();
-
 		if (connection != null) {
 			int ctr = 1;
 			try {
@@ -609,6 +609,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, paymentId);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
+					payment.setPayment_status(WordUtils.capitalize(rset.getString("payment_status")));
 					payment.setId(rset.getString("id"));
 					payment.setReceivedFrom(rset.getString("received_from"));
 					payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
@@ -616,10 +617,11 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setReferenceNo(rset.getString("reference_no"));
 					payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					payment.setMemo(rset.getString("memo"));
-					payment.setType(rset.getString("type"));
+					payment.setType(WordUtils.capitalize(rset.getString("type")));
 					payment.setPaymentNote(rset.getString("payment_notes"));
+					payment.setMapping_id(rset.getString("mapping_id"));
 					payment.setDepositedTo(rset.getString("bank_account_id"));
-					payment.setPaymentLines(getLines(payment.getId()));
+					payment.setPaymentLines(getLines(connection ,payment.getId()));
 				}
 			} catch (SQLException e) {
 				LOGGER.error("error in getById(String paymentId:"+paymentId, e);
@@ -632,4 +634,41 @@ public class PaymentDAOImpl implements paymentDAO {
 		return payment;
 	}
 
+	@Override
+	public List<Invoice> getIvoicesByPaymentID(String paymentId) {
+		LOGGER.debug("entered getIvoicesByPaymentID paymentId:"+paymentId);
+		Connection connection = DatabaseUtilities.getReadWriteConnection();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		List<Invoice> invoices = new ArrayList<Invoice>();
+		Invoice invoice = null;
+		if (connection != null) {
+			int ctr = 1;
+			try {
+				pstmt = connection.prepareStatement(SqlQuerys.Payments.RETRIEVE_INVOICES_BY_PAYMENTID);
+				pstmt.setString(ctr++, paymentId);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					invoice = new Invoice();
+					invoice.setId(rset.getString("invoice_id"));
+					invoice.setNumber(rset.getString("number"));
+					invoice.setAmount(rset.getDouble("amount"));
+					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setInvoice_date(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setState(rset.getString("state"));
+					invoice.setCustomer_name(rset.getString("customer_name"));
+					invoice.setCurrency(rset.getString("currency"));
+					invoices.add(invoice);
+				}
+			} catch (SQLException e) {
+				LOGGER.error("error in getIvoicesByPaymentID paymentId:"+paymentId, e);
+				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(rset, pstmt, connection);
+				LOGGER.debug("closed connection in getIvoicesByPaymentID: " +paymentId);
+			}
+		}
+		return invoices;
+	}
 }

@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
+import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
@@ -48,6 +49,7 @@ public class PaymentService {
 			if (StringUtils.isBlank(payment.getId())) {
 				payment.setId(UUID.randomUUID().toString());
 			}
+			InvoiceParser.calculateCollectionPaymentStatus(payment);
 			pymt = PaymentDAOImpl.getInstance().save(payment, connection, true);
 			connection.commit();
 			CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), userID, companyId);
@@ -69,7 +71,7 @@ public class PaymentService {
 			result = PaymentDAOImpl.getInstance().list(companyId);
 			String paymentIds = InvoiceParser.getCommaSeparatedIds(result);
 			Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
-			InvoiceParser.mergePayments(result, paidAmountMap, unapplied);
+			InvoiceParser.mergePayments(result, paidAmountMap, unapplied, false);
 		} catch (Exception e) {
 			LOGGER.error("error in getList(String companyId :" + companyId+" unapplied:"+unapplied, e);
 		} finally {
@@ -88,7 +90,7 @@ public class PaymentService {
 			result = PaymentDAOImpl.getInstance().listByInvoiceId(invoiceId);
 			String paymentIds = InvoiceParser.getCommaSeparatedIds(result);
 			Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
-			InvoiceParser.mergePayments(result, paidAmountMap,unapplied);
+			InvoiceParser.mergePayments(result, paidAmountMap, unapplied, true);
 		} catch (Exception e) {
 			LOGGER.error("error in getListByInvoice(String invoiceId :" + invoiceId +" unapplied:"+unapplied, e);
 		} finally {
@@ -123,6 +125,18 @@ public class PaymentService {
 			LOGGER.debug("error in getById(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
 		} finally {
 			LOGGER.debug("exited getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
+		}
+		return null;
+	}
+	
+	public List<Invoice> getIvoicesByPaymentID(String companyId, String paymentId) {
+		try {
+			LOGGER.debug("entered getIvoicesByPaymentID(String companyId:" + companyId + ", String paymentId:" + paymentId);
+			return PaymentDAOImpl.getInstance().getIvoicesByPaymentID(paymentId);
+		} catch (Exception e) {
+			LOGGER.debug("error in getIvoicesByPaymentID(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
+		} finally {
+			LOGGER.debug("exited getIvoicesByPaymentID(String companyId:" + companyId + ", String paymentId:" + paymentId);
 		}
 		return null;
 	}

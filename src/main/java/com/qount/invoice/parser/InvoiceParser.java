@@ -30,6 +30,7 @@ import com.qount.invoice.model.InvoiceLine;
 import com.qount.invoice.model.InvoiceMail;
 import com.qount.invoice.model.InvoicePreference;
 import com.qount.invoice.model.Payment;
+import com.qount.invoice.model.PaymentLine;
 import com.qount.invoice.model.PaymentSpringPlan;
 import com.qount.invoice.model.UserCompany;
 import com.qount.invoice.pdf.InvoiceReference;
@@ -919,9 +920,9 @@ public class InvoiceParser {
 		return null;
 	}
 	
-	public static void mergePayments(List<Payment> payments, Map<String, Double> paidAmountMap, boolean unapplied){
+	public static void mergePayments(List<Payment> payments, Map<String, Double> paidAmountMap, boolean unapplied, boolean invoiceFlag){
 		try {
-			LOGGER.debug("entered mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied);
+			LOGGER.debug("entered mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied+ "invoiceFlag:"+invoiceFlag);
 			if(payments==null || payments.isEmpty() || paidAmountMap==null || paidAmountMap.isEmpty()){
 				return;
 			}
@@ -936,17 +937,58 @@ public class InvoiceParser {
 					payment.setPayment_applied_amount(assignedAmount);}
 					if(unapplied){
 						payment.setPayment_unapplied_amount(payment.getPaymentAmount()!=null?(payment.getPaymentAmount().doubleValue()-payment.getPayment_applied_amount()):0);
-					  if(payment.getPaymentAmount().doubleValue()==(payment.getPayment_applied_amount())){
-						  paymentsItr.remove();
-					  }
+						if(invoiceFlag) {
+							if(payment.getPaymentAmount().doubleValue()==(payment.getPayment_applied_amount())){
+							  paymentsItr.remove();
+						  }
+						}
 					}
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("error mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied,e);
+			LOGGER.error("error mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied+ "invoiceFlag:"+invoiceFlag,e);
 		} finally{
-			LOGGER.debug("exited mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied);
+			LOGGER.debug("exited mergePayments(List<Payment> payments:"+payments+", Map<String, Double> paidAmountMap:"+paidAmountMap+" unapplied:"+unapplied+ "invoiceFlag:"+invoiceFlag);
 		}
 	}
 
+	
+	public static void calculateCollectionPaymentStatus(Payment payment){
+		try{
+			LOGGER.debug("entered calculateCollectionPaymentStatus(Payment payment:" + payment);
+			if(payment!=null){
+				double paymentAmount = payment.getPaymentAmount()!=null?payment.getPaymentAmount().doubleValue():0.0d;
+				if(paymentAmount>0.0d){
+					List<PaymentLine> lines = payment.getPaymentLines();
+					if(lines!=null && !lines.isEmpty()){
+						double paymentLinesAppliedAmount = 0.0d;
+						Iterator<PaymentLine> lineItr = lines.iterator();
+						while(lineItr.hasNext()){
+							PaymentLine line = lineItr.next();
+							if(line!=null){
+								double lineAmount = line.getAmount()!=null?line.getAmount().doubleValue():0.0d;
+								if(lineAmount>0){
+									paymentLinesAppliedAmount+=lineAmount;
+								}else if(lineAmount<=0){
+									//removing payment lines from the list to save if they are not applied 
+									lineItr.remove();
+								}
+							}
+						}
+						if(paymentLinesAppliedAmount == 0.0d){
+							payment.setPayment_status(Constants.UNAPPLIED);
+						}else if(paymentLinesAppliedAmount == paymentAmount){
+							payment.setPayment_status(Constants.APPLIED);
+						}else if(paymentLinesAppliedAmount>0 && paymentLinesAppliedAmount<paymentAmount){
+							payment.setPayment_status(Constants.PARTIALLY_APPLIED);
+						} 
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.debug("error calculateCollectionPaymentStatus(Payment payment:" + payment, e);
+		} finally{
+			LOGGER.debug("exited calculateCollectionPaymentStatus(Payment payment:" + payment);
+		}
+	}
 }
