@@ -938,6 +938,11 @@ public class InvoiceParser {
 					payment.setPayment_applied_amount(assignedAmount);}
 					if(unapplied){
 						payment.setPayment_unapplied_amount(payment.getPaymentAmount()!=null?(payment.getPaymentAmount().doubleValue()-payment.getPayment_applied_amount()):0);
+						if(invoiceFlag) {
+							if(payment.getPaymentAmount().doubleValue()==(payment.getPayment_applied_amount())){
+								paymentsItr.remove();
+						}	}
+							
 					}
 				}
 			}
