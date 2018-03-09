@@ -14,6 +14,7 @@ import java.util.UUID;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -985,5 +986,19 @@ public class InvoiceParser {
 		} finally{
 			LOGGER.debug("exited calculateCollectionPaymentStatus(Payment payment:" + payment);
 		}
+	}
+	
+	public static String getDisplayState(String state) {
+		try {
+			if (StringUtils.isNotBlank(state)) {
+				if (state.equalsIgnoreCase(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+					return Constants.PARTIALLY_PAID;
+				}
+				return WordUtils.capitalize(state);
+			}
+		} catch (Exception e) {
+			LOGGER.error("error parsing display state:",e);
+		}
+		return null;
 	}
 }

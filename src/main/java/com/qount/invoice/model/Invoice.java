@@ -108,7 +108,16 @@ public class Invoice {
 	private String job_date;
 	private boolean is_discount_applied;
 	private String discount_id;
+	private String displayState;
 	
+	public String getDisplayState() {
+		return displayState;
+	}
+
+	public void setDisplayState(String displayState) {
+		this.displayState = displayState;
+	}
+
 	public String getRecurringFrequency() {
 		return recurringFrequency;
 	}
