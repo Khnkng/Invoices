@@ -637,6 +637,7 @@ public class InvoiceControllerImpl {
 			line.setInvoiceId(invoice.getId());
 			line.setAmount(new BigDecimal(invoice.getAmount()));
 			payments.add(line);
+			payment.setPayment_status(Constants.APPLIED);
 			payment.setPaymentLines(payments);
 			// 100 0 90 10
 			invoice.setAmount_due(
