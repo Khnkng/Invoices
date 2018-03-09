@@ -194,6 +194,7 @@ public class InvoiceDetailControllerImpl {
 			double amountPaidInDollar = convertCentToDollar(amount_settled);
 			payment.setPaymentAmount(new BigDecimal(amountPaidInDollar));
 			paymentLine.setAmount(new BigDecimal(amountPaidInDollar));
+			payment.setPayment_status(Constants.APPLIED);
 			payments.add(paymentLine);
 			payment.setPaymentLines(payments);
 			invoice.setAmount_paid(invoice.getAmount_paid() + amountPaidInDollar);
