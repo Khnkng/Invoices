@@ -1661,7 +1661,7 @@ public class InvoiceControllerImpl {
 				validatePaidInvoiceEdit(dbInvoice, invoiceObj);
 			}
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
-				if(dbInvoice.getCustomer_id().equals(invoiceObj.getCustomer_id())){
+				if(!dbInvoice.getCustomer_id().equals(invoiceObj.getCustomer_id())){
 					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.customer.update"), Constants.INVALID_INPUT_STATUS);
 				}
 			}
