@@ -308,7 +308,8 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setAmount(new BigDecimal(rset.getString("payment_amount")));
 					line.setInvoiceDate(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					line.setTerm(rset.getString("term"));
-					line.setState(WordUtils.capitalize(rset.getString("state")));
+					line.setDisplayState(InvoiceParser.getDisplayState(rset.getString("state")));
+					line.setState(rset.getString("state"));
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
 					lines.add(line);
 				}
