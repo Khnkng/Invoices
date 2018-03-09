@@ -993,12 +993,16 @@ public class InvoiceParser {
 		}
 	}
 	
-	public static String getDisplayState(String state){
-		if(state!=null){
-			if(state.equalsIgnoreCase(Constants.INVOICE_STATE_PARTIALLY_PAID)){
-				return Constants.PARTIALLY_PAID;
+	public static String getDisplayState(String state) {
+		try {
+			if (StringUtils.isNotBlank(state)) {
+				if (state.equalsIgnoreCase(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
+					return Constants.PARTIALLY_PAID;
+				}
+				return WordUtils.capitalize(state);
 			}
-			return WordUtils.capitalize(state);
+		} catch (Exception e) {
+			LOGGER.error("error parsing display state:",e);
 		}
 		return null;
 	}
