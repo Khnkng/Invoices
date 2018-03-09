@@ -672,4 +672,66 @@ public class PaymentDAOImpl implements paymentDAO {
 		}
 		return invoices;
 	}
+	
+	@Override
+	public List<Payment> getUnappliedPayments(String companyID) throws Exception {
+		LOGGER.debug("entered get Unapplied Payments: companyID" + companyID);
+		if (StringUtils.isEmpty(companyID)) {
+			throw new WebApplicationException("companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		List<Payment> payments = new ArrayList<Payment>();
+		Payment payment = null; 
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Payments.RETRIEVE_UNAPPLIED_AMOUNT);
+				pstmt.setString(1, companyID);
+				rset = pstmt.executeQuery();
+				while(rset.next()) {
+					payment = new Payment();
+					payment.setId(rset.getString("id"));
+					int index = payments.indexOf(payment);
+					if (index == -1) {
+						payment.setPayment_status(WordUtils.capitalize(rset.getString("payment_status")));
+						payment.setReceivedFrom(rset.getString("received_from"));
+						payment.setPaymentAmount(new BigDecimal(rset.getDouble("payment_amount")));
+						payment.setCurrencyCode(rset.getString("currency_code"));
+						payment.setReferenceNo(rset.getString("reference_no"));
+						payment.setPaymentDate(getDateStringFromSQLDate(rset.getDate("payment_date"), Constants.INVOICE_UI_DATE_FORMAT));
+						payment.setMemo(rset.getString("memo"));
+						payment.setType(WordUtils.capitalize(rset.getString("type")));
+						payment.setPaymentNote(rset.getString("payment_notes"));
+						payment.setDepositedTo(rset.getString("bank_account_id"));
+						payment.setCustomerName(rset.getString("customer_name"));
+//						payment.setPaymentLines(getLines(connection, payment.getId()));
+						String depositID = rset.getString("deposit_id");
+						payment.setDepositID(depositID);
+						if (depositID != null) {
+							payment.setStatus("mapped");
+						}
+						payments.add(payment);
+					} else {
+						payment = payments.get(index);
+					}
+					String journalID = rset.getString("journal_id");
+					if (StringUtils.isNotBlank(journalID) && rset.getBoolean("isActive")) {
+						payment.setJournalID(journalID);
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error fetching Unapplied Payments: companyID" + companyID, e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited get Unapplied Payments: companyID" + companyID);
+		}
+		return payments;
+
+	}
 }

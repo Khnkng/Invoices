@@ -68,10 +68,13 @@ public class PaymentService {
 		List<Payment> result = null;
 		try {
 			LOGGER.debug("entered getList(String companyId :" + companyId+ "unapplied:"+unapplied);
-			result = PaymentDAOImpl.getInstance().list(companyId);
-			String paymentIds = InvoiceParser.getCommaSeparatedIds(result);
-			Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
-			InvoiceParser.mergePayments(result, paidAmountMap, unapplied, false);
+			if (unapplied) {
+				result = PaymentDAOImpl.getInstance().getUnappliedPayments(companyId);
+			}else {
+				result = PaymentDAOImpl.getInstance().list(companyId);}
+				String paymentIds = InvoiceParser.getCommaSeparatedIds(result);
+				Map<String, Double> paidAmountMap = PaymentDAOImpl.getInstance().getPaidAmountMap(paymentIds);
+				InvoiceParser.mergePayments(result, paidAmountMap, unapplied, false);
 		} catch (Exception e) {
 			LOGGER.error("error in getList(String companyId :" + companyId+" unapplied:"+unapplied, e);
 		} finally {
