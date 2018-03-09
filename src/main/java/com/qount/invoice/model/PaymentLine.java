@@ -29,6 +29,14 @@ public class PaymentLine {
 	
 	private String state;
 	
+	private String displayState;
+	
+	public String getDisplayState() {
+		return displayState;
+	}
+	public void setDisplayState(String displayState) {
+		this.displayState = displayState;
+	}
 	public double getDiscount() {
 		return discount;
 	}
