@@ -1660,6 +1660,11 @@ public class InvoiceControllerImpl {
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				validatePaidInvoiceEdit(dbInvoice, invoiceObj);
 			}
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
+				if(!dbInvoice.getCustomer_id().equals(invoiceObj.getCustomer_id())){
+					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.customer.update"), Constants.INVALID_INPUT_STATUS);
+				}
+			}
 		} catch (WebApplicationException e) {
 			LOGGER.debug("error validateInvoiceEdit(Invoice dbInvoice:"+dbInvoice+", Invoice invoiceObj:"+invoiceObj+", String userID:"+userID+", String companyID:"+companyID, e);
 			throw e;
