@@ -95,4 +95,13 @@ public class PaymentLine {
 		return super.toString();
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj != null) {
+			PaymentLine paymentLine = (PaymentLine) obj;
+			
+			return paymentLine.getId().equalsIgnoreCase(this.id);
+		}
+		return false;
+	}
 }

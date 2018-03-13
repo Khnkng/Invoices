@@ -970,7 +970,7 @@ public class InvoiceParser {
 								double lineAmount = line.getAmount()!=null?line.getAmount().doubleValue():0.0d;
 								if(lineAmount>0){
 									paymentLinesAppliedAmount+=lineAmount;
-								}else if(lineAmount<=0){
+								}else if(lineAmount<=0&&StringUtils.isBlank(line.getId())){
 									//removing payment lines from the list to save if they are not applied 
 									lineItr.remove();
 								}

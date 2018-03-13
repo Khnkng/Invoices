@@ -3,8 +3,10 @@ package com.qount.invoice.service;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
@@ -14,9 +16,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.Payment;
+import com.qount.invoice.model.PaymentLine;
 import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
@@ -64,6 +68,51 @@ public class PaymentService {
 		return pymt;
 	}
 
+	public Payment UpdatePayment(Payment payment, String companyId, String userID,String paymentId) throws Exception {
+		LOGGER.debug("entered createOrUpdatePayment(Payment payment:" + payment + ", String companyId:" + companyId + ", String userID:" + userID);
+		Connection connection = DatabaseUtilities.getReadWriteConnection();
+		if (connection == null) {
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
+		}
+		Payment pymt = null;
+		List<Invoice> updatedInvoiceList = null;
+		Set<String> invoiceIds = new HashSet<String>();
+		try {
+			connection.setAutoCommit(false);
+			payment.setCompanyId(companyId);
+			InvoiceParser.calculateCollectionPaymentStatus(payment);
+			pymt = PaymentDAOImpl.getInstance().update(payment, connection, paymentId);
+			List<PaymentLine> paymentLines = payment.getPaymentLines();
+			//add new lines and update old one
+			PaymentDAOImpl.getInstance().batchaddPaymentLine(connection, paymentLines, payment.getId());
+			//delete remaining lines
+			PaymentDAOImpl.getInstance().batchdeletePaymentLines(paymentLines, connection);
+			
+        	Payment dbpayment = PaymentDAOImpl.getInstance().getById(paymentId);
+        	List<PaymentLine> dblines = dbpayment.getPaymentLines();
+        	for (PaymentLine paymentLine : paymentLines) {
+        		invoiceIds.add(paymentLine.getInvoiceId());
+			}for (PaymentLine dbline : dblines) {
+				invoiceIds.add(dbline.getInvoiceId());
+			}
+        	List<Invoice>  invoiceList = InvoiceDAOImpl.getInvoiceDAOImpl().getByInQuery(invoiceIds);
+        	updatedInvoiceList = PaymentDAOImpl.getInstance().updateInvoiceForPaymentLines(payment, dblines,invoiceList);
+    		
+            InvoiceDAOImpl.getInvoiceDAOImpl().batchupdate(connection,updatedInvoiceList);
+    		
+            connection.commit();
+			CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), userID, companyId);
+		} catch (SQLException e) {
+			LOGGER.error("",e);
+			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.BAD_REQUEST));
+
+		} finally {
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited createOrUpdatePayment(Payment payment:" + payment + ", String companyId:" + companyId + ", String userID:" + userID);
+		}
+		return pymt;
+	}
+	
 	public List<Payment> getList(String companyId,boolean unapplied) {
 		List<Payment> result = null;
 		try {

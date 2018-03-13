@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
@@ -213,6 +214,37 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.debug("exited invoice update:" + invoice);
 		}
 		return invoice;
+	}
+	
+	@Override
+	public boolean batchupdate(Connection connection, List<Invoice> invoiceList) throws Exception {
+		LOGGER.debug("entered invoice batch update:" + invoiceList);
+		if (invoiceList == null) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.BATCH_UPDATE_QRY);
+				for (Invoice invoice : invoiceList) {
+					int ctr = 1;
+				pstmt.setString(ctr++, invoice.getState());
+				pstmt.setDouble(ctr++, invoice.getDiscount()); 
+				pstmt.setDouble(ctr++, invoice.getAmount_due());
+				pstmt.setDouble(ctr++, invoice.getAmount_paid());
+				pstmt.setString(ctr++, invoice.getId());
+				pstmt.addBatch();
+				}
+				pstmt.executeBatch();
+				return true;
+			}
+		}catch (Exception e) {
+			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+		}
+		return false;
 	}
 	
 	@Override
@@ -557,6 +589,45 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 
+	}
+	
+	@Override
+	public List<Invoice> getByInQuery(Set<String> invoiceIDs) throws Exception {
+		LOGGER.debug("entered get by invoice ids:" + invoiceIDs);
+		Invoice invoice = null;
+		List<Invoice> invoiceList = new ArrayList<Invoice>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			StringBuilder queryBuilder = new StringBuilder();
+				for (String invoiceId : invoiceIDs) {
+					queryBuilder.append("'").append(invoiceId).append("'").append(" ,");
+				}
+				queryBuilder.deleteCharAt(queryBuilder.length() - 1).append(")");
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_BY_IN_QRY+queryBuilder);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+						invoice = new Invoice();
+					    invoice.setId(rset.getString("id"));
+					    invoice.setAmount(rset.getDouble("amount"));
+						invoice.setState(rset.getString("state"));
+						invoice.setAmount_due(rset.getDouble("amount_due"));
+						invoice.setAmount_paid(rset.getDouble("amount_paid"));
+						invoice.setDiscount(rset.getDouble("discount"));
+				        invoiceList.add(invoice);
+		}} }catch (Exception e) {
+			LOGGER.error("Error fetching invoice for invoiceIDs [ " + invoiceIDs + " ]", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited get by invoiceids:" + invoiceIDs);
+		}
+		return invoiceList;
 	}
 
 	@Override
@@ -1600,13 +1671,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			DatabaseUtilities.closeConnection(conn);
 		}
 		return result;
-	}
-
-	public static void main(String[] args) {
-		double value = 100;
-		double percentage = 20;
-		double result = (value * (percentage / 100));
-		System.out.println(result);
 	}
 
 	@Override

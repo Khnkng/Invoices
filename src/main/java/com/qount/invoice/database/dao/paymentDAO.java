@@ -14,4 +14,5 @@ public interface paymentDAO {
     public List<Payment> listByInvoiceId(String invoiceId);
 	public List<Invoice> getIvoicesByPaymentID(String paymentId);
 	public List<Payment> getUnappliedPayments(String companyID) throws Exception;
+	public Payment update(Payment payment, Connection connection, String paymentID);
 }
