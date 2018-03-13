@@ -964,4 +964,18 @@ public class InvoiceParser {
 		}
 		return null;
 	}
+	
+	public static String getInvoiceHistoryAction(String action) {
+		try {
+			if (StringUtils.isNotBlank(action)) {
+				if (action.equalsIgnoreCase(Constants.OPEN)) {
+					return WordUtils.capitalize(Constants.OPENED);
+				}
+				return WordUtils.capitalize(action);
+			}
+		} catch (Exception e) {
+			LOGGER.error("error parsing display state:",e);
+		}
+		return null;
+	}
 }
