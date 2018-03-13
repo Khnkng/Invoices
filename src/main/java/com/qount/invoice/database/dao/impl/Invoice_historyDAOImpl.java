@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.Invoice_historyDAO;
 import com.qount.invoice.model.InvoiceHistory;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.SqlQuerys;
@@ -200,7 +201,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			if (conn != null) {
 				result = new ArrayList<InvoiceHistory>();
 				String query = SqlQuerys.Invoice_history.GET_ALL_BY_INVOICE_ID_WTIH_LIMITED_ACTION_QRY.replace("?", "'"+input.getInvoice_id()+"'");
-				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+") OR `action` LIKE '%Late fee%' ) ORDER BY `action_at_mills` ASC";
+				query+=SqlQuerys.Invoice_history.LIMITED_ACTIONS+")) ORDER BY `action_at_mills` ASC";
 				pstmt = conn.prepareStatement(query);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
@@ -218,7 +219,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 					invoice_history.setId(rset.getString("id"));
 					invoice_history.setInvoice_id(rset.getString("invoice_id"));
 					invoice_history.setUser_id(rset.getString("user_id"));
-					invoice_history.setAction(rset.getString("action"));
+					invoice_history.setAction(InvoiceParser.getInvoiceHistoryAction(rset.getString("action")));
 					invoice_history.setAction_at(rset.getString("action_at"));
 					invoice_history.setCompany_id(rset.getString("company_id"));
 					invoice_history.setEmail_to(rset.getString("email_to"));
