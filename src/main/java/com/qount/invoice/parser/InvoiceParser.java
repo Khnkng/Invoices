@@ -593,11 +593,11 @@ public class InvoiceParser {
 	}
 
 	public static InvoiceHistory getInvoice_history(Invoice invoice, String id, String user_id, String companyId,
-			String emailState, String email) {
+			String emailState, String email, String description) {
 		try {
 			LOGGER.debug("entered getInvoice_history(Invoice invoice:" + invoice + " String id:" + id
 					+ ", String user_id:" + user_id + ",String companyId:" + companyId + " String emailState:"
-					+ emailState + " String email:" + email + ")");
+					+ emailState + " String email:" + email + " description:"+description);
 			if (invoice != null) {
 				InvoiceHistory invoiceHistory = new InvoiceHistory();
 				invoiceHistory.setAction(emailState);
@@ -615,6 +615,7 @@ public class InvoiceParser {
 				invoiceHistory.setLast_updated_by(user_id);
 				invoiceHistory.setUser_id(user_id);
 				invoiceHistory.setAction_at_mills(new Date().getTime());
+				invoiceHistory.setDescription(description);
 				return invoiceHistory;
 			}
 		} catch (Exception e) {
@@ -623,7 +624,7 @@ public class InvoiceParser {
 		} finally {
 			LOGGER.debug("exited getInvoice_history(Invoice invoice" + invoice + " String id:" + id
 					+ ", String user_id:" + user_id + ",String companyId:" + companyId + " String emailState:"
-					+ emailState + " String email:" + email + ")");
+					+ emailState + " String email:" + email + " description:"+description);
 		}
 		return null;
 	}
