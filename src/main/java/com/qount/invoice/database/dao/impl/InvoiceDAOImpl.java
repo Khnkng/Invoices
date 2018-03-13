@@ -804,6 +804,37 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 	}
+	
+	@Override
+	public Invoice delete(Connection connection, Invoice invoice) throws Exception {
+		LOGGER.debug("entered invoice delete:" + invoice);
+		if (invoice == null) {
+			return null;
+		}
+		PreparedStatement pstmt = null;
+		try {
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.DELETE_QRY);
+				pstmt.setString(1, invoice.getId());
+				pstmt.setString(2, invoice.getCompany_id());
+				int rowCount = pstmt.executeUpdate();
+				if (rowCount == 0) {
+					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", Constants.DATABASE_ERROR_STATUS));
+				}
+				LOGGER.debug("no of invoice deleted:" + rowCount);
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error("no record deleted:" + invoice.getId() + ",  ", e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error("Error deleting invoice:" + invoice.getId() + ",  ", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited invoice delete:" + invoice);
+		}
+		return invoice;
+	}
 
 	@Override
 	public boolean deleteLst(String userId, String companyId, String lst) throws Exception {
@@ -1142,6 +1173,37 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug("exited getInvoiceJobsList invoiceIds:" + invoiceIds);
+		}
+
+	}
+	
+	@Override
+	public List<String> getInvoiceJobsList(Connection connection, String invoiceIds) throws Exception {
+		LOGGER.debug("entered getInvoiceJobsList invoiceIds:" + invoiceIds);
+		if (StringUtils.isBlank(invoiceIds)) {
+			throw new WebApplicationException("invoiceIds cannot be empty", Constants.INVALID_INPUT_STATUS);
+		}
+		List<String> result = new ArrayList<String>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		try {
+			if (connection != null) {
+				String query = SqlQuerys.Invoice.GET_INVOICES_JOBS_LIST_BY_ID_QRY;
+				query += invoiceIds + ")";
+				pstmt = connection.prepareStatement(query);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					result.add(rset.getString("remainder_job_id"));
+				}
+			}
+			return result;
+		} catch (Exception e) {
+			LOGGER.error("Error fetching jobs for invoiceIds [ " + invoiceIds + " ]", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
 			LOGGER.debug("exited getInvoiceJobsList invoiceIds:" + invoiceIds);
 		}
 

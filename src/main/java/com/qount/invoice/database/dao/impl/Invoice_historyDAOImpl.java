@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
@@ -350,19 +350,24 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		return invoice_history;
 	}
 	
+
 	@Override
-	public List<InvoiceHistory> createList(Connection conn, List<InvoiceHistory> invoice_historys) {
-		LOGGER.debug("entered createList:" + invoice_historys);
-		if (invoice_historys == null || invoice_historys.isEmpty()) {
+	public List<InvoiceHistory> create(Connection conn, List<InvoiceHistory> invoice_histories) {
+		LOGGER.debug("entered create:" + invoice_histories);
+		if (invoice_histories == null || invoice_histories.isEmpty()) {
 			return null;
 		}
 		PreparedStatement pstmt = null;
 		try {
 			if (conn != null) {
-				int ctr = 1;
-				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
-				for(int i=0;i<invoice_historys.size();i++){
-					InvoiceHistory invoice_history = invoice_historys.get(i);
+				Iterator<InvoiceHistory> invoice_historyItr = invoice_histories.iterator();
+				while(invoice_historyItr.hasNext()){
+					InvoiceHistory invoice_history = invoice_historyItr.next();
+					if(StringUtils.isNotBlank(getByWebhookId(conn, invoice_history.getWebhook_event_id()))){
+						throw new WebApplicationException(PropertyManager.getProperty("invoice.history.webhook.event.already.stored")+":"+invoice_history.getWebhook_event_id(), Constants.INVALID_INPUT_STATUS);
+					}
+					int ctr = 1;
+					pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.INSERT_QRY);
 					pstmt.setLong(ctr++, invoice_history.getAction_at_mills());
 					pstmt.setString(ctr++, invoice_history.getCurrency());
 					pstmt.setDouble(ctr++, invoice_history.getSub_totoal());
@@ -387,24 +392,23 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 					pstmt.setString(ctr++, invoice_history.getLast_updated_by());
 					pstmt.setString(ctr++, invoice_history.getLast_updated_at());
 					pstmt.addBatch();
-					ctr = 1;
 				}
-				int rowCount[] = pstmt.executeBatch();
-				if (rowCount == null || rowCount.length ==0) {
-					throw new WebApplicationException("no record inserted", Constants.EXPECTATION_FAILED);
+				LOGGER.debug("query:"+pstmt.toString());
+				int[] rowCount = pstmt.executeBatch();
+				if (rowCount == null || rowCount.length==0) {
+					throw new WebApplicationException("No invoice history inserted", Constants.EXPECTATION_FAILED);
 				}
-				LOGGER.debug("insertion result: "+Arrays.toString(rowCount));
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error inserting invoice_historys:", e);
+			LOGGER.error("Error inserting invoice_history:", e);
 			throw new WebApplicationException(e.getMessage(), Constants.EXPECTATION_FAILED);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		LOGGER.debug("exited createList:" + invoice_historys);
-		return invoice_historys;
+		LOGGER.debug("exited create:" + invoice_histories);
+		return invoice_histories;
 	}
-
+	
 	@Override
 	public InvoiceHistory update(Connection conn, InvoiceHistory invoice_history) {
 		LOGGER.debug("entered update:" + invoice_history);

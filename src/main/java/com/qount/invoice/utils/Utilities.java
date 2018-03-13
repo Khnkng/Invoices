@@ -3,6 +3,7 @@ package com.qount.invoice.utils;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Currency;
@@ -96,6 +97,25 @@ public class Utilities {
 			LOGGER.error("Error fetching currency symbol for code [ " + currencyCode + "] ", e);
 		}
 		return symbol;
+	}
+	
+	public static String formatAsCurrency(double amount){
+		try {
+			DecimalFormat twoPlaces = new DecimalFormat("0.00");
+			return twoPlaces.format(amount);
+		} catch (Exception e) {
+			LOGGER.error("error in formatAsCurrency(double amount:"+amount,e);
+		}
+		return null;
+	}
+	
+	public static String getNumberAsCurrencyStr(String currencyCode,double amount){
+		try {
+			return getCurrencySymbol(currencyCode)+formatAsCurrency(amount);
+		} catch (Exception e) {
+			LOGGER.error("error in getNumberAsCurrencyStr(String currencyCode:"+currencyCode+",double amount:"+amount,e);
+		}
+		return null;
 	}
 
 	public static String getCurrencyHtmlSymbol(String currencyHtmlSymbol) {

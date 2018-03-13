@@ -171,4 +171,10 @@ public class Constants {
 	public static final String APPLIED = "Applied";
 	public static final String PARTIALLY_APPLIED = "Partially Applied";
 	public static final String UNAPPLIED = "Unapplied";
+	public static final String CREATED = "Created";
+	public static final String UPDATED = "Updated";
+	public static final String MARKED_AS_SENT = "Marked As Sent";
+	public static final String EMPTY_STRING = "";
+	public static final String MARKED_AS_PAID = "Marked As Paid";
+	public static final String DELETED = "Deleted";
 }
