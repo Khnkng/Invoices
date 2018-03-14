@@ -221,7 +221,7 @@ public class InvoiceDetailControllerImpl {
 						",Amount Due: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_due())+
 						",Amount Paid: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_paid())+
 						",Ref Num: "+payment.getReferenceNo()+
-						",State: "+invoice.getState();
+						",State: "+InvoiceParser.getDisplayState(invoice.getState());
 				InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoice,description,InvoiceParser.getDisplayState(invoice.getState()));
 				MySQLManager.getInvoice_historyDAO().create(connection, history);
 				paymentCaptured = true;
