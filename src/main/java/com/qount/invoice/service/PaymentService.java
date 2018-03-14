@@ -188,8 +188,10 @@ public class PaymentService {
 			LOGGER.debug("entered getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
 			
 			payment = PaymentDAOImpl.getInstance().getById(paymentId);
-			paymentLines = PaymentDAOImpl.getInstance().getunmappedLinesOfcustomer(payment.getReceivedFrom(), payment);
-			payment.setPaymentLines(paymentLines);
+			if (!payment.getPayment_status().equalsIgnoreCase("Applied")) {
+				paymentLines = PaymentDAOImpl.getInstance().getunmappedLinesOfcustomer(payment.getReceivedFrom(), payment);
+				payment.setPaymentLines(paymentLines);
+			}
 		} catch (Exception e) {
 			LOGGER.debug("error in getById(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
 		} finally {

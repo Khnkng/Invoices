@@ -68,7 +68,7 @@ public class InvoicePaymentsController {
 		return PaymentService.getInstance().getById(companyID, paymentID);
 	}
 	
-	@Path("/temp/{Id}")
+	@Path("/temp/{paymentID}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
