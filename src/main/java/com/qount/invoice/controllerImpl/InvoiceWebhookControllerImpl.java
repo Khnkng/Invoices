@@ -75,7 +75,7 @@ public class InvoiceWebhookControllerImpl {
 			String inputEmailState = obj.optString("event");
 			String email = obj.optString("email");
 			String webhook_event_id = obj.optString("sg_event_id");
-			String description = "By:"+email;
+			String description = email;
 			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(dbInvoice, UUID.randomUUID().toString(), dbInvoice.getUser_id(), dbInvoice.getCompany_id(),inputEmailState,email, description);
 			invoice_history.setWebhook_event_id(webhook_event_id);
 			connection = DatabaseUtilities.getReadWriteConnection();

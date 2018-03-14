@@ -144,7 +144,8 @@ public class InvoiceControllerImpl {
 							invoice.getId(), invoice.getNumber(), invoice.getAmount(), invoice.getCurrency());
 					new InvoiceDimension().create(connection, companyID, invoiceObj.getInvoiceLines());
 					//creating invoice history 
-					String description = "Amount: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount());
+					String description = "Amount: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount())+""
+							+ " Created By:"+userID;
 					InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoiceObj,description,Constants.CREATED);
 					MySQLManager.getInvoice_historyDAO().create(connection, history);
 					connection.commit();
@@ -406,7 +407,8 @@ public class InvoiceControllerImpl {
 						updateInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID,
 								invoice.getId(), invoice.getNumber(), invoice.getAmount(), invoice.getCurrency());
 						//creating invoice history 
-						String description = "Amount: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount());
+						String description = "Amount: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount())+""
+								+ " Updated By:"+userID;
 						InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoiceObj,description,Constants.UPDATED);
 						MySQLManager.getInvoice_historyDAO().create(connection, history);
 						connection.commit();
@@ -518,7 +520,7 @@ public class InvoiceControllerImpl {
 			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
 			if (invoiceResult != null) {
-				String description = "By:"+invoice.getUser_id();
+				String description = invoice.getUser_id();
 				InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoice,description,Constants.MARKED_AS_SENT);
 				MySQLManager.getInvoice_historyDAO().create(connection, history);
 				// creating late fee journal
@@ -643,8 +645,8 @@ public class InvoiceControllerImpl {
 				String description = "Amount: "+Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount())+
 						",Amount Due: "+Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount_due())+
 						",Amount Paid: "+Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount_paid())+
-						",Ref Num: "+invoice.getReference_number()+
-						",State: "+dbInvoice.getState();
+						",Ref Num: "+payment.getReferenceNo()+
+						",State: "+InvoiceParser.getDisplayState(dbInvoice.getState());
 				InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(dbInvoice,description,Constants.MARKED_AS_PAID);
 				MySQLManager.getInvoice_historyDAO().create(connection, history);
 				connection.commit();
@@ -846,7 +848,7 @@ public class InvoiceControllerImpl {
 			List<String> jobIds = MySQLManager.getInvoiceDAOInstance().getInvoiceJobsList(connection, commaSeparatedLst);
 			deleteInvoiceJobsAsync(jobIds);
 			//creating invoice history 
-			String description = "By: "+userID;
+			String description = userID;
 			List<InvoiceHistory> histories = InvoiceHistoryHelper.getInvoiceHistory(ids, userID, companyID,Constants.DELETED,description);
 			MySQLManager.getInvoice_historyDAO().create(connection, histories);
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
@@ -916,7 +918,7 @@ public class InvoiceControllerImpl {
 					dbInvoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(dbInvoice));
 				}
 				//creating invoice histories 
-				String description = "By: "+userID;
+				String description = userID;
 				List<InvoiceHistory> histories = InvoiceHistoryHelper.getInvoiceHistory(ids, userID, companyID,Constants.MARKED_AS_SENT,description);
 				MySQLManager.getInvoice_historyDAO().create(connection, histories);
 			}

@@ -220,7 +220,7 @@ public class InvoiceDetailControllerImpl {
 				String description = "Amount: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount())+
 						",Amount Due: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_due())+
 						",Amount Paid: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_paid())+
-						",Ref Num: "+invoice.getReference_number()+
+						",Ref Num: "+payment.getReferenceNo()+
 						",State: "+invoice.getState();
 				InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoice,description,InvoiceParser.getDisplayState(invoice.getState()));
 				MySQLManager.getInvoice_historyDAO().create(connection, history);
