@@ -550,10 +550,13 @@ public class PaymentDAOImpl implements paymentDAO {
 				connection = DatabaseUtilities.getReadWriteConnection();
 				if (connection != null) {
 					StringBuilder queryBuilder = new StringBuilder();
+					if(lines.size()!=0){
+						queryBuilder.append("AND id NOT IN(");
 					for (PaymentLine mappedLine: lines) {
 						queryBuilder.append("'").append(mappedLine.getInvoiceId()).append("'").append(" ,");
 					}
-					queryBuilder.deleteCharAt(queryBuilder.length() - 1).append(")");	
+					queryBuilder.deleteCharAt(queryBuilder.length() - 1).append(")");
+					}
 				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.GET_UNMAPPED_LINES_INVOICE_LIST_QRY+queryBuilder);
 				pstmt.setString(ctr++, customerID);
 				rset = pstmt.executeQuery();
@@ -570,7 +573,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					unmappedLines.add(line);
 				}lines.addAll(unmappedLines);
 				}
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				LOGGER.error("error in getLines(String paymentId:"+customerID+", Connection connection)",e);
 				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 			} finally {
