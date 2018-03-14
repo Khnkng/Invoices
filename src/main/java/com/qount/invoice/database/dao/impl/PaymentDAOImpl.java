@@ -523,6 +523,8 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setDisplayState(InvoiceParser.getDisplayState(rset.getString("state")));
 					line.setState(rset.getString("state"));
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
+					line.setInvoiceDueDate(getDateStringFromSQLDate(rset.getDate("invoice_due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					line.setAmountDue(rset.getString("amount_due"));
 					lines.add(line);
 				}
 			} catch (SQLException e) {
@@ -533,6 +535,48 @@ public class PaymentDAOImpl implements paymentDAO {
 				LOGGER.debug("exited getLines(String paymentId:"+paymentId+", Connection connection)");
 			}
 		}
+		return lines;
+	}
+	
+	public List<PaymentLine> getunmappedLinesOfcustomer(String customerID,Payment payment) {
+		LOGGER.debug("entered getLines(String paymentId:"+customerID+", Connection connection)");
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		List<PaymentLine> lines = payment.getPaymentLines();
+		List<PaymentLine> unmappedLines = new ArrayList<PaymentLine>() ;
+		Connection connection = null;
+			int ctr = 1;
+			try {
+				connection = DatabaseUtilities.getReadWriteConnection();
+				if (connection != null) {
+					StringBuilder queryBuilder = new StringBuilder();
+					for (PaymentLine mappedLine: lines) {
+						queryBuilder.append("'").append(mappedLine.getInvoiceId()).append("'").append(" ,");
+					}
+					queryBuilder.deleteCharAt(queryBuilder.length() - 1).append(")");	
+				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.GET_UNMAPPED_LINES_INVOICE_LIST_QRY+queryBuilder);
+				pstmt.setString(ctr++, customerID);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					PaymentLine line = new PaymentLine();
+					line.setInvoiceId(rset.getString("invoice_id"));
+					line.setInvoiceDate(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					line.setTerm(rset.getString("term"));
+					line.setDisplayState(InvoiceParser.getDisplayState(rset.getString("state")));
+					line.setState(rset.getString("state"));
+					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
+					line.setInvoiceDueDate(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					line.setAmountDue(rset.getString("amount_due"));
+					unmappedLines.add(line);
+				}lines.addAll(unmappedLines);
+				}
+			} catch (SQLException e) {
+				LOGGER.error("error in getLines(String paymentId:"+customerID+", Connection connection)",e);
+				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(rset, pstmt, connection);
+				LOGGER.debug("exited getLines(String paymentId:"+customerID+", Connection connection)");
+			}
 		return lines;
 	}
 	

@@ -181,6 +181,24 @@ public class PaymentService {
 		return null;
 	}
 	
+	public Payment getByPaymentId(String companyId, String paymentId) {
+		Payment payment = null;
+		List<PaymentLine> paymentLines = null;
+		try {
+			LOGGER.debug("entered getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
+			
+			payment = PaymentDAOImpl.getInstance().getById(paymentId);
+			paymentLines = PaymentDAOImpl.getInstance().getunmappedLinesOfcustomer(payment.getReceivedFrom(), payment);
+			payment.setPaymentLines(paymentLines);
+		} catch (Exception e) {
+			LOGGER.debug("error in getById(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
+		} finally {
+			LOGGER.debug("exited getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
+		}
+		System.out.println(payment);
+		return payment;
+	}
+	
 	public List<Invoice> getIvoicesByPaymentID(String companyId, String paymentId) {
 		try {
 			LOGGER.debug("entered getIvoicesByPaymentID(String companyId:" + companyId + ", String paymentId:" + paymentId);

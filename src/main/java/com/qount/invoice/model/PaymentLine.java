@@ -31,6 +31,10 @@ public class PaymentLine {
 	
 	private String displayState;
 	
+	private String invoiceDueDate;
+	
+	private String amountDue;
+	
 	public String getDisplayState() {
 		return displayState;
 	}
@@ -103,5 +107,17 @@ public class PaymentLine {
 			return paymentLine.getId().equalsIgnoreCase(this.id);
 		}
 		return false;
+	}
+	public String getInvoiceDueDate() {
+		return invoiceDueDate;
+	}
+	public void setInvoiceDueDate(String invoiceDueDate) {
+		this.invoiceDueDate = invoiceDueDate;
+	}
+	public String getAmountDue() {
+		return amountDue;
+	}
+	public void setAmountDue(String amountDue) {
+		this.amountDue = amountDue;
 	}
 }
