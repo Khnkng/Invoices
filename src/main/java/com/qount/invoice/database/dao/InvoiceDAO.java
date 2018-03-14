@@ -3,6 +3,7 @@ package com.qount.invoice.database.dao;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 
@@ -86,5 +87,9 @@ public interface InvoiceDAO {
 
 	public int getUnappliedPaymentsCount(String userID, String companyID) throws Exception;
 	
-	public boolean deleteRemainderJobId(Connection connection, String invoiceId, String remainderJobId) throws Exception;;
+	public boolean deleteRemainderJobId(Connection connection, String invoiceId, String remainderJobId) throws Exception;
+
+	public boolean batchupdate(Connection connection, List<Invoice> invoiceList) throws Exception;
+
+	public List<Invoice> getByInQuery(Set<String> invoiceIDs) throws Exception;
 }

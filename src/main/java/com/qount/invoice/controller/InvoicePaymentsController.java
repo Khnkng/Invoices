@@ -35,13 +35,14 @@ public class InvoicePaymentsController {
 		return PaymentService.getInstance().createOrUpdatePayment(payment, companyID, userID);
 	}
 	
+	@Path("/{paymentID}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@NotNull(message = "Invalid Request")
 	@ApiOperation(value = "Create a payment", notes = "Used to create new payment", responseContainer = "java.lang.String")
-	public Payment updatePayment(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @Valid Payment payment) {
-		return PaymentService.getInstance().createOrUpdatePayment(payment, companyID, userID);
+	public Payment updatePayment(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @PathParam("paymentID") String paymentID, @Valid Payment payment) throws Exception {
+		return PaymentService.getInstance().UpdatePayment(payment, companyID, userID, paymentID);
 	}
 	
 	@GET
@@ -65,6 +66,15 @@ public class InvoicePaymentsController {
 	@ApiOperation(value = "Returns list of payments by id", notes = "Used to retreive list of payments against company", responseContainer = "java.lang.String")
 	public Payment getById(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @PathParam("paymentID") String paymentID) {
 		return PaymentService.getInstance().getById(companyID, paymentID);
+	}
+	
+	@Path("/temp/{Id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@NotNull(message = "Invalid Request")
+	@ApiOperation(value = "Returns list of payments by id", notes = "Used to retreive list of payments against company", responseContainer = "java.lang.String")
+	public Payment getByPaymentID(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @PathParam("paymentID") String paymentID) {
+		return PaymentService.getInstance().getByPaymentId(companyID, paymentID);
 	}
 }
  

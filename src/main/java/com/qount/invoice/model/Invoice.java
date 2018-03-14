@@ -864,6 +864,4 @@ public class Invoice {
 		this.discount_id = discount_id;
 	}
 	
-	
-
 }
