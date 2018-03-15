@@ -143,7 +143,7 @@ public class SqlQuerys {
 		public static final String DELETE_QRY = "DELETE FROM invoice_payments_lines WHERE `payment_id` = ?;";
 		public static final String DELETE_BY_ID_QRY = "DELETE FROM invoice_payments_lines WHERE `id` = ?;";
 		public static final String GET_LIST_QRY = "SELECT pl.id,pl.`created_date` ,pl.invoice_id,inv.number AS invoice_number, inv.amount, inv.invoice_date, inv.term, inv.state, inv.due_date AS invoice_due_date, inv.`amount_due`, pl.amount AS payment_amount FROM invoice_payments_lines AS pl, invoice AS inv WHERE pl.invoice_id = inv.id AND pl.payment_id = ?;";
-		public static final String GET_UNMAPPED_LINES_INVOICE_LIST_QRY = "SELECT invoice.id AS invoice_id,invoice.amount,invoice.invoice_date,invoice.state ,invoice.term,invoice.due_date, invoice.`amount_due` FROM `invoice`  WHERE customer_id = ? AND state NOT IN('paid','draft') ";
+		public static final String GET_UNMAPPED_LINES_INVOICE_LIST_QRY = "SELECT invoice.id AS invoice_id,invoice.number,invoice.amount,invoice.invoice_date,invoice.state ,invoice.term,invoice.due_date, invoice.`amount_due` FROM `invoice`  WHERE customer_id = ? AND state NOT IN('paid','draft') ";
 		public static final String GET_PAID_AMOUNT_LIST_QRY = "SELECT payment_id,SUM(amount) applied_amount FROM invoice_payments_lines WHERE payment_id IN( ";
 		public static final String GET_PAID_AMOUNT_LIST_QRY_2 = ") AND amount >0 GROUP BY payment_id";
 	}

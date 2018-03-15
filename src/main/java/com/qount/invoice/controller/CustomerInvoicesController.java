@@ -27,7 +27,7 @@ public class CustomerInvoicesController {
 	private static final Logger LOGGER = Logger.getLogger(CustomerInvoicesController.class);
 
 	
-	@Path("/customer/{customerID}/invoices")
+	@Path("/customers/{customerID}/invoices")
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
