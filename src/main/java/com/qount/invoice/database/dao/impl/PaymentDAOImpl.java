@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,6 +54,7 @@ public class PaymentDAOImpl implements paymentDAO {
 		PreparedStatement pstmt = null;
 		if (connection != null) {
 			int ctr = 1;
+			Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 			try {
 				LOGGER.debug("entered invoice payment save:" + payment);
 				List<PaymentLine> lines = getLines(payment.getId(), connection);
@@ -73,6 +75,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, payment.getType());
 				pstmt.setString(ctr++, payment.getPaymentNote());
 				pstmt.setString(ctr++, payment.getDepositedTo());
+				pstmt.setTimestamp(ctr++, currentDate);
 
 				pstmt.setString(ctr++, payment.getReceivedFrom());
 				pstmt.setDouble(ctr++, amt);
@@ -359,9 +362,11 @@ public class PaymentDAOImpl implements paymentDAO {
 	public void batchaddPaymentLine(Connection connection, List<PaymentLine> paymentLines,String paymentId) {
 		LOGGER.debug("enterd batchaddPaymentLine " + paymentLines);
 		PreparedStatement pstmt = null;
+		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
+
 			try {
 				if (connection != null) {
-				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.INSERT_QRY);
+				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.INSERT_AND_UPDATE_QRY);
 				for (PaymentLine paymentLine :paymentLines){
 				int ctr = 1;
 				if (StringUtils.isBlank(paymentLine.getId())) {
@@ -376,6 +381,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setDouble(ctr++, amt);
 				pstmt.setString(ctr++, paymentId);
 				pstmt.setDouble(ctr++, paymentLine.getDiscount());
+				pstmt.setTimestamp(ctr++, currentDate);
 				
 				pstmt.setDouble(ctr++, amt);
 				pstmt.setDouble(ctr++, paymentLine.getDiscount());
@@ -390,39 +396,13 @@ public class PaymentDAOImpl implements paymentDAO {
 			}
 	}
 	
-	public void batchUpdatePaymentLine(Connection connection, List<PaymentLine> paymentLines,String paymentId) {
-		LOGGER.debug("enterd batchaddPaymentLine " + paymentLines);
-		PreparedStatement pstmt = null;
-		if (connection != null) {
-			try {
-				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.INSERT_QRY);
-				for (PaymentLine paymentLine :paymentLines){
-				int ctr = 1;
-				pstmt.setString(ctr++, UUID.randomUUID().toString());
-				pstmt.setString(ctr++, paymentLine.getInvoiceId());
-				double amt = 0;
-				if (paymentLine.getAmount() != null) {
-					amt = paymentLine.getAmount().doubleValue();
-				}
-				pstmt.setDouble(ctr++, amt);
-				pstmt.setString(ctr++, paymentId);
-				pstmt.setDouble(ctr++, paymentLine.getDiscount());
-				pstmt.addBatch();
-				}
-				pstmt.executeBatch();
-				}
-			 catch (SQLException e) {
-				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
-			} finally {
-				DatabaseUtilities.closeResources(null, pstmt, null);
-			}
-		}
-	}
+
 	private void addPaymentLine(Connection connection, PaymentLine paymentLine, String paymentId) {
 		LOGGER.debug("enterd addPaymentLine(Connection connection, PaymentLine paymentLine:" + paymentLine + ", String paymentId:" + paymentId);
 		PreparedStatement pstmt = null;
 		if (connection != null) {
 			int ctr = 1;
+			Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 			try {
 				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.INSERT_QRY);
 				pstmt.setString(ctr++, UUID.randomUUID().toString());
@@ -434,6 +414,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setDouble(ctr++, amt);
 				pstmt.setString(ctr++, paymentId);
 				pstmt.setDouble(ctr++, paymentLine.getDiscount());
+				pstmt.setTimestamp(ctr++, currentDate);
 				int affectedRows = pstmt.executeUpdate();
 				if (affectedRows == 0) {
 					throw new SQLException("");
@@ -501,7 +482,7 @@ public class PaymentDAOImpl implements paymentDAO {
 		return null;
 	}
 
-	private List<PaymentLine> getLines(String paymentId, Connection connection) {
+	public List<PaymentLine> getLines(String paymentId, Connection connection) {
 		LOGGER.debug("entered getLines(String paymentId:"+paymentId+", Connection connection)");
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -525,6 +506,8 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
 					line.setInvoiceDueDate(getDateStringFromSQLDate(rset.getDate("invoice_due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					line.setAmountDue(rset.getDouble("amount_due"));
+					line.setInvoiceNumber(rset.getString("invoice_number"));
+					line.setCreatedDate(DateUtils.formatToString(rset.getTimestamp("created_date")));
 					lines.add(line);
 				}
 			} catch (SQLException e) {
@@ -542,7 +525,12 @@ public class PaymentDAOImpl implements paymentDAO {
 		LOGGER.debug("entered getLines(String paymentId:"+customerID+", Connection connection)");
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
-		List<PaymentLine> lines = payment.getPaymentLines();
+		List<PaymentLine> lines =null;
+		if (payment==null) {
+			lines = new ArrayList<>();
+		}else {
+		 lines = payment.getPaymentLines();
+		}
 		List<PaymentLine> unmappedLines = new ArrayList<PaymentLine>() ;
 		Connection connection = null;
 			int ctr = 1;
@@ -570,6 +558,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
 					line.setInvoiceDueDate(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					line.setAmountDue(rset.getDouble("amount_due"));
+					line.setInvoiceNumber(rset.getString("number"));
 					unmappedLines.add(line);
 				}lines.addAll(unmappedLines);
 				}
@@ -603,6 +592,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setTerm(rset.getString("term"));
 					line.setState(rset.getString("state"));
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
+					line.setCreatedDate(DateUtils.formatToString(rset.getTimestamp("created_date")));
 					lines.add(line);
 				}
 			} catch (SQLException e) {
@@ -881,6 +871,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setPaymentNote(rset.getString("payment_notes"));
 //					payment.setMapping_id(rset.getString("mapping_id"));
 					payment.setDepositedTo(rset.getString("bank_account_id"));
+					payment.setCreatedDate(DateUtils.formatToString(rset.getTimestamp("created_date")));
 					payment.setPaymentLines(getLines(connection ,payment.getId()));
 				}
 			} catch (SQLException e) {
