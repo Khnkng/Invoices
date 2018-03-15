@@ -524,7 +524,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setState(rset.getString("state"));
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
 					line.setInvoiceDueDate(getDateStringFromSQLDate(rset.getDate("invoice_due_date"), Constants.INVOICE_UI_DATE_FORMAT));
-					line.setAmountDue(rset.getString("amount_due"));
+					line.setAmountDue(rset.getDouble("amount_due"));
 					lines.add(line);
 				}
 			} catch (SQLException e) {
@@ -569,7 +569,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setState(rset.getString("state"));
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
 					line.setInvoiceDueDate(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
-					line.setAmountDue(rset.getString("amount_due"));
+					line.setAmountDue(rset.getDouble("amount_due"));
 					unmappedLines.add(line);
 				}lines.addAll(unmappedLines);
 				}
