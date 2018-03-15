@@ -76,5 +76,6 @@ public class InvoicePaymentsController {
 	public Payment getByPaymentID(@PathParam("userID") String userID, @PathParam("companyID") String companyID, @PathParam("paymentID") String paymentID) {
 		return PaymentService.getInstance().getByPaymentId(companyID, paymentID);
 	}
+	
 }
  

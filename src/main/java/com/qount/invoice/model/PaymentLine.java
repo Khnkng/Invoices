@@ -34,6 +34,10 @@ public class PaymentLine {
 	private String invoiceDueDate;
 	
 	private double amountDue;
+	
+	private String invoiceNumber;
+	
+	private String createdDate;
 
 	
 	public String getDisplayState() {
@@ -120,5 +124,17 @@ public class PaymentLine {
 	}
 	public void setAmountDue(double amountDue) {
 		this.amountDue = amountDue;
+	}
+	public String getInvoiceNumber() {
+		return invoiceNumber;
+	}
+	public void setInvoiceNumber(String invoiceNumber) {
+		this.invoiceNumber = invoiceNumber;
+	}
+	public String getCreatedDate() {
+		return createdDate;
+	}
+	public void setCreatedDate(String createdDate) {
+		this.createdDate = createdDate;
 	}
 }

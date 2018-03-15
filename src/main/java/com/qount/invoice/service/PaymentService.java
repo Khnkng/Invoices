@@ -200,6 +200,31 @@ public class PaymentService {
 		System.out.println(payment);
 		return payment;
 	}
+
+	public List<PaymentLine> getLinesByCustomerIdOrPaymentId(String companyId,String customerID, String paymentId) {
+		LOGGER.debug("entered getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
+		Payment payment = null;
+		List<PaymentLine> paymentLines = null;
+		Connection connection = null;
+		try {
+			connection= DatabaseUtilities.getReadWriteConnection();
+			if (connection!=null) {
+				if (StringUtils.isBlank(paymentId)) {
+					paymentLines = PaymentDAOImpl.getInstance().getunmappedLinesOfcustomer(customerID, null);
+				}else{
+				payment = PaymentDAOImpl.getInstance().getById(paymentId);
+				if (!payment.getPayment_status().equalsIgnoreCase("Applied")) {
+					paymentLines = PaymentDAOImpl.getInstance().getunmappedLinesOfcustomer(payment.getReceivedFrom(), payment);
+				}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.debug("error in getById(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
+		} finally {
+			LOGGER.debug("exited getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
+		}
+		return paymentLines;
+	}
 	
 	public List<Invoice> getIvoicesByPaymentID(String companyId, String paymentId) {
 		try {

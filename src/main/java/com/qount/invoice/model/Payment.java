@@ -72,6 +72,8 @@ public class Payment {
 	
 	private String deposit_id;
 	
+	private String createdDate;
+	
 	public String getDeposit_id() {
 		return deposit_id;
 	}
@@ -245,5 +247,11 @@ public class Payment {
 	}
 	public void setInvoiceDate(String invoiceDate) {
 		this.invoiceDate = invoiceDate;
+	}
+	public String getCreatedDate() {
+		return createdDate;
+	}
+	public void setCreatedDate(String createdDate) {
+		this.createdDate = createdDate;
 	}
 }
