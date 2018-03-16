@@ -1,5 +1,6 @@
 package com.qount.invoice.helper;
 
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,8 +12,12 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 
+import com.qount.invoice.database.mySQL.MySQLManager;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceHistory;
+import com.qount.invoice.parser.InvoiceParser;
+import com.qount.invoice.utils.Constants;
+import com.qount.invoice.utils.Utilities;
 
 /**
  * 
@@ -46,6 +51,34 @@ public class InvoiceHistoryHelper {
 			LOGGER.debug("exited getInvoiceHistory(List<String> ids:"+ids+" userId:"+userId+ " companyId:"+companyId + "action:"+action+ "description:"+description);
 		}
 		return null;
+	}
+	
+	public static void createInvoiceHistory(Connection connection, List<Invoice>  invoiceList, String refNo) throws Exception{
+		try {
+			LOGGER.debug("entered in createInvoiceHistory(List<Invoice> invoiceList:"+invoiceList+" refNo:"+refNo);
+			if(invoiceList!=null && !invoiceList.isEmpty()){
+				Iterator<Invoice> idsItr = invoiceList.iterator();
+				while(idsItr.hasNext()){
+					Invoice tempInvoice = idsItr.next();
+					Invoice invoice = MySQLManager.getInvoiceDAOInstance().get(connection, tempInvoice.getId());
+					if(invoice!=null) {
+						//creating invoice history 
+						String description = "Amount: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount())+
+								",Amount Due: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_due())+
+								",Amount Paid: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_paid())+
+								",Ref Num: "+refNo+
+								",State: "+InvoiceParser.getDisplayState(invoice.getState());
+						InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoice,description,Constants.COLLECTION_UPDATE);
+						MySQLManager.getInvoice_historyDAO().create(connection, history);
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("error in createInvoiceHistory(List<Invoice> ids:"+invoiceList+" refNo:"+refNo, e);
+			throw e;
+		} finally {
+			LOGGER.debug("exited createInvoiceHistory(List<Invoice> invoiceList:"+invoiceList+" refNo:"+refNo);
+		}
 	}
 	
 	public static InvoiceHistory getInvoiceHistory(Invoice invoice, String description, String action) {

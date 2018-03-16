@@ -23,7 +23,10 @@ import org.apache.log4j.Logger;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.dao.PayEventDAO;
 import com.qount.invoice.database.dao.paymentDAO;
+import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.helper.InvoiceHistoryHelper;
 import com.qount.invoice.model.Invoice;
+import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.PayEvent;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
@@ -33,6 +36,7 @@ import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
 import com.qount.invoice.utils.DateUtils;
 import com.qount.invoice.utils.SqlQuerys;
+import com.qount.invoice.utils.Utilities;
 
 public class PaymentDAOImpl implements paymentDAO {
 
@@ -48,7 +52,7 @@ public class PaymentDAOImpl implements paymentDAO {
 	}
 
 	@Override
-	public Payment save(Payment payment, Connection connection, boolean checkInvoiceAmountFlag) {
+	public Payment save(Payment payment, Connection connection, boolean saveInvoiceHistory) {
 		PreparedStatement pstmt = null;
 		if (connection != null) {
 			int ctr = 1;
@@ -94,7 +98,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				for (PaymentLine paymentLine : payment.getPaymentLines()) {
 					addPaymentLine(connection, paymentLine, payment.getId());
 					if (paymentLine.getAmount() != null && paymentLine.getAmount().doubleValue() > 0) {
-						updateInvoicesState(connection, paymentLine, payment, lines, checkInvoiceAmountFlag);
+						updateInvoicesState(connection, paymentLine, payment, lines, saveInvoiceHistory);
 					}
 				}
 			} catch (SQLException e) {
@@ -235,9 +239,9 @@ public class PaymentDAOImpl implements paymentDAO {
 		return null;
    }
     
-	private void updateInvoicesState(Connection connection, PaymentLine paymentLine, Payment payment, List<PaymentLine> lines, boolean checkInvoiceAmountFlag) {
+	private void updateInvoicesState(Connection connection, PaymentLine paymentLine, Payment payment, List<PaymentLine> lines, boolean saveInvoiceHistoy) {
 		LOGGER.debug("entered updateInvoicesState(Connection connection, PaymentLine paymentLine:" + paymentLine + ", Payment payment:" + payment + ", List<PaymentLine> lines:"
-				+ lines + ", boolean checkInvoiceAmountFlag:" + checkInvoiceAmountFlag);
+				+ lines + ", boolean saveInvoiceHistoy:" + saveInvoiceHistoy);
 		InvoiceDAOImpl invoiceDAOImpl = InvoiceDAOImpl.getInvoiceDAOImpl();
 		PaymentLine lineFromDb = null;
 		if (payment.getId() != null) {
@@ -274,6 +278,16 @@ public class PaymentDAOImpl implements paymentDAO {
 			invoice.setAmount_due(invoice.getAmount_due() - amountPaid - paymentLine.getDiscount() );
 			invoice.setDiscount(paymentLine.getDiscount());
 			invoiceDAOImpl.update(connection, invoice);
+			if(saveInvoiceHistoy) {
+				//creating invoice history 
+				String description = "Amount: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount())+
+						",Amount Due: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_due())+
+						",Amount Paid: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_paid())+
+						",Ref Num: "+payment.getReferenceNo()+
+						",State: "+InvoiceParser.getDisplayState(invoice.getState());
+				InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoice,description,InvoiceParser.getDisplayState(invoice.getState()));
+				MySQLManager.getInvoice_historyDAO().create(connection, history);
+			}
 			if (invoice.getState().equalsIgnoreCase("paid")) {
 				PayEventDAO payEventDao = new PayEventDAOImpl();
 				PayEvent payEvent = new PayEvent();
@@ -284,7 +298,7 @@ public class PaymentDAOImpl implements paymentDAO {
 			throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 		} finally {
 			LOGGER.debug("exited updateInvoicesState(Connection connection, PaymentLine paymentLine:" + paymentLine + ", Payment payment:" + payment + ", List<PaymentLine> lines:"
-					+ lines + ", boolean checkInvoiceAmountFlag:" + checkInvoiceAmountFlag);
+					+ lines + ", boolean saveInvoiceHistoy:" + saveInvoiceHistoy);
 		}
 	}
 

@@ -177,4 +177,5 @@ public class Constants {
 	public static final String EMPTY_STRING = "";
 	public static final String MARKED_AS_PAID = "Marked As Paid";
 	public static final String DELETED = "Deleted";
+	public static final String COLLECTION_UPDATE = "Collection Update";
 }

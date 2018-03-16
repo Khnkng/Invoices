@@ -32,7 +32,9 @@ public interface InvoiceDAO {
 
 	public Invoice updateState(Connection connection, Invoice invoice) throws Exception;;
 
-	public Invoice get(String InvoiceID) throws Exception;;
+	public Invoice get(String InvoiceID) throws Exception;
+	
+	public Invoice get(Connection connection, String InvoiceID) throws Exception;
 
 	public Map<String, String> getCount(String userID, String companyID) throws Exception;;
 
