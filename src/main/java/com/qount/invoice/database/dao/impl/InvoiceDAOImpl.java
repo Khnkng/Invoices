@@ -769,7 +769,6 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
-			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug("exited get by invoice id:" + invoiceID);
 		}
 		return invoice;
