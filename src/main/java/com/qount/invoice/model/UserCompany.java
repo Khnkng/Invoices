@@ -46,6 +46,36 @@ public class UserCompany implements Cloneable {
 	private Set<String> itemCodes = new HashSet<>();
 
 	private String defaultCurrency;
+	
+	private String contact_first_name;
+	
+	private String contact_last_name;
+	
+	private String email_id;
+	
+	public String getEmail_id() {
+		return email_id;
+	}
+
+	public void setEmail_id(String email_id) {
+		this.email_id = email_id;
+	}
+
+	public String getContact_first_name() {
+		return contact_first_name;
+	}
+
+	public void setContact_first_name(String contact_first_name) {
+		this.contact_first_name = contact_first_name;
+	}
+
+	public String getContact_last_name() {
+		return contact_last_name;
+	}
+
+	public void setContact_last_name(String contact_last_name) {
+		this.contact_last_name = contact_last_name;
+	}
 
 	public String getUserID() {
 		return userID;
