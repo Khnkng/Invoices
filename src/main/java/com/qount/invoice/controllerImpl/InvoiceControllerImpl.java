@@ -227,6 +227,19 @@ public class InvoiceControllerImpl {
 			custom_args.put("type", Constants.INVOICE);
 			custom_args.put("id", invoice.getId());
 			String from = Constants.QOUNT;
+			String aliasName = null;
+			String firstName = invoice.getCompany_contact_first_name();
+			if(StringUtils.isNotBlank(firstName)) {
+				String lastName = invoice.getCompany_contact_last_name();
+				if(StringUtils.isNotBlank(lastName)) {
+					aliasName = firstName + lastName;	
+				} else {
+					aliasName = firstName;
+				}
+			}
+			if(StringUtils.isNotBlank(aliasName)) {
+				from = aliasName;
+			}
 			invoice.setFrom(from);
 			remainderJsonObject.put("custom_args", custom_args);
 			remainderJsonObject.put("from_name", from);
@@ -270,6 +283,12 @@ public class InvoiceControllerImpl {
 				JSONObject attachmentsMetdataObj = new JSONObject(attachmentsMetadata);
 				if (CommonUtils.isValidJSON(attachmentsMetdataObj)) {
 					remainderJsonObject.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
+				}
+			}
+			if(StringUtils.isNotBlank(invoice.getCompany_email_id())) {
+				remainderJsonObject.put("reply_to_email",invoice.getCompany_email_id());
+				if(StringUtils.isNotBlank(aliasName)) {
+					remainderJsonObject.put("reply_to_name",aliasName);
 				}
 			}
 			LOGGER.debug("remainderJsonObject::" + remainderJsonObject);
@@ -1042,6 +1061,19 @@ public class InvoiceControllerImpl {
 			JSONObject fromObj = new JSONObject();
 			fromObj.put("email", Constants.FROM);
 			String from = Constants.QOUNT;
+			String aliasName = null;
+			String firstName = invoice.getCompany_contact_first_name();
+			if(StringUtils.isNotBlank(firstName)) {
+				String lastName = invoice.getCompany_contact_last_name();
+				if(StringUtils.isNotBlank(lastName)) {
+					aliasName = firstName + lastName;	
+				} else {
+					aliasName = firstName;
+				}
+			}
+			if(StringUtils.isNotBlank(aliasName)) {
+				from = aliasName;
+			}
 			invoice.setFrom(from);
 			fromObj.put("name", from);
 			result.put("from", fromObj);
@@ -1076,6 +1108,14 @@ public class InvoiceControllerImpl {
 				if (CommonUtils.isValidJSON(attachmentsMetdataObj)) {
 					result.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
 				}
+			}
+			if(StringUtils.isNotBlank(invoice.getCompany_email_id())) {
+				JSONObject reply_to = new JSONObject();
+				reply_to.put("email",invoice.getCompany_email_id());
+				if(StringUtils.isNotBlank(aliasName)) {
+					reply_to.put("name",aliasName);
+				}
+				result.put("reply_to", reply_to);
 			}
 			return result;
 		} catch (WebApplicationException e) {

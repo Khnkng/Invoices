@@ -412,7 +412,7 @@ public class CommonUtils {
 	}
 
 	public static void main(String[] args) {
-		String token = new JWTTokenService().generate("4b5195e9-e4b5-476b-89f7-296fbecd5afa");
+		String token = new JWTTokenService().generate("fa0b8c60-4347-4fb1-9982-4ebba798b108");
 		System.out.println(token);
 	}
 }

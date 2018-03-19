@@ -109,7 +109,34 @@ public class Invoice {
 	private boolean is_discount_applied;
 	private String discount_id;
 	private String displayState;
+	private String company_contact_first_name;
+	private String company_contact_last_name;
+	private String company_email_id;
 	
+	public String getCompany_contact_first_name() {
+		return company_contact_first_name;
+	}
+
+	public void setCompany_contact_first_name(String company_contact_first_name) {
+		this.company_contact_first_name = company_contact_first_name;
+	}
+
+	public String getCompany_contact_last_name() {
+		return company_contact_last_name;
+	}
+
+	public void setCompany_contact_last_name(String company_contact_last_name) {
+		this.company_contact_last_name = company_contact_last_name;
+	}
+
+	public String getCompany_email_id() {
+		return company_email_id;
+	}
+
+	public void setCompany_email_id(String company_email_id) {
+		this.company_email_id = company_email_id;
+	}
+
 	public String getDisplayState() {
 		return displayState;
 	}
