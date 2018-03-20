@@ -155,7 +155,6 @@ public class PaymentDAOImpl implements paymentDAO {
     	LOGGER.debug("entered updateInvoiceForPaymentLines:"+ payment.getPaymentLines());
     	List<Invoice> invoiceList = new ArrayList<Invoice>();
     	PaymentLine dbPaymentLine = null;
-    	double invoiceDueAmount = 0;
     	try {
     		for (PaymentLine paymentLine : payment.getPaymentLines()){
     			int index = dblines.indexOf(paymentLine);
@@ -164,6 +163,7 @@ public class PaymentDAOImpl implements paymentDAO {
     			if (paymentLine.getId().equals(dbPaymentLine.getId())) {
     				for (Invoice invoice : dbInvoiceList) {
     					if (invoice.getId().equals(paymentLine.getInvoiceId())) {
+    						double invoiceDueAmount = 0;
     						if (paymentLine.getAmount()!=dbPaymentLine.getAmount() && paymentLine.getAmount().doubleValue()!=0) {
     			    				invoiceDueAmount=(invoice.getAmount_due()+dbPaymentLine.getAmount().doubleValue())-paymentLine.getAmount().doubleValue();
     			    				invoice.setAmount_due(invoiceDueAmount); 
@@ -188,10 +188,9 @@ public class PaymentDAOImpl implements paymentDAO {
 					}
     			}
     		} else{
-    		        //newly added lines should be updated with due amount in invoice
-    			Invoice newInvoice = null;
-    			newInvoice = PaymentDAOImpl.getInstance().updateInvoiceForNewlyAddedPaymentLines(paymentLine,dbInvoiceList,dbInvoiceList);
-    			invoiceList.add(newInvoice);
+    		       //newly added lines should be updated with due amount in invoice
+    			 Invoice newInvoice = PaymentDAOImpl.getInstance().updateInvoiceForNewlyAddedPaymentLines(paymentLine,dbInvoiceList);
+    			 invoiceList.add(newInvoice);
     		}
     		}
 		} catch (Exception e) {
@@ -200,38 +199,20 @@ public class PaymentDAOImpl implements paymentDAO {
 		return invoiceList;
    }
     
-//    public Invoice updateInvoiceForDeletedPaymentLines(PaymentLine paymentLine ,List<Invoice> dbInvoiceList, List<Invoice> invoices ){
-//    	double invoiceDueAmount = 0;
-//    	try {
-//    			for (Invoice invoice : dbInvoiceList) {
-//    				if (invoice.getId().equals(paymentLine.getInvoiceId())) {
-//    					invoiceDueAmount=(invoice.getAmount_due()+paymentLine.getAmount().doubleValue());
-//    					invoice.setAmount_due(invoiceDueAmount); 
-//    					if (invoiceDueAmount== 0) {
-//    						invoice.setState(Constants.INVOICE_STATE_PAID);	
-//    					}else{
-//    						invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
-//    					}invoice.setAmount_paid(invoice.getAmount()-invoiceDueAmount);
-//    				}return invoice;
-//					}
-//		} catch (Exception e) {
-//		}
-//		return null;
-//   }
-    public Invoice updateInvoiceForNewlyAddedPaymentLines(PaymentLine paymentLine,List<Invoice> dbInvoiceList,List<Invoice> invoices ){
+    public Invoice updateInvoiceForNewlyAddedPaymentLines(PaymentLine paymentLine,List<Invoice> dbInvoiceList){
     	double invoiceDueAmount = 0;
     	try {
     			for (Invoice invoice : dbInvoiceList) {
     				if (invoice.getId().equals(paymentLine.getInvoiceId())) {
-    				invoiceDueAmount=invoice.getAmount_due()-paymentLine.getAmount().doubleValue();
-                    invoice.setAmount_due(invoiceDueAmount); 
-    				if (invoiceDueAmount== 0) {
-    				invoice.setState(Constants.INVOICE_STATE_PAID);	
-					}else{
-	    				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
-					}invoice.setAmount_paid(invoice.getAmount()-invoiceDueAmount);
-					}
-    				return invoice;
+    					invoiceDueAmount=invoice.getAmount_due()-paymentLine.getAmount().doubleValue();
+    	                invoice.setAmount_due(invoiceDueAmount); 
+    					if (invoiceDueAmount== 0) {
+    					invoice.setState(Constants.INVOICE_STATE_PAID);	
+    					}else{
+    	    				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
+    					}invoice.setAmount_paid(invoice.getAmount()-invoiceDueAmount);
+    					return invoice;
+    				}
     			}
 		} catch (Exception e) {
 		}
