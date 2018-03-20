@@ -239,7 +239,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				return true;
 			}
 		}catch (Exception e) {
-			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			LOGGER.error("error in invoice batch update",e);
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
