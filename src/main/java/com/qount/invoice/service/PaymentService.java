@@ -69,7 +69,7 @@ public class PaymentService {
 	}
 
 	public Payment UpdatePayment(Payment payment, String companyId, String userID,String paymentId) throws Exception {
-		LOGGER.debug("entered createOrUpdatePayment(Payment payment:" + payment + ", String companyId:" + companyId + ", String userID:" + userID);
+		LOGGER.debug("entered UpdatePayment(Payment :" + payment + ", companyId:" + companyId + ", userID:" + userID);
 		Connection connection = DatabaseUtilities.getReadWriteConnection();
 		if (connection == null) {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, "Database Error", Status.INTERNAL_SERVER_ERROR));
@@ -87,7 +87,6 @@ public class PaymentService {
 			PaymentDAOImpl.getInstance().batchaddPaymentLine(connection, paymentLines, payment.getId());
 			//delete remaining lines
 			PaymentDAOImpl.getInstance().batchdeletePaymentLines(paymentLines, connection);
-			
         	Payment dbpayment = PaymentDAOImpl.getInstance().getById(paymentId);
         	List<PaymentLine> dblines = dbpayment.getPaymentLines();
         	for (PaymentLine paymentLine : paymentLines) {
@@ -97,18 +96,17 @@ public class PaymentService {
 			}
         	List<Invoice>  invoiceList = InvoiceDAOImpl.getInvoiceDAOImpl().getByInQuery(invoiceIds);
         	updatedInvoiceList = PaymentDAOImpl.getInstance().updateInvoiceForPaymentLines(payment, dblines,invoiceList);
-    		
             InvoiceDAOImpl.getInvoiceDAOImpl().batchupdate(connection,updatedInvoiceList);
     		
             connection.commit();
 			CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), userID, companyId);
-		} catch (SQLException e) {
-			LOGGER.error("",e);
+		} catch (Exception e) {
+			LOGGER.error("error in UpdatePayment",e);
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR, e.getLocalizedMessage(), Status.BAD_REQUEST));
 
 		} finally {
 			DatabaseUtilities.closeConnection(connection);
-			LOGGER.debug("exited createOrUpdatePayment(Payment payment:" + payment + ", String companyId:" + companyId + ", String userID:" + userID);
+			LOGGER.debug("exited UpdatePayment(Payment payment:" + payment + ", String companyId:" + companyId + ", String userID:" + userID);
 		}
 		return pymt;
 	}
@@ -169,33 +167,20 @@ public class PaymentService {
 		return null;
 	}
 
-	public Payment getById(String companyId, String paymentId) {
-		try {
-			LOGGER.debug("entered getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
-			return PaymentDAOImpl.getInstance().getById(paymentId);
-		} catch (Exception e) {
-			LOGGER.debug("error in getById(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
-		} finally {
-			LOGGER.debug("exited getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
-		}
-		return null;
-	}
-	
 	public Payment getByPaymentId(String companyId, String paymentId) {
+		LOGGER.debug("entered getByPaymentId(String companyId:" + companyId + ", String paymentId:" + paymentId);
 		Payment payment = null;
 		List<PaymentLine> paymentLines = null;
 		try {
-			LOGGER.debug("entered getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
-			
 			payment = PaymentDAOImpl.getInstance().getById(paymentId);
 			if (!payment.getPayment_status().equalsIgnoreCase("Applied")) {
 				paymentLines = PaymentDAOImpl.getInstance().getunmappedLinesOfcustomer(payment.getReceivedFrom(), payment);
 				payment.setPaymentLines(paymentLines);
 			}
 		} catch (Exception e) {
-			LOGGER.debug("error in getById(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
+			LOGGER.error("error in getByPaymentId(String companyId:" + companyId + ", String paymentId:" + paymentId, e);
 		} finally {
-			LOGGER.debug("exited getById(String companyId:" + companyId + ", String paymentId:" + paymentId);
+			LOGGER.debug("exited getByPaymentId(String companyId:" + companyId + ", String paymentId:" + paymentId);
 		}
 		System.out.println(payment);
 		return payment;

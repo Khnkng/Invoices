@@ -114,11 +114,11 @@ public class PaymentDAOImpl implements paymentDAO {
 	
 	@Override
 	public Payment update(Payment payment, Connection connection,String paymentID) {
+		LOGGER.debug("entered invoice payment update:" + payment);
 		PreparedStatement pstmt = null;
 		if (connection != null) {
 			int ctr = 1;
 			try {
-				LOGGER.debug("entered invoice payment update:" + payment);
 				pstmt = connection.prepareStatement(SqlQuerys.Payments.UPDATE_QRY);
 				pstmt.setString(ctr++, payment.getReceivedFrom());
 				double amt = 0;
@@ -136,12 +136,9 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, payment.getDepositedTo());
 				pstmt.setString(ctr++, payment.getPayment_status());
 				pstmt.setString(ctr++, payment.getId());
-				int affectedRows = pstmt.executeUpdate();
-				if (affectedRows == 0) {
-					throw new SQLException("");
-				}
+				pstmt.executeUpdate();
 			} catch (SQLException e) {
-				System.out.println("exp" + e);
+				LOGGER.error("error in invoice payment update",e);
 				throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
 			} finally {
 				DatabaseUtilities.closeResources(null, pstmt, null);
@@ -153,6 +150,7 @@ public class PaymentDAOImpl implements paymentDAO {
 	}
 
     public List<Invoice> updateInvoiceForPaymentLines(Payment payment, List<PaymentLine> dblines,List<Invoice> dbInvoiceList){
+    	LOGGER.debug("entered updateInvoiceForPaymentLines:"+ payment.getPaymentLines());
     	List<Invoice> invoiceList = new ArrayList<Invoice>();
     	PaymentLine dbPaymentLine = null;
     	double invoiceDueAmount = 0;
@@ -195,6 +193,7 @@ public class PaymentDAOImpl implements paymentDAO {
     		}
     		}
 		} catch (Exception e) {
+			LOGGER.error("error in updateInvoiceForPaymentLines ",e);
 		}
 		return invoiceList;
    }
@@ -351,7 +350,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				}
 				pstmt.executeBatch();
 			} catch (SQLException e) {
-				LOGGER.error("exited batchdeletePaymentLines" ,e);
+				LOGGER.error("error in batchdeletePaymentLines" ,e);
 				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 			} finally {
 				DatabaseUtilities.closeResources(null, pstmt, null);
@@ -390,6 +389,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.executeBatch();
 			}	}
 			 catch (SQLException e) {
+				 LOGGER.error("error in batchaddPaymentLine",e);
 				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 			} finally {
 				DatabaseUtilities.closeResources(null, pstmt, null);
@@ -522,7 +522,7 @@ public class PaymentDAOImpl implements paymentDAO {
 	}
 	
 	public List<PaymentLine> getunmappedLinesOfcustomer(String customerID,Payment payment) {
-		LOGGER.debug("entered getLines(String paymentId:"+customerID+", Connection connection)");
+		LOGGER.debug("entered getunmappedLinesOfcustomer(String customerID:"+customerID+")");
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		List<PaymentLine> lines =null;
@@ -563,11 +563,11 @@ public class PaymentDAOImpl implements paymentDAO {
 				}lines.addAll(unmappedLines);
 				}
 			} catch (Exception e) {
-				LOGGER.error("error in getLines(String paymentId:"+customerID+", Connection connection)",e);
+				LOGGER.error("error in getunmappedLinesOfcustomer(String customerID:"+customerID+")",e);
 				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
 			} finally {
 				DatabaseUtilities.closeResources(rset, pstmt, connection);
-				LOGGER.debug("exited getLines(String paymentId:"+customerID+", Connection connection)");
+				LOGGER.debug("exited getunmappedLinesOfcustomer(String customerID:"+customerID+")");
 			}
 		return lines;
 	}
