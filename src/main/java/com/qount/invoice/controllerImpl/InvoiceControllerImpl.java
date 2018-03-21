@@ -231,14 +231,13 @@ public class InvoiceControllerImpl {
 			String firstName = invoice.getCompany_contact_first_name();
 			if(StringUtils.isNotBlank(firstName)) {
 				String lastName = invoice.getCompany_contact_last_name();
+				aliasName = firstName;
 				if(StringUtils.isNotBlank(lastName)) {
-					aliasName = firstName + lastName;	
-				} else {
-					aliasName = firstName;
-				}
+					aliasName += " " + lastName;	
+				} 
 			}
 			if(StringUtils.isNotBlank(aliasName)) {
-				from = aliasName;
+				from = aliasName + Constants.VIA_QOUNT;
 			}
 			invoice.setFrom(from);
 			remainderJsonObject.put("custom_args", custom_args);
@@ -1065,14 +1064,13 @@ public class InvoiceControllerImpl {
 			String firstName = invoice.getCompany_contact_first_name();
 			if(StringUtils.isNotBlank(firstName)) {
 				String lastName = invoice.getCompany_contact_last_name();
+				aliasName = firstName;
 				if(StringUtils.isNotBlank(lastName)) {
-					aliasName = firstName + lastName;	
-				} else {
-					aliasName = firstName;
-				}
+					aliasName += " "+ lastName;	
+				} 
 			}
 			if(StringUtils.isNotBlank(aliasName)) {
-				from = aliasName;
+				from = aliasName + Constants.VIA_QOUNT;
 			}
 			invoice.setFrom(from);
 			fromObj.put("name", from);
