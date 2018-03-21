@@ -236,8 +236,8 @@ public class InvoiceControllerImpl {
 					aliasName += " " + lastName;	
 				} 
 			}
-			if(StringUtils.isNotBlank(aliasName+Constants.VIA_QOUNT)) {
-				from = aliasName;
+			if(StringUtils.isNotBlank(aliasName)) {
+				from = aliasName + Constants.VIA_QOUNT;
 			}
 			invoice.setFrom(from);
 			remainderJsonObject.put("custom_args", custom_args);
@@ -1069,8 +1069,8 @@ public class InvoiceControllerImpl {
 					aliasName += " "+ lastName;	
 				} 
 			}
-			if(StringUtils.isNotBlank(aliasName + Constants.VIA_QOUNT)) {
-				from = aliasName;
+			if(StringUtils.isNotBlank(aliasName)) {
+				from = aliasName + Constants.VIA_QOUNT;
 			}
 			invoice.setFrom(from);
 			fromObj.put("name", from);
