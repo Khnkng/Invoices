@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,6 +54,7 @@ public class PaymentDAOImpl implements paymentDAO {
 		PreparedStatement pstmt = null;
 		if (connection != null) {
 			int ctr = 1;
+			Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 			try {
 				LOGGER.debug("entered invoice payment save:" + payment);
 				List<PaymentLine> lines = getLines(payment.getId(), connection);
@@ -73,6 +75,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setString(ctr++, payment.getType());
 				pstmt.setString(ctr++, payment.getPaymentNote());
 				pstmt.setString(ctr++, payment.getDepositedTo());
+				pstmt.setTimestamp(ctr++, currentDate);
 
 				pstmt.setString(ctr++, payment.getReceivedFrom());
 				pstmt.setDouble(ctr++, amt);
@@ -108,6 +111,112 @@ public class PaymentDAOImpl implements paymentDAO {
 		return payment;
 	}
 
+	
+	@Override
+	public Payment update(Payment payment, Connection connection,String paymentID) {
+		LOGGER.debug("entered invoice payment update:" + payment);
+		PreparedStatement pstmt = null;
+		if (connection != null) {
+			int ctr = 1;
+			try {
+				pstmt = connection.prepareStatement(SqlQuerys.Payments.UPDATE_QRY);
+				pstmt.setString(ctr++, payment.getReceivedFrom());
+				double amt = 0;
+				if (payment.getPaymentAmount() != null) {
+					amt = payment.getPaymentAmount().doubleValue();
+				}
+				pstmt.setDouble(ctr++, amt);
+				pstmt.setString(ctr++, payment.getCurrencyCode());
+				pstmt.setString(ctr++, payment.getReferenceNo());
+				pstmt.setDate(ctr++, getSQLDateFromString(payment.getPaymentDate(), Constants.INVOICE_UI_DATE_FORMAT));
+				pstmt.setString(ctr++, payment.getMemo());
+				pstmt.setString(ctr++, payment.getCompanyId());
+				pstmt.setString(ctr++, payment.getType());
+				pstmt.setString(ctr++, payment.getPaymentNote());
+				pstmt.setString(ctr++, payment.getDepositedTo());
+				pstmt.setString(ctr++, payment.getPayment_status());
+				pstmt.setString(ctr++, payment.getId());
+				pstmt.executeUpdate();
+			} catch (SQLException e) {
+				LOGGER.error("error in invoice payment update",e);
+				throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(null, pstmt, null);
+				LOGGER.debug("exited invoice payment update:" + payment);
+			}
+		}
+
+		return payment;
+	}
+
+    public List<Invoice> updateInvoiceForPaymentLines(Payment payment, List<PaymentLine> dblines,List<Invoice> dbInvoiceList){
+    	LOGGER.debug("entered updateInvoiceForPaymentLines:"+ payment.getPaymentLines());
+    	List<Invoice> invoiceList = new ArrayList<Invoice>();
+    	PaymentLine dbPaymentLine = null;
+    	try {
+    		for (PaymentLine paymentLine : payment.getPaymentLines()){
+    			int index = dblines.indexOf(paymentLine);
+    			if (index!= -1) {
+    				dbPaymentLine = dblines.get(index);
+    			if (paymentLine.getId().equals(dbPaymentLine.getId())) {
+    				for (Invoice invoice : dbInvoiceList) {
+    					if (invoice.getId().equals(paymentLine.getInvoiceId())) {
+    						double invoiceDueAmount = 0;
+    						if (paymentLine.getAmount()!=dbPaymentLine.getAmount() && paymentLine.getAmount().doubleValue()!=0) {
+    			    				invoiceDueAmount=(invoice.getAmount_due()+dbPaymentLine.getAmount().doubleValue())-paymentLine.getAmount().doubleValue();
+    			    				invoice.setAmount_due(invoiceDueAmount); 
+    			    				if (invoiceDueAmount== 0) {
+    			    					invoice.setState(Constants.INVOICE_STATE_PAID);	
+    			    				}else{
+    			    					invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
+    			    				}invoice.setAmount_paid(invoice.getAmount()-invoiceDueAmount);
+    						}else {
+//    							if(paymentLine.getAmount().doubleValue()==0 && StringUtils.isNotBlank(paymentLine.getId()))
+			        			//update invoice for deleted lines
+								invoiceDueAmount=(invoice.getAmount_due()+dbPaymentLine.getAmount().doubleValue());
+		    					invoice.setAmount_due(invoiceDueAmount); 
+		    					if (invoiceDueAmount== 0) {
+			    					invoice.setState(Constants.INVOICE_STATE_PAID);	
+			    				}else{
+			    					invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
+			    				}invoice.setAmount_paid(invoice.getAmount()-invoiceDueAmount);
+							}
+    						invoiceList.add(invoice);
+						}
+					}
+    			}
+    		} else{
+    		       //newly added lines should be updated with due amount in invoice
+    			 Invoice newInvoice = PaymentDAOImpl.getInstance().updateInvoiceForNewlyAddedPaymentLines(paymentLine,dbInvoiceList);
+    			 invoiceList.add(newInvoice);
+    		}
+    		}
+		} catch (Exception e) {
+			LOGGER.error("error in updateInvoiceForPaymentLines ",e);
+		}
+		return invoiceList;
+   }
+    
+    public Invoice updateInvoiceForNewlyAddedPaymentLines(PaymentLine paymentLine,List<Invoice> dbInvoiceList){
+    	double invoiceDueAmount = 0;
+    	try {
+    			for (Invoice invoice : dbInvoiceList) {
+    				if (invoice.getId().equals(paymentLine.getInvoiceId())) {
+    					invoiceDueAmount=invoice.getAmount_due()-paymentLine.getAmount().doubleValue();
+    	                invoice.setAmount_due(invoiceDueAmount); 
+    					if (invoiceDueAmount== 0) {
+    					invoice.setState(Constants.INVOICE_STATE_PAID);	
+    					}else{
+    	    				invoice.setState(Constants.INVOICE_STATE_PARTIALLY_PAID);	
+    					}invoice.setAmount_paid(invoice.getAmount()-invoiceDueAmount);
+    					return invoice;
+    				}
+    			}
+		} catch (Exception e) {
+		}
+		return null;
+   }
+    
 	private void updateInvoicesState(Connection connection, PaymentLine paymentLine, Payment payment, List<PaymentLine> lines, boolean checkInvoiceAmountFlag) {
 		LOGGER.debug("entered updateInvoicesState(Connection connection, PaymentLine paymentLine:" + paymentLine + ", Payment payment:" + payment + ", List<PaymentLine> lines:"
 				+ lines + ", boolean checkInvoiceAmountFlag:" + checkInvoiceAmountFlag);
@@ -207,11 +316,74 @@ public class PaymentDAOImpl implements paymentDAO {
 		LOGGER.debug("exited deletePaymentLines(String paymentId:" + paymentId + ", Connection connection) ");
 	}
 
+	public void batchdeletePaymentLines(List<PaymentLine> paymentLines, Connection connection) {
+		LOGGER.debug("enterd batchdeletePaymentLines");
+		PreparedStatement pstmt = null;
+		if (connection != null) {
+			try {
+				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.DELETE_BY_ID_QRY);
+				for (PaymentLine paymentLine :paymentLines){
+					if (paymentLine.getAmount().doubleValue()==0 && StringUtils.isNotBlank(paymentLine.getId())) {
+						int ctr = 1;
+						pstmt.setString(ctr++, paymentLine.getId());
+						pstmt.addBatch();
+					}
+				}
+				pstmt.executeBatch();
+			} catch (SQLException e) {
+				LOGGER.error("error in batchdeletePaymentLines" ,e);
+				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(null, pstmt, null);
+			}
+		}
+	}
+	
+	public void batchaddPaymentLine(Connection connection, List<PaymentLine> paymentLines,String paymentId) {
+		LOGGER.debug("enterd batchaddPaymentLine " + paymentLines);
+		PreparedStatement pstmt = null;
+		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
+
+			try {
+				if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.INSERT_AND_UPDATE_QRY);
+				for (PaymentLine paymentLine :paymentLines){
+				int ctr = 1;
+				if (StringUtils.isBlank(paymentLine.getId())) {
+					paymentLine.setId(UUID.randomUUID().toString());
+				}
+				pstmt.setString(ctr++, paymentLine.getId());
+				pstmt.setString(ctr++, paymentLine.getInvoiceId());
+				double amt = 0;
+				if (paymentLine.getAmount() != null) {
+					amt = paymentLine.getAmount().doubleValue();
+				}
+				pstmt.setDouble(ctr++, amt);
+				pstmt.setString(ctr++, paymentId);
+				pstmt.setDouble(ctr++, paymentLine.getDiscount());
+				pstmt.setTimestamp(ctr++, currentDate);
+				
+				pstmt.setDouble(ctr++, amt);
+				pstmt.setDouble(ctr++, paymentLine.getDiscount());
+				pstmt.addBatch();
+				}
+				pstmt.executeBatch();
+			}	}
+			 catch (SQLException e) {
+				 LOGGER.error("error in batchaddPaymentLine",e);
+				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(null, pstmt, null);
+			}
+	}
+	
+
 	private void addPaymentLine(Connection connection, PaymentLine paymentLine, String paymentId) {
 		LOGGER.debug("enterd addPaymentLine(Connection connection, PaymentLine paymentLine:" + paymentLine + ", String paymentId:" + paymentId);
 		PreparedStatement pstmt = null;
 		if (connection != null) {
 			int ctr = 1;
+			Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 			try {
 				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.INSERT_QRY);
 				pstmt.setString(ctr++, UUID.randomUUID().toString());
@@ -223,6 +395,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				pstmt.setDouble(ctr++, amt);
 				pstmt.setString(ctr++, paymentId);
 				pstmt.setDouble(ctr++, paymentLine.getDiscount());
+				pstmt.setTimestamp(ctr++, currentDate);
 				int affectedRows = pstmt.executeUpdate();
 				if (affectedRows == 0) {
 					throw new SQLException("");
@@ -290,7 +463,7 @@ public class PaymentDAOImpl implements paymentDAO {
 		return null;
 	}
 
-	private List<PaymentLine> getLines(String paymentId, Connection connection) {
+	public List<PaymentLine> getLines(String paymentId, Connection connection) {
 		LOGGER.debug("entered getLines(String paymentId:"+paymentId+", Connection connection)");
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -304,6 +477,7 @@ public class PaymentDAOImpl implements paymentDAO {
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
 					PaymentLine line = new PaymentLine();
+					line.setId(rset.getString("id"));
 					line.setInvoiceId(rset.getString("invoice_id"));
 					line.setAmount(new BigDecimal(rset.getString("payment_amount")));
 					line.setInvoiceDate(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
@@ -311,6 +485,10 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setDisplayState(InvoiceParser.getDisplayState(rset.getString("state")));
 					line.setState(rset.getString("state"));
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
+					line.setInvoiceDueDate(getDateStringFromSQLDate(rset.getDate("invoice_due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					line.setAmountDue(rset.getDouble("amount_due"));
+					line.setInvoiceNumber(rset.getString("invoice_number"));
+					line.setCreatedDate(DateUtils.formatToString(rset.getTimestamp("created_date")));
 					lines.add(line);
 				}
 			} catch (SQLException e) {
@@ -321,6 +499,57 @@ public class PaymentDAOImpl implements paymentDAO {
 				LOGGER.debug("exited getLines(String paymentId:"+paymentId+", Connection connection)");
 			}
 		}
+		return lines;
+	}
+	
+	public List<PaymentLine> getunmappedLinesOfcustomer(String customerID,Payment payment) {
+		LOGGER.debug("entered getunmappedLinesOfcustomer(String customerID:"+customerID+")");
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		List<PaymentLine> lines =null;
+		if (payment==null) {
+			lines = new ArrayList<>();
+		}else {
+		 lines = payment.getPaymentLines();
+		}
+		List<PaymentLine> unmappedLines = new ArrayList<PaymentLine>() ;
+		Connection connection = null;
+			int ctr = 1;
+			try {
+				connection = DatabaseUtilities.getReadWriteConnection();
+				if (connection != null) {
+					StringBuilder queryBuilder = new StringBuilder();
+					if(lines.size()!=0){
+						queryBuilder.append("AND id NOT IN(");
+					for (PaymentLine mappedLine: lines) {
+						queryBuilder.append("'").append(mappedLine.getInvoiceId()).append("'").append(" ,");
+					}
+					queryBuilder.deleteCharAt(queryBuilder.length() - 1).append(")");
+					}
+				pstmt = connection.prepareStatement(SqlQuerys.PaymentsLines.GET_UNMAPPED_LINES_INVOICE_LIST_QRY+queryBuilder);
+				pstmt.setString(ctr++, customerID);
+				rset = pstmt.executeQuery();
+				while (rset.next()) {
+					PaymentLine line = new PaymentLine();
+					line.setInvoiceId(rset.getString("invoice_id"));
+					line.setInvoiceDate(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					line.setTerm(rset.getString("term"));
+					line.setDisplayState(InvoiceParser.getDisplayState(rset.getString("state")));
+					line.setState(rset.getString("state"));
+					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
+					line.setInvoiceDueDate(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					line.setAmountDue(rset.getDouble("amount_due"));
+					line.setInvoiceNumber(rset.getString("number"));
+					unmappedLines.add(line);
+				}lines.addAll(unmappedLines);
+				}
+			} catch (Exception e) {
+				LOGGER.error("error in getunmappedLinesOfcustomer(String customerID:"+customerID+")",e);
+				throw new WebApplicationException(CommonUtils.constructResponse(e.getLocalizedMessage(), Constants.DATABASE_ERROR_STATUS));
+			} finally {
+				DatabaseUtilities.closeResources(rset, pstmt, connection);
+				LOGGER.debug("exited getunmappedLinesOfcustomer(String customerID:"+customerID+")");
+			}
 		return lines;
 	}
 	
@@ -344,6 +573,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					line.setTerm(rset.getString("term"));
 					line.setState(rset.getString("state"));
 					line.setInvoiceAmount(new BigDecimal(rset.getString("amount")));
+					line.setCreatedDate(DateUtils.formatToString(rset.getTimestamp("created_date")));
 					lines.add(line);
 				}
 			} catch (SQLException e) {
@@ -622,6 +852,7 @@ public class PaymentDAOImpl implements paymentDAO {
 					payment.setPaymentNote(rset.getString("payment_notes"));
 //					payment.setMapping_id(rset.getString("mapping_id"));
 					payment.setDepositedTo(rset.getString("bank_account_id"));
+					payment.setCreatedDate(DateUtils.formatToString(rset.getTimestamp("created_date")));
 					payment.setPaymentLines(getLines(connection ,payment.getId()));
 				}
 			} catch (SQLException e) {
@@ -732,6 +963,5 @@ public class PaymentDAOImpl implements paymentDAO {
 			LOGGER.debug("exited get Unapplied Payments: companyID" + companyID);
 		}
 		return payments;
-
 	}
 }
