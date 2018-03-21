@@ -231,13 +231,12 @@ public class InvoiceControllerImpl {
 			String firstName = invoice.getCompany_contact_first_name();
 			if(StringUtils.isNotBlank(firstName)) {
 				String lastName = invoice.getCompany_contact_last_name();
+				aliasName = firstName;
 				if(StringUtils.isNotBlank(lastName)) {
-					aliasName = firstName + lastName;	
-				} else {
-					aliasName = firstName;
-				}
+					aliasName += " " + lastName;	
+				} 
 			}
-			if(StringUtils.isNotBlank(aliasName)) {
+			if(StringUtils.isNotBlank(aliasName+Constants.VIA_QOUNT)) {
 				from = aliasName;
 			}
 			invoice.setFrom(from);
@@ -1065,13 +1064,12 @@ public class InvoiceControllerImpl {
 			String firstName = invoice.getCompany_contact_first_name();
 			if(StringUtils.isNotBlank(firstName)) {
 				String lastName = invoice.getCompany_contact_last_name();
+				aliasName = firstName;
 				if(StringUtils.isNotBlank(lastName)) {
-					aliasName = firstName + lastName;	
-				} else {
-					aliasName = firstName;
-				}
+					aliasName += " "+ lastName;	
+				} 
 			}
-			if(StringUtils.isNotBlank(aliasName)) {
+			if(StringUtils.isNotBlank(aliasName + Constants.VIA_QOUNT)) {
 				from = aliasName;
 			}
 			invoice.setFrom(from);
