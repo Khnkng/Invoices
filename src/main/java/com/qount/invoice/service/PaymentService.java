@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import com.qount.invoice.database.dao.impl.InvoiceDAOImpl;
 import com.qount.invoice.database.dao.impl.PaymentDAOImpl;
+import com.qount.invoice.helper.InvoiceHistoryHelper;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
@@ -97,7 +98,7 @@ public class PaymentService {
         	List<Invoice>  invoiceList = InvoiceDAOImpl.getInvoiceDAOImpl().getByInQuery(invoiceIds);
         	updatedInvoiceList = PaymentDAOImpl.getInstance().updateInvoiceForPaymentLines(payment, dblines,invoiceList);
             InvoiceDAOImpl.getInvoiceDAOImpl().batchupdate(connection,updatedInvoiceList);
-    		
+    		InvoiceHistoryHelper.createInvoiceHistory(connection, invoiceList, payment.getReferenceNo());
             connection.commit();
 			CommonUtils.createJournal(new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(), userID, companyId);
 		} catch (Exception e) {

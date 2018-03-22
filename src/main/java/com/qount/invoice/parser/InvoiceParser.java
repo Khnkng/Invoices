@@ -63,7 +63,9 @@ public class InvoiceParser {
 			invoice.setIs_recurring(StringUtils.isNotEmpty(invoice.getPlan_id()));
 			userCompany = CommonUtils.getCompany(companyID);
 			invoice.setCompanyName(userCompany.getName());
-
+			invoice.setCompany_contact_first_name(userCompany.getContact_first_name());
+			invoice.setCompany_contact_last_name(userCompany.getContact_last_name());
+			invoice.setCompany_email_id(userCompany.getEmail_id());
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			Timestamp invoice_date = convertStringToTimeStamp(invoice.getInvoice_date(),
 					Constants.TIME_STATMP_TO_INVOICE_FORMAT);
@@ -594,11 +596,11 @@ public class InvoiceParser {
 	}
 
 	public static InvoiceHistory getInvoice_history(Invoice invoice, String id, String user_id, String companyId,
-			String emailState, String email) {
+			String emailState, String email, String description) {
 		try {
 			LOGGER.debug("entered getInvoice_history(Invoice invoice:" + invoice + " String id:" + id
 					+ ", String user_id:" + user_id + ",String companyId:" + companyId + " String emailState:"
-					+ emailState + " String email:" + email + ")");
+					+ emailState + " String email:" + email + " description:"+description);
 			if (invoice != null) {
 				InvoiceHistory invoiceHistory = new InvoiceHistory();
 				invoiceHistory.setAction(emailState);
@@ -616,6 +618,7 @@ public class InvoiceParser {
 				invoiceHistory.setLast_updated_by(user_id);
 				invoiceHistory.setUser_id(user_id);
 				invoiceHistory.setAction_at_mills(new Date().getTime());
+				invoiceHistory.setDescription(description);
 				return invoiceHistory;
 			}
 		} catch (Exception e) {
@@ -624,50 +627,7 @@ public class InvoiceParser {
 		} finally {
 			LOGGER.debug("exited getInvoice_history(Invoice invoice" + invoice + " String id:" + id
 					+ ", String user_id:" + user_id + ",String companyId:" + companyId + " String emailState:"
-					+ emailState + " String email:" + email + ")");
-		}
-		return null;
-	}
-
-	public static List<InvoiceHistory> getInvoice_historys(List<String> invoiceIds, String user_id, String companyId,
-			boolean markAsSent, String state) {
-		try {
-			List<InvoiceHistory> result = null;
-			LOGGER.debug("entered getInvoice_history(List<String> invoiceIds:" + invoiceIds + ", String user_id:"
-					+ user_id + ",String companyId:" + companyId + " boolean markAsSent:" + markAsSent + ")");
-			if (invoiceIds != null && !invoiceIds.isEmpty()) {
-				result = new ArrayList<InvoiceHistory>();
-				for (int i = 0; i < invoiceIds.size(); i++) {
-					String invoiceId = invoiceIds.get(i);
-					InvoiceHistory invoiceHistory = new InvoiceHistory();
-					invoiceHistory.setAction(state);
-					Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-					invoiceHistory.setAction_at(timestamp.toString());
-					invoiceHistory.setCompany_id(companyId);
-					invoiceHistory.setCreated_at(timestamp.toString());
-					invoiceHistory.setCreated_by(user_id);
-					invoiceHistory.setEmail_from(null);
-					invoiceHistory.setEmail_subject(null);
-					invoiceHistory.setEmail_to(null);
-					invoiceHistory.setId(UUID.randomUUID().toString());
-					invoiceHistory.setInvoice_id(invoiceId);
-					invoiceHistory.setLast_updated_at(timestamp.toString());
-					invoiceHistory.setLast_updated_by(user_id);
-					invoiceHistory.setUser_id(user_id);
-					invoiceHistory.setAction_at_mills(new Date().getTime());
-					if (markAsSent) {
-						invoiceHistory.setDescription(PropertyManager.getProperty("invoice.history.mark.as.sent"));
-					}
-					result.add(invoiceHistory);
-				}
-				return result;
-			}
-		} catch (Exception e) {
-			LOGGER.error(CommonUtils.getErrorStackTrace(e));
-			throw e;
-		} finally {
-			LOGGER.debug("exited getInvoice_history(List<String> invoiceIds" + invoiceIds + ", String user_id:"
-					+ user_id + ",String companyId:" + companyId + " boolean markAsSent:" + markAsSent + ")");
+					+ emailState + " String email:" + email + " description:"+description);
 		}
 		return null;
 	}
@@ -1000,6 +960,20 @@ public class InvoiceParser {
 					return Constants.PARTIALLY_PAID;
 				}
 				return WordUtils.capitalize(state);
+			}
+		} catch (Exception e) {
+			LOGGER.error("error parsing display state:",e);
+		}
+		return null;
+	}
+	
+	public static String getInvoiceHistoryAction(String action) {
+		try {
+			if (StringUtils.isNotBlank(action)) {
+				if (action.equalsIgnoreCase(Constants.OPEN)) {
+					return WordUtils.capitalize(Constants.OPENED);
+				}
+				return WordUtils.capitalize(action);
 			}
 		} catch (Exception e) {
 			LOGGER.error("error parsing display state:",e);

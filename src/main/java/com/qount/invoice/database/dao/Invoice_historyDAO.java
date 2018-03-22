@@ -17,8 +17,8 @@ public interface Invoice_historyDAO {
 
 	InvoiceHistory create(Connection conn, InvoiceHistory invoice_history);
 	
-	List<InvoiceHistory> createList(Connection conn, List<InvoiceHistory> invoice_historys);
-
+	List<InvoiceHistory> create(Connection conn, List<InvoiceHistory> invoice_history);
+	
 	InvoiceHistory update(Connection conn, InvoiceHistory invoice_history);
 
 	String getByWebhookId(Connection conn, String webhookId);

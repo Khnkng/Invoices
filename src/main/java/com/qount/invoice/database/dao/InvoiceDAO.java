@@ -32,15 +32,21 @@ public interface InvoiceDAO {
 
 	public Invoice updateState(Connection connection, Invoice invoice) throws Exception;;
 
-	public Invoice get(String InvoiceID) throws Exception;;
+	public Invoice get(String InvoiceID) throws Exception;
+	
+	public Invoice get(Connection connection, String InvoiceID) throws Exception;
 
 	public Map<String, String> getCount(String userID, String companyID) throws Exception;;
 
 	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception;;
 	
+	public List<Invoice> getInvoiceListByCustomerID(String userID, String companyID, String customerID,String state) throws Exception;
+	
 	public List<Invoice> getInvoiceListByClientId(String userID, String companyID, String clientID) throws Exception;;
 
 	public Invoice delete(Invoice invoice) throws Exception;
+	
+	public Invoice delete(Connection connection, Invoice invoice) throws Exception;
 
 	public boolean deleteLst(String userId, String companyId, String lst) throws Exception;
 
@@ -61,6 +67,8 @@ public interface InvoiceDAO {
 	public List<Invoice> retrieveInvoicesPaidInLast30Days(String companyId, String query);
 	
 	public List<String> getInvoiceJobsList(String invoiceIds) throws Exception;
+	
+	public List<String> getInvoiceJobsList(Connection connection, String invoiceIds) throws Exception;
 	
 	public Map<String,String> getInvoicePaymentsIds(String invoiceIds) throws Exception;
 	

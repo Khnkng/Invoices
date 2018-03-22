@@ -18,10 +18,13 @@ import org.json.JSONObject;
 import com.qount.invoice.clients.httpClient.HTTPClient;
 import com.qount.invoice.common.PropertyManager;
 import com.qount.invoice.database.mySQL.MySQLManager;
+import com.qount.invoice.helper.InvoiceHistoryHelper;
 import com.qount.invoice.model.Invoice;
 import com.qount.invoice.model.InvoiceCommission;
+import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
+import com.qount.invoice.parser.InvoiceParser;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -211,24 +214,16 @@ public class InvoiceDetailControllerImpl {
 				double amount_due = invoice.getAmount() - invoice.getAmount_paid();
 				invoice.setAmount_due(amount_due);
 			}
-			// Timestamp invoice_date =
-			// InvoiceParser.convertStringToTimeStamp(invoice.getInvoice_date(),
-			// Constants.TIME_STATMP_TO_INVOICE_FORMAT);
-			// invoice.setInvoice_date(invoice_date != null ?
-			// invoice_date.toString() : null);
-			// Invoice invoiceObj =
-			// InvoiceParser.getInvoiceObj(invoice.getUser_id(), invoice,
-			// companyID, false);
-			// boolean isInvoiceUpdated =
-			// MySQLManager.getInvoiceDAOInstance().update(connection,
-			// invoiceObj)!=null?true:false;
-			// if(!isInvoiceUpdated){
-			// throw new WebApplicationException("payment done but not saved in
-			// qount db");
-			// //TODO refund payment
-			// }
 			boolean paymentCaptured = false;
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
+				//creating invoice history 
+				String description = "Amount: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount())+
+						",Amount Due: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_due())+
+						",Amount Paid: "+Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount_paid())+
+						",Ref Num: "+payment.getReferenceNo()+
+						",State: "+InvoiceParser.getDisplayState(invoice.getState());
+				InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoice,description,InvoiceParser.getDisplayState(invoice.getState()));
+				MySQLManager.getInvoice_historyDAO().create(connection, history);
 				paymentCaptured = true;
 			}
 			if (paymentCaptured) {

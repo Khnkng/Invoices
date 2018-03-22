@@ -140,38 +140,32 @@ public class InvoiceControllerImpl {
 				List<InvoiceLine> invoiceLineResult = MySQLManager.getInvoiceLineDAOInstance().save(connection,
 						invoiceObj.getInvoiceLines());
 				if (!invoiceLineResult.isEmpty()) {
-					InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
 					createInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID,
 							invoice.getId(), invoice.getNumber(), invoice.getAmount(), invoice.getCurrency());
 					new InvoiceDimension().create(connection, companyID, invoiceObj.getInvoiceLines());
+					// creating invoice history
+					String description = "Amount: "
+							+ Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount()) + ""
+							+ " Created By:" + userID;
+					InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoiceObj, description,
+							Constants.CREATED);
+					MySQLManager.getInvoice_historyDAO().create(connection, history);
 					connection.commit();
 					connection.setAutoCommit(true);
 					// creating late fee journal
 					invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoiceObj));
-					if (StringUtils.isNotBlank(invoiceObj.getLate_fee_id())) {
-						String historyAction = String.format(
-								PropertyManager.getProperty("invoice.history.latefee.added"),
-								StringUtils.isEmpty(invoiceObj.getLate_fee_name()) ? invoiceObj.getLate_fee_id()
-										: invoiceObj.getLate_fee_name());
-						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, historyAction);
-					}
-					MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 				}
-
 				// journal should not be created for draft state invoice.
 				if (invoice.isSendMail())
 					// saving dimensions of journal lines
 					CommonUtils.createJournal(
 							new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(),
 							userID, companyID);
-
 				if (!"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
 					new Thread(() -> {
 						createRecurringInvoice(invoiceRecurring, userID);
 					}).start();
-
 				}
-
 				Invoice result = InvoiceParser.convertTimeStampToString(invoiceObj);
 				LOGGER.debug("result:" + result);
 				return result;
@@ -235,6 +229,18 @@ public class InvoiceControllerImpl {
 			custom_args.put("type", Constants.INVOICE);
 			custom_args.put("id", invoice.getId());
 			String from = Constants.QOUNT;
+			String aliasName = null;
+			String firstName = invoice.getCompany_contact_first_name();
+			if (StringUtils.isNotBlank(firstName)) {
+				String lastName = invoice.getCompany_contact_last_name();
+				aliasName = firstName;
+				if (StringUtils.isNotBlank(lastName)) {
+					aliasName += " " + lastName;
+				}
+			}
+			if (StringUtils.isNotBlank(aliasName)) {
+				from = aliasName + Constants.VIA_QOUNT;
+			}
 			invoice.setFrom(from);
 			remainderJsonObject.put("custom_args", custom_args);
 			remainderJsonObject.put("from_name", from);
@@ -278,6 +284,12 @@ public class InvoiceControllerImpl {
 				JSONObject attachmentsMetdataObj = new JSONObject(attachmentsMetadata);
 				if (CommonUtils.isValidJSON(attachmentsMetdataObj)) {
 					remainderJsonObject.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
+				}
+			}
+			if (StringUtils.isNotBlank(invoice.getCompany_email_id())) {
+				remainderJsonObject.put("reply_to_email", invoice.getCompany_email_id());
+				if (StringUtils.isNotBlank(aliasName)) {
+					remainderJsonObject.put("reply_to_name", aliasName);
 				}
 			}
 			LOGGER.debug("remainderJsonObject::" + remainderJsonObject);
@@ -357,10 +369,6 @@ public class InvoiceControllerImpl {
 			}
 			if (invoice.isSendMail()) {
 				if (sendInvoiceEmail(invoiceObj)) {
-					if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
-						InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
-						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
-					}
 					if (StringUtils.isBlank(invoice.getState())
 							|| invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
 							|| invoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
@@ -403,7 +411,8 @@ public class InvoiceControllerImpl {
 			if (StringUtils.isNotBlank(dbIinvoiceState) && !dbIinvoiceState.equals(Constants.INVOICE_STATE_DRAFT)) {
 				invoice.setState(dbIinvoiceState);
 			}
-			invoiceObj.setAmount_due((invoice.getSub_total() + invoice.getTax_amount() + invoice.getLate_fee_amount())-dbInvoice.getAmount_paid());
+			invoiceObj.setAmount_due((invoice.getSub_total() + invoice.getTax_amount() + invoice.getLate_fee_amount())
+					- dbInvoice.getAmount_paid());
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().update(connection, invoiceObj);
 			if (invoiceResult != null) {
 				InvoiceLine invoiceLine = new InvoiceLine();
@@ -418,17 +427,22 @@ public class InvoiceControllerImpl {
 						new InvoiceDimension().update(connection, companyID, invoiceObj.getInvoiceLines());
 						updateInvoiceCommissions(connection, invoice.getCommissions(), invoice.getUser_id(), companyID,
 								invoice.getId(), invoice.getNumber(), invoice.getAmount(), invoice.getCurrency());
-						if (!invoiceObj.getState().equals(dbIinvoiceState)) {
-							InvoiceHistoryHelper.updateInvoiceHisotryAction(invoiceObj, invoice.getState());
-						}
+						// creating invoice history
+						String description = "Amount: "
+								+ Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount()) + ""
+								+ " Updated By:" + userID;
+						InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoiceObj, description,
+								Constants.UPDATED);
+						MySQLManager.getInvoice_historyDAO().create(connection, history);
 						connection.commit();
 						connection.setAutoCommit(true);
 						// late fee changes
 						LateFeeHelper.handleLateFeeJEChanges(dbInvoice, invoiceObj);
-						MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 					}
 					if (isJERequired) {
-						CommonUtils.createJournal( new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(), userID, companyID);
+						CommonUtils.createJournal(
+								new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(),
+								userID, companyID);
 					}
 					return InvoiceParser.convertTimeStampToString(invoiceResult);
 				}
@@ -531,14 +545,12 @@ public class InvoiceControllerImpl {
 			}
 			Invoice invoiceResult = MySQLManager.getInvoiceDAOInstance().updateState(connection, invoice);
 			if (invoiceResult != null) {
-				InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(),
-						invoice.getUser_id(), invoice.getCompany_id());
-				ArrayList<InvoiceHistory> histories = new ArrayList<>();
-				histories.add(invoice_history);
-				invoice.setHistories(histories);
+				String description = invoice.getUser_id();
+				InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoice, description,
+						Constants.MARKED_AS_SENT);
+				MySQLManager.getInvoice_historyDAO().create(connection, history);
 				// creating late fee journal
 				invoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(invoice));
-				MySQLManager.getInvoice_historyDAO().createList(connection, invoice.getHistories());
 				CommonUtils.createJournal(
 						new JSONObject().put("source", "invoicePayment").put("sourceID", invoice.getId()).toString(),
 						invoice.getUser_id(), invoice.getCompany_id());
@@ -655,6 +667,18 @@ public class InvoiceControllerImpl {
 				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
 			}
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
+				// creating invoice history
+				String description = "Amount: "
+						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount())
+						+ ",Amount Due: "
+						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount_due())
+						+ ",Amount Paid: "
+						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount_paid())
+						+ ",Ref Num: " + payment.getReferenceNo() + ",State: "
+						+ InvoiceParser.getDisplayState(dbInvoice.getState());
+				InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(dbInvoice, description,
+						Constants.MARKED_AS_PAID);
+				MySQLManager.getInvoice_historyDAO().create(connection, history);
 				connection.commit();
 				// creating commissions if any
 				InvoiceCommission invoiceCommission = new InvoiceCommission();
@@ -684,10 +708,17 @@ public class InvoiceControllerImpl {
 		return false;
 	}
 
-	public static List<Invoice> getInvoices(String userID, String companyID, String state) {
+	public static List<Invoice> getInvoices(String userID, String companyID, String state, String customerID) {
 		List<Invoice> invoiceLst = null;
 		try {
 			LOGGER.debug("entered get invoices userID:" + userID + " companyID:" + companyID + " state:" + state);
+			if(StringUtils.isNotBlank(customerID)) {
+				invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByCustomerID(userID, companyID, customerID,state);
+				if (invoiceLst == null) {
+					invoiceLst = new ArrayList<>();
+				}
+				return invoiceLst;
+			}
 			if (StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
 						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
@@ -738,11 +769,12 @@ public class InvoiceControllerImpl {
 			Company2 company2 = CommonUtils.retrieveCompany(result.getUser_id(), result.getCompany_id());
 			result.setCompany(company2);
 			InvoiceParser.convertAmountToDecimal(result);
-			if(result.getState().equals(Constants.INVOICE_STATE_SENT)){
+			if (result.getState().equals(Constants.INVOICE_STATE_SENT)) {
 				JSONObject payLoadObject = new JSONObject();
 				payLoadObject.put("due_date", result.getDue_date());
 				payLoadObject.put("amount", result.getAmount());
-				result.setDiscount(InvoiceDiscountsControllerImpl.getDiscountAmount(result.getCompany_id(), result.getDiscount_id(), payLoadObject.toString()));
+				result.setDiscount(InvoiceDiscountsControllerImpl.getDiscountAmount(result.getCompany_id(),
+						result.getDiscount_id(), payLoadObject.toString()));
 			}
 			LOGGER.debug("getInvoice result:" + result);
 			return result;
@@ -812,11 +844,12 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
 						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
-			Invoice invoiceObj = MySQLManager.getInvoiceDAOInstance().delete(invoice);
-			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(invoice, UUID.randomUUID().toString(),
-					userID, companyID);
 			connection = DatabaseUtilities.getReadWriteConnection();
-			MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
+			Invoice invoiceObj = MySQLManager.getInvoiceDAOInstance().delete(connection, invoice);
+			String description = "Amount: "
+					+ Utilities.getNumberAsCurrencyStr(invoice.getCurrency(), invoice.getAmount());
+			InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(invoiceObj, description, Constants.DELETED);
+			MySQLManager.getInvoice_historyDAO().create(connection, history);
 			CommonUtils.deleteJournal(userID, companyID, invoiceID + "@" + "invoice");
 			Utilities.unschduleInvoiceJob(invoice.getRemainder_job_id());
 			return InvoiceParser.convertTimeStampToString(invoiceObj);
@@ -850,12 +883,15 @@ public class InvoiceControllerImpl {
 			}
 			String commaSeparatedLst = CommonUtils.toQoutedCommaSeparatedString(ids);
 			CommonUtils.deleteJournalsAsync(userID, companyID, ids);
-			List<String> jobIds = MySQLManager.getInvoiceDAOInstance().getInvoiceJobsList(commaSeparatedLst);
-			deleteInvoiceJobsAsync(jobIds);
-			List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, userID, companyID, false,
-					Constants.INVOICE_STATE_DELETE);
 			connection = DatabaseUtilities.getReadWriteConnection();
-			MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
+			List<String> jobIds = MySQLManager.getInvoiceDAOInstance().getInvoiceJobsList(connection,
+					commaSeparatedLst);
+			deleteInvoiceJobsAsync(jobIds);
+			// creating invoice history
+			String description = userID;
+			List<InvoiceHistory> histories = InvoiceHistoryHelper.getInvoiceHistory(ids, userID, companyID,
+					Constants.DELETED, description);
+			MySQLManager.getInvoice_historyDAO().create(connection, histories);
 			return MySQLManager.getInvoiceDAOInstance().deleteLst(userID, companyID, commaSeparatedLst);
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
@@ -914,8 +950,6 @@ public class InvoiceControllerImpl {
 					commaSeparatedLst);
 			if (isSent) {
 				connection = DatabaseUtilities.getReadWriteConnection();
-				List<InvoiceHistory> invoice_historys = InvoiceParser.getInvoice_historys(ids, userID, companyID, true,
-						Constants.INVOICE_STATE_MARK_AS_SENT);
 				for (String invoiceID : ids) {
 					CommonUtils.createJournalAsync(
 							new JSONObject().put("source", "invoice").put("sourceID", invoiceID).toString(), userID,
@@ -924,7 +958,11 @@ public class InvoiceControllerImpl {
 					Invoice dbInvoice = MySQLManager.getInvoiceDAOInstance().get(invoiceID);
 					dbInvoice.setJournal_job_id(LateFeeHelper.scheduleJournalForLateFee(dbInvoice));
 				}
-				MySQLManager.getInvoice_historyDAO().createList(connection, invoice_historys);
+				// creating invoice histories
+				String description = userID;
+				List<InvoiceHistory> histories = InvoiceHistoryHelper.getInvoiceHistory(ids, userID, companyID,
+						Constants.MARKED_AS_SENT, description);
+				MySQLManager.getInvoice_historyDAO().create(connection, histories);
 			}
 			return isSent;
 		} catch (WebApplicationException e) {
@@ -1046,6 +1084,18 @@ public class InvoiceControllerImpl {
 			JSONObject fromObj = new JSONObject();
 			fromObj.put("email", Constants.FROM);
 			String from = Constants.QOUNT;
+			String aliasName = null;
+			String firstName = invoice.getCompany_contact_first_name();
+			if (StringUtils.isNotBlank(firstName)) {
+				String lastName = invoice.getCompany_contact_last_name();
+				aliasName = firstName;
+				if (StringUtils.isNotBlank(lastName)) {
+					aliasName += " " + lastName;
+				}
+			}
+			if (StringUtils.isNotBlank(aliasName)) {
+				from = aliasName + Constants.VIA_QOUNT;
+			}
 			invoice.setFrom(from);
 			fromObj.put("name", from);
 			result.put("from", fromObj);
@@ -1080,6 +1130,14 @@ public class InvoiceControllerImpl {
 				if (CommonUtils.isValidJSON(attachmentsMetdataObj)) {
 					result.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
 				}
+			}
+			if (StringUtils.isNotBlank(invoice.getCompany_email_id())) {
+				JSONObject reply_to = new JSONObject();
+				reply_to.put("email", invoice.getCompany_email_id());
+				if (StringUtils.isNotBlank(aliasName)) {
+					reply_to.put("name", aliasName);
+				}
+				result.put("reply_to", reply_to);
 			}
 			return result;
 		} catch (WebApplicationException e) {
@@ -1403,8 +1461,6 @@ public class InvoiceControllerImpl {
 		}
 		return false;
 	}
-	
-	
 
 	public static List<Invoice> getInvoiceListForPayEvent(String userID, String companyID, String customerID,
 			String billId) {
@@ -1465,27 +1521,37 @@ public class InvoiceControllerImpl {
 				break;
 			}
 			System.out.println("billDate After calc=" + invoiceDate);
-			Date invoiceDueDate = DateUtils.getTimestampFromString(invoice.getDue_date(), Constants.SIMPLE_DATE_FORMAT); 
+			Date invoiceDueDate = DateUtils.getTimestampFromString(invoice.getDue_date(), Constants.SIMPLE_DATE_FORMAT);
 			String terms = invoice.getTerm();
 			int netTermCount = 0;
 			switch (terms) {
-			case "net30": netTermCount = 30 ; break;
-			case "net45": netTermCount = 45 ; break;
-			case "net60": netTermCount = 60 ; break;
-			case "net90": netTermCount = 90 ; break;
-			case "custom": netTermCount = getDifferenceDays(maininvoiceDate, invoiceDueDate) ; break;
+			case "net30":
+				netTermCount = 30;
+				break;
+			case "net45":
+				netTermCount = 45;
+				break;
+			case "net60":
+				netTermCount = 60;
+				break;
+			case "net90":
+				netTermCount = 90;
+				break;
+			case "custom":
+				netTermCount = getDifferenceDays(maininvoiceDate, invoiceDueDate);
+				break;
 			default:
 				break;
 			}
-			
+
 			while (invoiceDate.compareTo(endDate) <= 0) {
 				invoice.setRecurringFrequency("onlyonce");
 				invoice.setNumber(invoiceNumber + "_" + i);
 				invoice.setInvoice_date(Constants.DATE_TO_INVOICE_FORMAT.format(invoiceDate));
-				invoiceDueDate = org.apache.commons.lang3.time.DateUtils.addDays(invoiceDate, netTermCount) ;
-				
+				invoiceDueDate = org.apache.commons.lang3.time.DateUtils.addDays(invoiceDate, netTermCount);
+
 				invoice.setDue_date(Constants.DATE_TO_INVOICE_FORMAT.format(invoiceDueDate));
-				
+
 				// invoice.setDue_date(DateUtils.formatToString(DateUtils.getTimestampFromString(invoice.getDue_date(),
 				// Constants.SIMPLE_DATE_FORMAT)));
 				invoice.setRecurringEnddate(null);
@@ -1515,27 +1581,31 @@ public class InvoiceControllerImpl {
 		}
 
 	}
-	public static  int getDifferenceDays(Date d1, Date d2) {
-	    int daysdiff = 0;
-	    long diff = d2.getTime() - d1.getTime();
-	    long diffDays = diff / (24 * 60 * 60 * 1000) + 1;
-	    daysdiff = (int) diffDays;
-	    return daysdiff-1;//we need exclude one day for current date
+
+	public static int getDifferenceDays(Date d1, Date d2) {
+		int daysdiff = 0;
+		long diff = d2.getTime() - d1.getTime();
+		long diffDays = diff / (24 * 60 * 60 * 1000) + 1;
+		daysdiff = (int) diffDays;
+		return daysdiff - 1;// we need exclude one day for current date
 	}
+
 	public static String searchInvoices(String userID, String companyID, InvoiceFilter invoiceFilter) {
 		JSONArray invoiceLst = null;
 		Connection conn = null;
 		try {
-			LOGGER.debug("entered searchInvoices userID:" + userID + " companyID:" + companyID );
+			LOGGER.debug("entered searchInvoices userID:" + userID + " companyID:" + companyID);
 			if (StringUtils.isAnyBlank(userID, companyID)) {
 				throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
 						Constants.PRECONDITION_FAILED_STR, Status.PRECONDITION_FAILED));
 			}
 			conn = DatabaseUtilities.getReadConnection();
-			
-//			String query = SqlQuerys.Invoice.GET_INVOICE_BY_FILTERS + prepareQuery(invoiceFilter, companyID) ;
-			String query =   prepareQuery(invoiceFilter, companyID) ;
-			invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByFilter(conn, userID, companyID,query,invoiceFilter.getAsOfDate()); 
+
+			// String query = SqlQuerys.Invoice.GET_INVOICE_BY_FILTERS +
+			// prepareQuery(invoiceFilter, companyID) ;
+			String query = prepareQuery(invoiceFilter, companyID);
+			invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByFilter(conn, userID, companyID, query,
+					invoiceFilter.getAsOfDate());
 		} catch (WebApplicationException e) {
 			LOGGER.error(CommonUtils.getErrorStackTrace(e));
 			if (e.getResponse().getStatus() == 412) {
@@ -1550,87 +1620,100 @@ public class InvoiceControllerImpl {
 			throw new WebApplicationException(ResponseUtil.constructResponse(Constants.FAILURE_STATUS_STR,
 					e.getLocalizedMessage(), Status.EXPECTATION_FAILED));
 		} finally {
-			LOGGER.debug("exited searchInvoices userID:" + userID + " companyID:" + companyID  );
+			LOGGER.debug("exited searchInvoices userID:" + userID + " companyID:" + companyID);
 			DatabaseUtilities.closeConnection(conn);
 		}
-//		if (invoiceLst == null) {
-//			invoiceLst = new ArrayList<>();
-//		}
-//		return Response.status(Status.OK).entity(new JSONObject(invoiceLst).toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+		// if (invoiceLst == null) {
+		// invoiceLst = new ArrayList<>();
+		// }
+		// return Response.status(Status.OK).entity(new
+		// JSONObject(invoiceLst).toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
 		return invoiceLst.toString();
 	}
-	
-	
+
 	private static String prepareQuery(InvoiceFilter invoiceFilter, String companyID) {
-		
-		DateTime asOfDate = new DateTime(DateUtils.getDateFromString(invoiceFilter.getAsOfDate(), Constants.SIMPLE_DATE_FORMAT));
+
+		DateTime asOfDate = new DateTime(
+				DateUtils.getDateFromString(invoiceFilter.getAsOfDate(), Constants.SIMPLE_DATE_FORMAT));
 		String asOfDateString = DateUtils.getStringFromDate(asOfDate.toDate(), Constants.DUE_DATE_FORMAT);
 		String qryString = "SELECT invoice.due_date,invoice.`late_fee_id`, invoice.`late_fee_amount`, invoice.`late_fee_applied`, invoice.`email_state`,invoice.`customer_id`,"
 				+ "invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,invoice.`amount_due`,"
 				+ "invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`, company.name AS company_name,`company_customers`.`customer_name`  "
 				+ "FROM invoice JOIN company ON invoice.`company_id` = company.`id` JOIN `company_customers` ON invoice.`customer_id` = company_customers.`customer_id` "
-				+ "WHERE invoice.company_id='"+companyID+"'  AND invoice.invoice_date <='"+asOfDateString+"'  ";
-		
+				+ "WHERE invoice.company_id='" + companyID + "'  AND invoice.invoice_date <='" + asOfDateString + "'  ";
+
 		StringBuilder query = new StringBuilder();
-		
-//		query.append("SELECT invoice.`late_fee_id`, invoice.`late_fee_amount`, invoice.`late_fee_applied`, invoice.`email_state`,invoice.`customer_id`,invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,invoice.`amount_due`,invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`, company.name AS company_name,`company_customers`.`customer_name`  FROM invoice JOIN company ON invoice.`company_id` = company.`id` JOIN `company_customers` ON invoice.`customer_id` = company_customers.`customer_id` WHERE   ");
-		
+
+		// query.append("SELECT invoice.`late_fee_id`, invoice.`late_fee_amount`,
+		// invoice.`late_fee_applied`,
+		// invoice.`email_state`,invoice.`customer_id`,invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,invoice.`amount_due`,invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`,
+		// company.name AS company_name,`company_customers`.`customer_name` FROM invoice
+		// JOIN company ON invoice.`company_id` = company.`id` JOIN `company_customers`
+		// ON invoice.`customer_id` = company_customers.`customer_id` WHERE ");
+
 		for (FilterModel filter : invoiceFilter.getFilters()) {
 			System.out.println(filter.getFilterName());
 			if (filter.getFilterName().equals("customerName")) {
 				filter.getValues();
-				query.append(" AND company_customers.customer_name IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")  ");
+				query.append(" AND company_customers.customer_name IN ("
+						+ getCommaSeparatedStringFromList(filter.getValues(), true) + ")  ");
 			} else if (filter.getFilterName().equals("invoiceDate")) {
-				query.append(" AND  invoice.due_date BETWEEN '" + filter.getValues().get(0) + "' AND '" + filter.getValues().get(1) + "'   ");
+				query.append(" AND  invoice.due_date BETWEEN '" + filter.getValues().get(0) + "' AND '"
+						+ filter.getValues().get(1) + "'   ");
 			} else if (filter.getFilterName().equals("currentState")) {
-				query.append(" AND  invoice.state" + ("!=".equalsIgnoreCase(filter.getOperator()) ? " NOT " : "" ) + " IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")");
+				query.append(" AND  invoice.state" + ("!=".equalsIgnoreCase(filter.getOperator()) ? " NOT " : "")
+						+ " IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")");
 			}
 		}
 
 		qryString += query.toString();
-		
+
 		StringBuilder query2 = new StringBuilder();
-		
+
 		for (FilterModel filter : invoiceFilter.getFilters()) {
 			System.out.println(filter.getFilterName());
 			if (filter.getFilterName().equals("customerName")) {
 				filter.getValues();
-				query2.append(" AND  company_customers.customer_name IN (" + getCommaSeparatedStringFromList(filter.getValues(), true) + ")   ");
+				query2.append(" AND  company_customers.customer_name IN ("
+						+ getCommaSeparatedStringFromList(filter.getValues(), true) + ")   ");
 			} else if (filter.getFilterName().equals("invoiceDate")) {
-				query2.append(" AND  invoice.due_date BETWEEN '" + filter.getValues().get(0) + "' AND '" + filter.getValues().get(1) + "'  ");
-			}  
+				query2.append(" AND  invoice.due_date BETWEEN '" + filter.getValues().get(0) + "' AND '"
+						+ filter.getValues().get(1) + "'  ");
+			}
 		}
 
-		
-		qryString +=  "  UNION ALL (SELECT invoice.due_date,invoice.`late_fee_id`, invoice.`late_fee_amount`, invoice.`late_fee_applied`, invoice.`email_state`,invoice.`customer_id`,invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,SUM(invoice_payments.payment_amount) AS `amount_due`,invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`, company.name AS company_name,`company_customers`.`customer_name`      "
+		qryString += "  UNION ALL (SELECT invoice.due_date,invoice.`late_fee_id`, invoice.`late_fee_amount`, invoice.`late_fee_applied`, invoice.`email_state`,invoice.`customer_id`,invoice.`number`,invoice.`id`,invoice.`invoice_date`,invoice.`due_date`,invoice.`amount`,invoice.`currency`,invoice.`state`,invoice.`amount_by_date`,SUM(invoice_payments.payment_amount) AS `amount_due`,invoice.`amount_paid`,invoice.`job_date`,invoice.`is_discount_applied`,invoice.`discount_id`, company.name AS company_name,`company_customers`.`customer_name`      "
 				+ "  FROM `invoice_payments`  JOIN invoice_payments_lines ON invoice_payments_lines.payment_id = invoice_payments.id "
 				+ "JOIN invoice ON invoice.id =invoice_payments_lines.invoice_id  JOIN company ON invoice.`company_id` = company.`id` JOIN `company_customers`  ON company_customers.`customer_id` = invoice_payments.`received_from`    "
-				+ "AND invoice_payments.company_id = '"+companyID+"'   "+query2.toString() +"  AND invoice_payments.payment_date >'"+asOfDateString+"'  AND invoice.`invoice_date` <= '"+asOfDateString+"'  GROUP BY invoice.id  )   ORDER BY 1 DESC ";
+				+ "AND invoice_payments.company_id = '" + companyID + "'   " + query2.toString()
+				+ "  AND invoice_payments.payment_date >'" + asOfDateString + "'  AND invoice.`invoice_date` <= '"
+				+ asOfDateString + "'  GROUP BY invoice.id  )   ORDER BY 1 DESC ";
 
-		return qryString ;
+		return qryString;
 	}
-	
+
 	/**
 	 * helper method used in query generation
+	 * 
 	 * @param list
 	 * @param isQuoteApplied
 	 * @return
 	 */
-	public static String getCommaSeparatedStringFromList(List<String> list,boolean isQuoteApplied){
+	public static String getCommaSeparatedStringFromList(List<String> list, boolean isQuoteApplied) {
 		String result = "";
 		try {
-			if(list!=null && !list.isEmpty()){
+			if (list != null && !list.isEmpty()) {
 				String item = null;
-				for(int i=0;i<list.size();i++){
+				for (int i = 0; i < list.size(); i++) {
 					item = list.get(i).toString();
-					if(isQuoteApplied){
-						result +="'"+item+"',";
-					}else{
-						result +=item+",";
+					if (isQuoteApplied) {
+						result += "'" + item + "',";
+					} else {
+						result += item + ",";
 					}
 				}
-				if(!StringUtils.isEmpty(result)){
-					result = result.substring(0, result.length()-1);
+				if (!StringUtils.isEmpty(result)) {
+					result = result.substring(0, result.length() - 1);
 				}
 			}
 		} catch (Exception e) {
@@ -1638,11 +1721,11 @@ public class InvoiceControllerImpl {
 		}
 		return result;
 	}
-	
 
-	private static void validateInvoiceEdit(Invoice dbInvoice, Invoice invoiceObj, String userID, String companyID){
+	private static void validateInvoiceEdit(Invoice dbInvoice, Invoice invoiceObj, String userID, String companyID) {
 		try {
-			LOGGER.debug("entered validateInvoiceEdit(Invoice dbInvoice:"+dbInvoice+", Invoice invoiceObj:"+invoiceObj+", String userID:"+userID+", String companyID:"+companyID);
+			LOGGER.debug("entered validateInvoiceEdit(Invoice dbInvoice:" + dbInvoice + ", Invoice invoiceObj:"
+					+ invoiceObj + ", String userID:" + userID + ", String companyID:" + companyID);
 			if (dbInvoice == null || StringUtils.isBlank(dbInvoice.getId())) {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.not.found"), 412);
 			}
@@ -1660,58 +1743,83 @@ public class InvoiceControllerImpl {
 			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
 				validatePaidInvoiceEdit(dbInvoice, invoiceObj);
 			}
-			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID) || dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
-				if(!dbInvoice.getCustomer_id().equals(invoiceObj.getCustomer_id())){
-					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.customer.update"), Constants.INVALID_INPUT_STATUS);
+			if (dbInvoice.getState().equals(Constants.INVOICE_STATE_SENT)
+					|| dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)
+					|| dbInvoice.getState().equals(Constants.INVOICE_STATE_PAID)) {
+				if (!dbInvoice.getCustomer_id().equals(invoiceObj.getCustomer_id())) {
+					throw new WebApplicationException(PropertyManager.getProperty("error.invoice.customer.update"),
+							Constants.INVALID_INPUT_STATUS);
 				}
 			}
 		} catch (WebApplicationException e) {
-			LOGGER.debug("error validateInvoiceEdit(Invoice dbInvoice:"+dbInvoice+", Invoice invoiceObj:"+invoiceObj+", String userID:"+userID+", String companyID:"+companyID, e);
+			LOGGER.debug("error validateInvoiceEdit(Invoice dbInvoice:" + dbInvoice + ", Invoice invoiceObj:"
+					+ invoiceObj + ", String userID:" + userID + ", String companyID:" + companyID, e);
 			throw e;
 		} catch (Exception e) {
-			LOGGER.debug("error validateInvoiceEdit(Invoice dbInvoice:"+dbInvoice+", Invoice invoiceObj:"+invoiceObj+", String userID:"+userID+", String companyID:"+companyID, e);
+			LOGGER.debug("error validateInvoiceEdit(Invoice dbInvoice:" + dbInvoice + ", Invoice invoiceObj:"
+					+ invoiceObj + ", String userID:" + userID + ", String companyID:" + companyID, e);
 		} finally {
-			LOGGER.debug("exited validateInvoiceEdit(Invoice dbInvoice:"+dbInvoice+", Invoice invoiceObj:"+invoiceObj+", String userID:"+userID+", String companyID:"+companyID);
-		}
-	}
-	private static void validatePaidInvoiceEdit(Invoice dbInvoice, Invoice invoice){
-		try {
-			LOGGER.debug("entered in validatePaidInvoiceEdit Invoice dbInvoice:"+dbInvoice+", Invoice invoice:"+invoice);
-			if (StringUtils.isBlank(dbInvoice.getRemainder_name())
-					&& StringUtils.isNotBlank(invoice.getRemainder_name())) {
-				// remainder for paid invoice cannot be changed
-				throw new WebApplicationException(PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"), Constants.INVALID_INPUT_STATUS);
-			}
-			// remainder for paid invoice cannot be changed
-			if(dbInvoice.getSub_total()!=invoice.getSub_total()){
-				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.subtotal"), Constants.INVALID_INPUT_STATUS);
-			}
-			if(dbInvoice.getAmount_due()!=invoice.getAmount_due()){
-				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.due.amount"), Constants.INVALID_INPUT_STATUS);
-			}
-			if(dbInvoice.getDiscount()!=invoice.getDiscount()){
-				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.discount"), Constants.INVALID_INPUT_STATUS);
-			}
-			if(!dbInvoice.getDiscount_id().equals(invoice.getDiscount_id())){
-				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.discount.id"), Constants.INVALID_INPUT_STATUS);
-			}
-			if(dbInvoice.getLate_fee_amount()!=invoice.getLate_fee_amount()){
-				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.latefee.amount"), Constants.INVALID_INPUT_STATUS);
-			}
-			if(!dbInvoice.getLate_fee_id().equals(invoice.getLate_fee_id())){
-				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.latefee.id"), Constants.INVALID_INPUT_STATUS);
-			}
-			if(dbInvoice.getTax_amount()!=invoice.getTax_amount()){
-				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.tax.amount"), Constants.INVALID_INPUT_STATUS);
-			}
-		} catch (WebApplicationException e) {
-			LOGGER.error("error in validatePaidInvoiceEdit Invoice dbInvoice:"+dbInvoice+", Invoice invoice:"+invoice,e);
-			throw e;
-		} catch (Exception e) {
-			LOGGER.error("error in validatePaidInvoiceEdit Invoice dbInvoice:"+dbInvoice+", Invoice invoice:"+invoice,e);
-		} finally {
-			LOGGER.debug("exited in validatePaidInvoiceEdit Invoice dbInvoice:"+dbInvoice+", Invoice invoice:"+invoice);
+			LOGGER.debug("exited validateInvoiceEdit(Invoice dbInvoice:" + dbInvoice + ", Invoice invoiceObj:"
+					+ invoiceObj + ", String userID:" + userID + ", String companyID:" + companyID);
 		}
 	}
 
+	private static void validatePaidInvoiceEdit(Invoice dbInvoice, Invoice invoice) {
+		try {
+			LOGGER.debug("entered in validatePaidInvoiceEdit Invoice dbInvoice:" + dbInvoice + ", Invoice invoice:"
+					+ invoice);
+			if (StringUtils.isBlank(dbInvoice.getRemainder_name())
+					&& StringUtils.isNotBlank(invoice.getRemainder_name())) {
+				// remainder for paid invoice cannot be changed
+				throw new WebApplicationException(
+						PropertyManager.getProperty("invoice.cannot.create.remainder.for.paid"),
+						Constants.INVALID_INPUT_STATUS);
+			}
+			// remainder for paid invoice cannot be changed
+			if (dbInvoice.getSub_total() != invoice.getSub_total()) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.subtotal"),
+						Constants.INVALID_INPUT_STATUS);
+			}
+			if (dbInvoice.getAmount_due() != invoice.getAmount_due()) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.due.amount"),
+						Constants.INVALID_INPUT_STATUS);
+			}
+			if (dbInvoice.getDiscount() != invoice.getDiscount()) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.discount"),
+						Constants.INVALID_INPUT_STATUS);
+			}
+			if (!dbInvoice.getDiscount_id().equals(invoice.getDiscount_id())) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.discount.id"),
+						Constants.INVALID_INPUT_STATUS);
+			}
+			if (dbInvoice.getLate_fee_amount() != invoice.getLate_fee_amount()) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.latefee.amount"),
+						Constants.INVALID_INPUT_STATUS);
+			}
+			if (!dbInvoice.getLate_fee_id().equals(invoice.getLate_fee_id())) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.latefee.id"),
+						Constants.INVALID_INPUT_STATUS);
+			}
+			if (dbInvoice.getTax_amount() != invoice.getTax_amount()) {
+				throw new WebApplicationException(PropertyManager.getProperty("error.update.invoice.tax.amount"),
+						Constants.INVALID_INPUT_STATUS);
+			}
+		} catch (WebApplicationException e) {
+			LOGGER.error(
+					"error in validatePaidInvoiceEdit Invoice dbInvoice:" + dbInvoice + ", Invoice invoice:" + invoice,
+					e);
+			throw e;
+		} catch (Exception e) {
+			LOGGER.error(
+					"error in validatePaidInvoiceEdit Invoice dbInvoice:" + dbInvoice + ", Invoice invoice:" + invoice,
+					e);
+		} finally {
+			LOGGER.debug("exited in validatePaidInvoiceEdit Invoice dbInvoice:" + dbInvoice + ", Invoice invoice:"
+					+ invoice);
+		}
+	}
+
+	public static void main(String[] args) {
+		System.out.println(Utilities.getNumberAsCurrencyStr("USD", 123));
+	}
 }
