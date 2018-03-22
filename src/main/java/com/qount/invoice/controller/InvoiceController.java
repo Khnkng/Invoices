@@ -93,8 +93,8 @@ public class InvoiceController {
 	@ApiOperation(notes = "Used to retieve invoices of company", value = "retieves invoices", responseContainer = "java.lang.String")
 	public List<Invoice> getInvoices(@PathParam("userID") @NotNull String userID,
 			@PathParam("companyID") @NotNull String companyID, @QueryParam("state") String state,
-			@QueryParam("customerID") String customerID) {
-		return InvoiceControllerImpl.getInvoices(userID, companyID, state,customerID);
+			@QueryParam("customerid") String customerid) {
+		return InvoiceControllerImpl.getInvoices(userID, companyID, state,customerid);
 	}
 
 	@Path("/client/{clientID}")
