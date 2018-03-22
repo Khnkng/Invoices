@@ -1046,10 +1046,10 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public List<Invoice> getInvoiceListByCustomerID(String userID, String companyID, String customerID)
+	public List<Invoice> getInvoiceListByCustomerID(String userID, String companyID, String customerID,String state)
 			throws Exception {
 		LOGGER.debug(
-				"entered getInvoiceList userID:" + userID + " companyID:" + companyID + "customerID:" + customerID);
+				"entered getInvoiceListByCustomerID userID:" + userID + " companyID:" + companyID + "customerID:" + customerID);
 		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
 			throw new WebApplicationException("userID or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
 		}
@@ -1060,9 +1060,21 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			if (connection != null) {
-				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICES_LIST_BY_CUSTOMER);
-				pstmt.setString(1, companyID);
-				pstmt.setString(2, customerID);
+				
+				String query = null;
+				if (StringUtils.isNotBlank(state)) {
+					query = SqlQuerys.Invoice.GET_INVOICES_LIST_BY_CUSTOMER_2;
+					query += "invoice.`company_id`= '" + companyID + "' ";
+					query += "  AND invoice.`customer_id`= '" + customerID + "' ";
+					query += "  AND invoice.`state`='" + state + "'";
+					pstmt = connection.prepareStatement(query);
+				} else {
+					pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICES_LIST_BY_CUSTOMER);
+					pstmt.setString(1, companyID);
+					pstmt.setString(2, customerID);
+				}
+				
+				
 			}
 			rset = pstmt.executeQuery();
 			Calendar today = Calendar.getInstance();
@@ -1121,22 +1133,17 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				} else {
 					invoice = invoiceLst.get(index);
 				}
-				String journalID = rset.getString("journal_id");
-				if (StringUtils.isNoneBlank(journalID) && rset.getBoolean("isActive")
-						&& "invoice".equalsIgnoreCase(rset.getString("sourceType"))) {
-					invoice.setJournalID(journalID);
-				}
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("Error fetching invoices for user_id [ " + userID + " ]", e);
+			LOGGER.error("Error fetching invoices for customer_id [ " + customerID + " ]", e);
 			throw e;
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(connection);
 			LOGGER.debug(
-					"exited getInvoiceList userID:" + userID + " companyID:" + companyID + "customerID:" + customerID);
+					"exited getInvoiceListByCustomerID userID:" + userID + " companyID:" + companyID + "customerID:" + customerID);
 		}
 		return invoiceLst;
 
