@@ -713,7 +713,10 @@ public class InvoiceControllerImpl {
 		try {
 			LOGGER.debug("entered get invoices userID:" + userID + " companyID:" + companyID + " state:" + state);
 			if(StringUtils.isNotBlank(customerID)) {
-				invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByCustomerID(userID, companyID, customerID);
+				invoiceLst = MySQLManager.getInvoiceDAOInstance().getInvoiceListByCustomerID(userID, companyID, customerID,state);
+				if (invoiceLst == null) {
+					invoiceLst = new ArrayList<>();
+				}
 				return invoiceLst;
 			}
 			if (StringUtils.isAnyBlank(userID, companyID)) {
