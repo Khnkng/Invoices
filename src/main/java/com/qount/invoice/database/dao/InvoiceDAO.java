@@ -40,6 +40,8 @@ public interface InvoiceDAO {
 
 	public List<Invoice> getInvoiceList(String userID, String companyID, String state) throws Exception;;
 	
+	public List<Invoice> getInvoiceListByCustomerID(String userID, String companyID, String customerID) throws Exception;
+	
 	public List<Invoice> getInvoiceListByClientId(String userID, String companyID, String clientID) throws Exception;;
 
 	public Invoice delete(Invoice invoice) throws Exception;

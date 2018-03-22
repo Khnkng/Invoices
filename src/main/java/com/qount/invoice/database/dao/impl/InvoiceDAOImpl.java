@@ -104,7 +104,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getTerm());
 				pstmt.setLong(ctr++, new Date().getTime());
-				pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++,
+						invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
 				pstmt.setString(ctr++, invoice.getPayment_options());
@@ -123,7 +124,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getDiscount_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record inserted", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -185,7 +187,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setDouble(ctr++, invoice.getAmount_by_date());
 				pstmt.setDouble(ctr++, invoice.getAmount_paid());
 				pstmt.setString(ctr++, invoice.getTerm());
-				pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
+				pstmt.setString(ctr++,
+						invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
 				pstmt.setString(ctr++, invoice.getPlan_id());
 				pstmt.setBoolean(ctr++, invoice.is_recurring());
 				pstmt.setString(ctr++, invoice.getPayment_options());
@@ -200,7 +203,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -215,7 +219,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 	}
-	
+
 	@Override
 	public boolean batchupdate(Connection connection, List<Invoice> invoiceList) throws Exception {
 		LOGGER.debug("entered invoice batch update:" + invoiceList);
@@ -228,28 +232,29 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.Invoice.BATCH_UPDATE_QRY);
 				for (Invoice invoice : invoiceList) {
 					int ctr = 1;
-				pstmt.setString(ctr++, invoice.getState());
-				pstmt.setDouble(ctr++, invoice.getDiscount()); 
-				pstmt.setDouble(ctr++, invoice.getAmount_due());
-				pstmt.setDouble(ctr++, invoice.getAmount_paid());
-				pstmt.setString(ctr++, invoice.getId());
-				pstmt.addBatch();
+					pstmt.setString(ctr++, invoice.getState());
+					pstmt.setDouble(ctr++, invoice.getDiscount());
+					pstmt.setDouble(ctr++, invoice.getAmount_due());
+					pstmt.setDouble(ctr++, invoice.getAmount_paid());
+					pstmt.setString(ctr++, invoice.getId());
+					pstmt.addBatch();
 				}
 				pstmt.executeBatch();
 				return true;
 			}
-		}catch (Exception e) {
-			LOGGER.error("error in invoice batch update",e);
+		} catch (Exception e) {
+			LOGGER.error("error in invoice batch update", e);
 			throw e;
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 		}
 		return false;
 	}
-	
+
 	@Override
-	public boolean deleteRemainderJobId(Connection connection, String invoiceId, String remainderJobId) throws Exception {
-		LOGGER.debug("entered invoice deleteRemainderJobId:" + invoiceId +" remainderJobId:"+remainderJobId);
+	public boolean deleteRemainderJobId(Connection connection, String invoiceId, String remainderJobId)
+			throws Exception {
+		LOGGER.debug("entered invoice deleteRemainderJobId:" + invoiceId + " remainderJobId:" + remainderJobId);
 		if (StringUtils.isBlank(invoiceId)) {
 			return false;
 		}
@@ -263,15 +268,15 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount > 0) {
 					return true;
-				}else if (rowCount == 0) {
+				} else if (rowCount == 0) {
 					LOGGER.fatal("invoice remainder_job_id did not updated");
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("error invoice deleteRemainderJobId:" + invoiceId +" remainderJobId:"+remainderJobId, e);
+			LOGGER.error("error invoice deleteRemainderJobId:" + invoiceId + " remainderJobId:" + remainderJobId, e);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
-			LOGGER.debug("exited invoice deleteRemainderJobId:" + invoiceId +" remainderJobId:"+remainderJobId);
+			LOGGER.debug("exited invoice deleteRemainderJobId:" + invoiceId + " remainderJobId:" + remainderJobId);
 		}
 		return false;
 	}
@@ -322,7 +327,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -356,7 +362,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -388,7 +395,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(ctr++, invoice.getId());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record updated", Constants.DATABASE_ERROR_STATUS));
 				}
 			}
 		} catch (WebApplicationException e) {
@@ -472,7 +480,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 							Date due_date = formatter.parse(due_date_Str);
 							String state1 = rset.getString("state");
-							if (StringUtils.isNotEmpty(state1) && (state1.equals("partially_paid") || state1.equals("sent"))) {
+							if (StringUtils.isNotEmpty(state1)
+									&& (state1.equals("partially_paid") || state1.equals("sent"))) {
 								if (due_date != null && due_date.before(date)) {
 									invoice.setIs_past_due(true);
 								}
@@ -483,7 +492,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setIs_discount_applied(rset.getBoolean("is_discount_applied"));
 						invoice.setInvoice_date(rset.getString("invoice_date"));
 						invoice.setNotes(rset.getString("notes"));
-//						invoice.setDiscount(rset.getLong("discount"));
+						// invoice.setDiscount(rset.getLong("discount"));
 						invoice.setDiscount(rset.getDouble("discount"));
 						invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
 						invoice.setProcessing_fees(rset.getDouble("processing_fees"));
@@ -534,7 +543,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("il_id"));
 					String payment_date = rset.getString("payment_date");
-					invoice.setPayment_date(Utilities.getLatestDate(Constants.PAYMENT_DATE_FORMAT, payment_date, invoice.getPayment_date()));
+					invoice.setPayment_date(Utilities.getLatestDate(Constants.PAYMENT_DATE_FORMAT, payment_date,
+							invoice.getPayment_date()));
 					int invoiceLineIndex = invoice.getInvoiceLines().indexOf(invoiceLine);
 					if (invoiceLineIndex == -1) {
 						invoiceLine.setRank(rset.getInt("il_rank"));
@@ -567,14 +577,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						Dimension dimension = new Dimension();
 						dimension.setName(dimensionName);
 						int dimensionIndex = invoiceLine.getDimensions().indexOf(dimension);
-						if(dimensionIndex != -1){
+						if (dimensionIndex != -1) {
 							dimension = invoiceLine.getDimensions().get(dimensionIndex);
 						} else {
 							invoiceLine.getDimensions().add(dimension);
 						}
 						String dimensionValue = rset.getString("dimensionValue");
-						if(!dimension.getValues().contains(dimensionValue))
-						dimension.getValues().add(dimensionValue);
+						if (!dimension.getValues().contains(dimensionValue))
+							dimension.getValues().add(dimensionValue);
 					}
 				}
 			}
@@ -590,7 +600,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return invoice;
 
 	}
-	
+
 	@Override
 	public Invoice get(Connection connection, String invoiceID) throws Exception {
 		LOGGER.debug("entered get by invoice id:" + invoiceID);
@@ -657,7 +667,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 							DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 							Date due_date = formatter.parse(due_date_Str);
 							String state1 = rset.getString("state");
-							if (StringUtils.isNotEmpty(state1) && (state1.equals("partially_paid") || state1.equals("sent"))) {
+							if (StringUtils.isNotEmpty(state1)
+									&& (state1.equals("partially_paid") || state1.equals("sent"))) {
 								if (due_date != null && due_date.before(date)) {
 									invoice.setIs_past_due(true);
 								}
@@ -668,7 +679,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setIs_discount_applied(rset.getBoolean("is_discount_applied"));
 						invoice.setInvoice_date(rset.getString("invoice_date"));
 						invoice.setNotes(rset.getString("notes"));
-//						invoice.setDiscount(rset.getLong("discount"));
+						// invoice.setDiscount(rset.getLong("discount"));
 						invoice.setDiscount(rset.getDouble("discount"));
 						invoice.setDeposit_amount(rset.getDouble("deposit_amount"));
 						invoice.setProcessing_fees(rset.getDouble("processing_fees"));
@@ -719,7 +730,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					InvoiceLine invoiceLine = new InvoiceLine();
 					invoiceLine.setId(rset.getString("il_id"));
 					String payment_date = rset.getString("payment_date");
-					invoice.setPayment_date(Utilities.getLatestDate(Constants.PAYMENT_DATE_FORMAT, payment_date, invoice.getPayment_date()));
+					invoice.setPayment_date(Utilities.getLatestDate(Constants.PAYMENT_DATE_FORMAT, payment_date,
+							invoice.getPayment_date()));
 					int invoiceLineIndex = invoice.getInvoiceLines().indexOf(invoiceLine);
 					if (invoiceLineIndex == -1) {
 						invoiceLine.setRank(rset.getInt("il_rank"));
@@ -752,14 +764,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						Dimension dimension = new Dimension();
 						dimension.setName(dimensionName);
 						int dimensionIndex = invoiceLine.getDimensions().indexOf(dimension);
-						if(dimensionIndex != -1){
+						if (dimensionIndex != -1) {
 							dimension = invoiceLine.getDimensions().get(dimensionIndex);
 						} else {
 							invoiceLine.getDimensions().add(dimension);
 						}
 						String dimensionValue = rset.getString("dimensionValue");
-						if(!dimension.getValues().contains(dimensionValue))
-						dimension.getValues().add(dimensionValue);
+						if (!dimension.getValues().contains(dimensionValue))
+							dimension.getValues().add(dimensionValue);
 					}
 				}
 			}
@@ -774,7 +786,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		return invoice;
 
 	}
-	
+
 	@Override
 	public List<Invoice> getByInQuery(Set<String> invoiceIDs) throws Exception {
 		LOGGER.debug("entered get by invoice ids:" + invoiceIDs);
@@ -786,23 +798,25 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		try {
 			connection = DatabaseUtilities.getReadWriteConnection();
 			StringBuilder queryBuilder = new StringBuilder();
-				for (String invoiceId : invoiceIDs) {
-					queryBuilder.append("'").append(invoiceId).append("'").append(" ,");
-				}
-				queryBuilder.deleteCharAt(queryBuilder.length() - 1).append(")");
+			for (String invoiceId : invoiceIDs) {
+				queryBuilder.append("'").append(invoiceId).append("'").append(" ,");
+			}
+			queryBuilder.deleteCharAt(queryBuilder.length() - 1).append(")");
 			if (connection != null) {
-				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_BY_IN_QRY+queryBuilder);
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_BY_IN_QRY + queryBuilder);
 				rset = pstmt.executeQuery();
 				while (rset.next()) {
-						invoice = new Invoice();
-					    invoice.setId(rset.getString("id"));
-					    invoice.setAmount(rset.getDouble("amount"));
-						invoice.setState(rset.getString("state"));
-						invoice.setAmount_due(rset.getDouble("amount_due"));
-						invoice.setAmount_paid(rset.getDouble("amount_paid"));
-						invoice.setDiscount(rset.getDouble("discount"));
-				        invoiceList.add(invoice);
-		}} }catch (Exception e) {
+					invoice = new Invoice();
+					invoice.setId(rset.getString("id"));
+					invoice.setAmount(rset.getDouble("amount"));
+					invoice.setState(rset.getString("state"));
+					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setAmount_paid(rset.getDouble("amount_paid"));
+					invoice.setDiscount(rset.getDouble("discount"));
+					invoiceList.add(invoice);
+				}
+			}
+		} catch (Exception e) {
 			LOGGER.error("Error fetching invoice for invoiceIDs [ " + invoiceIDs + " ]", e);
 			throw e;
 		} finally {
@@ -856,7 +870,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId) throws Exception {
 		LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId);
 		if (StringUtils.isAnyBlank(invoiceNumber, companyId)) {
-			throw new WebApplicationException("invoiceNumber or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
+			throw new WebApplicationException("invoiceNumber or companyID cannot be empty",
+					Constants.INVALID_INPUT_STATUS);
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -885,10 +900,12 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId, String id) throws Exception {
+	public boolean invoiceExists(Connection connection, String invoiceNumber, String companyId, String id)
+			throws Exception {
 		LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id);
 		if (StringUtils.isAnyBlank(invoiceNumber, companyId, id)) {
-			throw new WebApplicationException("invoiceNumber or companyID od invoiceId cannot be empty", Constants.INVALID_INPUT_STATUS);
+			throw new WebApplicationException("invoiceNumber or companyID od invoiceId cannot be empty",
+					Constants.INVALID_INPUT_STATUS);
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -907,12 +924,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error executing invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id, e);
+			LOGGER.error("Error executing invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId
+					+ " id:" + id, e);
 			throw e;
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
-			LOGGER.debug("entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id);
+			LOGGER.debug(
+					"entered invoiceExists: invoiceNumber" + invoiceNumber + " companyID" + companyId + " id:" + id);
 		}
 		return false;
 	}
@@ -1027,6 +1046,103 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
+	public List<Invoice> getInvoiceListByCustomerID(String userID, String companyID, String customerID)
+			throws Exception {
+		LOGGER.debug(
+				"entered getInvoiceList userID:" + userID + " companyID:" + companyID + "customerID:" + customerID);
+		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
+			throw new WebApplicationException("userID or companyID cannot be empty", Constants.INVALID_INPUT_STATUS);
+		}
+		List<Invoice> invoiceLst = new ArrayList<>();
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Connection connection = null;
+		try {
+			connection = DatabaseUtilities.getReadWriteConnection();
+			if (connection != null) {
+				pstmt = connection.prepareStatement(SqlQuerys.Invoice.GET_INVOICES_LIST_BY_CUSTOMER);
+				pstmt.setString(1, companyID);
+				pstmt.setString(2, customerID);
+			}
+			rset = pstmt.executeQuery();
+			Calendar today = Calendar.getInstance();
+			Date date = today.getTime();
+			System.out.println(date);
+			while (rset.next()) {
+				Invoice invoice = new Invoice();
+				invoice.setId(rset.getString("id"));
+				int index = invoiceLst.indexOf(invoice);
+				if (index == -1) {
+					invoice.setNumber(rset.getString("number"));
+					invoice.setCustomer_id(rset.getString("customer_id"));
+					invoice.setId(rset.getString("id"));
+					invoice.setInvoice_date(rset.getString("invoice_date"));
+					invoice.setLate_fee_id(rset.getString("late_fee_id"));
+					invoice.setLate_fee_amount(rset.getDouble("late_fee_amount"));
+					invoice.setLate_fee_applied(rset.getBoolean("late_fee_applied"));
+					invoice.setDue_date(rset.getString("due_date"));
+					invoice.setAmount(rset.getDouble("amount"));
+					invoice.setCurrency(rset.getString("currency"));
+					invoice.setState(rset.getString("state"));
+					String due_date_Str = rset.getString("due_date");
+					if (due_date_Str != null) {
+						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+						Date due_date = formatter.parse(due_date_Str);
+						String state1 = rset.getString("state");
+						String email_state = rset.getString("email_state");
+						if (StringUtils.isNotEmpty(state1)) {
+							String calculatedState = "";
+							if ((state1.equals("partially_paid") || state1.equals("sent"))) {
+								if (due_date != null && due_date.before(date)) {
+									calculatedState = "past_due";
+								}
+								if (StringUtils.isBlank(calculatedState) && state1.equals("sent")) {
+									if (StringUtils.isNotBlank(email_state)) {
+										if (email_state.trim().equalsIgnoreCase(Constants.DELIVERED)) {
+											calculatedState = Constants.DELIVERED.toLowerCase();
+										} else if (email_state.trim().equalsIgnoreCase(Constants.OPEN)
+												|| email_state.trim().equalsIgnoreCase(Constants.CLICK)) {
+											calculatedState = Constants.OPEN.toLowerCase();
+										}
+									}
+								}
+								if (StringUtils.isNotBlank(calculatedState)) {
+									invoice.setState(calculatedState);
+								}
+							}
+						}
+					}
+					invoice.setAmount_due(rset.getDouble("amount_due"));
+					invoice.setCustomer_name(rset.getString("customer_name"));
+					invoice.setJob_date(rset.getString("job_date"));
+					invoice.setIs_discount_applied(rset.getBoolean("is_discount_applied"));
+					invoice.setDiscount_id(rset.getString("discount_id"));
+					invoiceLst.add(invoice);
+				} else {
+					invoice = invoiceLst.get(index);
+				}
+				String journalID = rset.getString("journal_id");
+				if (StringUtils.isNoneBlank(journalID) && rset.getBoolean("isActive")
+						&& "invoice".equalsIgnoreCase(rset.getString("sourceType"))) {
+					invoice.setJournalID(journalID);
+				}
+			}
+
+		} catch (Exception e) {
+			LOGGER.error("Error fetching invoices for user_id [ " + userID + " ]", e);
+			throw e;
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			DatabaseUtilities.closeConnection(connection);
+			LOGGER.debug(
+					"exited getInvoiceList userID:" + userID + " companyID:" + companyID + "customerID:" + customerID);
+		}
+		return invoiceLst;
+
+	}
+
+	@Override
 	public Invoice delete(Invoice invoice) throws Exception {
 		LOGGER.debug("entered invoice delete:" + invoice);
 		Connection connection = null;
@@ -1042,7 +1158,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(2, invoice.getCompany_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record deleted", Constants.DATABASE_ERROR_STATUS));
 				}
 				LOGGER.debug("no of invoice deleted:" + rowCount);
 			}
@@ -1059,7 +1176,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoice;
 	}
-	
+
 	@Override
 	public Invoice delete(Connection connection, Invoice invoice) throws Exception {
 		LOGGER.debug("entered invoice delete:" + invoice);
@@ -1074,7 +1191,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(2, invoice.getCompany_id());
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
-					throw new WebApplicationException(CommonUtils.constructResponse("no record deleted", Constants.DATABASE_ERROR_STATUS));
+					throw new WebApplicationException(
+							CommonUtils.constructResponse("no record deleted", Constants.DATABASE_ERROR_STATUS));
 				}
 				LOGGER.debug("no of invoice deleted:" + rowCount);
 			}
@@ -1189,17 +1307,21 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					if (invoiceLst.contains(invoice)) {
 						continue;
 					}
-					invoice.setInvoice_date(getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
-					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setInvoice_date(
+							getDateStringFromSQLDate(rset.getDate("invoice_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setDue_date(
+							getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setCurrency(rset.getString("currency"));
 					invoice.setState(rset.getString("state"));
 					invoice.setDisplayState(InvoiceParser.getDisplayState(rset.getString("state")));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
 					invoice.setAmount_paid(rset.getDouble("amount_paid"));
-					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setDue_date(
+							getDateStringFromSQLDate(rset.getDate("due_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					invoice.setIs_discount_applied(rset.getBoolean("is_discount_applied"));
-					invoice.setJob_date(getDateStringFromSQLDate(rset.getDate("job_date"), Constants.INVOICE_UI_DATE_FORMAT));
+					invoice.setJob_date(
+							getDateStringFromSQLDate(rset.getDate("job_date"), Constants.INVOICE_UI_DATE_FORMAT));
 					invoice.setDiscount_id(rset.getString("discount_id"));
 
 					invoiceLst.add(invoice);
@@ -1316,7 +1438,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					pstmt.setDouble(ctr++, invoice.getAmount_paid());
 					pstmt.setString(ctr++, invoice.getTerm());
 					pstmt.setLong(ctr++, new Date().getTime());
-					pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null : invoice.getRecepientsMailsArr().toString());
+					pstmt.setString(ctr++, invoice.getRecepientsMailsArr() == null ? null
+							: invoice.getRecepientsMailsArr().toString());
 					pstmt.setString(ctr++, invoice.getPlan_id());
 					pstmt.setBoolean(ctr++, invoice.is_recurring());
 					pstmt.setString(ctr++, invoice.getPayment_options());
@@ -1432,7 +1555,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 
 	}
-	
+
 	@Override
 	public List<String> getInvoiceJobsList(Connection connection, String invoiceIds) throws Exception {
 		LOGGER.debug("entered getInvoiceJobsList invoiceIds:" + invoiceIds);
@@ -1507,7 +1630,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 	@Override
 	public List<Invoice> retrieveInvoicesByCurrentStateAndCompany(String companyId, String query) {
-		LOGGER.debug("entered retrieveInvoicesByCurrentStateAndCompany companyId: [ " + companyId + " ] query [" + query + " ]");
+		LOGGER.debug("entered retrieveInvoicesByCurrentStateAndCompany companyId: [ " + companyId + " ] query [" + query
+				+ " ]");
 		List<Invoice> result = new ArrayList<Invoice>();
 		if (StringUtils.isBlank(companyId) && StringUtils.isBlank(query)) {
 			return result;
@@ -1551,14 +1675,16 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			DatabaseUtilities.closeConnection(conn);
 			LOGGER.debug("execution time of InvoiceDAOImpl.retrieveInvoicesByCurrentStateAndCompany = "
 					+ (System.currentTimeMillis() - startTime) + " in mili seconds with query:" + testquery);
-			LOGGER.debug("exited retrieveInvoicesByCurrentStateAndCompany companyId: [ " + companyId + " ] query [" + query + " ]");
+			LOGGER.debug("exited retrieveInvoicesByCurrentStateAndCompany companyId: [ " + companyId + " ] query ["
+					+ query + " ]");
 		}
 		return result;
 	}
 
 	@Override
 	public List<Invoice> retrieveInvoicesPaidInLast30Days(String companyId, String query) {
-		LOGGER.debug("entered retrieveInvoicesPaidInLast30Days companyId: [ " + companyId + " ] query [" + query + " ]");
+		LOGGER.debug(
+				"entered retrieveInvoicesPaidInLast30Days companyId: [ " + companyId + " ] query [" + query + " ]");
 		List<Invoice> result = new ArrayList<Invoice>();
 		if (StringUtils.isBlank(companyId) && StringUtils.isBlank(query)) {
 			return result;
@@ -1601,15 +1727,17 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(conn);
-			LOGGER.debug("execution time of InvoiceDAOImpl.retrieveInvoicesPaidInLast30Days = " + (System.currentTimeMillis() - startTime)
-					+ " in mili seconds with query:" + testquery);
-			LOGGER.debug("exited retrieveInvoicesPaidInLast30Days companyId: [ " + companyId + " ] query [" + query + " ]");
+			LOGGER.debug("execution time of InvoiceDAOImpl.retrieveInvoicesPaidInLast30Days = "
+					+ (System.currentTimeMillis() - startTime) + " in mili seconds with query:" + testquery);
+			LOGGER.debug(
+					"exited retrieveInvoicesPaidInLast30Days companyId: [ " + companyId + " ] query [" + query + " ]");
 		}
 		return result;
 	}
 
 	@Override
-	public InvoiceCommission updateInvoiceCommissionBillState(Connection connection, InvoiceCommission invoiceCommission) throws Exception {
+	public InvoiceCommission updateInvoiceCommissionBillState(Connection connection,
+			InvoiceCommission invoiceCommission) throws Exception {
 		LOGGER.debug("entered updateInvoiceCommissionBillState(invoiceCommissionLst):" + invoiceCommission);
 		if (invoiceCommission == null) {
 			return null;
@@ -1628,7 +1756,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				if (rowCount > 0) {
 					return invoiceCommission;
 				} else {
-					throw new WebApplicationException("invoice comiission lines are not inserted invoiceCommission:" + invoiceCommission,
+					throw new WebApplicationException(
+							"invoice comiission lines are not inserted invoiceCommission:" + invoiceCommission,
 							Constants.DATABASE_ERROR_STATUS);
 				}
 			}
@@ -1646,7 +1775,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public InvoiceCommission createInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) throws Exception {
+	public InvoiceCommission createInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission)
+			throws Exception {
 		LOGGER.debug("entered createInvoiceCommission(invoiceCommission):" + invoiceCommission);
 		if (invoiceCommission == null) {
 			return null;
@@ -1657,8 +1787,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoiceCommission.INSERT_QRY);
 				int ctr = 1;
 				pstmt.setString(ctr++, invoiceCommission.getEvent_date());
-				pstmt.setString(ctr++,
-						StringUtils.isBlank(invoiceCommission.getId()) ? UUID.randomUUID().toString() : invoiceCommission.getId());
+				pstmt.setString(ctr++, StringUtils.isBlank(invoiceCommission.getId()) ? UUID.randomUUID().toString()
+						: invoiceCommission.getId());
 				pstmt.setString(ctr++, invoiceCommission.getInvoice_id());
 				pstmt.setDouble(ctr++, invoiceCommission.getInvoice_amount());
 				pstmt.setString(ctr++, invoiceCommission.getEvent_type());
@@ -1700,13 +1830,15 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public InvoiceCommission deleteInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission) throws Exception {
+	public InvoiceCommission deleteInvoiceCommission(Connection connection, InvoiceCommission invoiceCommission)
+			throws Exception {
 		LOGGER.debug("entered deleteInvoiceCommission:" + invoiceCommission);
 		if (invoiceCommission == null) {
 			return null;
 		}
 		if (StringUtils.isEmpty(invoiceCommission.getInvoice_id())) {
-			throw new WebApplicationException("invoice id cannot be null to delete invoice commission", Constants.INVALID_INPUT);
+			throw new WebApplicationException("invoice id cannot be null to delete invoice commission",
+					Constants.INVALID_INPUT);
 		}
 		PreparedStatement pstmt = null;
 		try {
@@ -1716,7 +1848,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				int rowCount = pstmt.executeUpdate();
 				if (rowCount == 0) {
 					LOGGER.warn("invoiceCommission record not deleted");
-					throw new WebApplicationException("invoiceCommission record not deleted", Constants.DATABASE_ERROR_STATUS);
+					throw new WebApplicationException("invoiceCommission record not deleted",
+							Constants.DATABASE_ERROR_STATUS);
 				}
 				LOGGER.debug("no of invoiceCommissions deleted:" + rowCount);
 			}
@@ -1828,7 +1961,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 	@Override
 	public List<Invoice> getUnmappedInvoiceList(String companyId, String customerID) {
-		LOGGER.debug("retrieves unmapped invoices companyId: [ " + companyId + " ] and customerID [" + customerID + "] ");
+		LOGGER.debug(
+				"retrieves unmapped invoices companyId: [ " + companyId + " ] and customerID [" + customerID + "] ");
 		List<Invoice> result = new ArrayList<Invoice>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -1847,7 +1981,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						invoice.setId(rset.getString("id"));
 						invoice.setNumber(rset.getString("number"));
 						invoice.setCustomer_id(rset.getString("customerID"));
-						invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.COMMISSION_BILLS_UI_DATE_FORMAT));
+						invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"),
+								Constants.COMMISSION_BILLS_UI_DATE_FORMAT));
 						invoice.setAmount(rset.getDouble("amount"));
 						invoice.setState(rset.getString("state"));
 						invoice.setAmount_due(rset.getDouble("amount_due"));
@@ -1870,7 +2005,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 
 	@Override
 	public List<Invoice> getMappedUnmappedInvoiceList(String companyId, String customerID, String billID) {
-		LOGGER.debug("retrieves mapped and unmapped invoices companyId: [ " + companyId + " ] and customerID [" + customerID + "] ");
+		LOGGER.debug("retrieves mapped and unmapped invoices companyId: [ " + companyId + " ] and customerID ["
+				+ customerID + "] ");
 		List<Invoice> result = new ArrayList<Invoice>();
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -1887,7 +2023,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					invoice.setId(rset.getString("id"));
 					invoice.setNumber(rset.getString("number"));
 					invoice.setCustomer_id(rset.getString("customerID"));
-					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"), Constants.COMMISSION_BILLS_UI_DATE_FORMAT));
+					invoice.setDue_date(getDateStringFromSQLDate(rset.getDate("due_date"),
+							Constants.COMMISSION_BILLS_UI_DATE_FORMAT));
 					invoice.setAmount(rset.getDouble("amount"));
 					invoice.setState(rset.getString("state"));
 					invoice.setAmount_due(rset.getDouble("amount_due"));
@@ -1911,7 +2048,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error retrieving mapped and unmapped invoices", e);
-			throw new WebApplicationException("unable to get mapped and unmapped invoice", Constants.DATABASE_ERROR_STATUS);
+			throw new WebApplicationException("unable to get mapped and unmapped invoice",
+					Constants.DATABASE_ERROR_STATUS);
 		} finally {
 			DatabaseUtilities.closeStatement(pstmt);
 			DatabaseUtilities.closeConnection(conn);
@@ -1920,8 +2058,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 	}
 
 	@Override
-	public JSONArray getInvoiceListByFilter(Connection connection, String userID, String companyID, String query, String asOfDate)
-			throws Exception {
+	public JSONArray getInvoiceListByFilter(Connection connection, String userID, String companyID, String query,
+			String asOfDate) throws Exception {
 
 		LOGGER.debug("InvoiceDAOImpl : entered getInvoiceList userID:" + userID + " companyID:" + companyID);
 		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(companyID)) {
@@ -2001,8 +2139,8 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 						JSONObject invoiceObject = new JSONObject(invoice);
 						invoiceObject.put("companyName", rset.getString("company_name"));
 						invoiceObject.put("customerName", rset.getString("customer_name"));
-						invoiceObject.put("aging", DateUtils.getDatesDifference(rset.getString("due_date"), Constants.DUE_DATE_FORMAT,
-								asOfDate, Constants.SIMPLE_DATE_FORMAT));
+						invoiceObject.put("aging", DateUtils.getDatesDifference(rset.getString("due_date"),
+								Constants.DUE_DATE_FORMAT, asOfDate, Constants.SIMPLE_DATE_FORMAT));
 						if (StringUtils.isBlank(companyCurrency) && rset2.next()) {
 							companyCurrency = rset2.getString("currency");
 							invoiceObject.put("companyCurrency", companyCurrency);
@@ -2013,7 +2151,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 					}
 
 				}
-				for(Invoice invoice : invoicesMap.values()){
+				for (Invoice invoice : invoicesMap.values()) {
 					JSONObject invoiceObject = new JSONObject(invoice);
 					invoices.put(invoiceObject);
 				}
@@ -2023,14 +2161,14 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 			LOGGER.error("Error executing aging report query [ " + query + " ]", e);
 		} finally {
 			// DatabaseUtilities.closeResources(rset, stmt, connection);
-			LOGGER.debug("execution time of InvoiceDAOImpl.getInvoiceListByFilter = " + (System.currentTimeMillis() - startTime)
-					+ " in mili seconds with query:" + testquery);
-			System.out.println(
-					"execution time of InvoiceDAOImpl.getInvoiceListByFilter : " + (System.currentTimeMillis() - startTime) + testquery);
+			LOGGER.debug("execution time of InvoiceDAOImpl.getInvoiceListByFilter = "
+					+ (System.currentTimeMillis() - startTime) + " in mili seconds with query:" + testquery);
+			System.out.println("execution time of InvoiceDAOImpl.getInvoiceListByFilter : "
+					+ (System.currentTimeMillis() - startTime) + testquery);
 		}
 		return invoices;
 	}
-	
+
 	@Override
 	public int getUnappliedPaymentsCount(String userID, String companyID) throws Exception {
 		LOGGER.debug("entered get count of Unapplied Payments: userID" + userID + " companyID" + companyID);
@@ -2049,7 +2187,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 				pstmt.setString(2, companyID);
 				rset = pstmt.executeQuery();
 				if (rset != null && rset.next()) {
-					unappliedCount= rset.getInt("unapplied_count");
+					unappliedCount = rset.getInt("unapplied_count");
 				}
 			}
 		} catch (Exception e) {
