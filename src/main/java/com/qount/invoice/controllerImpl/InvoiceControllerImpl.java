@@ -671,7 +671,7 @@ public class InvoiceControllerImpl {
 				String description = "Amount: "
 						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount())
 						+ ",Amount Due: "
-						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount_due())
+						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount_due()-invoice.getAmount())
 						+ ",Amount Paid: "
 						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), invoice.getAmount()+dbInvoice.getAmount_paid())
 						+ ",Ref Num: " + payment.getReferenceNo() + ",State: "
