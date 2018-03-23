@@ -674,7 +674,7 @@ public class InvoiceControllerImpl {
 						+ ",Amount Due: "
 						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount_due())
 						+ ",Amount Paid: "
-						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount_paid())
+						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), invoice.getAmount()+dbInvoice.getAmount_paid())
 						+ ",Ref Num: " + payment.getReferenceNo() + ",State: "
 						+ InvoiceParser.getDisplayState(dbInvoice.getState());
 				InvoiceHistory history = InvoiceHistoryHelper.getInvoiceHistory(dbInvoice, description,
