@@ -667,6 +667,7 @@ public class InvoiceControllerImpl {
 				Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
 			}
 			if (MySQLManager.getPaymentDAOInstance().save(payment, connection, false) != null) {
+				dbInvoice = getInvoice(dbInvoice.getId());
 				// creating invoice history
 				String description = "Amount: "
 						+ Utilities.getNumberAsCurrencyStr(dbInvoice.getCurrency(), dbInvoice.getAmount())
