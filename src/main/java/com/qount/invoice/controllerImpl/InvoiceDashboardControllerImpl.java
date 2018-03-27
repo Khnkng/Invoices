@@ -44,9 +44,9 @@ public class InvoiceDashboardControllerImpl {
 			} else if (filter.equals("past_due")) {
 				query = SqlQuerys.Invoice.RETRIEVE_INVOICES_FOR_DASHBOARD_PAST_DUE_QRY;
 			} else if (filter.equals("opened")) {
-				query = SqlQuerys.Invoice.RETRIEVE_INVOICES_FOR_DASHBOARD_OPENED_QRY;
+				query = SqlQuerys.Invoice.GET_OPENED_BUT_NOT_PAID;
 			} else if (filter.equals("sent")) {
-				query = SqlQuerys.Invoice.RETRIEVE_INVOICES_FOR_DASHBOARD_SENT_QRY;
+				query = SqlQuerys.Invoice.GET_SENT_BUT_NOT_OPENED;
 			} else if (filter.equals("recvdin30days")) {
 				query = SqlQuerys.Invoice.RETRIEVE_INVOICES_PAID_IN_LAST_30_DAYS;
 			}

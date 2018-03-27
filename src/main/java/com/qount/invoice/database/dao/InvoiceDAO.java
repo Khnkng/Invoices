@@ -96,4 +96,5 @@ public interface InvoiceDAO {
 	public boolean batchupdate(Connection connection, List<Invoice> invoiceList) throws Exception;
 
 	public List<Invoice> getByInQuery(Set<String> invoiceIDs) throws Exception;
+	
 }

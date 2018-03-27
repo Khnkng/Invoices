@@ -1403,7 +1403,7 @@ public class InvoiceDAOImpl implements InvoiceDAO {
 		}
 		return invoiceMetrics;
 	}
-
+	
 	@Override
 	public List<Invoice> saveInvoice(Connection connection, List<Invoice> invoiceList) throws Exception {
 		LOGGER.debug("entered saveInvoice:" + invoiceList);
