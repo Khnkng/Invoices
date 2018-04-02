@@ -1,5 +1,7 @@
 package com.qount.invoice.model;
 
+import java.util.Map;
+
 public class Notification {
 	
 	private String id;
@@ -19,6 +21,8 @@ public class Notification {
 	private String modifiedTime;
 	
 	private String entityName;
+	
+	private Map<String, String> notificationParameters;
 	
 	
 	public String getId() {
@@ -91,6 +95,14 @@ public class Notification {
 
 	public void setEntityName(String entityName) {
 		this.entityName = entityName;
+	}
+
+	public Map<String, String> getNotificationParameters() {
+		return notificationParameters;
+	}
+
+	public void setNotificationParameters(Map<String, String> notificationParameters) {
+		this.notificationParameters = notificationParameters;
 	}
 
 }

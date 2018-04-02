@@ -25,6 +25,7 @@ import com.qount.invoice.model.InvoiceHistory;
 import com.qount.invoice.model.Payment;
 import com.qount.invoice.model.PaymentLine;
 import com.qount.invoice.parser.InvoiceParser;
+import com.qount.invoice.service.NotificationService;
 import com.qount.invoice.utils.CommonUtils;
 import com.qount.invoice.utils.Constants;
 import com.qount.invoice.utils.DatabaseUtilities;
@@ -244,6 +245,7 @@ public class InvoiceDetailControllerImpl {
 				CommonUtils.createJournal(
 						new JSONObject().put("source", "invoicePayment").put("sourceID", payment.getId()).toString(),
 						invoice.getCompany_id());
+				NotificationService.notifyOnInvoicePayment(companyID, invoiceID, invoice.getNumber(), invoice.getCustomer().getCustomer_name(), convertionValue);
 				return true;
 			} else {
 				LOGGER.fatal("payment done but not saved in qount db");
