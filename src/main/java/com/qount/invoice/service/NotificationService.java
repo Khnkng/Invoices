@@ -13,7 +13,7 @@ public class NotificationService {
 
 	private static final Logger LOGGER = Logger.getLogger(NotificationService.class);
 
-	public static void notifyOnInvoicePayment(String companyId, String invoiceId, String entityId, String entityName, Float amount) {
+	public static void notifyOnInvoicePayment(String companyId, String invoiceId, String entityId, String entityName, Double amount) {
 		try {
 			LOGGER.debug("Writing comment to que for notification");
 			String mode = System.getenv("SERVER_INSTANCE_MODE");
