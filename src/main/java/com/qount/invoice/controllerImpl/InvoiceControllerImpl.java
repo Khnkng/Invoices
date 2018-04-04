@@ -351,15 +351,18 @@ public class InvoiceControllerImpl {
 				createNewRemainder = true;
 				deleteOldRemainder = true;
 			}
+			if(StringUtils.isNotBlank(dbInvoice.getRemainder_name()) && StringUtils.isBlank(invoice.getRemainder_name())) {
+				deleteOldRemainder = true;
+			}
 			String jobId = null;
-			if (createNewRemainder) {
-				if (deleteOldRemainder) {
-					String result = Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
-					if (StringUtils.isNotBlank(result) && !result.trim().equalsIgnoreCase("true")) {
-						throw new WebApplicationException(PropertyManager.getProperty("error.deleting.invoice.job.id"),
-								Constants.EXPECTATION_FAILED);
-					}
+			if (deleteOldRemainder) {
+				String result = Utilities.unschduleInvoiceJob(dbInvoice.getRemainder_job_id());
+				if (StringUtils.isNotBlank(result) && !result.trim().equalsIgnoreCase("true")) {
+					throw new WebApplicationException(PropertyManager.getProperty("error.deleting.invoice.job.id"),
+							Constants.EXPECTATION_FAILED);
 				}
+			}
+			if (createNewRemainder) {
 				jobId = getJobId(connection, invoice);
 				if (StringUtils.isNotBlank(jobId)
 						&& !dbInvoice.getState().equals(Constants.INVOICE_STATE_PARTIALLY_PAID)) {
