@@ -272,7 +272,9 @@ public class InvoiceControllerImpl {
 				JSONArray attachments = new JSONArray();
 				JSONObject attahcment = new JSONObject();
 				attahcment.put("type", Constants.APPLICATION_PDF);
-				attahcment.put("filename", invoice.getNumber()+"_"+invoice.getInvoice_date()+"_"+invoice.getCompanyName());
+				String invoiceDate = InvoiceParser.convertTimeStampToString(invoice.getInvoice_date(),
+						Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				attahcment.put("filename", invoice.getNumber()+"_"+invoiceDate+"_"+invoice.getCompanyName());
 				attahcment.put("content", invoice.getAttachmentBase64());
 				attachments.put(attahcment);
 				remainderJsonObject.put("attachments", attachments);
@@ -1120,7 +1122,9 @@ public class InvoiceControllerImpl {
 				JSONArray attachments = new JSONArray();
 				JSONObject attahcment = new JSONObject();
 				attahcment.put("type", Constants.APPLICATION_PDF);
-				attahcment.put("filename", invoice.getNumber()+"_"+invoice.getInvoice_date()+"_"+invoice.getCompanyName());
+				String invoiceDate = InvoiceParser.convertTimeStampToString(invoice.getInvoice_date(),
+						Constants.TIME_STATMP_TO_BILLS_FORMAT, Constants.TIME_STATMP_TO_INVOICE_FORMAT);
+				attahcment.put("filename", invoice.getNumber()+"_"+invoiceDate+"_"+invoice.getCompanyName());
 				attahcment.put("content", invoice.getAttachmentBase64());
 				attachments.put(attahcment);
 				result.put("attachments", attachments);
