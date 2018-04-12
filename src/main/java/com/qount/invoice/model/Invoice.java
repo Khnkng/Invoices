@@ -112,7 +112,25 @@ public class Invoice {
 	private String company_contact_first_name;
 	private String company_contact_last_name;
 	private String company_email_id;
+	private String reply_to_email;
+	private String reply_to_name;
 	
+	public String getReply_to_email() {
+		return reply_to_email;
+	}
+
+	public void setReply_to_email(String reply_to_email) {
+		this.reply_to_email = reply_to_email;
+	}
+
+	public String getReply_to_name() {
+		return reply_to_name;
+	}
+
+	public void setReply_to_name(String reply_to_name) {
+		this.reply_to_name = reply_to_name;
+	}
+
 	public String getCompany_contact_first_name() {
 		return company_contact_first_name;
 	}
