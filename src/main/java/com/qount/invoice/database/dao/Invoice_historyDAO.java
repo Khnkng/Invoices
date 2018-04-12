@@ -26,4 +26,6 @@ public interface Invoice_historyDAO {
 	List<InvoiceHistory> getAllByInvoiceId(Connection conn, InvoiceHistory input);
 	
 	String getByInvoiceidAndAction(Connection conn, String invoiceId, String action);
+	
+	boolean isDuplicateEvent(Connection conn,InvoiceHistory invoice_history);
 }

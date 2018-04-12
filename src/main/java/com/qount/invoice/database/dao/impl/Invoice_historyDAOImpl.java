@@ -147,6 +147,41 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 		LOGGER.debug("exited getByInvoiceidAndState:" + invoiceId +" state:"+action);
 		return null;
 	}
+	
+	
+	@Override
+	public boolean isDuplicateEvent(Connection conn,InvoiceHistory invoice_history) {
+		LOGGER.debug("entered isDuplicateEvent invoice_history: " + invoice_history);
+		if (invoice_history==null || StringUtils.isAnyBlank(invoice_history.getInvoice_id(),invoice_history.getAction(),invoice_history.getEmail_to())) {
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		try {
+			if (conn != null) {
+				pstmt = conn.prepareStatement(SqlQuerys.Invoice_history.DUPLICATE_QOUNT_QRY);
+				pstmt.setString(1, invoice_history.getInvoice_id());
+				pstmt.setString(2, invoice_history.getAction());
+				pstmt.setString(3, invoice_history.getEmail_to());
+				rset = pstmt.executeQuery();
+				if (rset.next()) {
+					int count = rset.getInt("count");
+					LOGGER.debug("count:"+count);
+					return count<=0;
+				}else{
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("error in isDuplicateEvent invoice_history: " + invoice_history, e);
+			throw new WebApplicationException(e.getMessage(), Constants.EXPECTATION_FAILED);
+		} finally {
+			DatabaseUtilities.closeResultSet(rset);
+			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("exited isDuplicateEvent invoice_history: " + invoice_history);
+		}
+		return false;
+	}
 
 	@Override
 	public List<InvoiceHistory> getAll(Connection conn, InvoiceHistory input) {
