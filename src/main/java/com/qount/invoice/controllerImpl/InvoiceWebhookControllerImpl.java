@@ -79,6 +79,10 @@ public class InvoiceWebhookControllerImpl {
 			InvoiceHistory invoice_history = InvoiceParser.getInvoice_history(dbInvoice, UUID.randomUUID().toString(), dbInvoice.getUser_id(), dbInvoice.getCompany_id(),inputEmailState,email, description);
 			invoice_history.setWebhook_event_id(webhook_event_id);
 			connection = DatabaseUtilities.getReadWriteConnection();
+			if(MySQLManager.getInvoice_historyDAO().isDuplicateEvent(connection, invoice_history)) {
+				LOGGER.warn("duplicate event received obj :"+obj);
+				return ;
+			}
 			MySQLManager.getInvoice_historyDAO().create(connection, invoice_history);
 			String invoiceEmailState = getInvoiceMailState(inputEmailState, dbInvoice.getEmail_state());
 			if(StringUtils.isNotEmpty(invoiceEmailState) && !invoiceEmailState.equalsIgnoreCase(dbInvoice.getEmail_state())){
