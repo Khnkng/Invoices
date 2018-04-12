@@ -80,7 +80,7 @@ public class InvoiceControllerImpl {
 				throw new WebApplicationException(PropertyManager.getProperty("invoice.number.exists"), 412);
 			}
 
-			if (!"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
+			if (StringUtils.isNotBlank(invoice.getRecurringFrequency()) && !"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
 				BeanUtils.copyProperties(invoiceRecurring, invoice);
 			}
 
@@ -167,7 +167,7 @@ public class InvoiceControllerImpl {
 					CommonUtils.createJournal(
 							new JSONObject().put("source", "invoice").put("sourceID", invoice.getId()).toString(),
 							userID, companyID);
-				if (!"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
+				if (StringUtils.isNotBlank(invoice.getRecurringFrequency()) && !"onlyonce".equalsIgnoreCase(invoice.getRecurringFrequency())) {
 					new Thread(() -> {
 						createRecurringInvoice(invoiceRecurring, userID);
 					}).start();

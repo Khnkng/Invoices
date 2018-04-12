@@ -112,7 +112,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 
 	@Override
 	public InvoicePreference getInvoiceByCompanyId(Connection connection, InvoicePreference invoicePreference) {
-		LOGGER.debug("entered getInvoiceByCompanyId:" + invoicePreference);
+		LOGGER.debug("retriving invoice preference entered getInvoiceByCompanyId:" + invoicePreference);
 		InvoicePreference result = null;
 		if (invoicePreference == null) {
 			return result;
@@ -159,7 +159,7 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
 		}
-		LOGGER.debug("exited getInvoiceByCompanyId:" + invoicePreference);
+		LOGGER.debug("retriving invoice preference exited getInvoiceByCompanyId:" + invoicePreference);
 		return result;
 	}
 
