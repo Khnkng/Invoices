@@ -153,7 +153,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 	public boolean isDuplicateEvent(Connection conn,InvoiceHistory invoice_history) {
 		LOGGER.debug("entered isDuplicateEvent invoice_history: " + invoice_history);
 		if (invoice_history==null || StringUtils.isAnyBlank(invoice_history.getInvoice_id(),invoice_history.getAction(),invoice_history.getEmail_to())) {
-			return false;
+			return true;
 		}
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
@@ -167,9 +167,9 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 				if (rset.next()) {
 					int count = rset.getInt("count");
 					LOGGER.debug("count:"+count);
-					return count<=0;
+					return count>0;
 				}else{
-					return false;
+					return true;
 				}
 			}
 		} catch (Exception e) {
@@ -180,7 +180,7 @@ public class Invoice_historyDAOImpl implements Invoice_historyDAO {
 			DatabaseUtilities.closeStatement(pstmt);
 			LOGGER.debug("exited isDuplicateEvent invoice_history: " + invoice_history);
 		}
-		return false;
+		return true;
 	}
 
 	@Override
