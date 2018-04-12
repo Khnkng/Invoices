@@ -230,6 +230,15 @@ public class InvoiceControllerImpl {
 			custom_args.put("id", invoice.getId());
 			String from = Constants.QOUNT;
 			String aliasName = invoice.getCompanyName();
+			String replyToName = null;
+			String firstName = invoice.getCompany_contact_first_name();
+			if (StringUtils.isNotBlank(firstName)) {
+				String lastName = invoice.getCompany_contact_last_name();
+				replyToName = firstName;
+				if (StringUtils.isNotBlank(lastName)) {
+					replyToName += " " + lastName;
+				}
+			}
 			if (StringUtils.isNotBlank(aliasName)) {
 				from = aliasName + Constants.VIA_QOUNT;
 			}
@@ -282,8 +291,8 @@ public class InvoiceControllerImpl {
 			}
 			if (StringUtils.isNotBlank(invoice.getCompany_email_id())) {
 				remainderJsonObject.put("reply_to_email", invoice.getCompany_email_id());
-				if (StringUtils.isNotBlank(aliasName)) {
-					remainderJsonObject.put("reply_to_name", aliasName);
+				if (StringUtils.isNotBlank(replyToName)) {
+					remainderJsonObject.put("reply_to_name", replyToName);
 				}
 			}
 			LOGGER.debug("remainderJsonObject::" + remainderJsonObject);
@@ -1082,6 +1091,15 @@ public class InvoiceControllerImpl {
 			fromObj.put("email", Constants.FROM);
 			String from = Constants.QOUNT;
 			String aliasName = invoice.getCompanyName();
+			String replyToName = null;
+			String firstName = invoice.getCompany_contact_first_name();
+			if (StringUtils.isNotBlank(firstName)) {
+				String lastName = invoice.getCompany_contact_last_name();
+				replyToName = firstName;
+				if (StringUtils.isNotBlank(lastName)) {
+					replyToName += " " + lastName;
+				}
+			}
 			if (StringUtils.isNotBlank(aliasName)) {
 				from = aliasName + Constants.VIA_QOUNT;
 			}
@@ -1125,8 +1143,8 @@ public class InvoiceControllerImpl {
 			if (StringUtils.isNotBlank(invoice.getCompany_email_id())) {
 				JSONObject reply_to = new JSONObject();
 				reply_to.put("email", invoice.getCompany_email_id());
-				if (StringUtils.isNotBlank(aliasName)) {
-					reply_to.put("name", aliasName);
+				if (StringUtils.isNotBlank(replyToName)) {
+					reply_to.put("name", replyToName);
 				}
 				result.put("reply_to", reply_to);
 			}
