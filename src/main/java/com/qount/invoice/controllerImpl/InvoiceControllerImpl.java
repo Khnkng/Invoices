@@ -1159,19 +1159,12 @@ public class InvoiceControllerImpl {
 			replyToEmail = StringUtils.isNotBlank(invoice.getReply_to_email())?invoice.getReply_to_email():replyToEmail;
 			replyToName = StringUtils.isNotBlank(invoice.getReply_to_name())?invoice.getReply_to_name():replyToName;
 			if(StringUtils.isNotBlank(replyToEmail)) {
-				if(replyToEmail.indexOf(",")==-1) {
-					JSONObject reply_to = new JSONObject();
-					reply_to.put("email", replyToEmail);
-					if (StringUtils.isNotBlank(replyToName)) {
-						reply_to.put("name", replyToName);
-					}
-					result.put("reply_to", reply_to);
-				}else {
-					String[] replyToEmailArr = replyToEmail.split(",");
-					for(String replyToMail : replyToEmailArr) {
-						
-					}
+				JSONObject reply_to = new JSONObject();
+				reply_to.put("email", replyToEmail);
+				if (StringUtils.isNotBlank(replyToName)) {
+					reply_to.put("name", replyToName);
 				}
+				result.put("reply_to", reply_to);
 			}
 			return result;
 		} catch (WebApplicationException e) {
