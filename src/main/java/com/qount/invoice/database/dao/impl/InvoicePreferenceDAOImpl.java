@@ -124,9 +124,13 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.GET_QRY);
 				pstmt.setString(rowCtr++, invoicePreference.getCompanyId());
+				LOGGER.debug("executing query");
+				LOGGER.debug("pstmt:"+pstmt);
 				rset = pstmt.executeQuery();
 				// only 1 record because every company can have only one invoice setting at a time
+				LOGGER.debug("query executed:"+pstmt);
 				if (rset != null && rset.next()) {
+					LOGGER.debug("retriving result:"+pstmt);
 					invoicePreference.setReply_to_email(rset.getString("reply_to_email"));
 					invoicePreference.setReply_to_name(rset.getString("reply_to_name"));
 					invoicePreference.setDisplayCommission(rset.getBoolean("display_commission"));
@@ -152,14 +156,16 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 					invoicePreference.setHideAmount(rset.getBoolean("hide_amount"));
 					return invoicePreference;
 				}
+			}else {
+				LOGGER.warn("database connection empty");
 			}
 		} catch (Exception e) {
-			LOGGER.error(CommonUtils.getErrorStackTrace(e));
+			LOGGER.error("error in getInvoiceByCompanyId",e);
 		} finally {
 			DatabaseUtilities.closeResultSet(rset);
 			DatabaseUtilities.closeStatement(pstmt);
+			LOGGER.debug("retriving invoice preference exited getInvoiceByCompanyId:" + invoicePreference);
 		}
-		LOGGER.debug("retriving invoice preference exited getInvoiceByCompanyId:" + invoicePreference);
 		return result;
 	}
 
