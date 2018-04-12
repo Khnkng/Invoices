@@ -52,7 +52,7 @@ public class InvoiceWebhookControllerImpl {
 					if (!devUpdate && SERVER_INSTANCE_MODE.equals("DEVELOPMENT")) {
 						String url = PropertyManager.getProperty("invoice.dev.webhook.url")+"?devUpdate=true";
 						LOGGER.debug("invoking url:"+url + " json:"+json);
-						HTTPClient.post(url,json);
+						HTTPClient.postObject(url,json);
 					} else if (SERVER_INSTANCE_MODE.equals("PRODUCTION")) {
 						updateInvoiceState(obj);
 					}
