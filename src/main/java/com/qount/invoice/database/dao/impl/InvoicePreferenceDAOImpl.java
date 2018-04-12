@@ -46,6 +46,8 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 			int rowCtr = 1;
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.INSERT_QRY);
+				pstmt.setString(rowCtr++, invoicePreference.getReply_to_email());
+				pstmt.setString(rowCtr++, invoicePreference.getReply_to_name());
 				pstmt.setBoolean(rowCtr++, invoicePreference.isDisplayCommission());
 				pstmt.setString(rowCtr++, invoicePreference.getId());
 				pstmt.setString(rowCtr++, invoicePreference.getCompanyId());
@@ -125,6 +127,8 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 				rset = pstmt.executeQuery();
 				// only 1 record because every company can have only one invoice setting at a time
 				if (rset != null && rset.next()) {
+					invoicePreference.setReply_to_email(rset.getString("reply_to_email"));
+					invoicePreference.setReply_to_name(rset.getString("reply_to_name"));
 					invoicePreference.setDisplayCommission(rset.getBoolean("display_commission"));
 					invoicePreference.setId(rset.getString("id"));
 					invoicePreference.setCompanyId(rset.getString("company_id"));
@@ -171,6 +175,8 @@ public class InvoicePreferenceDAOImpl implements InvoicePreferenceDAO {
 			int rowCtr = 1;
 			if (connection != null) {
 				pstmt = connection.prepareStatement(SqlQuerys.InvoicePreference.UPDATE_QRY);
+				pstmt.setString(rowCtr++, invoicePreference.getReply_to_email());
+				pstmt.setString(rowCtr++, invoicePreference.getReply_to_name());
 				pstmt.setBoolean(rowCtr++, invoicePreference.isDisplayCommission());
 				pstmt.setString(rowCtr++, invoicePreference.getTemplateType());
 				pstmt.setString(rowCtr++, invoicePreference.getCompanyLogo());

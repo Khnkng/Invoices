@@ -89,8 +89,16 @@ public class InvoiceControllerImpl {
 			invoicePreference.setCompanyId(invoice.getCompany_id());
 			invoicePreference = MySQLManager.getInvoicePreferenceDAOInstance().getInvoiceByCompanyId(connection,
 					invoicePreference);
-			if (invoicePreference != null && StringUtils.isNotBlank(invoicePreference.getDefaultTitle())) {
-				invoice.setMailSubject(invoicePreference.getDefaultTitle());
+			if (invoicePreference != null) {
+				if (StringUtils.isNotBlank(invoicePreference.getDefaultTitle())) {
+					invoice.setMailSubject(invoicePreference.getDefaultTitle());
+				}
+				if (StringUtils.isNotBlank(invoicePreference.getReply_to_email())) {
+					invoice.setReply_to_email(invoicePreference.getReply_to_email());
+				}
+				if (StringUtils.isNotBlank(invoicePreference.getReply_to_name())) {
+					invoice.setReply_to_name(invoicePreference.getReply_to_name());
+				}
 			}
 			String base64StringOfAttachment = null;
 			if (invoice.getPdf_data() != null) {
@@ -102,8 +110,6 @@ public class InvoiceControllerImpl {
 					invoice.setAttachmentBase64(base64StringOfAttachment);
 				}
 			}
-			invoice.setUser_id(userID);
-			invoice.setCompany_id(companyID);
 			String jobId = null;
 			if (StringUtils.isNotBlank(invoice.getRemainder_name())) {
 				jobId = getJobId(connection, invoice);
@@ -113,7 +119,7 @@ public class InvoiceControllerImpl {
 				invoice.setRemainder_job_id(jobId);
 			}
 			if (invoice.isSendMail()) {
-				if (sendInvoiceEmail(invoiceObj)) {
+				if (sendInvoiceEmail(invoice)) {
 					if (StringUtils.isBlank(invoice.getState())
 							|| invoice.getState().equals(Constants.INVOICE_STATE_DRAFT)
 							|| invoice.getState().equals(Constants.INVOICE_STATE_SENT)) {
@@ -289,11 +295,17 @@ public class InvoiceControllerImpl {
 					remainderJsonObject.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
 				}
 			}
+			String replyToEmail = null;
 			if (StringUtils.isNotBlank(invoice.getCompany_email_id())) {
-				remainderJsonObject.put("reply_to_email", invoice.getCompany_email_id());
-				if (StringUtils.isNotBlank(replyToName)) {
-					remainderJsonObject.put("reply_to_name", replyToName);
-				}
+				replyToEmail = invoice.getCompany_email_id();
+			}
+			if(StringUtils.isNotBlank(replyToEmail)) {
+				replyToEmail = StringUtils.isNotBlank(invoice.getReply_to_email())?invoice.getReply_to_email():replyToEmail;
+				remainderJsonObject.put("reply_to_email", replyToEmail);
+			}
+			if(StringUtils.isNotBlank(replyToName)) {
+				replyToName = StringUtils.isNotBlank(invoice.getReply_to_name())?invoice.getReply_to_name():replyToName;
+				remainderJsonObject.put("reply_to_name", replyToName);
 			}
 			LOGGER.debug("remainderJsonObject::" + remainderJsonObject);
 			// remainderJsonObject.put("startDate",invoice.getRemainder().getDate());
@@ -1140,9 +1152,15 @@ public class InvoiceControllerImpl {
 					result.put("s3_attachments_sourceId", attachmentsMetdataObj.optString("sourceId"));
 				}
 			}
+			String replyToEmail = null;
 			if (StringUtils.isNotBlank(invoice.getCompany_email_id())) {
+				replyToEmail = invoice.getCompany_email_id();
+			}
+			replyToEmail = StringUtils.isNotBlank(invoice.getReply_to_email())?invoice.getReply_to_email():replyToEmail;
+			replyToName = StringUtils.isNotBlank(invoice.getReply_to_name())?invoice.getReply_to_name():replyToName;
+			if(StringUtils.isNotBlank(replyToEmail)) {
 				JSONObject reply_to = new JSONObject();
-				reply_to.put("email", invoice.getCompany_email_id());
+				reply_to.put("email", replyToEmail);
 				if (StringUtils.isNotBlank(replyToName)) {
 					reply_to.put("name", replyToName);
 				}
