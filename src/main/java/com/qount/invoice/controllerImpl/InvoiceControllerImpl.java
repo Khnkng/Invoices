@@ -229,15 +229,7 @@ public class InvoiceControllerImpl {
 			custom_args.put("type", Constants.INVOICE);
 			custom_args.put("id", invoice.getId());
 			String from = Constants.QOUNT;
-			String aliasName = null;
-			String firstName = invoice.getCompany_contact_first_name();
-			if (StringUtils.isNotBlank(firstName)) {
-				String lastName = invoice.getCompany_contact_last_name();
-				aliasName = firstName;
-				if (StringUtils.isNotBlank(lastName)) {
-					aliasName += " " + lastName;
-				}
-			}
+			String aliasName = invoice.getCompanyName();
 			if (StringUtils.isNotBlank(aliasName)) {
 				from = aliasName + Constants.VIA_QOUNT;
 			}
@@ -1089,15 +1081,7 @@ public class InvoiceControllerImpl {
 			JSONObject fromObj = new JSONObject();
 			fromObj.put("email", Constants.FROM);
 			String from = Constants.QOUNT;
-			String aliasName = null;
-			String firstName = invoice.getCompany_contact_first_name();
-			if (StringUtils.isNotBlank(firstName)) {
-				String lastName = invoice.getCompany_contact_last_name();
-				aliasName = firstName;
-				if (StringUtils.isNotBlank(lastName)) {
-					aliasName += " " + lastName;
-				}
-			}
+			String aliasName = invoice.getCompanyName();
 			if (StringUtils.isNotBlank(aliasName)) {
 				from = aliasName + Constants.VIA_QOUNT;
 			}
